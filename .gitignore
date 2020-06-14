@@ -1,0 +1,22 @@
+.DS_Store
+*.swp
+*.tmp
+*~
+
+.*
+\#*
+!/.github
+!/.gitignore
+.*.gz
+package-lock.json
+
+/coverage
+/ignore/
+node_modules/
+jam/
+* *
+
+.git-ref
+npm-debug.log
+deps/
+dist

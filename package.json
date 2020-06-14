@@ -1,0 +1,27 @@
+{
+  "name": "memri-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx ts-mocha 'parsers/**/*Tests.ts'",
+    "start": "webpack-dev-server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ace-builds": "^1.4.11",
+    "file-loader": "^6.0.0",
+    "mocha": "^8.0.1",
+    "prettier": "^2.0.5",
+    "text-loader": "0.0.1",
+    "ts-loader": "^7.0.5",
+    "ts-mocha": "^7.0.0",
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0",
+    "worker-loader": "^2.0.0"
+  }
+}
