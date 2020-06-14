@@ -6,13 +6,16 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import {CVUToken, CVUOperator} from "./CVULexer";
-import {CVUParseErrors} from "./CVUParseErrors"
+import {CVUParseErrors} from "./CVUParseErrors";
 import {
     CVUParsedStyleDefinition,
     CVUParsedColorDefinition,
     CVUParsedRendererDefinition,
     CVUParsedLanguageDefinition,
     CVUParsedViewDefinition,
+    CVUParsedSessionsDefinition,
+    CVUParsedDatasourceDefinition,
+    CVUParsedSessionDefinition
     
 } from "./CVUParsedDefinition"
 
@@ -35,19 +38,40 @@ function CGFloat(num) {
 }
 
 enum VerticalAlignment{
+    top,
     center,
-    
+    bottom
 }
 enum HorizontalAlignment{
+    leading,
     center,
-    
+    trailing
 }
 enum Alignment{
+    top,
     center,
+    bottom,
+    leading,
+    trailing
 }
 enum TextAlignment{
+    leading,
     center,
+    trailing
 }
+
+var Font = {
+    Weight: {
+        regular: 0,
+        bold: 1,
+        semibold: 2,
+        heavy: 3,
+        light: 4,
+        ultraLight: 5,
+        black: 6
+    }
+}
+
 
 export class CVUParser {
 
@@ -392,7 +416,7 @@ export class CVUParser {
                                 continue;
                             } else if (v.toLowerCase() == "datasource") {
 
-                            } else if (CVUToken.CurlyBracketOpen = nextToken.constructor) {
+                            } else if (CVUToken.CurlyBracketOpen == nextToken.constructor) {
                             } else {
                                 throw new CVUParseErrors.ExpectedKey(this.lastToken);
                             }
@@ -425,7 +449,7 @@ export class CVUParser {
                                 //TODO:
                                 // let ActionType = ActionFamily.getType(actionFamily)();//TODO:
                                 // stack.push(ActionType.init(main, arguments, options));
-                                stack.push([main, arguments, options])
+                                stack.push([this.main, arguments, options])
                             } else {
                                 // TODO ERROR REPORTING
                             }
