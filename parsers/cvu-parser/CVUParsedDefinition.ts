@@ -25,13 +25,7 @@ export class CVUParsedDefinition extends CVUToString {
 
         }
 
-        let body = new CVUSerializer().dictToString(this.parsed, depth+1, tab, true);
-
-        /*if (body) {
-            let lhp = body.lhp;//TODO lhp, rhp in???
-            let rhp = body.rhp;//TODO lhp, rhp in???
-
-
+        let body = new CVUSerializer().dictToString(this.parsed, depth+1, tab, true, false, function (lhp, rhp) {
             let lv = this.parsed[lhp]
             let rv = this.parsed[rhp]
 
@@ -42,7 +36,7 @@ export class CVUParsedDefinition extends CVUToString {
 
             return (leftHasChildren ? 1 : 0, leftIsDict ? 1 : 0, lhp.toLowerCase())//TODO
                 < (rightHasChildren ? 1 : 0, rightIsDict ? 1 : 0, rhp.toLowerCase())
-        }*/
+        });
 
         return `${this.selector ?? ""} ${body}`;
     }
