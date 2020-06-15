@@ -1,34 +1,33 @@
+import {CVUSerializer} from "./CVUToString";
+
 class CVUToString {
     
 }
-export class CVUParsedDefinition extends CVUToString{
-    name;
-    selector;
-    domain;
+export class CVUParsedDefinition extends CVUToString {
 
-    constructor(selector, name, domain, parsed) {
+    constructor(selector, name, domain = "user", parsed) {
         super(selector, name, domain, parsed)
         this.selector = selector
         this.name = name
-        this.domain = domain || "user"
-        this.parsed = parsed != null ? parsed : this.parsed
+        this.domain = domain;
+        this.parsed = parsed ?? this.parsed
     }
     
-    subscript(propName) {
+    subscript(propName:string) {
         return this.parsed[propName]
     }
     
 //    var unparsed:String = ""
-    parsed = [];
+    parsed = {};
     
-    toCVUString(depth, tab) {
-        // if (this.selector == #"[renderer = "list"]"#) {//TODO what # means?
-        //
-        // }
+    toCVUString(depth: number, tab: string): string {
+        if (this.selector == `[renderer = "list"]`) {
 
-        let body = CVUSerializer.dictToString(this.parsed, depth+1, tab, true);
+        }
 
-        if (body) {
+        let body = new CVUSerializer().dictToString(this.parsed, depth+1, tab, true);
+
+        /*if (body) {
             let lhp = body.lhp;//TODO lhp, rhp in???
             let rhp = body.rhp;//TODO lhp, rhp in???
 
@@ -43,9 +42,9 @@ export class CVUParsedDefinition extends CVUToString{
 
             return (leftHasChildren ? 1 : 0, leftIsDict ? 1 : 0, lhp.toLowerCase())//TODO
                 < (rightHasChildren ? 1 : 0, rightIsDict ? 1 : 0, rhp.toLowerCase())
-        }
+        }*/
 
-        return "\(selector ?? "`) ${body}`
+        return `${this.selector ?? ""} ${body}`;
     }
     
     toString() {
