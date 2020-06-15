@@ -19,48 +19,51 @@ import {
     
 } from "./CVUParsedDefinition"
 
-class ActionFamily {
+export class ActionFamily {
     static allCases = "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, addSelectionToList, closePopup, noop".split(/,\s*/)
 }
-class UIElementFamily {
+export class UIElementFamily {
     static allCases = "VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack, Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image, Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, Empty".split(/,\s*/)
 }
 
-class Color {
+export class Color {
     constructor(value) {
         this.value = value;
+    }
+    toLowerCase(){
+        return this.value.toLowerCase();
     }
 }
 
 
-function CGFloat(num) {
+export function CGFloat(num) {
     return num;
 }
 
-enum VerticalAlignment{
+export enum VerticalAlignment{
     top,
     center,
     bottom
 }
-enum HorizontalAlignment{
+export enum HorizontalAlignment{
     leading,
     center,
     trailing
 }
-enum Alignment{
+export enum Alignment{
     top,
     center,
     bottom,
     leading,
     trailing
 }
-enum TextAlignment{
+export enum TextAlignment{
     leading,
     center,
     trailing
 }
 
-var Font = {
+export var Font = {
     Weight: {
         regular: 0,
         bold: 1,
@@ -102,7 +105,7 @@ export class CVUParser {
 
         this.lastToken = this.tokens[this.index];
         ++this.index;
-        return this.lastToken // Check for out of bound?
+        return this.lastToken! // Check for out of bound?
     }
 
     parse() {
@@ -121,12 +124,11 @@ export class CVUParser {
             }
 
             var dsl = this.parseViewDSL();
-            let dslSelector = dsl.selector;
             if (dsl["sessions"]) {//TODO:
-                dsl = new CVUParsedSessionsDefinition(dslSelector ? dslSelector : "", dsl.name,
+                dsl = new CVUParsedSessionsDefinition(dsl.selector ?? "", dsl.name,
                     dsl.domain, dsl.parsed)
             } else if (dsl["views"]) {
-                dsl = new CVUParsedSessionDefinition(dslSelector ? dslSelector : "", dsl.name,
+                dsl = new CVUParsedSessionDefinition(dsl.selector ?? "", dsl.name,
                     dsl.domain, dsl.parsed)
             }
 
@@ -190,7 +192,7 @@ export class CVUParser {
             throw new CVUParseErrors.UnexpectedToken(this.lastToken);
         }
         let name = token.value;
-        return new CVUParsedViewDefinition(`.{name}`, name)
+        return new CVUParsedViewDefinition(`.${name}`, name)
     }
 
 // For JSON support
@@ -211,15 +213,15 @@ export class CVUParser {
     }
 
     parseBracketsSelector(token) {
-        let tokenT = (token) ? token : this.popCurrentToken();
+        let tokenT = token ?? this.popCurrentToken();
         if (tokenT.constructor != CVUToken.BracketOpen) {
-            throw new CVUParseErrors.ExpectedCharacter("[", this.lastToken);
+            throw new CVUParseErrors.ExpectedCharacter("[", this.lastToken!);
         }
-        let typeToken = (token) ? token : this.lastToken;
+        let typeToken = token ?? this.lastToken!;
 
         tokenT = this.popCurrentToken();
         if (tokenT.constructor != CVUToken.Identifier) {
-            throw new CVUParseErrors.ExpectedIdentifier(this.lastToken);
+            throw new CVUParseErrors.ExpectedIdentifier(this.lastToken!);
         }
         let type = tokenT.value;
         // TODO Only allow inside other definition
@@ -236,24 +238,24 @@ export class CVUParser {
         }
         tokenT = this.popCurrentToken();
         if (tokenT.constructor != CVUToken.Operator) {
-            throw CVUParseErrors.ExpectedCharacter("=", this.lastToken);
+            throw new CVUParseErrors.ExpectedCharacter("=", this.lastToken!);
         }
         let op = tokenT.value;
 
         if (CVUOperator.ConditionEquals == op) {
-            var name;
+            var name: string;
             tokenT = this.popCurrentToken();
             if (CVUToken.String == tokenT.constructor) {
                 name = tokenT.value
             } else if (CVUToken.Identifier == this.lastToken.constructor) {
                 name = this.lastToken.value
             } else {
-                throw new CVUParseErrors.ExpectedString(this.lastToken)
+                throw new CVUParseErrors.ExpectedString(this.lastToken!)
             }
 
             tokenT = this.popCurrentToken();
             if (tokenT.constructor != CVUToken.BracketClose) {
-                throw CVUParseErrors.ExpectedCharacter("]", this.lastToken);
+                throw CVUParseErrors.ExpectedCharacter("]", this.lastToken!);
             }
 
             switch (type) {
@@ -277,38 +279,38 @@ export class CVUParser {
                     throw new CVUParseErrors.UnknownDefinition(typeToken)
             }
         } else {
-            throw new CVUParseErrors.ExpectedCharacter("=", this.lastToken)
+            throw new CVUParseErrors.ExpectedCharacter("=", this.lastToken!)
         }
     }
 
     createExpression(code, startInStringMode = false) {
-        return {code, startInStringMode}
-        return Expression(code, startInStringMode,
+        return {code, startInStringMode}//TODO
+        return new Expression(code, startInStringMode,
             this.lookup, this.execFunc)
     }
 
     parseDict(uiElementName) {
         var dict = {};
         var stack = [];
-        let uiElementNameKey = (uiElementName) ? uiElementName.toLowerCase() : "";
-        let forUIElement = this.knownUIElements[uiElementNameKey] != undefined;//TODO:
+
+        let forUIElement = this.knownUIElements[uiElementName?.toLowerCase() ?? ""] != undefined;//TODO:
         var lastKey;
         var isArrayMode = false;
 
         var setPropertyValue = () => {
             if (stack.length > 0) {
-                let convert = this.specialTypedProperties[lastKey];
+                let convert = this.specialTypedProperties[lastKey!];
                 if (forUIElement && convert) {
                     if (!isArrayMode && stack.length == 1) {
-                        dict[lastKey] = convert(stack[0], uiElementName);
+                        dict[lastKey!] = convert(stack[0], uiElementName);
                     } else if (isArrayMode || stack.length > 0) {
-                        dict[lastKey] = convert(stack, uiElementName);
+                        dict[lastKey!] = convert(stack, uiElementName);
                     }
                 } else {
                     if (!isArrayMode && stack.length == 1) {
-                        dict[lastKey] = stack[0]
+                        dict[lastKey!] = stack[0]
                     } else if (isArrayMode || stack.length > 0) {
-                        dict[lastKey] = stack
+                        dict[lastKey!] = stack
                     }
                 }
 
@@ -335,7 +337,7 @@ export class CVUParser {
                     stack.push(v);
                     break;
                 case CVUToken.BracketOpen:
-                    if (stack.length == 0 && lastKey) {
+                    if (stack.length == 0 && lastKey != undefined) {
                         isArrayMode = true
                     } else {
                         setPropertyValue();
@@ -344,19 +346,19 @@ export class CVUParser {
                         // TODO remove code duplication
                         let selector = this.parseBracketsSelector(this.lastToken);
                         if (selector instanceof CVUParsedRendererDefinition) {
-                            var value = (dict["renderDefinitions"] && dict["renderDefinitions"] instanceof [CVUParsedRendererDefinition]) ? dict["renderDefinitions"] : [];
+                            var value = (Array.isArray(dict["renderDefinitions"]) && dict["renderDefinitions"].length > 0 && dict["renderDefinitions"][0] instanceof CVUParsedRendererDefinition) ? dict["renderDefinitions"]: [];
                             value.push(selector);
                             dict["renderDefinitions"] = value;
                             this.parseDefinition(selector);
                             lastKey = undefined;
                         } else if (selector instanceof CVUParsedSessionDefinition) {
-                            var value = (dict["sessionDefinitions"] && dict["sessionDefinitions"] instanceof [CVUParsedSessionDefinition]) ? dict["sessionDefinitions"] : [];
+                            var value = (Array.isArray(dict["sessionDefinitions"]) && dict["sessionDefinitions"].length > 0 && dict["sessionDefinitions"][0] instanceof CVUParsedSessionDefinition) ? dict["sessionDefinitions"]: [];
                             value.push(selector);
                             dict["sessionDefinitions"] = value;
                             this.parseDefinition(selector);
                             lastKey = undefined;
                         } else if (selector instanceof CVUParsedViewDefinition) {
-                            var value = (dict["viewDefinitions"] && dict["viewDefinitions"] instanceof [CVUParsedViewDefinition]) ? dict["viewDefinitions"] : [];
+                            var value = (Array.isArray(dict["viewDefinitions"]) && dict["viewDefinitions"].length > 0 && dict["viewDefinitions"][0] instanceof CVUParsedViewDefinition) ? dict["viewDefinitions"]: [];
                             value.push(selector);
                             dict["viewDefinitions"] = value;
                             this.parseDefinition(selector);
@@ -377,11 +379,11 @@ export class CVUParser {
                         isArrayMode = false;
                         lastKey = undefined;
                     } else {
-                        throw new CVUParseErrors.UnexpectedToken(this.lastToken) // We should never get here
+                        throw new CVUParseErrors.UnexpectedToken(this.lastToken!) // We should never get here
                     }
                     break;
                 case CVUToken.CurlyBracketOpen:
-                    stack.push(this.parseDict(lastKey));
+                    stack.push(this.parseDict(lastKey!));
                     break;
                 case CVUToken.CurlyBracketClose:
                     setPropertyValue();
@@ -390,7 +392,7 @@ export class CVUParser {
                     }//TODO: &?
                     return dict; // DONE
                 case CVUToken.Colon:
-                    throw new CVUParseErrors.ExpectedKey(this.lastToken);
+                    throw new CVUParseErrors.ExpectedKey(this.lastToken!);
                 case CVUToken.Expression:
                     stack.push(this.createExpression(v));
                     break;
@@ -398,7 +400,7 @@ export class CVUParser {
                     stack.push(new Color(v));
                     break;
                 case CVUToken.Identifier:
-                    if (!lastKey) {
+                    if (lastKey == undefined) {
                         let nextToken = this.peekCurrentToken();
                         if (CVUToken.Colon == nextToken.constructor) {
                             this.popCurrentToken();
@@ -418,7 +420,7 @@ export class CVUParser {
 
                             } else if (CVUToken.CurlyBracketOpen == nextToken.constructor) {
                             } else {
-                                throw new CVUParseErrors.ExpectedKey(this.lastToken);
+                                throw new CVUParseErrors.ExpectedKey(this.lastToken!);
                             }
                         }
 
@@ -471,7 +473,7 @@ export class CVUParser {
                     lastKey = undefined;
                     break;
                 case CVUToken.Nil://TODO
-                    let x;
+                    let x = undefined;
                     stack.push(x);
                     break;
                 case CVUToken.Number:
@@ -483,7 +485,7 @@ export class CVUParser {
                         setPropertyValue(); // TODO: Is this every necessary?
                         this.popCurrentToken();
                         lastKey = v;
-                    } else if (!lastKey) {
+                    } else if (lastKey == undefined) {
                         lastKey = v
                     } else {
                         stack.push(v)
@@ -493,7 +495,7 @@ export class CVUParser {
                     stack.push(this.createExpression(v, true));
                     break;
                 default:
-                    throw CVUParseErrors.UnexpectedToken(this.lastToken)
+                    throw new CVUParseErrors.UnexpectedToken(this.lastToken!)
             }
         }
     }
@@ -504,7 +506,7 @@ export class CVUParser {
                 this.popCurrentToken()
             } else {
                 if (CVUToken.CurlyBracketOpen != this.popCurrentToken().constructor) {
-                    throw CVUParseErrors.ExpectedCharacter("{", this.lastToken);
+                    throw new CVUParseErrors.ExpectedCharacter("{", this.lastToken!);
                 }
                 break;
             }
@@ -679,8 +681,8 @@ export class CVUParser {
         }
 
         if (dict["cornerRadius"] && dict["border"]) {
-            var value = (dict["border"] instanceof Array) ? dict["border"] : [];
-            value.push(dict["cornerRadius"] ? dict["cornerRadius"] : 0);
+            var value = (Array.isArray(dict["border"])) ? dict["border"] : [];
+            value.push(dict["cornerRadius"] ?? 0);
 
             dict["cornerborder"] = value;
             dict["border"] = undefined;
