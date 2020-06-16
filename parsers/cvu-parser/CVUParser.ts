@@ -99,8 +99,8 @@ export class CVUParser {
 
     popCurrentToken() {
         if (this.index >= this.tokens.length) {
-            this.lastToken = CVUToken.EOF;
-            return CVUToken.EOF
+            this.lastToken = new CVUToken.EOF;
+            return this.lastToken
         }
 
         this.lastToken = this.tokens[this.index];

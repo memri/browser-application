@@ -13,7 +13,7 @@ import {
 export class CVUSerializer {
 
     valueToString(value, depth = 0, tab: string = "    "): string {
-        if (value == undefined || `${value!}` == "nil") {
+        if (value == null || value === "nil") {
             return "null"
         } else {
             let p = value;
@@ -21,8 +21,6 @@ export class CVUSerializer {
                 return `"${p.replace("\"", "\\\"")}"`;
             } else if (Array.isArray(p)) {
                 return this.arrayToString(p, depth + 1, tab)
-            } else if (typeof p == "object") {
-                return this.dictToString(p, depth + 1, tab)
             } else if (p instanceof CVUParsedDefinition) {//TODO:
                 return p.toCVUString(depth + 1, tab)
             } else if (p instanceof Color) {
@@ -35,7 +33,7 @@ export class CVUSerializer {
                 if (p % 1 == 0) {
                     return `${p}`
                 }
-            } else if (p instanceof VerticalAlignment) {
+            } /*else if (p instanceof VerticalAlignment) {
                 return VerticalAlignment.hasOwnProperty(p) ? p : "center";//TODO: just test
             } else if (p instanceof HorizontalAlignment) {
                 switch (p) {
@@ -91,7 +89,9 @@ export class CVUSerializer {
                     default:
                         return "regular"
                 }
-            }
+            }*/ else if (typeof p == "object") {
+                return this.dictToString(p, depth + 1, tab)
+            } 
 
             return `${p}`
         }

@@ -16,17 +16,36 @@ new ExprParser(tokens).parse()
 
 import {CVUParser} from "./parsers/cvu-parser/CVUParser"
 import {CVULexer} from "./parsers/cvu-parser/CVULexer"
+import {CVUSerializer} from "./parsers/cvu-parser/CVUToString";
 
 
 
-
-var validate = function(input) {
-    var lexer = new CVULexer(input)
-    var tokens = lexer.tokenize()
+var validate = function(input, doc) {
+    var annotations = []
+    var resultArray = []
+    try {
+        var lexer = new CVULexer(input)
+        var tokens = lexer.tokenize()
+        let parser = new CVUParser(tokens)
+        resultArray = parser.parse()
+    } catch(e) {
+        if (e.CVUToken.type == "EOF") {
+            e.CVUToken.row = doc.getLength() - 1
+        }
+        annotations.push({
+            type: "error",
+            row: e.CVUToken.row,
+            column: e.CVUToken.col,
+            text: JSON.stringify(e, null, 4)
+        })
+    }
     
-    let parser = new CVUParser(tokens)
-    parser.parse()
-    console.log(tokens)
+    var result =  new CVUSerializer().valueToString(resultArray, 0, "    ");
+    
+    return {
+        annotations,
+        result,
+    }
 };
 
 
@@ -46,8 +65,9 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
     (function() {
         this.onUpdate = function() {
             var value = this.doc.getValue();
-            var annotations = validate(value);
+            var {annotations, result} = validate(value, this.doc);
             this.sender.emit("annotate", annotations);
+            this.sender.emit("result", result);
         };
     }).call(MyWorker.prototype);
 
@@ -66,4 +86,4 @@ window.onmessage({
 
 
 
-console.log(CVUParser, CVULexer)
+ 

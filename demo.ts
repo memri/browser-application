@@ -11,13 +11,27 @@ let DemoWorker = require("worker-loader!./demo-worker")
 
 let demoWorker = new DemoWorker();
 
+let value = window.localStorage.lastValue || example;
+window.onbeforeunload = function() {
+    window.localStorage.lastValue = editor.getValue()
+}
 let editor = ace.edit(null, {
-    value: example,
+    value,
+    mode: new Mode(),
+    newLineMode: "unix",
+});
+
+let output = ace.edit(null, {
+    value: "",
     mode: new Mode(),
 });
 
-editor.container.style.cssText = "top:0; left: 0; height: calc(100vh - 20px)"
+editor.container.style.cssText = "top:0; left: 0%; height: 100vh; right: 50vw"
+editor.container.style.position = "absolute"
+output.container.style.cssText = "top:0; left: 50vw; height: 100vh; right: 0vw"
+output.container.style.position = "absolute"
 document.body.appendChild(editor.container)
+document.body.appendChild(output.container)
 
 
 
@@ -48,3 +62,8 @@ session.$worker.on("annotate", function(e) {
 session.$worker.on("terminate", function() {
     session.clearAnnotations();
 }); 
+
+session.$worker.on("result", function(e) {
+    output.session.setValue(e.data);
+}); 
+
