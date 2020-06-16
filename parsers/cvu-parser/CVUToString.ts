@@ -36,16 +36,7 @@ export class CVUSerializer {
                     return `${p}`
                 }
             } else if (p instanceof VerticalAlignment) {
-                switch (p) {
-                    case VerticalAlignment.top:
-                        return "top";
-                    case VerticalAlignment.center:
-                        return "center";
-                    case VerticalAlignment.bottom:
-                        return "bottom";
-                    default:
-                        return "center";
-                }
+                return VerticalAlignment.hasOwnProperty(p) ? p : "center";//TODO: just test
             } else if (p instanceof HorizontalAlignment) {
                 switch (p) {
                     case HorizontalAlignment.leading:
