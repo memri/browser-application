@@ -226,7 +226,7 @@ export class CVULexer {
                 isMode = Mode.idle
             }
 
-            if (token) { tokens.push(token) }
+            if (token) { tokens.push(token!) }
         }
 
         var ln = 0, ch = -1, startChar = " "
@@ -272,7 +272,7 @@ export class CVULexer {
                     if (tokens.pop()) {
                         keyword.pop()
 
-                        tokens.push(new CVUToken.Expression(keyword.join(""), ln, ch))
+                        tokens.push(new CVUToken.Expression(keyword.join(""), ln, ch - 1))
                         keyword = []
                         isMode = Mode.idle
                     }
@@ -312,9 +312,7 @@ export class CVULexer {
                 case "/":
                     isMode = Mode.comment; break // TODO check for * after /
                 case "-":
-                    if (isMode == Mode.idle) { fallthrough }
-                    else { keyword.push("-") }
-                    break
+                    if (isMode != Mode.idle) { keyword.push("-");break; }
                 case "0": case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9":
                     if (isMode == Mode.idle) { isMode = Mode.number }
                     keyword.push(c)
@@ -368,6 +366,7 @@ export class CVULexer {
 }
 
 
+/*
 function tokenize(string) {
     return new CVULexer(string).tokenize()
 }
@@ -378,5 +377,6 @@ let snippet = "[color = background] {" +
 "}";
 
 console.log(tokenize(snippet));
+*/
 
  
