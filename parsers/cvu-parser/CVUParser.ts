@@ -28,7 +28,7 @@ export class UIElementFamily {
 
 export class Color {
     constructor(value) {
-        this.value = value;
+        this.value = "#" + value;
     }
     toLowerCase(){
         return this.value.toLowerCase();
@@ -255,7 +255,7 @@ export class CVUParser {
 
             tokenT = this.popCurrentToken();
             if (tokenT.constructor != CVUToken.BracketClose) {
-                throw CVUParseErrors.ExpectedCharacter("]", this.lastToken!);
+                throw new CVUParseErrors.ExpectedCharacter("]", this.lastToken!);
             }
 
             switch (type) {

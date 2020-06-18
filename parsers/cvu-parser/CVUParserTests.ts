@@ -1,67 +1,572 @@
-//
-//  ViewParserTests.swift
-//
-//  Created by Ruben Daniels on 5/20/20.
-//  Copyright © 2020 Memri. All rights reserved.
-//
-import {CVUParser} from "./CVUParser";
-import {CVULexer} from "./CVULexer";
-import {CVUSerializer} from "./CVUToString";
+
+const {CVUParser} = require("./CVUParser");
+const {CVULexer} = require("./CVULexer");
 
 const assert = require("assert");
 
-/*const CVUParserTests = {
+const CVUParserTests = {
 
-    testArithmeticOperators: {
-        snippet: `
-        [color = background] {
-            dark: #ff0000
-            light: #330000
-        }
-        `,
-        result: "BinaryOpNode(Division, lhs: BinaryOpNode(Minus, lhs: BinaryOpNode(Plus, lhs: NumberNode(5.0), rhs: BinaryOpNode(Multiplication, lhs: NumberNode(10.0), rhs: NumberNode(4.0))), rhs: BinaryOpNode(Division, lhs: NumberNode(3.0), rhs: NumberNode(10.0))), rhs: NumberNode(10.0))",
+    testColorDefinition: {
+        snippet:
+`[color = background] {
+    dark: #ff0000
+    light: #330000
+}`,
+        result:
+`[color = background] {
+    dark: #ff0000
+    light: #330000
+}`,
     },
-}*/
-
-class CVUParserTests {
-    setUpWithError() {
-
-    }
-
-    tearDownWithError() {
-    }
-
-    parse(snippet) {
-        let lexer = new CVULexer(snippet);
-        let tokens = lexer.tokenize();
-        let parser = new CVUParser(tokens, "",
-            "", "");
-        let x = parser.parse()
-        return x
-    }
-
-    toCVUString(list) {
-       /* list.map(function (x) {
-            x => toCVUString(0, "    ")
-        }).join("\n\n");*/
-       return new CVUSerializer().valueToString(list[0], 0, "    ");
-       //return new CVUParsedDefinition(undefined, undefined, "user", list).toCVUString(0, "    ");
-    }
-
-    parseToCVUString(snippet) {
-        return this.toCVUString(this.parse(snippet))
-    }
-
-    testColorDefinition() {
-        let snippet = `
-              Person {
-            sequence: labels 5 "other" test
-        }
-        `;
-        let wow = this.parseToCVUString(snippet);
-         console.log(wow);
-    }
-
+    testStyleDefinition: {//TODO: there is no sort now
+        snippet:
+`[style = my-label-text] {
+    color: highlight
+    border: background 1
+}`,
+        result:
+`[style = my-label-text] {
+    border: "background" 1
+    color: "highlight"
+}`
+    },
+    testRendererDefinition: {
+        snippet:
+`[renderer = generalEditor] {
+    sequence: labels starred other dates
+}`,
+        result:
+`[renderer = generalEditor] {
+    sequence: "labels" "starred" "other" "dates"
+}`
+    },
+    testLanguageDefinition: {
+        snippet:
+`[language = Dutch] {
+    addtolist: "Voeg toe aan lijst..."
+    sharewith: "Deel met..."
+}`
+    },
+    testNamedViewDefinition: {
+        snippet:
+`.defaultButtonsForDataItem {
+    editActionButton: toggleEditMode
+}`
+    },
+    testTypeViewDefinition: {
+        snippet:
+`Person {
+    title: "{.firstName}"
+}`
+    },
+    testListViewDefinition: {
+        snippet:
+`Person[] {
+    title: "All People"
+}`
+    },
+    testMultipleDefinitions: {
+        snippet:
+`[color = background] {
+    dark: #ff0000
+    light: #330000
 }
-let cl = new CVUParserTests();
-cl.testColorDefinition();
+
+[style = my-label-text] {
+    border: background 1
+    color: highlight
+}`,
+        result:
+`[color = background] {
+    dark: #ff0000
+    light: #330000
+}
+
+[style = my-label-text] {
+    border: "background" 1
+    color: "highlight"
+}`
+    },
+    testNestedObjects: {
+        snippet:
+`Person {
+    group {
+        key: value
+    }
+}`,
+        result:
+`Person {
+    
+    group: {
+        key: "value"
+    }
+}`
+    },
+    testNestedObjectsUsingColon: {
+        snippet:
+`Person: {
+    group: {
+        key: value
+    }
+}`,
+        result:
+`Person {
+    
+    group: {
+        key: "value"
+    }
+}`
+    },
+    testNestedObjectsWithKeysBefore: {
+        snippet:
+`Person {
+    key: 10
+    group {
+        key: value
+    }
+}`,
+        result:
+`Person {
+    key: 10
+    
+    group: {
+        key: "value"
+    }
+}`
+    },
+    testEscapedStringProperty: {
+        snippet:
+`[language = Dutch] {
+    sharewith: "Deel \\\\"met..."
+}`,
+    },
+    testMixedQuoteTypeProperty: {
+        snippet:
+`[language = Dutch] {
+    addtolist: "Voeg 'toe' aan lijst..."
+}`,
+    },
+    testArrayStringProperty: {
+        snippet:
+`Person {
+    sequence: labels starred other dates
+}`,
+        result:
+`Person {
+    sequence: "labels" "starred" "other" "dates"
+}`
+    },
+    testArrayMixedProperty: {
+        snippet:
+`Person {
+    sequence: labels 5 "other" test
+}`,
+        result:
+`Person {
+    sequence: "labels" 5 "other" "test"
+}`
+    },
+    testArrayMultilineProperty: {
+        snippet:
+`Person {
+    sequence: [
+        showOverlay { title: "{$sharewith}" }
+        addToPanel { title: "{$addtolist}" }
+        duplicate { title: "{$duplicate} {type}" }
+    ]
+
+    key: value
+}`,
+        result:
+`Person {
+    key: "value"
+    sequence: [
+        showOverlay {
+            title: "{$sharewith}"
+        }
+        addToPanel {
+            title: "{$addtolist}"
+        }
+        duplicate {
+            title: "{$duplicate} {type}"
+        }
+    ]
+}`
+    },
+    testNestedRendererDefinition: {
+        snippet:
+`Person {
+    [renderer = timeline] {
+        timeProperty: dateCreated
+    }
+}`,
+        result:
+`Person {
+    [renderer = timeline] {
+        timeProperty: "dateCreated"
+    }
+}`
+    },
+    testNestedRendererDefinitionAfterProperty: {
+        snippet:
+`Person {
+    key: 10
+    [renderer = timeline] {
+        timeProperty: dateCreated
+    }
+}`,
+        result:
+`Person {
+    key: 10
+
+    [renderer = timeline] {
+        timeProperty: "dateCreated"
+    }
+}`
+    },
+    testStringExpressionProperty: {
+        snippet:
+`Person {
+    title: "{.firstName}"
+}`
+    },
+    testExpressionProperty: {
+        snippet:
+`Person {
+    title: {{.firstName}}
+}`
+    },
+    testStringProperty: {
+        snippet:
+`Person { title: "hello" }`,
+        result:
+`Person {
+    title: "hello"
+}`
+    },
+    testMultilineStringProperty: {
+        snippet:
+`Person { title: "hello
+                 world!" }`,
+        result:
+`Person {
+    title: "hello
+                 world!"
+}`
+    },
+    testNumberProperty: {
+        snippet:
+`Person { title: -5.34 }`,
+        result:
+`Person {
+    title: -5.34
+}`
+    },
+    testBoolProperty: {
+        snippet: 'Person { title: true }',
+        result:
+`Person {
+    title: true
+}`
+    },
+    testNilProperty: {
+        snippet: 'Person { title: nil }',
+        result:
+`Person {
+    title: null
+}`
+    },
+    testIdentifierProperty: {
+        snippet: 'Person { defaultRenderer: thumbnail.grid }',
+        result:
+`Person {
+    defaultRenderer: "thumbnail.grid"
+}`
+    },
+    testColorProperty: {
+        snippet: 'Person { color: #f0f }',
+        result:
+`Person {
+    color: #ff00ff
+}`
+    },
+    testJSONCompatibility: {
+        snippet:
+`"Person": {
+    "string": "test",
+    "array": ["10", 5],
+    "object": { "test": 10 },
+    "bool": false,
+    "number": 10,
+}`,
+        result:
+`Person {
+    array: "10" 5
+    bool: false
+    number: 10
+    string: "test"
+    
+    object: {
+        test: 10
+    }
+}`
+    },
+    testSingleLineJSONSyntax: {
+        snippet: '"Person": { "string": "test", "array": ["10", 5], "object": { "test": 10 }, "bool": false, "number": 10, }',
+        result:
+`Person {
+    array: "10" 5
+    bool: false
+    number: 10
+    string: "test"
+    
+    object: {
+        test: 10
+    }
+}`
+    },
+    testCSSLikeSyntax: {
+        snippet:
+`Person {
+    background: #fff;
+    border: 1 red;
+    padding: 1 2 3 4;
+}`,
+        result:
+`Person {
+    background: #ffffff
+    border: 1 "red"
+    padding: 1 2 3 4
+}`
+    },
+    testSingleLineCSSLikeSyntax: {
+        snippet: 'Person { background: #fff; border: 1 red; padding: 1 2 3 4; }',
+        result:
+`Person {
+    background: #ffffff
+    border: 1 "red"
+    padding: 1 2 3 4
+}`
+    },
+    testSingleLineSyntax: {
+        snippet: 'Person { background: #fff, border: 1 red, padding: 1 2 3 4, object: { test: 1 } }',
+        result:
+`Person {
+    background: #ffffff
+    border: 1 "red"
+    padding: 1 2 3 4
+    
+    object: {
+        test: 1
+    }
+}`
+    },
+    testCurlyBracketsOnSeparateLine: {
+        snippet:
+`Person
+{
+    background: #fff
+    object:
+        { test: 1 }
+    bla:
+    {
+        test: 1
+    }
+}`,
+        result:
+`Person {
+    background: #ffffff
+    
+    bla: {
+        test: 1
+    }
+    
+    object: {
+        test: 1
+    }
+}`
+    },
+    testComments: {
+        snippet:
+`/* Hello */
+Person {
+    /* World */
+    key: value
+}`,
+        result:
+`Person {
+    key: "value"
+}`
+    },
+    testUIElementProperties: {
+        snippet:
+`Person {
+    VStack {
+        alignment: left
+        font: 14
+        
+        Text {
+            align: top
+            textalign: center
+            font: 12 light
+        }
+        Text {
+            maxHeight: 500
+            cornerRadius: 10
+            border: #ff0000 1
+        }
+    }
+}`,
+        result:
+`Person {
+    VStack {
+        font: 14
+        alignment: left
+
+        Text {
+            textalign: center
+            align: top
+            font: 12 light
+        }
+
+        Text {
+            maxHeight: 500
+            cornerRadius: 10
+            border: #ff0000 1
+        }
+    }
+}`
+    },
+    testUIElementWithoutProperties: {
+        snippet:
+`Person {
+    VStack {
+        alignment: left
+        Text { font: 12 light }
+        Spacer
+        Text { maxheight: 500 }
+    }
+}`,
+        result:
+`Person {
+    VStack {
+        alignment: left
+
+        Text {
+            font: 12 light
+        }
+
+        Spacer
+
+
+        Text {
+            maxHeight: 500
+        }
+    }
+}`
+    },
+    testSerialization: {
+        //TODO:
+    },
+    testErrorMissingCurlBracketClose: {
+        snippet:
+`Person {
+    test: 1`,
+        error: 'UnexpectedToken(EOF)'
+    },
+    testErrorMissingBracketCloseInDefinition: {
+        snippet:
+`[color = "test" {
+    test: 1
+}`,
+        error: `ExpectedCharacter(']')`
+    },
+    testErrorMissingExprCloseBracket: {
+        snippet:
+`Person {
+    expr: {{.test}
+}`,
+        error: 'MissingExpressionClose(EOF)'
+    },
+    testErrorMissingExprCloseBrackets: {
+        snippet:
+`Person {
+    expr: {{.test
+}`,
+        error: 'MissingExpressionClose(EOF)'
+    },
+    testErrorExtraBracket: {
+        snippet:
+`Person {
+    expr: [adasd, 5[]
+}`,
+        error: 'ExpectedIdentifier(BracketClose,1,21)'
+    },
+    testErrorTopLevelBracket: {
+        snippet: `[5,3,4,]`,
+        error: 'ExpectedIdentifier(Number,5,2)'//TODO: maybe wrong
+    },
+    testErrorExtraCurlyBracket: {
+        snippet:
+`Person {
+    expr: [adasd, 5{]
+}`,
+        error: 'UnexpectedToken(BracketClose,1,21)'
+    },
+    testErrorExtraColonInArray: {
+        snippet:
+`Person {
+    expr: ["asdads": asdasd]
+}`,
+        error: 'ExpectedKey(Colon,1,20)'
+    },
+    testErrorExtraColonInProperty: {
+        snippet:
+`Person {
+    expr: asdads: asdasd
+}`,
+        error: 'ExpectedKey(Colon,1,17)'
+    },
+    testErrorMissingQuoteClose: {
+        snippet:
+`Person {
+    string: "value
+}`,
+        error: 'MissingQuoteClose(EOF)'
+    },
+}
+
+function toCVUString(list) {
+    return list.map(x => x.toCVUString(0, "    ")).join("\n\n")
+}
+
+function parse(snippet) {
+    let lexer = new CVULexer(snippet);
+    let tokens = lexer.tokenize();
+    let parser = new CVUParser(tokens, "",
+        "", "");
+    let x = parser.parse();
+    return x
+}
+
+describe("CVUParser", function() {
+    Object.keys(CVUParserTests).forEach(function(key) {
+        it (key, function() {
+            var test = CVUParserTests[key];
+            try {
+                let result = toCVUString(parse(test.snippet))
+                if (!test.result && test.error) {
+                    console.error(key, "expected to throw ", test.error, "but returned ", result);
+                    throw new Error(key + " expected to throw error");
+                }
+                assert.equal(result, test.result ? test.result: test.snippet);
+            } catch(e) {
+                //console.error(e)
+                if (!test.error) {
+                    throw e;
+                }
+                assert.equal(e.toErrorString(), test.error);
+            }
+        });
+    })
+})
