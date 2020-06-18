@@ -241,7 +241,11 @@ class ExprParser {
             if (token.constructor == ExprToken.Identifier) {
                 let name = token.value;
                 sequence.push(new ExprNodes.ExprVariableNode(name));
-            } else {
+            }
+            else if (ExprToken.EOF = this.lastToken) {
+                return new ExprNodes.ExprLookupNode(sequence)
+            }
+            else {
                 throw ExprParseErrors.ExpectedIdentifier;
             }
         }

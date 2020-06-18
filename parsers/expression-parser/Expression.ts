@@ -11,7 +11,7 @@ const {ExprParser} = require("./ExprParser");
 
 
 class Expression extends CVUToString {
-    main;
+    context;
 
     interpreter;
     parsed = false;
@@ -54,24 +54,24 @@ class Expression extends CVUToString {
                 let lookupValue =  this.lookup(lookupNode, ViewArguments())//TODO
 
                 let obj = lookupValue;
-                let main = this.main;
-                if (obj instanceof Object && main) {
-                    // realmWriteIfAvailable(main.realm) {//TODO
+                let context = this.context;
+                if (obj instanceof Object && context) {
+                    // realmWriteIfAvailable(context.realm) {//TODO
                     //     obj[lastProperty.name] =
                     //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
                     // }
                     return
                 }
                 // TODO FIX: Implement LookUpAble
-                else if (obj instanceof Main && main){
-                    // realmWriteIfAvailable(main.realm) {//TODO
+                else if (obj instanceof MemriContext && context){
+                    // realmWriteIfAvailable(context.realm) {//TODO
                     //     obj[lastProperty.name] =
                     //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
                     // }
                     return
                 }
-                else if (obj instanceof UserState && main){
-                    // realmWriteIfAvailable(main.realm) {//TODO
+                else if (obj instanceof UserState && context){
+                    // realmWriteIfAvailable(context.realm) {//TODO
                     //     obj.set(lastProperty.name,
                     //         !ExprInterpreter.evaluateBoolean(obj.get(lastProperty.name)))
                     // }
@@ -84,7 +84,7 @@ class Expression extends CVUToString {
         throw "Exception: Unable to toggle expression. Perhaps expression is not a pure lookup?"
     }
 
-    getTypeOfDataItem() {
+    getTypeOfDataItem(viewArguments) {
         if (!this.parsed) this.parse()
 
         let node = this.ast
@@ -93,7 +93,7 @@ class Expression extends CVUToString {
             let lastProperty = sequence.pop()
             if (lastProperty instanceof ExprVariableNode) {
                 let lookupNode = ExprLookupNode(sequence)
-                let dataItem = this.lookup(lookupNode, ViewArguments())//TODO
+                let dataItem = this.lookup(lookupNode, viewArguments)//TODO
                 if (dataItem instanceof DataItem) {
                     let property = dataItem.objectSchema[lastProperty.name];
                     if (property) {

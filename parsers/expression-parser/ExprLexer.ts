@@ -164,7 +164,8 @@ exports.ExprLexer = class ExprLexer {
             if (token) { tokens.push(token) }
         }
         var input = this.input;
-        
+
+        var startChar = null
         for (var i = 0; i < input.length; i++) {
             var c = input[i];
             
@@ -177,6 +178,7 @@ exports.ExprLexer = class ExprLexer {
                     if (c == "{") { addToken(new ExprToken.CurlyBracketOpen(i)) }
                     keyword = []
                     isMode = Mode.idle
+                    startChar = null
                     continue;
                 }
                 
@@ -209,7 +211,9 @@ exports.ExprLexer = class ExprLexer {
             case "=": addToken(new ExprToken.Operator(ExprOperator.ConditionEquals, i)); break
             case ",": addToken(new ExprToken.Comma(i)); break
             case "'": case '"':
-                isMode = Mode.string; break
+                isMode = Mode.string
+                startChar = c
+                break
             case ".":
                 if (isMode == Mode.number) { keyword.push(c) }
                 else { addToken(new ExprToken.Period(i)) }
