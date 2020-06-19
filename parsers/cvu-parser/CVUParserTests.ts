@@ -137,7 +137,7 @@ const CVUParserTests = {
     testEscapedStringProperty: {
         snippet:
 `[language = Dutch] {
-    sharewith: "Deel \\\\"met..."
+    sharewith: "Deel \\"met..."
 }`,
     },
     testMixedQuoteTypeProperty: {
@@ -283,14 +283,14 @@ const CVUParserTests = {
     defaultRenderer: "thumbnail.grid"
 }`
     },
-    testColorProperty: {
+    testColorProperty: { //TODO: color class
         snippet: 'Person { color: #f0f }',
         result:
 `Person {
     color: #ff00ff
 }`
     },
-    testJSONCompatibility: {
+    testJSONCompatibility: {//TODO: sort
         snippet:
 `"Person": {
     "string": "test",
@@ -311,7 +311,7 @@ const CVUParserTests = {
     }
 }`
     },
-    testSingleLineJSONSyntax: {
+    testSingleLineJSONSyntax: {//TODO: sort
         snippet: '"Person": { "string": "test", "array": ["10", 5], "object": { "test": 10 }, "bool": false, "number": 10, }',
         result:
 `Person {
@@ -325,7 +325,7 @@ const CVUParserTests = {
     }
 }`
     },
-    testCSSLikeSyntax: {
+    testCSSLikeSyntax: { //TODO: color class
         snippet:
 `Person {
     background: #fff;
@@ -339,7 +339,7 @@ const CVUParserTests = {
     padding: 1 2 3 4
 }`
     },
-    testSingleLineCSSLikeSyntax: {
+    testSingleLineCSSLikeSyntax: { //TODO: color class
         snippet: 'Person { background: #fff; border: 1 red; padding: 1 2 3 4; }',
         result:
 `Person {
@@ -348,7 +348,7 @@ const CVUParserTests = {
     padding: 1 2 3 4
 }`
     },
-    testSingleLineSyntax: {
+    testSingleLineSyntax: { //TODO: color class
         snippet: 'Person { background: #fff, border: 1 red, padding: 1 2 3 4, object: { test: 1 } }',
         result:
 `Person {
@@ -361,7 +361,7 @@ const CVUParserTests = {
     }
 }`
     },
-    testCurlyBracketsOnSeparateLine: {
+    testCurlyBracketsOnSeparateLine: { //TODO: color class
         snippet:
 `Person
 {
@@ -398,7 +398,7 @@ Person {
     key: "value"
 }`
     },
-    testUIElementProperties: {
+    testUIElementProperties: {//TODO: UIElements class
         snippet:
 `Person {
     VStack {

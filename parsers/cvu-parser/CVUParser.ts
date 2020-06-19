@@ -20,8 +20,9 @@ import {
 } from "./CVUParsedDefinition"
 
 export class ActionFamily {
-    static allCases = "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, addSelectionToList, closePopup, noop".split(/,\s*/)
+    static allCases = "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop".split(/,\s*/)
 }
+
 export class UIElementFamily {
     static allCases = "VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack, Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image, Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, Empty".split(/,\s*/)
 }
@@ -182,7 +183,7 @@ export class CVUParser {
             }
         }
 
-        return new CVUParsedViewDefinition(type, type)//TODO:????
+        return new CVUParsedViewDefinition(type, undefined, type, undefined)//TODO:????
     }
 
     parseNamedIdentifierSelector() {
@@ -208,7 +209,7 @@ export class CVUParser {
         } else if (value[0] == "[") {
             throw "Not supported yet" // TODO
         } else {
-            return new CVUParsedViewDefinition(value, value)
+            return new CVUParsedViewDefinition(value, undefined, value, undefined)
         }
     }
 
@@ -284,7 +285,7 @@ export class CVUParser {
     }
 
     createExpression(code, startInStringMode = false) {
-        return {code, startInStringMode}//TODO
+        return /*{code, startInStringMode}*/code; //TODO: something terribly wrong with this
         return new Expression(code, startInStringMode,
             this.lookup, this.execFunc)
     }
@@ -446,12 +447,13 @@ export class CVUParser {
                             }
 
                             //let arguments = options.removeValue("arguments") instanceOf [String:Any] ?? [:]//TODO:
-                            let actionFamily = new ActionFamily(name);
+                            let actionFamily = ActionFamily.allCases.find(function (el){return el == name});
+
                             if (actionFamily) {
                                 //TODO:
                                 // let ActionType = ActionFamily.getType(actionFamily)();//TODO:
-                                // stack.push(ActionType.init(main, arguments, options));
-                                stack.push([this.context, arguments, options])
+                                // stack.push(ActionType.init(main, arguments, options));[this.context, arguments, options]
+                                stack.push(actionFamily)
                             } else {
                                 // TODO ERROR REPORTING
                             }
@@ -473,7 +475,7 @@ export class CVUParser {
                     lastKey = undefined;
                     break;
                 case CVUToken.Nil://TODO
-                    let x = undefined;
+                    let x = null;
                     stack.push(x);
                     break;
                 case CVUToken.Number:
