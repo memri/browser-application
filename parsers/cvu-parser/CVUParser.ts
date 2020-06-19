@@ -84,8 +84,8 @@ export class CVUParser {
     /*lookup: (ExprLookupNode, ViewArguments)
         let execFunc: (ExprLookupNode, [Any], ViewArguments)*/
 
-    constructor(tokens, main, lookup, execFunc) {
-        this.main = main;
+    constructor(tokens, context, lookup, execFunc) {
+        this.context = context;
         this.tokens = tokens;
         this.lookup = lookup;
         this.execFunc = execFunc;
@@ -451,7 +451,7 @@ export class CVUParser {
                                 //TODO:
                                 // let ActionType = ActionFamily.getType(actionFamily)();//TODO:
                                 // stack.push(ActionType.init(main, arguments, options));
-                                stack.push([this.main, arguments, options])
+                                stack.push([this.context, arguments, options])
                             } else {
                                 // TODO ERROR REPORTING
                             }
@@ -565,10 +565,10 @@ export class CVUParser {
                     case "bottom":
                         return VerticalAlignment.bottom;
                     case "center":
-                        if (type == "zstack") {
+                        if (type == "ZStack") {
                             return Alignment.center;
                         }
-                        return type == "vstack"
+                        return type == "VStack"
                             ? HorizontalAlignment.center
                             : VerticalAlignment.center;
                     default:
@@ -603,7 +603,7 @@ export class CVUParser {
                     return value // TODO Test if (this crashes the view renderer
             }
         },
-        "textalign": function (value, type) {
+        "textAlign": function (value, type) {
             switch (value) {
                 case "left":
                     return TextAlignment.leading;

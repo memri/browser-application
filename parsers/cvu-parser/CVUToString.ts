@@ -140,11 +140,11 @@ export class CVUSerializer {
             if (key == "children" || key == "renderDefinitions" || key == "datasourceDefinition"
                 || key == "sessionDefinitions" || key == "viewDefinitions") {
                 continue;
-            } else if (key == "cornerradius") {
+            } else if (key == "cornerborder") {
                 var value = dict[key];
                 if (Array.isArray(value)) {
                     let radius = value.pop();
-                    str.push(`cornerradius: ${this.valueToString(radius, depth, tab)}`);
+                    //str.push(`cornerradius: ${this.valueToString(radius, depth, tab)}`);
                     str.push(`border: ${this.valueToString(value, depth, tab)}`);
                 } else {
                     // ???

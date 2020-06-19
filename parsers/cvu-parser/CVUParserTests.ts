@@ -170,8 +170,8 @@ const CVUParserTests = {
         snippet:
 `Person {
     sequence: [
-        showOverlay { title: "{$sharewith}" }
-        addToPanel { title: "{$addtolist}" }
+        openViewByName { title: "{$sharewith}" }
+        toggleEditMode { title: "{$addtolist}" }
         duplicate { title: "{$duplicate} {type}" }
     ]
 
@@ -181,10 +181,10 @@ const CVUParserTests = {
 `Person {
     key: "value"
     sequence: [
-        showOverlay {
+        openViewByName {
             title: "{$sharewith}"
         }
-        addToPanel {
+        toggleEditMode {
             title: "{$addtolist}"
         }
         duplicate {
@@ -414,28 +414,10 @@ Person {
             maxHeight: 500
             cornerRadius: 10
             border: #ff0000 1
+            cornerRadius: 10
         }
     }
 }`,
-        result:
-`Person {
-    VStack {
-        font: 14
-        alignment: left
-
-        Text {
-            textalign: center
-            align: top
-            font: 12 light
-        }
-
-        Text {
-            maxHeight: 500
-            cornerRadius: 10
-            border: #ff0000 1
-        }
-    }
-}`
     },
     testUIElementWithoutProperties: {
         snippet:
@@ -460,13 +442,81 @@ Person {
 
 
         Text {
-            maxHeight: 500
+            maxheight: 500
         }
     }
 }`
     },
     testSerialization: {
         //TODO:
+    },
+    testNestedViews: {
+        snippet:
+`Person {
+    [renderer = generalEditor] {
+
+        picturesOfPerson: {
+            sectionTitle: "Photos of {.computedTitle()}"
+            foreach: false
+
+            SubView {
+                view: {
+                    defaultRenderer: "thumbnail.grid"
+
+                        [datasource = pod] {
+                        query: "Photo AND ANY includes.memriID = '{.memriID}'"
+                    }
+
+                    [renderer = thumbnail.grid] {
+                        columns: 5
+                        itemInset: 0
+                    }
+                }
+            }
+        }
+    }
+}`
+    },
+    testActionStar: {
+        snippet:
+`Person {
+    [renderer = list] {
+        Action {
+            press: star
+        }
+    }
+}`
+    },
+    testActionAddDataItem: {
+        snippet:
+`Person {
+    [renderer = list] {
+        press: addDataItem {
+            arguments: {
+                template: {
+                    type: "ImporterInstance"
+                    name: {{.name}}
+                }
+            }
+        }
+    }
+}`
+    },
+    testMultipleActions: {
+        snippet:
+`Person {
+    [renderer = list] {
+        press: [
+            link {
+                arguments: {
+                    property: {{property}}
+        dataItem: {{dataItem}}
+    }
+    }
+        closePopup
+    ]
+    }
+}`
     },
     testErrorMissingCurlBracketClose: {
         snippet:

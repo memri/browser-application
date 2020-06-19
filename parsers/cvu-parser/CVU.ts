@@ -9,14 +9,14 @@
 
 class CVU {
     code;
-    main;
+    context;
     lookup;
     execFunc;
     parsed;
     
-    constructor(code, main, lookup, execFunc) {
+    constructor(code, context, lookup, execFunc) {
         
-        this.main = main
+        this.context = context
         this.code = code
         this.lookup = lookup
         this.execFunc = execFunc
@@ -28,7 +28,7 @@ class CVU {
         }
         else {
             let lexer = CVULexer(this.code);
-            let parser = CVUParser(lexer.tokenize(), this.main, this.lookup, this.execFunc)
+            let parser = CVUParser(lexer.tokenize(), this.context, this.lookup, this.execFunc)
             this.parsed =  parser.parse()
             return this.parsed != null ? this.parsed : []
         }
