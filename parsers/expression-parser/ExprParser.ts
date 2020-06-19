@@ -8,35 +8,103 @@
 const {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} = require("./ExprLexer");
 const ExprNodes = require("./ExprNodes");
 
-var ExprParseErrors = exports.ExprParseErrors = {
-    UnexpectedToken: function (value) {
+class ParseErrors {
+    type: any;
+    Character?: any;
+    value: any;
+
+    toErrorString() {
+        let result;
+        if (this.value)  {
+            result = (this.value.type) ? this.type + "(" + this.value.toString() + ")" : this.type + "(" + this.value + ")";
+        } else {
+            result = this.type;
+        }
+        return result;
+    }
+}
+
+class UnexpectedToken extends ParseErrors {
+    value: ExprToken;
+    type = "UnexpectedToken";
+
+    constructor(value) {
+        super();
         this.value = value;
-        this.type = "UnexpectedToken";
-    },
-    UndefinedOperator: function (value) {
+    }
+}
+
+class UndefinedOperator extends ParseErrors {
+    value: string;
+    type = "UndefinedOperator";
+
+    constructor(value) {
+        super();
         this.value = value;
-        this.type = "UndefinedOperator";
-    },
-    ExpectedCharacter: function (value) {
+    }
+}
+
+class ExpectedCharacter extends ParseErrors {
+    value: string;
+    type = "ExpectedCharacter";
+
+    constructor(value) {
+        super();
         this.value = value;
-        this.type = "ExpectedCharacter";
-    },
-    ExpectedExpression: function (value) {
+    }
+}
+
+class ExpectedExpression extends ParseErrors {
+    value: ExprToken;
+    type = "ExpectedExpression";
+
+    constructor(value) {
+        super();
         this.value = value;
-        this.type = "ExpectedExpression";
-    },
-    ExpectedArgumentList: function () {
-        this.type = "ExpectedArgumentList"
-    },
-    ExpectedIdentifier: function () {
-        this.type = "ExpectedIdentifier"
-    },
-    ExpectedConditionElse: function () {
-        this.type = "ExpectedConditionElse"
-    },
-    MissingQuoteClose: function () {
-        this.type = "MissingQuoteClose"
-    },
+    }
+}
+
+class ExpectedArgumentList extends ParseErrors {
+    type = "ExpectedArgumentList";
+
+    constructor() {
+        super();
+    }
+}
+
+class ExpectedIdentifier extends ParseErrors {
+    type = "ExpectedIdentifier";
+
+    constructor() {
+        super();
+    }
+}
+
+class ExpectedConditionElse extends ParseErrors {
+    type = "ExpectedConditionElse";
+
+    constructor() {
+        super();
+    }
+}
+
+class MissingQuoteClose extends ParseErrors {
+    type = "MissingQuoteClose";
+
+    constructor() {
+        super();
+    }
+}
+
+export const ExprParseErrors = {
+    UnexpectedToken,
+    UndefinedOperator,
+    ExpectedCharacter,
+    ExpectedExpression,
+    ExpectedArgumentList,
+    ExpectedIdentifier,
+    ExpectedConditionElse,
+    MissingQuoteClose
 };
 
 class ExprParser {
@@ -104,7 +172,7 @@ class ExprParser {
                     return this.parseOperator();
                 }
             default:
-                throw ExprParseErrors.ExpectedExpression(this.popCurrentToken())
+                throw new ExprParseErrors.ExpectedExpression(this.popCurrentToken())
         }
     }
 
@@ -119,7 +187,7 @@ class ExprParser {
     parseNumber() {
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.Number) {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
         let value = token.value;
         return new ExprNodes.ExprNumberNode(value);
@@ -128,7 +196,7 @@ class ExprParser {
     parseString() {
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.String) {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
         let value = token.value;
         return new ExprNodes.ExprStringNode(value)
@@ -137,7 +205,7 @@ class ExprParser {
     parseBool() {
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.Bool) {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
         let value = token.value;
         return new ExprNodes.ExprBoolNode(value)
@@ -146,7 +214,7 @@ class ExprParser {
     parsePeriod() {
         let token = this.peekCurrentToken();
         if (token.constructor != ExprToken.Period) {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
 
         return this.parseIdentifier(new ExprNodes.ExprVariableNode("__DEFAULT__"))
@@ -155,7 +223,7 @@ class ExprParser {
     parseOperator() {
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.Operator) {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
         let op = token.value;
         if (op == ExprOperator.Minus) {
@@ -165,14 +233,14 @@ class ExprParser {
             let exp = this.parseIntExpressionComponent();
             return new ExprNodes.ExprNumberExpressionNode(exp);
         } else {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
     }
 
     parseNegation() {
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.Negation) {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
 
         let exp = this.parsePrimary();
@@ -183,7 +251,7 @@ class ExprParser {
     parseCurlyBrackets() {
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.CurlyBracketOpen) {
-            throw ExprParseErrors.ExpectedCharacter("{");
+            throw new ExprParseErrors.ExpectedCharacter("{");
         }
 
         return this.parseStringMode()
@@ -192,13 +260,13 @@ class ExprParser {
     parseParens() {
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.ParensOpen) {
-            throw ExprParseErrors.ExpectedCharacter("(");
+            throw new ExprParseErrors.ExpectedCharacter("(");
         }
 
         let exp = this.parseExpression();
         token = this.popCurrentToken();
         if (token.constructor != ExprToken.ParensClose) {
-            throw ExprParseErrors.ExpectedCharacter(")");
+            throw new ExprParseErrors.ExpectedCharacter(")");
         }
 
         return exp;
@@ -212,7 +280,7 @@ class ExprParser {
         } else {
             let token = this.popCurrentToken();
             if (token.constructor != ExprToken.Identifier) {
-                throw ExprParseErrors.UnexpectedToken(this.lastToken);
+                throw new ExprParseErrors.UnexpectedToken(this.lastToken);
             }
             let name = token.value;
             sequence.push(new ExprNodes.ExprVariableNode(name));
@@ -228,7 +296,7 @@ class ExprParser {
 
                 token = this.popCurrentToken();
                 if (token.constructor != ExprToken.BracketClose) {
-                    throw ExprParseErrors.ExpectedCharacter("]");
+                    throw new ExprParseErrors.ExpectedCharacter("]");
                 }
             }
             token = this.peekCurrentToken();
@@ -246,7 +314,7 @@ class ExprParser {
                 return new ExprNodes.ExprLookupNode(sequence)
             }
             else {
-                throw ExprParseErrors.ExpectedIdentifier;
+                throw new ExprParseErrors.ExpectedIdentifier;
             }
         }
 
@@ -272,7 +340,7 @@ class ExprParser {
                 }
                 token = this.popCurrentToken();
                 if (token.constructor != ExprToken.Comma) {
-                    throw ExprParseErrors.ExpectedArgumentList;
+                    throw new ExprParseErrors.ExpectedArgumentList;
                 }
             }
         }
@@ -318,7 +386,7 @@ class ExprParser {
                     return this.parseStringMode(lhs);
                 }
 
-                throw ExprParseErrors.UnexpectedToken(this.lastToken);
+                throw new ExprParseErrors.UnexpectedToken(this.lastToken);
             }
             op = token.value;
             if (op == ExprOperator.ConditionStart) {
@@ -339,11 +407,11 @@ class ExprParser {
         let trueExp = this.parseExpression();
         let token = this.popCurrentToken();
         if (token.constructor != ExprToken.Operator) {
-            throw ExprParseErrors.ExpectedConditionElse;
+            throw new ExprParseErrors.ExpectedConditionElse;
         }
         let op = token.value;
         if (op != ExprOperator.ConditionElse) {
-            throw ExprParseErrors.ExpectedConditionElse;
+            throw new ExprParseErrors.ExpectedConditionElse;
         }
 
         let falseExp = this.parseExpression();
@@ -354,7 +422,7 @@ class ExprParser {
     parseStringMode(firstNode) {
         ++this.countStringModeNodes;
         if (this.countStringModeNodes > 1) {
-            throw ExprParseErrors.UnexpectedToken(this.lastToken);
+            throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
 
         var expressions = [];
@@ -381,7 +449,7 @@ class ExprParser {
                 if (ExprToken.EOF == this.lastToken.constructor) {
                     break;
                 }
-                throw ExprParseErrors.ExpectedCharacter("}");
+                throw new ExprParseErrors.ExpectedCharacter("}");
             }
         }
 

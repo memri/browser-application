@@ -101,12 +101,12 @@ const ExprParserTests = {
     
     testErrorUnsupportedBinaryOp: {
         snippet: "5 @ 4",
-        error: "UnexpectedToken(@)",
+        error: "UnexpectedToken(Identifier, @, 3)",
     },
     
     testErrorMissingParenClose: {
         snippet: "(5 + 10",
-        error: "ExpectedCharacter(')')",
+        error: "ExpectedCharacter())",
     },
     
     testErrorMissingCallParenClose: {
@@ -116,7 +116,7 @@ const ExprParserTests = {
     
     testErrorMissingBracketClose: {
         snippet: "test[10",
-        error: "ExpectedCharacter(']')",
+        error: "ExpectedCharacter(])",
     },
     
     testErrorMissingQuoteClose: {

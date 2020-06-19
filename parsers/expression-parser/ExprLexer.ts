@@ -5,76 +5,247 @@
 //
 const ExprParser = require("./ExprParser");
 
-var ExprToken = exports.ExprToken = {
-    Operator: function(value, Int) {
-        this.i = Int
-        this.type = "Operator"
-        this.value = value
-    },
-    Bool: function(value, Int) {
-        this.i = Int
-        this.type = "Bool"
-        this.value = value
-    },
-    Identifier: function(value, Int) {
-        this.i = Int
-        this.type = "Identifier"
-        this.value = value
-    },
-    Number: function(value, Int) {
-        this.i = Int
-        this.type = "Number"
-        this.value = value
-    },
-    Negation: function(Int) {
-        this.i = Int
-        this.type = "Negation"
-    },
-    Comma: function(Int) {
-        this.i = Int
-        this.type = "Comma"
-    },
-    ParensOpen: function(Int) {
-        this.i = Int
-        this.type = "ParensOpen"
-    },
-    ParensClose: function(Int) {
-        this.i = Int
-        this.type = "ParensClose"
-    },
-    CurlyBracketOpen: function(Int) {
-        this.i = Int
-        this.type = "CurlyBracketOpen"
-    },
-    CurlyBracketClose: function(Int) {
-        this.i = Int
-        this.type = "CurlyBracketClose"
-    },
-    BracketOpen: function(Int) {
-        this.i = Int
-        this.type = "BracketOpen"
-    },
-    BracketClose: function(Int) {
-        this.i = Int
-        this.type = "BracketClose"
-    },
-    String: function(value, Int) {
-        this.i = Int
-        this.type = "String"
-        this.value = value
-    },
-    Period: function(Int) {
-        this.i = Int
-        this.type = "Period"
-    },
-    Other: function(value, Int) {
-        this.i = Int
-        this.type = "Other"
-        this.value = value
-    },
-    EOF: function() {
-        this.type = "EOF"
-    },
+class Token {
+    type: any;
+    value: any;
+    i: any;
+
+    toString() {
+        let stringToken = this.type;
+        stringToken += (this.value) ? ", " + this.value : "";
+        stringToken += (this.i) ? ", " + this.i : "";
+        return stringToken;
+    }
+}
+
+class Operator extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(value, i) {
+        super();
+        this.i = i;
+        this.type = "Operator";
+        this.value = value;
+    }
+
+}
+
+class Bool extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(value, i) {
+        super();
+        this.i = i;
+        this.type = "Bool";
+        this.value = value;
+    }
+
+}
+
+class Number extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(value, i) {
+        super();
+        this.i = i;
+        this.type = "Number";
+        this.value = value;
+    }
+
+}
+
+class String extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(value, i) {
+        super();
+        this.i = i;
+        this.type = "String";
+        this.value = value;
+    }
+
+}
+
+class Identifier extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(value, i) {
+        super();
+        this.i = i;
+        this.type = "Identifier";
+        this.value = value;
+    }
+
+}
+
+class Negation extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "Negation";
+    }
+
+}
+
+class Comma extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "Comma";
+    }
+
+}
+
+class CurlyBracketOpen extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "CurlyBracketOpen";
+    }
+
+}
+
+class CurlyBracketClose extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "CurlyBracketClose";
+    }
+
+}
+
+class BracketOpen extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "BracketOpen";
+    }
+
+}
+
+class BracketClose extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "BracketClose";
+    }
+
+}
+
+class Period extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "Period";
+    }
+
+}
+
+class EOF extends Token {
+    type: string;
+
+    constructor() {
+        super();
+        this.type = "EOF";
+    }
+
+}
+
+class Other extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(value, i) {
+        super();
+        this.i = i;
+        this.type = "Other";
+        this.value = value;
+    }
+
+}
+
+class ParensOpen extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "ParensOpen";
+    }
+
+}
+
+class ParensClose extends Token {
+    value: any;
+    type: string;
+    i: any;
+
+    constructor(i) {
+        super();
+        this.i = i;
+        this.type = "ParensClose";
+    }
+
+}
+
+export const ExprToken = {
+    Operator,
+    Bool,
+    Identifier,
+    Number,
+    Negation,
+    Comma,
+    ParensOpen,
+    ParensClose,
+    CurlyBracketOpen,
+    CurlyBracketClose,
+    BracketOpen,
+    BracketClose,
+    String,
+    Period,
+    Other,
+    EOF
 };
 
 var ExprOperator = exports.ExprOperator = {
@@ -228,14 +399,14 @@ exports.ExprLexer = class ExprLexer {
                     addToken(new ExprToken.CurlyBracketOpen(i))
                     isMode = Mode.idle
                 }
-                else { throw ExprParser.ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
+                else { throw new ExprParser.ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
                 break
             case "}":
                 if (startInStringMode) {
                     addToken(new ExprToken.CurlyBracketClose(i))
                     isMode = Mode.string
                 }
-                else { throw ExprParser.ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
+                else { throw new ExprParser.ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
                 break
             default:
                 isMode = Mode.keyword
@@ -253,7 +424,7 @@ exports.ExprLexer = class ExprLexer {
             }
         }
         else if (isMode == Mode.string) {
-            throw ExprParser.ExprParseErrors.MissingQuoteClose
+            throw new ExprParser.ExprParseErrors.MissingQuoteClose
         }
         
         return tokens
