@@ -306,9 +306,13 @@ class Nil extends Token {
 
 class EOF extends Token {
     type: string;
+    col: any;
+    row: any;
 
-    constructor() {
+    constructor(row, col) {
         super();
+        this.row = row;
+        this.col = col;
         this.type = "EOF";
     }
 
@@ -544,15 +548,17 @@ export class CVULexer {
         }
 
         if (isMode == Mode.string) {
-            throw new CVUParseErrors.MissingQuoteClose(new CVUToken.EOF())
+            throw new CVUParseErrors.MissingQuoteClose(new CVUToken.EOF(ln, ch))
         }
         else if (isMode == Mode.expression) {
-            throw new CVUParseErrors.MissingExpressionClose(new CVUToken.EOF())
+            throw new CVUParseErrors.MissingExpressionClose(new CVUToken.EOF(ln, ch))
         }
         else if (isMode != Mode.idle) {
             // TODO
             throw new Error(`Unhandled error mode: ${isMode}`)
         }
+        
+        tokens.push(new CVUToken.EOF(ln, ch));
 
         return tokens
     }

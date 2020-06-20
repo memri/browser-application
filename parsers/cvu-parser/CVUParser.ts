@@ -5,6 +5,7 @@
 //  Copyright © 2015 Matthew Cheok. All rights reserved.
 //  Copyright © 2020 memri. All rights reserved.
 //
+import {Expression} from "../expression-parser/Expression";
 import {CVUToken, CVUOperator} from "./CVULexer";
 import {CVUParseErrors} from "./CVUParseErrors";
 import {
@@ -26,6 +27,11 @@ export class ActionFamily {
 export class UIElementFamily {
     static allCases = "VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack, Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image, Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, Empty".split(/,\s*/)
 }
+
+export class UIElement {
+    
+}
+
 
 export class Color {
     constructor(value) {
@@ -285,7 +291,6 @@ export class CVUParser {
     }
 
     createExpression(code, startInStringMode = false) {
-        return /*{code, startInStringMode}*/code; //TODO: something terribly wrong with this
         return new Expression(code, startInStringMode,
             this.lookup, this.execFunc)
     }
@@ -320,13 +325,13 @@ export class CVUParser {
         }
 
         function addUIElement(type, properties) {//TODO:
-            var children = (Array.isArray(dict["children"]) && dict["children"].length > 0) ? dict["children"] : [];//TODO
-            // let subChildren = properties.removeValue("children");//TODO
-            // children.push(UIElement(type,
-                // (subChildren instanceof [UIElement]) ? subChildren: [],
-                // properties));
+            var children = dict.children || [];
+            let subChildren = properties.children;
+            children.push(new UIElement(type,
+                subChildren || [],
+                properties));
                 children.push(properties)
-            dict["children"] = children
+            dict.children = children;
         }
 
         while (true) {

@@ -10,6 +10,8 @@ import {
     CVUParsedSessionDefinition, CVUParsedViewDefinition
 } from "./CVUParsedDefinition";
 
+function UIElement() {}
+
 export class CVUSerializer {
 
     valueToString(value, depth = 0, tab: string = "    "): string {

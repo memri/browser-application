@@ -7,6 +7,7 @@ var oop = ace.require("ace/lib/oop");
 var TextMode = ace.require("ace/mode/text").Mode;
 var FoldMode = ace.require("ace/mode/folding/cstyle").FoldMode;
 var TextHighlightRules = ace.require("ace/mode/text_highlight_rules").TextHighlightRules;
+var CstyleBehaviour = ace.require("ace/mode/behaviour/cstyle").CstyleBehaviour;
 
 var CvuHighlightRules = function() {
     var keywordMapper = this.createKeywordMapper({
@@ -41,17 +42,25 @@ var CvuHighlightRules = function() {
                 include: "expressions"
             }
         ],
+        "selectorProp": [{
+            token: "",
+            regex: /(?=\{)|$/,
+            next: "pop",
+        }],
+        "selector": [{
+            
+        }],
         "string": [
             {
                 token: "constant.language.escape",
-                regex: /\\(?:x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|['"\\\/bfnrt])/
+                regex: /\\./
             }, {
                 token: "string",
                 regex: '{',
                 push: "expressions",
             }, {
                 token: "string",
-                regex: '["\']',
+                regex: /["']/,
                 next: "start",
                 onMatch: function (value, currentState, stack) {
                     if (value == stack[1]) {
@@ -136,6 +145,7 @@ exports.CvuHighlightRules = CvuHighlightRules;
 
 var Mode = function() {
     this.HighlightRules = CvuHighlightRules;
+    this.$behaviour = new CstyleBehaviour();
     this.foldingRules = new FoldMode();
 };
 oop.inherits(Mode, TextMode);

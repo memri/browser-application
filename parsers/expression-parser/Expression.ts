@@ -10,7 +10,7 @@ const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 
 
-class Expression extends CVUToString {
+export class Expression {
     context;
 
     interpreter;

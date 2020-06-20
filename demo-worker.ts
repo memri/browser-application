@@ -19,11 +19,14 @@ import {CVULexer} from "./parsers/cvu-parser/CVULexer"
 import {CVUSerializer} from "./parsers/cvu-parser/CVUToString";
 
 
+import {parseCVU} from "./parsers/editor/cvu";
 
-var validate = function(input, doc) {
+
+var validate = function(input, doc) { 
     var annotations = []
     var resultArray = []
     try {
+        
         var lexer = new CVULexer(input)
         var tokens = lexer.tokenize()
         let parser = new CVUParser(tokens)
@@ -58,17 +61,33 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
     var MyWorker = function(sender) {
         Mirror.call(this, sender);
         this.setTimeout(200);
+        this.doc.on("change", () => {
+            this.ast = null
+        })
     };
 
     oop.inherits(MyWorker, Mirror);
 
     (function() {
+        this.getAst = function() {
+            if (!this.ast) this.ast = parseCVU(this.doc.getValue());
+            return this.ast;
+        }
         this.onUpdate = function() {
             var value = this.doc.getValue();
             var {annotations, result} = validate(value, this.doc);
             this.sender.emit("annotate", annotations);
             this.sender.emit("result", result);
+            
+            var ast = this.getAst();    
+            result = ast.toPrettyString();
+            this.sender.emit("ast", result);
         };
+        this.complete = function(pos) {
+            var ast = this.getAst();
+            var currentNode = ast.findNode({ line: pos.row, col: pos.column });
+            console.log(currentNode)
+        }
     }).call(MyWorker.prototype);
 
     exports.MyWorker = MyWorker;
