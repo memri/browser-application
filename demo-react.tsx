@@ -7,7 +7,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { createStyles, Theme, fade, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 
@@ -66,6 +66,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const useStylesList = makeStyles((theme: Theme) =>
+    createStyles({
+        root: {
+            width: '100%',
+            maxWidth: 360,
+            backgroundColor: theme.palette.background.paper,
+        },
+    }),
+);
+
+
+
+function ListItemLink(props: ListItemProps<'a', { button?: true }>) {
+    return <ListItem button component="a" {...props} />;
+}
+
 function SearchAppBar() {
   const classes = useStyles();
 
@@ -102,10 +118,6 @@ function SearchAppBar() {
     </div>
   );
 }
-
-
-
-
 
 import ace from "ace-builds";
 import "ace-builds/src-noconflict/ext-searchbox";
@@ -175,22 +187,53 @@ session.$worker.on("result", function(e) {
 }); 
 
 
-import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Button } from '@material-ui/core';
+import List from '@material-ui/core/List';
+import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Divider from '@material-ui/core/Divider';
+import InboxIcon from '@material-ui/icons/Inbox';
+import DraftsIcon from '@material-ui/icons/Drafts';
 
-function App() { 
+
+function SimpleList() {
+    const classes = useStylesList();
+
+    return (
+        <div className={classes.root}>
+            <List component="nav" aria-label="main mailbox folders">
+                <ListItem button>
+                    <ListItemText primary="Inbox" />
+                </ListItem>
+                <ListItem button>
+                    <ListItemText primary="Drafts" />
+                </ListItem>
+            </List>
+            <Divider />
+            <List component="nav" aria-label="secondary mailbox folders">
+                <ListItem button>
+                    <ListItemText primary="Trash" />
+                </ListItem>
+                <ListItemLink href="#simple-list">
+                    <ListItemText primary="Spam" />
+                </ListItemLink>
+            </List>
+        </div>
+    );
+}
+
+function App() {
   return <div>
     <SearchAppBar/>
-    <Button color="primary">Hello World</Button>;
+      <SimpleList/>
   </div>
 }
 
 var div = document.body.appendChild(document.createElement("div"))
 
 ReactDOM.render(App(), div)
-
-
 
 
 
