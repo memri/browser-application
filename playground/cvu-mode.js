@@ -21,6 +21,19 @@ var CvuHighlightRules = function() {
             "back|addDataItem|openView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showNavigation|share|duplicate|schedule|addToList|delete|setRenderer|select|selectAll|unselectAll|openLabelView|showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|addSelectionToList|closePopup|noop"
     }, "identifier");
 
+    var propertyKeywords = "\\b(showtimeline|currentSessionIndex|textalign|sessionDefinitions|name|currentViewIndex|viewDefinitions|editMode|showFilterPanel|" +
+        "showContextPane|screenshot|emptyResultText|title|subTitle|filterText|activeRenderer|defaultRenderer|backTitle|searchHint|" +
+        "userState|datasourceDefinition|viewArguments|showLabels|actionButton|editActionButton|sortFields|editButtons|filterButtons|" +
+        "actionItems|navigateItems|contextButtons|include|renderDefinitions|light|dark|border|color|background|sequence|excluded|readOnly|" +
+        "starred|foreach|show|text|list|press|arguments|memriID|cornerRadius|font|padding|sectionTitle|alignment|maxChar|sharewith|" +
+        "addtolist|duplicate|timelineof|all|icon|view|query|sortProperty|sortAscending|timeProperty|fromTemplate|profilePicture|names|" +
+        "picturesOfPerson|minHeight|toolbar|columns|itemInset|searchbar|readonly|image|resizable|maxHeight|opacity|align|maxWidth|condition|" +
+        "template|type|dates|empty|value|defaultValue|country|address|margin|edge|hierarchy|nopadding|hint|emptyValue|location|rendererNames|" +
+        "subject|property|textAlign|slideLeftActions|longPress|spacing|systemName|rowInset|removeWhiteSpace|default|optionsFromQuery|importer|" +
+        "minWidth|bundleImage|groups|iconHeading|run|importerInstance|indexer|cornerradius|description|bold|dataItem|renderers|uid|edgeInset|" +
+        "hSpacing|slideRightActions"+
+        ")(?=\\b\\s*:)";
+
     var parensMap = {
         "}": "{",
         "]": "["
@@ -78,7 +91,7 @@ var CvuHighlightRules = function() {
                 }
             }, {
                 token: "variable",
-                regex: /\b\w+(?=\s*:)/
+                regex: propertyKeywords
             },
             {
                 include: "expressions"
