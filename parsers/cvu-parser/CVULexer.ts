@@ -401,12 +401,12 @@ export class CVULexer {
 
         function addToken(token) {
             if (isMode == Mode.number) {
-                tokens.push(new CVUToken.Number(parseFloat(keyword.join("")), ln, ch))
+                tokens.push(new CVUToken.Number(keyword.join(""), ln, ch - keyword.length))
                 keyword = []
                 isMode = Mode.idle
             }
             else if (isMode == Mode.color) {
-                tokens.push(new CVUToken.Color(keyword.join(""), ln, ch))
+                tokens.push(new CVUToken.Color(keyword.join(""), ln, ch - keyword.length))
                 keyword = []
                 isMode = Mode.idle
             }
@@ -444,10 +444,10 @@ export class CVULexer {
                 }
                 else if (isMode == Mode.string && (c == startChar)) {
                     if (isStringExpression) {
-                        tokens.push(new CVUToken.StringExpression(keyword.join(""), ln, ch))
+                        tokens.push(new CVUToken.StringExpression(keyword.join(""), ln, ch - keyword.length))
                     }
                     else {
-                        tokens.push(new CVUToken.String(keyword.join(""), ln, ch))
+                        tokens.push(new CVUToken.String(keyword.join(""), ln, ch - keyword.length))
                     }
 
                     keyword = []
@@ -469,7 +469,7 @@ export class CVULexer {
                     if (tokens.pop()) {
                         keyword.pop()
 
-                        tokens.push(new CVUToken.Expression(keyword.join(""), ln, ch - 1))
+                        tokens.push(new CVUToken.Expression(keyword.join(""), ln, ch - 1 - keyword.length))
                         keyword = []
                         isMode = Mode.idle
                     }

@@ -67,7 +67,7 @@ export class CVUParser {
     close(node) {
         var lastToken = this.tokens[this.index]
         node.$pos.end.line = lastToken.row;
-        node.$pos.end.column = lastToken.col;
+        node.$pos.end.column = lastToken.col + (lastToken.value && lastToken.value.length|| 0);
     }
     
     parse() {
@@ -127,11 +127,12 @@ export class CVUParser {
     }
     parseSelector() {
         var token = this.peekCurrentToken();
-        console.log(token)
         var node = this.cons("Selector");
         if (token.type == "Identifier" 
             || token.type == "String"
+            || token.type == "StringExpression"
             || token.type == "Number"
+            || token.type == "NamedIdentifier"
         ) {
             node.push(id(token));
             this.popCurrentToken();
@@ -149,7 +150,7 @@ export class CVUParser {
     }
     
     parseSelectorProps() {
-        var node = tree.cons("Prop", [])
+        var node = this.cons("Prop", [])
         this.popCurrentToken();
         while (true) {
             var token = this.peekCurrentToken();
@@ -166,7 +167,8 @@ export class CVUParser {
             }
             node.push(id(token));
             this.popCurrentToken();
-        } 
+        }
+        this.close(node);
         return node;
     }
     
@@ -234,6 +236,7 @@ export class CVUParser {
         if (root.length == 1) {
             return root[0]
         }
+        this.close(root);
         return root;
     }
     parseSimpleValue() {
@@ -243,6 +246,8 @@ export class CVUParser {
             token.type == "Bool" || 
             token.type == "Nil" || 
             token.type == "Identifier" || 
+            token.type == "NamedIdentifier" || 
+            token.type == "StringExpression" ||
             token.type == "String"
         ) {
             var node = this.cons(token.type, [id(token)])
@@ -284,4 +289,18 @@ function id(token) {
         return s;
     }
 }
+
+var schema = {
+    
+    
+}
+
+var actions = "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop".split(/,\s*/);
+
+var elements = "VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack, Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image, Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, Empty".split(/,\s*/);
+
+
+
+
+
 

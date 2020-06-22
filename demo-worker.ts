@@ -32,9 +32,7 @@ var validate = function(input, doc) {
         let parser = new CVUParser(tokens)
         resultArray = parser.parse()
     } catch(e) {
-        if (e.CVUToken.type == "EOF") {
-            e.CVUToken.row = doc.getLength() - 1
-        }
+        if (!e.CVUToken) e.CVUToken = {};
         annotations.push({
             type: "error",
             row: e.CVUToken.row,
@@ -43,12 +41,13 @@ var validate = function(input, doc) {
         })
     }
     
-    var result =  new CVUSerializer().valueToString(resultArray, 0, "    ");
+    var cvuString = new CVUSerializer().valueToString(resultArray, 0, "    ");
     
     return {
         annotations,
-        result,
-    }
+        cvuString,
+        tokens,
+    };
 };
 
 
@@ -75,19 +74,33 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
         }
         this.onUpdate = function() {
             var value = this.doc.getValue();
-            var {annotations, result} = validate(value, this.doc);
+            var {annotations, cvuString, tokens} = validate(value, this.doc);
             this.sender.emit("annotate", annotations);
-            this.sender.emit("result", result);
             
             var ast = this.getAst();    
-            result = ast.toPrettyString();
-            this.sender.emit("ast", result);
+            this.data = {
+                cvuString,
+                ast,
+                tokens
+            };
         };
-        this.complete = function(pos) {
+        this.complete = function(pos, callbackId) {
             var ast = this.getAst();
             var currentNode = ast.findNode({ line: pos.row, col: pos.column });
             console.log(currentNode)
-        }
+            this.sender.callback(currentNode, callbackId);
+        };
+        this.getData = function(name, callbackId) {
+            var result = "";
+            if (name == "cvu") {
+                result = this.data.cvuString
+            } else if (name == "ast") {
+                result = this.ast.toPrettyString()
+            } else if (name == "tokens") {
+                result = JSON.stringify(this.data.tokens, null, 4)
+            }
+            this.sender.callback(result, callbackId);
+        };
     }).call(MyWorker.prototype);
 
     exports.MyWorker = MyWorker;

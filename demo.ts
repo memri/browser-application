@@ -12,6 +12,44 @@ let DemoWorker = require("worker-loader!./demo-worker")
 
 let demoWorker = new DemoWorker();
 
+
+
+var defaults = {
+    lastSaved: window.localStorage.lastValue || example,
+    /*require("text-loader!./cvu/defaults/default_user_views.json"),*/
+    /*require("text-loader!./cvu/defaults/macro_views.json"),*/
+    "All-items-with-label": require("text-loader!./cvu/defaults/named/All-items-with-label.cvu"),
+    "Choose-item-by-query": require("text-loader!./cvu/defaults/named/Choose-item-by-query.cvu"),
+    "Filter-starred": require("text-loader!./cvu/defaults/named/Filter-starred.cvu"),
+    /*require("text-loader!./cvu/defaults/named_sessions.json"),*/
+    /*require("text-loader!./cvu/defaults/named_views.json",)*/
+    generalEditor: require("text-loader!./cvu/defaults/renderer/generalEditor.cvu"),
+    list: require("text-loader!./cvu/defaults/renderer/list.cvu"),
+    thumbnail: require("text-loader!./cvu/defaults/renderer/thumbnail.cvu"),
+    Sessions: require("text-loader!./cvu/defaults/Session/Sessions.cvu"),
+    defaults: require("text-loader!./cvu/defaults/styles/defaults.cvu"),
+    /*require("text-loader!./cvu/defaults/template_views.json"),*/
+    Address: require("text-loader!./cvu/defaults/type/Address.cvu"),
+    Any: require("text-loader!./cvu/defaults/type/Any.cvu"),
+    AuditItem: require("text-loader!./cvu/defaults/type/AuditItem.cvu"),
+    Country: require("text-loader!./cvu/defaults/type/Country.cvu"),
+    Importer: require("text-loader!./cvu/defaults/type/Importer.cvu"),
+    ImporterInstance: require("text-loader!./cvu/defaults/type/ImporterInstance.cvu"),
+    Indexer: require("text-loader!./cvu/defaults/type/Indexer.cvu"),
+    IndexerInstance: require("text-loader!./cvu/defaults/type/IndexerInstance.cvu"),
+    Label: require("text-loader!./cvu/defaults/type/Label.cvu"),
+    Mixed: require("text-loader!./cvu/defaults/type/Mixed.cvu"),
+    Note: require("text-loader!./cvu/defaults/type/Note.cvu"),
+    /*require("text-loader!./cvu/defaults/type/Person-markup.ml"),*/
+    Person: require("text-loader!./cvu/defaults/type/Person.cvu"),
+    Photo: require("text-loader!./cvu/defaults/type/Photo.cvu"),
+    Session: require("text-loader!./cvu/defaults/type/Session.cvu"),
+    /*require("text-loader!./cvu/defaults/type/Session.json"),*/
+    SessionView: require("text-loader!./cvu/defaults/type/SessionView.cvu"),
+    UserNote: require("text-loader!./cvu/defaults/user/UserNote.cvu-disabled"),
+    /*require("text-loader!./cvu/defaults/views_from_server.json"),*/
+};
+
 var mode = "ast";
 var refs = {};
 var dom = ace.require("ace/lib/dom");
@@ -20,24 +58,31 @@ dom.buildDom(["div", {
             + "display: flex; flex-direction: column;"
     },
     ["div", {ref: "toolbar", style: "display: flex;"},
+        ["select", {
+            ref: "session", onchange: changeSession, value: localStorage.session || "lastSaved"
+        }, 
+        Object.keys(defaults).map(key => {
+            return ["option", {value: key}, key];
+        })],
         ["span", {style: "flex:1"}],
         ["button", {onclick: ()=> {mode = "ast"; update()}}, "ast"],
         ["button", {onclick: ()=> {mode = "cvu"; update()}}, "cvu"],
+        ["button", {onclick: ()=> {mode = "tokens"; update()}}, "tokens"],
     ],
     ["div", {style: "display: flex; flex: 1"},
         ["div", {ref: "editor", style: "flex: 1"}],
         ["div", {ref: "output", style: "flex: 1"}],
-    ]
+    ],
 ], document.body, refs);
 
-let value = window.localStorage.lastValue || example;
 window.onbeforeunload = function() {
-    window.localStorage.lastValue = editor.getValue()
+    if (typeof defaults.lastSaved != "string")
+        window.localStorage.lastValue = defaults.lastSaved.getValue();
     window.localStorage.mode = mode;
+    window.localStorage.session = refs.session.value;
 }
+
 let editor = ace.edit(refs.editor, {
-    value,
-    mode: new Mode(),
     newLineMode: "unix",
     enableLiveAutocompletion: true,
     enableBasicAutocompletion: true,
@@ -70,34 +115,35 @@ function WebpackWorkerClient(worker) {
 }
 WebpackWorkerClient.prototype = WorkerClient.prototype;
 
-var session = editor.session;
-session.$worker = new WebpackWorkerClient(demoWorker);
-session.$worker.attachToDocument(session.getDocument());
+var sharedWorker =  new WebpackWorkerClient(demoWorker);
 
-session.$worker.on("errors", function(e) {
-    session.setAnnotations(e.data);
+sharedWorker.on("annotate", function(e) {
+    editor.session.setAnnotations(e.data);
+    update();
 });
 
-session.$worker.on("annotate", function(e) {
-    session.setAnnotations(e.data);
-});
-
-session.$worker.on("terminate", function() {
-    session.clearAnnotations();
-}); 
 var result, ast;
 var mode = window.localStorage.mode || "ast"
-session.$worker.on("result", function(e) {
-    result = e.data;
-    if (mode == "cvu") update();
-}); 
-session.$worker.on("ast", function(e) {
-    ast = e.data;
-    if (mode == "ast") update();
-}); 
+
 function update() {
-    if (mode == "cvu") output.session.setValue(result);
-    if (mode == "ast") output.session.setValue(ast);
+    sharedWorker.call("getData", [mode], function(data) {
+        output.session.setValue(data);
+    });
 }
 
+var cvumode = new Mode()
+function changeSession(e) {
+    var target = refs.session.value;
+    if (typeof defaults[target] == "string" || !defaults[target]) {
+        defaults[target] = ace.createEditSession(defaults[target] || "", cvumode);
+    }
+    editor.setSession(defaults[target]);
+    
+    if (sharedWorker.$doc)
+        sharedWorker.$doc.off("change", sharedWorker.changeListener);
+    sharedWorker.deltaQueue = sharedWorker.$doc = null;
+    sharedWorker.attachToDocument(editor.session.getDocument());
+    editor.session.$worker = sharedWorker;
+}
+changeSession()
 
