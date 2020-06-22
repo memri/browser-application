@@ -1,0 +1,176 @@
+[session = all-addresses] {
+    [view] {
+        title: "All Addresses"
+        
+        [datasource = pod] {
+            query: "Address"
+        }
+    }
+}
+
+Address[] {
+    defaultRenderer: list
+    filterButtons: showStarred toggleFilterPanel
+
+    [renderer = list]{
+        HStack {
+            Text {
+                text: "{.computedTitle()}"
+                font: 16
+                padding: 0 0 10 0
+            }
+            Spacer
+            Map {
+                address: {{.}}
+                maxWidth: 150
+                minHeight: 150
+                maxHeight: 150
+                cornerRadius: 10
+                border: #DDD 1
+                margin: 0 0 10 0
+            }
+        }
+    }
+    
+    [renderer = generalEditor]{
+        EditorRow {
+            title: "{.type}"
+            nopadding: {{!readOnly}}
+            
+            HStack {
+                show: {{readOnly}}
+                Text {
+                    text: "{.computedTitle()}"
+                    font: 16
+                    padding: 0 0 10 0
+                }
+                Spacer
+                Map {
+                    address: {{.}}
+                    maxWidth: 150
+                    minHeight: 150
+                    maxHeight: 150
+                    cornerRadius: 10
+                    border: #DDD 1
+                    margin: 0 0 10 0
+                }
+            }
+            HStack {
+                show: {{!readOnly}}
+                EditorLabel {
+                    title: "{.type}"
+                    edge: {{edge}}
+                    hierarchy: Ayuddress
+                }
+                VStack {
+                    Textfield { hint: Street, value: {{.street}}, rows: 2 }
+                    Textfield { hint: City, value: {{.city}} }
+                    HStack {
+                        Textfield { hint: "State", value: {{.state}} }
+                        Textfield { hint: "Zip", value: {{.postalCode}} }
+                    }
+                    Picker {
+                        emptyValue: Country
+                        title: "Select a country"
+                        value: {{.country}}
+                        defaultValue: "{me.address[primary = true].country}"
+                        
+                        [datasource = pod] {
+                            query: "Country"
+                            sortProperty: name
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+            
+Address {
+    title: "Address"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    contextButtons: star schedule
+    
+    [renderer = generalEditor] {
+        groups {
+            dates: dateCreated dateModified dateAccessed changelog
+            address: street city state postalCode country
+            location: location
+        }
+        sequence: location labels address other dates
+        
+        location: {
+            foreach: false
+            sectionTitle: ""
+            
+            Map {
+                address: {{.}}
+                minHeight: 150
+                maxHeight: 150
+            }
+        }
+        
+        labels: {
+            foreach: false
+            
+            VSTack {
+                foreach: false
+                sectionTitle: ""
+                padding: 10 36 10 36
+                
+                Text {
+                    show: {{!.labels.count}}
+                    text: "no labels yet"
+                }
+                FlowStack {
+                    list: {{.labels}}
+                    
+                    Button {
+                        press: openViewByName {
+                            arguments {
+                                name: all-items-with-label
+                                viewArguments: {
+                                    name: "Soccer team"
+                                    memriID: 0x0124
+                                }
+                            }
+                        }
+                        
+                        VStack {
+                            background: {{.color}}
+                            cornerRadius: 5
+                            
+                            Text {
+                                text: "{.computedTitle()}"
+                                font: 16 semibold
+                                color: #fff
+                                padding: 5 8 5 8
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        country: {
+            VStack {
+                Text {
+                    text: "{.country.name}"
+                    show: {{readOnly}}
+                }
+                Picker {
+                    empty: "Country"
+                    value: {{.country}}
+                    defaultValue: {{me.address[primary = true].country}}
+                    show: {{!readOnly}}
+                    
+                    [datasource = pod] {
+                        query: "country"
+                        sortProperty: name
+                    }
+                }
+            }
+        }
+    }
+}

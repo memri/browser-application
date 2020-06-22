@@ -1,0 +1,6 @@
+[renderer = list] {
+    slideLeftActions: delete
+    press: openView
+    longPress: select
+}
+

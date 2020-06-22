@@ -1,0 +1,9 @@
+
+.filter-starred {
+    title: "Starred {cascadingView.title}"
+    include: {{view}}
+    
+    [datasource = pod] {
+        query: "{cascadingView.datasource.query} AND starred = true"
+    }
+}

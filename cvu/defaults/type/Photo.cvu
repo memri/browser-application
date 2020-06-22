@@ -1,0 +1,56 @@
+[session = all-photos] {
+    [view] {
+        title: "All Photos"
+        [datasource = pod] {
+            query: "Photo"
+        }
+    }
+}
+
+Photo {
+    title: "Photos"
+    defaultRenderer: thumbnail
+     [datasource = pod] {
+        query: "photo"
+        sortProperty: dateModified
+        sortAscending: false
+    },
+    emptyResultText: "There are no photos here yet",
+    
+    editActionButton: toggleEditMode
+    filterButtons: [ showStarred toggleFilterPanel ]
+    
+    [renderer = thumbnail] {
+        itemInset: 1
+        edgeInset: 0 0 0 0
+        Image {
+            image: "{.file}" /* ALLOW BOTH STRINGS AND FILES*/
+            resizable: fill
+        }
+    }
+}
+
+Photo[]: {
+    title: "All Photos"
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+    emptyResultText: "There are no photos here yet"
+
+    [datasource = pod] {
+        query: "Photo"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+
+    defaultRenderer: thumbnail
+
+    [renderer = thumbnail] {
+        itemInset: 1
+        edgeInset: 0 0 0 0
+        
+        Image {
+            image: {{.file}}
+            resizable: fill
+        }
+    }
+}

@@ -1,0 +1,186 @@
+[session = all-indexers] {
+    [view] {
+        title: "All Indexers"
+        [datasource = pod] {
+            query: "Indexer"
+        }
+    }
+}
+
+Indexer {
+    title: "{.name}"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    filterButtons: [
+        openView {
+            icon: "increase.indent"
+            title: "Show Timeline"
+            
+            arguments {
+                view: {
+                    defaultRenderer: timeline
+                    
+                    [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+        }
+        showContextPane
+    ]
+    
+    contextButtons: star schedule
+    
+    navigateItems: [
+        openView {
+            title: "Timeline of this indexer"
+            arguments {
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+        }
+        openViewByName {
+            title: "Starred indexer"
+            arguments: {
+                name: "filter-starred"
+                viewArguments: {
+                    include: "all-indexers"
+                }
+            }
+        }
+        openViewByName {
+            title: "All indexers"
+            name: "all-indexers"
+        }
+    ]
+}
+
+Indexer[] {
+    name: "all-indexers"
+    title: "All Indexers"
+    emptyResultText: "There are no Indexers"
+    defaultRenderer: list
+    sortFields: name dateModified dateAccessed dateCreated
+    
+    [datasource = pod] {
+        query: "Indexer"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+
+    [renderer = list] {
+        press:
+            addDataItem {
+                arguments {
+                    template {
+                        type: IndexerInstance
+                        name: {{.name}}
+                        indexer: {{.}}
+                    }
+                }
+            }
+        HStack {
+            alignment: center
+            VStack{
+                maxWidth: 90
+                maxHeight: 120
+                Image {
+                    show: {{.icon}}
+                    systemName: {{.icon}}
+                    font: 30
+                    color: #d64f4f
+                    maxWidth: 80
+                    /** TODO: THIS IS SUPER HACKY **/
+                    padding: 20 0 0 0
+                    maxHeight: 120
+                }
+
+                Image {
+                    show: {{!.icon and .bundleImage}}
+                    bundleImage: {{.bundleImage}}
+                    color: #2480d6
+                    resizable: fit
+                    minWidth: 50
+                    minHeight: 50
+                    maxWidth: 50
+                    maxHeight: 50
+                }
+            }
+        
+            VStack {
+                alignment: left
+                rowInset: 12 20 -12 20
+    
+    
+
+                Text {
+                    text: "{.name}"
+                    font: 18 semibold
+                    color: #333
+                    padding: 0 0 3 0
+                }
+                HStack {
+                    Text {
+                        text: "{.indexerDescription}"
+                        removeWhiteSpace: true
+                        maxChar: 100
+                        color: #555
+                        font: 14 regular
+                        padding: 0 20 0 0
+                    }
+    
+                    Button {
+                        press: import {
+                            arguments: {
+                                importer: {{.}}
+                            }
+                        }
+
+                        VStack {
+                            background: #a1bdc9
+                            cornerradius: 8
+                            Text {
+                                text: "INFO"
+                                font: 16 semibold
+                                color: #fff
+                                padding: 5 8 5 8
+                            }
+                        }
+                    }
+                }
+                Text {
+                    text: "{.dateModified}"
+                    font: 11 regular
+                    color: #888
+                    padding: 8 0 5 0
+                }
+                Rectangle {
+                    minHeight: 1
+                    maxHeight: 1
+                    color: #efefef
+                    padding: 7 -20 12 0
+                }
+            }
+        }
+    }
+}

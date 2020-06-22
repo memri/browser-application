@@ -1,0 +1,68 @@
+[renderer = generalEditor] {
+    sequence: labels starred other dates
+    excluded: version deleted syncState memriID uid
+    readOnly: uid memriID
+    
+    groups {
+        dates: dateCreated dateModified dateAccessed changelog
+    }
+    
+    starred {
+        Action {
+            press: star
+        }
+    }
+    
+    labels {
+        foreach: false
+        
+        EditorRow {
+            Text {
+                show: {{!.labels.count}}
+                text: "No labels yet"
+                padding: 10 0 5 0
+                color: #777
+            }
+            FlowStack {
+                list: {{.labels}}
+            
+                Button {
+                    press: openViewByName {
+                        name: "all-items-with-label"
+                        arguments: {
+                            name: "Soccer team"
+                            memriID: 0x0124
+                        }
+                    }
+                
+                    VStack {
+                        background: {{.color}}
+                        cornerRadius: 5
+                    
+                        Text {
+                            text: "{.name}"
+                            font: 16 semibold
+                            color: #fff
+                            padding: 5 8 5 8
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    dates {
+        foreach: false
+        sectionTitle: ""
+        
+        Text {
+            alignment: center
+            textAlign: center
+            text: "{.describeChangelog()}"
+            padding: 30 40 40 40
+            color: #999
+            font: 13
+            maxChar: 300
+        }
+    }
+}

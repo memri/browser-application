@@ -1,0 +1,15 @@
+
+.all-items-with-label {
+    title: "Items with label {name}"
+    [datasource = pod] {
+        query: "* AND ANY labels.memriID = '{memriID}'"
+    }
+    defaultRenderer: list
+    
+    [renderer = list] {
+        ItemCell {
+            rendererNames: list thumbnail
+            arguments: {{variables}}
+        }
+    }
+}

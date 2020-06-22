@@ -1,0 +1,47 @@
+[session = *] {
+    [view] {
+        title: "Everything"
+        
+        [datasource = pod] {
+            query: "*"
+        }
+    }
+}
+
+* {
+    searchHint: Search
+}
+
+
+*[]: {
+    searchHint: Search
+    sortFields: dateCreated dateModified dateAccessed,
+    
+    [renderer = generalEditor] {
+        EditorRow {
+            spacing: 5
+            padding: 10 0 10 0
+            
+            HStack {
+                alignment: center
+                
+                MemriButton
+                Spacer
+                Button {
+                    press: unlink {
+                        arguments: {
+                            subject: {{subject}}
+                            property: {{name}}
+                        }
+                    }
+                    show: {{!readOnly}}
+                    
+                    Image {
+                        systemName: "minus.circle.fill"
+                        color: #ff0000
+                    }
+                }
+            }
+        }
+    }
+}

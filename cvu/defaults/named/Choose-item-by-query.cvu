@@ -1,0 +1,29 @@
+.choose-item-by-query {
+    title: {{ title }} /*or "Choose a {type}" }}*/
+    editMode: true
+    
+    [datasource = pod] {
+       query: "{query}"
+    }
+    editActionButton: toggleEditMode
+    actionButton:
+        addDataItem {
+            arguments {
+                type: {{type}}
+            }
+        }
+        
+    defaultRenderer:list
+    
+    [renderer = list]{
+        press: [
+            link {
+                arguments {
+                    subject: {{subject}}
+                    property: {{property}}
+                }
+            }
+            closePopup
+        ]
+    }
+}

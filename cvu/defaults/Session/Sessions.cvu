@@ -1,0 +1,33 @@
+
+[sessions = defaultSessions] {
+    currentSessionIndex: 0
+    
+    [session] {
+        currentViewIndex: 4
+        [view] {
+            [datasource = pod] {
+                query: Label
+            }
+        }
+        [view] {
+            [datasource = pod] {
+                query: Person
+            }
+        }
+        [view] {
+            [datasource = pod] {
+                query: Session
+            }
+        }
+        [view] {
+            [datasource = pod] {
+                query: AuditItem
+            }
+        }
+        [view] {
+            [datasource = pod] {
+                query: Note
+            }
+        }
+    }
+}
