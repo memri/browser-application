@@ -15,10 +15,13 @@ var CvuHighlightRules = function() {
         "support.type":
             "left|top|right|bottom|center|lefttop|topleft|topright|righttop|leftbottom|bottomleft|rightbottom|bottomright",
         "support.constant":
-            "regular|bold|semibold|heavy|light|ultralight|black",
+            "regular|bold|semibold|heavy|light|ultralight|black|fit|fill",
+        "storage.type":
+            "VStack|HStack|ZStack|EditorSection|EditorRow|EditorLabel|Button|FlowStack|Text|Textfield|ItemCell|SubView|Map|Picker|SecureField|ActionButton|MemriButton|Image|Circle|HorizontalLine|Rectangle|RoundedRectangle|Spacer|Divider|Empty|Title|RichTextfield|Action",
         "keyword":
             "and|AND|or|OR|equals|EQUALS|not|NOT|"+
-            "back|addDataItem|openView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showNavigation|share|duplicate|schedule|addToList|delete|setRenderer|select|selectAll|unselectAll|openLabelView|showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|addSelectionToList|closePopup|noop"
+            "back|addDataItem|openView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showNavigation|share|duplicate|schedule|addToList|delete|setRenderer|select|selectAll|unselectAll|openLabelView|showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|addSelectionToList|closePopup|noop|"+
+            "datasource|view"
     }, "identifier");
 
     var propertyKeywords = "\\b(showtimeline|currentSessionIndex|textalign|sessionDefinitions|name|currentViewIndex|viewDefinitions|editMode|showFilterPanel|" +
@@ -30,8 +33,10 @@ var CvuHighlightRules = function() {
         "picturesOfPerson|minHeight|toolbar|columns|itemInset|searchbar|readonly|image|resizable|maxHeight|opacity|align|maxWidth|condition|" +
         "template|type|dates|empty|value|defaultValue|country|address|margin|edge|hierarchy|nopadding|hint|emptyValue|location|rendererNames|" +
         "subject|property|textAlign|slideLeftActions|longPress|spacing|systemName|rowInset|removeWhiteSpace|default|optionsFromQuery|importer|" +
-        "minWidth|bundleImage|groups|iconHeading|run|importerInstance|indexer|cornerradius|description|bold|dataItem|renderers|uid|edgeInset|" +
-        "hSpacing|slideRightActions"+
+        "minWidth|bundleImage|groups|iconHeading|run|importerInstance|indexer|description|bold|dataItem|renderers|uid|edgeInset|" +
+        "hSpacing|slideRightActions|debug|italic|underline|strikethrough|viewName|style|blur|zindex|rowbackground|frame|cornerborder|shadow|" +
+        "offset|highlight|lightInputText|inputText|activeColor|activeBackgroundColor|inactiveColor|inactiveBackgroundColor|renderAs|showTitle|" +
+        "opensView"+
         ")(?=\\b\\s*:)";
 
     var parensMap = {
@@ -69,6 +74,11 @@ var CvuHighlightRules = function() {
             {include: "selectorBlockOpen"},
             {
                 token: "paren.lparen",
+                regex: /{{/,
+                push: "expressions",
+            },
+            {
+                token: "paren.lparen",
                 regex: /[[{]/,
                 next: "innerBlock",
                 onMatch: function (value, currentState, stack) {
@@ -100,7 +110,7 @@ var CvuHighlightRules = function() {
         "selectorBlockOpen": [
             {
                 token: ["paren.lparen", "keyword"],
-                regex: /(\[)(?:\s*)(sessions|session|renderer|datasource|color|style|language)/,
+                regex: /(\[)(?:\s*)(sessions|session|renderer|datasource|color|style|language|view)/,
                 push: "selectorBlock"
             },
         ],
@@ -193,13 +203,24 @@ var CvuHighlightRules = function() {
                 token: "punctuation.operator",
                 regex: /[?:.,;]/
             },
-            /*{
+            {
                 token: "paren.lparen",
-                regex: /[[(]/
+                regex: /\(/
             }, {
                 token: "paren.rparen",
-                regex: /[\])]/
-            },*/
+                regex: /\)/
+            },
+            {
+                token: "paren.rparen",
+                regex: /}}/,
+                onMatch: function (value, currentState, stack) {
+                    if (stack[0] == "expressions") {
+                        stack.shift();
+                        this.next = stack.shift();
+                    }
+                    return this.token;
+                },
+            },
             {
                 token: "string",
                 regex: /}/,
