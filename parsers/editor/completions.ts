@@ -18,7 +18,7 @@ var types = {
         EditorLabel: {
             desc: "Element that renders a label in a row in the general editor",
             hasChildren: false
-        }
+        },
         Button: {
             desc: "Element that renders a button in the user interface. Buttons connect to",
             hasChildren: false
@@ -124,8 +124,44 @@ var types = {
         "color, backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor": "Color",
     },
     definitions: {
+        sessions: {
+            currentSessionIndex: "<number>",
+            sessionDefinitions: "session[]"
+        },
+        session: {
+            name: "<string>",
+            currentViewIndex: "<number>",
+            viewDefinitions: "view[]",
+            "editMode, showFilterPanel, showContextPane": "boolean",
+            screenshot: "<File>"//TODO:?
+
+        },
         view: {
-            
+            "name, emptyResultText, title, subTitle, filterText, activeRenderer, defaultRenderer, backTitle, searchHint": "<string>",
+            userState: "",
+            datasourceDefinition: "datasource",
+            viewArguments: "",
+            showLabels: "boolean",
+            "actionButton, editActionButton": "Action",
+            sortFields:"<string[]>",
+            "editButtons, filterButtons, actionItems, navigateItems, contextButtons": "Action | Action[]",
+            include: "<string> | <string[]>",
+            renderDefinitions: "renderer[]"
+        },
+        datasource: {
+
+        },
+        renderer: {
+
+        },
+        color: {
+
+        },
+        style: {
+
+        },
+        language: {
+
         }
     }
     
