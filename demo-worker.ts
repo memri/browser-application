@@ -4,6 +4,8 @@
 importScripts(require("file-loader?esModule=false!ace-builds/src-noconflict/worker-json.js"));
 
 
+
+
 import {ExprParser} from "./parsers/expression-parser/ExprParser"
 import {ExprLexer} from "./parsers/expression-parser/ExprLexer"
 
@@ -20,6 +22,7 @@ import {CVUSerializer} from "./parsers/cvu-parser/CVUToString";
 
 
 import {parseCVU} from "./parsers/editor/cvu";
+import {getCompletions} from "./parsers/editor/completions";
 
 
 var validate = function(input, doc) { 
@@ -89,6 +92,8 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
             var currentNode = ast.findNode({ line: pos.row, col: pos.column });
             console.log(currentNode)
             this.sender.callback(currentNode, callbackId);
+            
+            getCompletions(ast, pos);
         };
         this.getData = function(name, callbackId) {
             var result = "";

@@ -244,15 +244,16 @@ Person {
                 minHeight: 165
                 
                 view {
-                    defaultRenderer: thumbnail.grid
+                    defaultRenderer: thumbnail.horizontalgrid
                     
                     [datasource = pod] {
                         query: "Photo AND ANY includes.objectMemriID = '{.memriID}'"
                     }
                     
-                    [renderer = thumbnail] {
-                        columns: 5
-                        itemInset: 0
+                    [renderer = thumbnail.horizontalgrid] {
+                        columns: 2
+                        edgeInset: 0
+                        allowBounce: false
                     }
                 }
                 arguments: {
@@ -267,7 +268,7 @@ Person {
             foreach: false
             sectionTitle: ""
         
-            VSTack {
+            VStack {
                 padding: 10 36 5 36
             
                 Text {
@@ -331,7 +332,7 @@ Person {
 
 Person[] {
     title: "All People"
-    defaultRenderer: list
+    defaultRenderer: thumbnail
     emptyResultText: "There are no people here yet"
     
      [datasource = pod] {
@@ -390,14 +391,40 @@ Person[] {
                     }
                 }
             }
-            
-            Rectangle {
-                minHeight: 1
-                maxHeight: 1
-                color: #efefef
-                padding: 0 0 0 0
-            }
         }
         
+    }
+    
+    [renderer = thumbnail] {
+        spacing: 10
+        edgeInset: 10
+        
+        VStack {
+            alignment: center
+            
+            Image {
+                image: {{.profilePicture}}
+                cornerRadius: 10
+                resizable: fit
+            }
+            Text {
+                text: "{.firstName} {.lastName}"
+                font: 12 semibold
+                textAlign: center
+                color: #333
+                padding: 3 0 0 0
+            }
+        }
+    }
+    
+    [renderer = chart] {
+        /*chartTitle: "Override title"*/ /* Use this to override the auto-generated chart title */
+        
+        xAxisKey: age /* used only for line chart */
+        labelKey: firstName /* used for bar chart (also provides label on line chart) */
+        yAxisKey: height
+        
+        sortProperty: height /* line chart ignores sort (automatically sorted by x-axis) */
+        sortAscending: true
     }
 }

@@ -56,19 +56,15 @@ Label[]: {
                     padding: 0 10 0 0
                 }
             }
-            
-            Rectangle {
-                maxHeight: 1
-                color: #efefef
-                padding: 5 -20 5 0
-            }
         }
     }
     
     [renderer = thumbnail] {
+        spacing: 10
+        edgeInset: 10
         VStack {
             VStack {
-                padding: 5 0 5 0
+                spacing: 5
                 alignment: center
                 
                 HStack {
@@ -84,12 +80,12 @@ Label[]: {
                     }
                     Spacer
                 }
-                Spacer
                 Text {
                     text: "{.comment}"
                     removeWhiteSpace: true
                     font: 10
                     maxChar: 100
+                    alignment: left
                 }
             }
         }

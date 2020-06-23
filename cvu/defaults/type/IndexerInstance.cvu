@@ -70,24 +70,22 @@ IndexerInstance {
             name: "all-indexer-instances"
         }
     ]
+    
     [renderer = generalEditor] {
-        excluded: version starred dateCreated dateModified dateAccessed changeLog
+        excluded: version starred
         groups:  {
             iconHeading: iconHeading
-            run: run
-            name: name
-            description: description
+            info: name run
         }
         
-        sequence: iconHeading name run description labels other dates
-        
+        sequence: iconHeading info labels other dates
         
         iconHeading {
             sectionTitle: ""
             
             HStack{
                 align: center
-                padding: 8 0 0 0
+                padding: 20 0 20 0
                 
                 Image {
                     /** todo, this padding is hacky but necessary now*/
@@ -115,21 +113,37 @@ IndexerInstance {
             }
         }
 
-        run {
+        info {
             foreach: false
             sectionTitle: ""
             
             VStack {
+                Divider
+                EditorRow {
+                    title: "Name"
+                    Text {
+                        text: {{.name}}
+                    }
+                }
+                EditorRow {
+                    Text {
+                        text: {{.indexer.indexerDescription}}
+                        font: 14 regular
+                        color: #555
+                        padding: 8 36 8 0
+                    }
+                    Divider
+                }
                 HStack {
                     align: left
                     background: #f9f9f9
                     
                     Button {
-                        margin: 5 5 5 35
+                        margin: 0 5 10 35
                         
-                        press: import {
+                        press: runIndexerInstance {
                             arguments {
-                                importerInstance: {{.}}
+                                indexerInstance: {{.}}
                             }
                         }
                         
@@ -142,18 +156,29 @@ IndexerInstance {
                             background: #70ba6c
                         }
                     }
+                    
+                    Button {
+                        margin: 0 5 10 35
+                        
+                        press: setProperty {
+                            arguments {
+                                subject: {{.}}
+                                property: progress
+                                value: 565
+                            }
+                        }
+                        
+                        Text {
+                            text: "TEST"
+                            font: 16 semibold
+                            color: #fff
+                            padding: 5 8 5 8
+                            cornerRadius: 5
+                            background: #70ba6c
+                        }
+                    }
                 }
                 Divider
-            }
-        }
-        
-        
-        description {
-            Text {
-                text: {{.indexer.indexerDescription}}
-                font: 14 regular
-                color: #555
-                padding: 8 36 8 36
             }
         }
     }
@@ -208,12 +233,6 @@ IndexerInstance[] {
                 font: 11 regular
                 color: #888
                 padding: 8 0 5 0
-            }
-            Rectangle {
-                minHeight: 1
-                maxHeight: 1
-                color: #efefef
-                padding: 7 -20 12 0
             }
         }
     }

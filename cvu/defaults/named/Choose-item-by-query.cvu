@@ -2,9 +2,6 @@
     title: {{ title }} /*or "Choose a {type}" }}*/
     editMode: true
     
-    [datasource = pod] {
-       query: "{query}"
-    }
     editActionButton: toggleEditMode
     actionButton:
         addDataItem {
@@ -14,6 +11,10 @@
         }
         
     defaultRenderer:list
+    
+    [datasource = pod] {
+       query: "{query}"
+    }
     
     [renderer = list]{
         press: [

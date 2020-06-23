@@ -125,7 +125,7 @@ ImporterInstance {
                     Button {
                         margin: 5 5 5 35
                         
-                        press: import {
+                        press: runImporterInstance {
                             arguments {
                                 importerInstance: {{.}}
                             }
@@ -196,12 +196,6 @@ ImporterInstance[] {
                 font: 11 regular
                 color: #888
                 padding: 8 0 5 0
-            }
-            Rectangle {
-                minHeight: 1
-                maxHeight: 1
-                color: #efefef
-                padding: 7 -20 12 0
             }
         }
     }

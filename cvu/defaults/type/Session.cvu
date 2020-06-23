@@ -57,18 +57,13 @@ Session[] {
                     padding: -5 0 0 0
                 }
             }
-            Rectangle {
-                minHeight: 1
-                maxHeight: 1
-                color: #efefef
-                padding: 7 -20 12 0
-            }
         }
     }
     
     [renderer = thumbnail] {
         columns: 2
-        hSpacing: 20
+        spacing: 20 10
+        edgeInset: 10
         press: openSession
         
         VStack {

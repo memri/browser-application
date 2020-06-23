@@ -9,6 +9,7 @@
 
 Note {
     title: "{.title}"
+    titleIfNil: "Untitled"
     defaultRenderer: richTextEditor
     editActionButton: toggleEditMode
     filterButtons: [
@@ -119,7 +120,6 @@ Note[] {
             arguments {
                 template {
                     type: Note
-                    title: "Untitled Note"
                 }
             }
         }
@@ -130,13 +130,23 @@ Note[] {
     [renderer = list] {
         VStack {
             alignment: left
-            rowInset: 12 20 -12 20
+            spacing: 3
             
-            Text {
-                text: "{.title}"
-                font: 18 semibold
-                color: #333
-                padding: 0 0 3 0
+            HStack {
+                Text {
+                    text: "{.title}"
+                    nilText: "Untitled Note"
+                    font: 18 semibold
+                    color: #333
+                    padding: 0 0 0 0
+                }
+                Image {
+                    systemName: "star.fill"
+                    font: 14
+                    color: #eecc00
+                    margin: 5
+                    show: {{.starred}}
+                }
             }
             Text {
                 text: "{.textContent}"
@@ -149,20 +159,23 @@ Note[] {
                 text: "{.dateModified}"
                 font: 11 regular
                 color: #888
-                padding: 8 0 5 0
+                padding: 0 0 0 0
             }
-            Divider
         }
     }
             
     [renderer = thumbnail] {
+        edgeInset: 10 10 10 10
+        spacing: 10
+        
         VStack {
             minWidth: 10
             padding: 0 0 5 0
             alignment: center
             
             Text {
-                text: "{.content}"
+                text: "{.textContent}"
+                allowNil: true
                 maxChar: 100
                 color: #333
                 background: #fff
@@ -170,15 +183,26 @@ Note[] {
                 cornerRadius: 10
                 padding: 10
                 font: 9 regular
-                minHeight: 80
-                align: lefttop
+                minHeight: 40
+                idealHeight: 80
+                align: left top
             }
-            Text {
-                text: "{.title}"
-                padding: 5 0 0 0
-                color: #333
-                font: 12 semibold
-                maxChar: 100
+            HStack {
+                Text {
+                    text: "{.title}"
+                    nilText: "Untitled Note"
+                    padding: 5 0 0 0
+                    color: #333
+                    font: 12 semibold
+                    maxChar: 100
+                }
+                Image {
+                    systemName: "star.fill"
+                    font: 10
+                    color: #eecc00
+                    margin: 8 0 0 2
+                    show: {{.starred}}
+                }
             }
             Text {
                 text: "{.dateModified}"

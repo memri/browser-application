@@ -1,9 +1,10 @@
-
 .filter-starred {
-    title: "Starred {cascadingView.title}"
-    include: {{view}}
+    inherit: {{view}}
+    
+/*    title: "Starred {view.title}"*/
+    title: "Starred"
     
     [datasource = pod] {
-        query: "{cascadingView.datasource.query} AND starred = true"
+        query: "{view.datasource.query} AND starred = true"
     }
 }

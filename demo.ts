@@ -24,6 +24,7 @@ var defaults = {
     /*require("text-loader!./cvu/defaults/named_sessions.json"),*/
     /*require("text-loader!./cvu/defaults/named_views.json",)*/
     generalEditor: require("text-loader!./cvu/defaults/renderer/generalEditor.cvu"),
+    chart: require("text-loader!./cvu/defaults/renderer/chart.cvu"),
     list: require("text-loader!./cvu/defaults/renderer/list.cvu"),
     thumbnail: require("text-loader!./cvu/defaults/renderer/thumbnail.cvu"),
     Sessions: require("text-loader!./cvu/defaults/Session/Sessions.cvu"),

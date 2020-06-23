@@ -21,12 +21,6 @@ Country[] {
                 text: "{.computedTitle()}"
                 padding: 10 0 10 0
             }
-            Rectangle {
-                minHeight: 1
-                maxHeight: 1
-                color: #efefef
-                padding: 0 0 0 0
-            }
         }
     }
     

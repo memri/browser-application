@@ -138,12 +138,6 @@ Importer[] {
                 color: #888
                 padding: 8 0 5 0
             }
-            Rectangle {
-                minHeight: 1
-                maxHeight: 1
-                color: #efefef
-                padding: 7 -20 12 0
-            }
         }
     }
 }

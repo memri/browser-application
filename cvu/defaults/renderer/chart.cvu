@@ -1,0 +1,3 @@
+[renderer = chart] {
+    press: openView /* open the person when pressing their value on the chart */
+}
