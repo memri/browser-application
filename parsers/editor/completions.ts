@@ -105,57 +105,57 @@ var types = {
     boolean: "true, false",
     UIElementProperties: {
         resizable: "fit, fill",
-        "show, nopadding, bold, italic, underline, strikethrough": "boolean",
+        "show, nopadding, bold, italic, underline, strikethrough": ".boolean",
         "title, text, viewName, systemName, hint, empty, style, defaultValue, view": "string",
-        alignment: "top, bottom, <.textAlign>",
-        align: "<.alignment>,leftTop, topLeft, rightTop, topRight, leftBottom, bottomLeft, rightBottom, bottomRight",
+        alignment: "top, bottom, .textAlign",
+        align: ".alignment,leftTop, topLeft, rightTop, topRight, leftBottom, bottomLeft, rightBottom, bottomRight",
         textAlign: "left,center,right",
         $fontWeight: "regular,bold,semibold,heavy,light,ultralight,black",
         font: "<.$fontWeight>",
-        "spacing, cornerRadius, minWidth, maxWidth, minHeight, maxHeight, blur, opacity, zindex": "<number>", 
-        "color, background, rowbackground": "<Color>",
+        "spacing, cornerRadius, minWidth, maxWidth, minHeight, maxHeight, blur, opacity, zindex": ".number", 
+        "color, background, rowbackground": ".Color",
 
         "image, press, list, arguments, location, address, value, datasource, empty, frame, padding, background, rowbackground, cornerborder, border, margin, shadow, offset, blur, opacity": "",
     },
     Color: "background, highlight, lightInputText, inputText, activeColor, activeBackgroundColor",
     Action: "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop",
     ActionProperties: {
-        name: "<string>",
+        name: ".string",
         arguments: "",
         renderAs: "",
-        title: "<string>",
-        showTitle: "<string>",
-        icon: "<string>",
-        opensView: "boolean",
-        "color, backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor": "Color",
+        title: ".string",
+        showTitle: ".string",
+        icon: ".string",
+        opensView: ".boolean",
+        "color, backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor": ".Color",
     },
     $definitions: {
         sessions: {
-            currentSessionIndex: "<number>",
+            currentSessionIndex: ".number",
             sessionDefinitions: "session[]"
         },
         session: {
-            name: "<string>",
-            currentViewIndex: "<number>",
+            name: ".string",
+            currentViewIndex: ".number",
             viewDefinitions: "view[]",
-            "editMode, showFilterPanel, showContextPane": "boolean",
-            screenshot: "<File>" 
+            "editMode, showFilterPanel, showContextPane": ".boolean",
+            screenshot: ".File" 
 
         },
         view: {
-            "name, emptyResultText, title, subTitle, filterText, activeRenderer, defaultRenderer, backTitle, searchHint": "<string>",
+            "name, emptyResultText, title, subTitle, filterText, activeRenderer, defaultRenderer, backTitle, searchHint": ".string",
             userState: "",
             datasourceDefinition: "datasource",
             viewArguments: "",
-            showLabels: "boolean",
+            showLabels: ".boolean",
             "actionButton, editActionButton": "Action",
             sortFields:"<string[]>",
             "editButtons, filterButtons, actionItems, navigateItems, contextButtons": "Action | Action[]",
-            include: "<string> | <string[]>",
+            include: ".string | <string[]>",
             renderDefinitions: "renderer[]"
         },
         datasource: {
-            "query, sortProperty, sortAscending": "<string[]>",
+            "query, sortProperty, sortAscending": ".string",
         },
         renderer: {
             
@@ -173,28 +173,90 @@ var types = {
 
 
 export function getCompletions(ast, pos) {
-    
+    var completions = []
     var currentNode = ast.findNode({ line: pos.row, col: pos.column });
     console.log(currentNode + "")
+    var definition = false;
+    var parents = [];
     currentNode.traverseUp("Rule(Selector(x), y)", function ({ x, y }) {
-        if (/renderer/.test(x + "")) {
-            
+        if (!definition) {
+            var definitionType = /Prop\("(\w+)"/.exec(x + "")
+            if (
+                definitionType && definitionType[1]
+                && types.$definitions.hasOwnProperty(definitionType[1])
+            ) {
+                definition = definitionType[1];
+            }   
         }
-        console.log(x + "");
+        
+        parents.push(x.value);
     });
-    debugger
-    currentNode.traverseUp("x", function({x}) {
-        console.log(x)
-    })
+    var isInselector = false;
+    var propertyName;
+    if (currentNode.cons == "Selector") {
+        isInselector = true
+        parents.shift()
+    } else if (currentNode.cons == "Dict") {
+        isInselector = true
+    } else if (currentNode.cons == "Rule") {
+        var propertyName = parents[0]
+    }
+    if (isInselector) {
+        if (definition == "renderer") {
+            var inElement = types.UIElement[parents[0]];
+            if (inElement?.hasChildren !== false) {
+                addUIElementNames(completions)
+            }
+            if (inElement) {
+                addProperties(completions, types.UIElementProperties);
+            }
+        }
+        if (types.$definitions[definition]) {
+            addProperties(completions, types.$definitions[definition]);
+        }
+    } else if (propertyName) {
+       addPropertyValues(completions, propertyName);
+    }
     
-    return Object.keys(types.UIElement).map((key) => {
+    return completions
+}
+function addUIElementNames(completions) {
+    Object.keys(types.UIElement).map((key) => {
         var elementData = types.UIElement[key];
         var hint = elementData.desc;
         var snippet = elementData.isEmpty ? undefined : key + " {$0}";
-        return {value: key, type: "Element", docHTML: hint, snippet};
+        completions.push({value: key, type: "Element", docHTML: hint, snippet});
     })
 }
-
+function addProperties(completions, typeMap) {
+    Object.keys(typeMap).map((key) => {
+        
+        if (key[0] == "." && typeMap[key.slice(1)]) 
+            return addProperties(completions, typeMap[key.slice(1)]);
+        
+        var elementData = typeMap[key];
+        var hint = elementData.desc;
+        var snippet = key + ": ";
+        completions.push({value: key, type: "Element", docHTML: hint, snippet});
+    })
+}
+function addPropertyValues(completions, propertyName) {
+    var typeMap = types.UIElementProperties;
+    var type = typeMap[propertyName]
+    if (typeof type == "string") {
+        if (type[0] == ".") type = types[type.slice(1)];
+    }
+    if (typeof type == "object") {
+        add(type)
+    }
+    
+    function add(type) {
+        Object.keys(type).forEach((key) => {
+            if (key[0] == "." && typeMap[key.slice(1)]) return add(typeMap[key.slice(1)])
+            completions.push({value: key})
+        });
+    }
+}
 
 
 var defaults = {
@@ -297,3 +359,7 @@ function normalize(obj) {
 }
 
 types = normalize(types);
+
+var propertiesByName = {}
+
+
