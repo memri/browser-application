@@ -263,3 +263,37 @@ Object.keys(defaults).forEach(function(name) {
 })
 // debugger
 all
+
+
+function normalize(obj) {
+    var regexp = /,\s*/;
+    for (const [key, value] of Object.entries(obj)) {
+        if (value instanceof Object) {
+            obj[key] = normalize(value);
+        }
+        else {
+            var keyList = key.split(regexp);
+            var valueList = typeof value === "string" ? value.split(regexp) : null;
+            if (keyList.length === 1 && !valueList)
+                continue;
+
+            for (var tmpKey of keyList) {
+                if (valueList && valueList.length > 1) {
+                    obj[tmpKey] = {};
+                    for (var tmpValue of valueList) {
+                        obj[tmpKey][tmpValue] = {};
+                    }
+                } else {
+                    obj[tmpKey] = value;
+                }
+
+            }
+
+            if (keyList.length > 1)
+                delete obj[key];
+        }
+    }
+    return obj;
+}
+
+types = normalize(types);
