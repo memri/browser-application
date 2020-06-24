@@ -106,7 +106,7 @@ var types = {
     UIElementProperties: {
         resizable: "fit, fill",
         "show, nopadding, bold, italic, underline, strikethrough": ".boolean",
-        "title, text, viewName, systemName, hint, empty, style, defaultValue, view": "string",
+        "title, text, viewName, systemName, hint, empty, style, defaultValue": "string",
         alignment: "top, bottom, .textAlign",
         align: ".alignment,leftTop, topLeft, rightTop, topRight, leftBottom, bottomLeft, rightBottom, bottomRight",
         textAlign: "left,center,right",
@@ -114,8 +114,19 @@ var types = {
         font: "<.$fontWeight>",
         "spacing, cornerRadius, minWidth, maxWidth, minHeight, maxHeight, blur, opacity, zindex": ".number", 
         "color, background, rowbackground": ".Color",
-
-        "image, press, list, arguments, location, address, value, datasource, empty, frame, padding, background, rowbackground, cornerborder, border, margin, shadow, offset, blur, opacity": "",
+        image: "<File>|<string>",
+        press: "Action|Action[]",
+        list: "DataItem",//TODO:?
+        view: "definitions|Object[]",
+        arguments: "Object[]",
+        location: "Location",
+        address: "Address",
+        value: "true",
+        datasource: "datasource",
+        "padding, margin": "<number>|<number>[]",
+        border: "any[]",//TODO: list[0] is Color && list[1] is CGFloat
+        shadow: "any[]",//list[0] is Color && list[1] is CGFloat && list[2] is CGFloat && list[3] is CGFloat
+        offset: "<number>[]",
     },
     Color: "background, highlight, lightInputText, inputText, activeColor, activeBackgroundColor",
     Action: "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop",
@@ -128,6 +139,20 @@ var types = {
         icon: ".string",
         opensView: ".boolean",
         "color, backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor": ".Color",
+    },
+    Location: {
+        latitude: "<number>",
+        longitude: "<number>"
+    },
+    Address: {
+        "type, city, street, state, postalCode": "<string>",
+        country: "Country",
+        location: "Location"
+    },
+    Country: {
+        name: "<string>",
+        flag: "<File>",
+        location: "Location"
     },
     $definitions: {
         sessions: {
