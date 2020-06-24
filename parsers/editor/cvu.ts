@@ -9,7 +9,7 @@ import {CVUParseErrors} from "../cvu-parser/CVUParseErrors";
 
 
 exports.parseCVU = function(text) {
-    var tokens = new CVULexer(text).tokenize();
+    var tokens = new CVULexer(text, true).tokenize();
     var ast = new CVUParser(tokens).parse()
     return ast
 };

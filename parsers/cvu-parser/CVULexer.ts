@@ -384,7 +384,8 @@ let keywords = {
 };
 
 export class CVULexer {
-    constructor(input) {
+    constructor(input, ignoreErrors) {
+        this.ignoreErrors = ignoreErrors;
         this.input = input
     }
 
@@ -546,20 +547,22 @@ export class CVULexer {
         if (keyword.length > 0) {
             addToken()
         }
-
+        
+        tokens.push(new CVUToken.EOF(ln, ch));
+        
+        if (this.ignoreErrors) return tokens;
+            
         if (isMode == Mode.string) {
-            throw new CVUParseErrors.MissingQuoteClose(new CVUToken.EOF(ln, ch))
+            throw new CVUParseErrors.MissingQuoteClose(tokens[tokens.length - 1])
         }
         else if (isMode == Mode.expression) {
-            throw new CVUParseErrors.MissingExpressionClose(new CVUToken.EOF(ln, ch))
+            throw new CVUParseErrors.MissingExpressionClose(tokens[tokens.length - 1])
         }
         else if (isMode != Mode.idle) {
             // TODO
             throw new Error(`Unhandled error mode: ${isMode}`)
         }
         
-        tokens.push(new CVUToken.EOF(ln, ch));
-
         return tokens
     }
 }

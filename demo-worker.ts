@@ -80,27 +80,22 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
             var {annotations, cvuString, tokens} = validate(value, this.doc);
             this.sender.emit("annotate", annotations);
             
-            var ast = this.getAst();    
             this.data = {
                 cvuString,
-                ast,
                 tokens
             };
         };
         this.complete = function(pos, callbackId) {
             var ast = this.getAst();
-            var currentNode = ast.findNode({ line: pos.row, col: pos.column });
-            console.log(currentNode)
-            this.sender.callback(currentNode, callbackId);
-            
-            getCompletions(ast, pos);
+            var result = getCompletions(ast, pos);
+            this.sender.callback(result, callbackId);
         };
         this.getData = function(name, callbackId) {
             var result = "";
             if (name == "cvu") {
                 result = this.data.cvuString
             } else if (name == "ast") {
-                result = this.ast.toPrettyString()
+                result = this.getAst().toPrettyString()
             } else if (name == "tokens") {
                 result = JSON.stringify(this.data.tokens, null, 4)
             }

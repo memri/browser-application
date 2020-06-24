@@ -67,7 +67,8 @@ var types = {
         },
         HorizontalLine: {
             desc: "Element that renders a horizontal line",
-            hasChildren: false
+            hasChildren: false,
+            isEmpty: true
         },
         Rectangle: {
             desc: "Element that renders a rectangle"
@@ -77,15 +78,18 @@ var types = {
         },
         Spacer: {
             desc: "Element that maximizes the space between elements in a stack",
-            hasChildren: false
+            hasChildren: false,
+            isEmpty: true
         },
         Divider: {
             desc: "Element that renders a divider line",
-            hasChildren: false
+            hasChildren: false,
+            isEmpty: true
         },
         Empty: {
             desc: "Element that does not render anything",
-            hasChildren: false
+            hasChildren: false,
+            isEmpty: true
         },
         Title: {
             hasChildren: false
@@ -125,7 +129,7 @@ var types = {
         opensView: "boolean",
         "color, backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor": "Color",
     },
-    definitions: {
+    $definitions: {
         sessions: {
             currentSessionIndex: "<number>",
             sessionDefinitions: "session[]"
@@ -135,7 +139,7 @@ var types = {
             currentViewIndex: "<number>",
             viewDefinitions: "view[]",
             "editMode, showFilterPanel, showContextPane": "boolean",
-            screenshot: "<File>"//TODO:?
+            screenshot: "<File>" 
 
         },
         view: {
@@ -151,19 +155,17 @@ var types = {
             renderDefinitions: "renderer[]"
         },
         datasource: {
-
+            "query, sortProperty, sortAscending": "<string[]>",
         },
         renderer: {
-
+            
         },
-        color: {
-
-        },
+        color: "dark,light",
         style: {
-
+            "background, color": "Color",
+            "border": "",
         },
         language: {
-
         }
     }
     
@@ -172,6 +174,25 @@ var types = {
 
 export function getCompletions(ast, pos) {
     
+    var currentNode = ast.findNode({ line: pos.row, col: pos.column });
+    console.log(currentNode + "")
+    currentNode.traverseUp("Rule(Selector(x), y)", function ({ x, y }) {
+        if (/renderer/.test(x + "")) {
+            
+        }
+        console.log(x + "");
+    });
+    debugger
+    currentNode.traverseUp("x", function({x}) {
+        console.log(x)
+    })
+    
+    return Object.keys(types.UIElement).map((key) => {
+        var elementData = types.UIElement[key];
+        var hint = elementData.desc;
+        var snippet = elementData.isEmpty ? undefined : key + " {$0}";
+        return {value: key, type: "Element", docHTML: hint, snippet};
+    })
 }
 
 
@@ -212,7 +233,33 @@ var defaults = {
     /*require("text-loader!../../cvu/defaults/views_from_server.json"),*/
 };
 
+var all = {}
+var selectors = {}
 Object.keys(defaults).forEach(function(name) {
     var ast = parseCVU(defaults[name])
-    console.log(ast + "")
+    // console.log(ast + "")
+    ast.dict = all[name] = {};
+    ast.traverseTopDown('Rule(Selector(x), y)', function(arg) {
+        var root = arg.y.parent.parent
+        var selector = arg.x + ""
+        
+        
+        var value;
+        if (arg.y.cons == "Dict" || arg.y.cons == "List") {
+            value = arg.y.dict || (arg.y.dict = {})
+        } else {
+            value = arg.y.toString()
+        }
+        if (root.dict) {
+            root.dict[selector] = value;
+        }
+        if (!selectors[selector]) selectors[selector] = []
+        if (!types.UIElement[`"${selector}"`])
+            selectors[selector].push(value)
+        // console.log(arg.x+ "", arg.y)
+    })
+    
+    console.log(ast.dict);
 })
+// debugger
+all

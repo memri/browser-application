@@ -91,8 +91,8 @@ let editor = ace.edit(refs.editor, {
 
 editor.completers = [{
     getCompletions(editor, session, pos, prefix, callback) {
-        session.$worker.call("complete", [pos], function() {
-            
+        session.$worker.call("complete", [pos], function(result) {
+            callback(null, result);
         });
     }
 }]

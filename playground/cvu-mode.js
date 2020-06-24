@@ -7,6 +7,7 @@ var oop = ace.require("ace/lib/oop");
 var TextMode = ace.require("ace/mode/text").Mode;
 var FoldMode = ace.require("ace/mode/folding/cstyle").FoldMode;
 var TextHighlightRules = ace.require("ace/mode/text_highlight_rules").TextHighlightRules;
+var CstyleBehaviour = ace.require("ace/mode/behaviour/cstyle").CstyleBehaviour;
 
 var CvuHighlightRules = function() {
     var keywordMapper = this.createKeywordMapper({
@@ -244,6 +245,7 @@ exports.CvuHighlightRules = CvuHighlightRules;
 
 var Mode = function() {
     this.HighlightRules = CvuHighlightRules;
+    this.$behaviour = new CstyleBehaviour();
     this.foldingRules = new FoldMode();
 };
 oop.inherits(Mode, TextMode);
@@ -261,13 +263,12 @@ oop.inherits(Mode, TextMode);
         if (tokens.length && tokens[tokens.length-1].type == "comment") {
             return indent;
         }
-
-        if (state == "start") {
-            var match = line.match(/^.*(?:[{\[])\s*$/);
-            if (match) {
-                indent += tab;
-            }
+        
+        var match = line.match(/^.*(?:[{\[])\s*$/);
+        if (match) {
+            indent += tab;
         }
+        
 
         return indent;
     };
