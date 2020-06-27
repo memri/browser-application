@@ -87,7 +87,7 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
         };
         this.complete = function(pos, callbackId) {
             var ast = this.getAst();
-            var result = getCompletions(ast, pos);
+            var result = getCompletions(ast, pos, this.doc);
             this.sender.callback(result, callbackId);
         };
         this.getData = function(name, callbackId) {

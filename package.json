@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx ts-mocha 'parsers/**/*Tests.ts'",
     "build": "webpack; cp editor.html dist",
-    "publish-gh-pages": "cd dist; git init .;git add .; git commit -am "build-demo"; git push  git@gitlab.memri.io:memri/browser-application.git +HEAD:gh-pages",
+    "publish-gh-pages": "cd dist; git init .;git add .; git commit -am build-demo; git push  git@gitlab.memri.io:memri/browser-application.git +HEAD:gh-pages",
     "start": "webpack-dev-server"
   },
   "keywords": [],

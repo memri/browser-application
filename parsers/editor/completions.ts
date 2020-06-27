@@ -127,6 +127,7 @@ var types = {
         border: "",
         shadow: "",
         offset: ".number",
+        renderers: {list: "", generalEditor: "", chart: "", thumbnail: "", timeline: "", custom: ""}
     },
     Color: "background, highlight, lightInputText, inputText, activeColor, activeBackgroundColor",
     Action: "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop",
@@ -204,13 +205,13 @@ var types = {
             sortFields:"<string[]>",
             "editButtons, filterButtons, actionItems, navigateItems, contextButtons": "Action | Action[]",
             include: ".string | <string[]>",
-            renderDefinitions: "renderer[]"
+            // renderDefinitions: "renderer[]"
         },
         datasource: {
             "query, sortProperty, sortAscending": ".string",
         },
         renderer: {
-            
+            $values: {list: "", generalEditor: "", chart: "", thumbnail: "", timeline: "", custom: ""}
         },
         color: "dark, light",
         style: {
@@ -223,7 +224,7 @@ var types = {
 }
 
 
-export function getCompletions(ast, pos) {
+export function getCompletions(ast, pos, doc) {
     var completions = []
     var currentNode = ast.findNode({ line: pos.row, col: pos.column });
     console.log(currentNode + "")
@@ -244,7 +245,15 @@ export function getCompletions(ast, pos) {
     });
     var isInselector = false;
     var propertyName;
-    if (currentNode.cons == "Selector") {
+    var line = doc.getLine(pos.row)
+    var lineBefore = line.slice(0, pos.column)
+    if (currentNode.cons == "Prop") {
+        if (!/=/.test(lineBefore)) {
+            Object.keys(types.$definitions).map(value => completions.push({value}))
+        } else if (types.$definitions[currentNode[0].value]?.$values) {
+            Object.keys(types.$definitions[currentNode[0].value]?.$values).map(value => completions.push({value}))
+        }
+    } else if (currentNode.cons == "Selector") {
         isInselector = true
         parents.shift()
     } else if (currentNode.cons == "Dict") {
@@ -281,7 +290,7 @@ function addUIElementNames(completions) {
 }
 function addProperties(completions, typeMap) {
     Object.keys(typeMap).map((key) => {
-        
+        if (key[0] == "$") return;
         if (key[0] == "." && typeMap[key.slice(1)]) 
             return addProperties(completions, typeMap[key.slice(1)]);
         
@@ -295,6 +304,7 @@ function addPropertyValues(completions, propertyName) {
     var typeMap = types.UIElementProperties;
     var type = typeMap[propertyName]
     if (typeof type == "string") {
+        if (type[0] == "$") return;
         if (type[0] == ".") type = types[type.slice(1)];
     }
     if (typeof type == "object") {
@@ -303,6 +313,7 @@ function addPropertyValues(completions, propertyName) {
     
     function add(type) {
         Object.keys(type).forEach((key) => {
+            if (key[0] == "$") return;
             if (key[0] == "." && typeMap[key.slice(1)]) return add(typeMap[key.slice(1)])
             completions.push({value: key})
         });
@@ -350,7 +361,6 @@ var all = {}
 var selectors = {}
 Object.keys(defaults).forEach(function(name) {
     var ast = parseCVU(defaults[name])
-    // console.log(ast + "")
     ast.dict = all[name] = {};
     ast.traverseTopDown('Rule(Selector(x), y)', function(arg) {
         var root = arg.y.parent.parent
@@ -366,16 +376,16 @@ Object.keys(defaults).forEach(function(name) {
         if (root.dict) {
             root.dict[selector] = value;
         }
-        if (!selectors[selector]) selectors[selector] = []
-        if (!types.UIElement[`"${selector}"`])
-            selectors[selector].push(value)
-        // console.log(arg.x+ "", arg.y)
+        selector = selector.replace(/"/g, "")
+        if (!/^[A-Z]/.test(selector)) {
+            if (!selectors[selector]) selectors[selector] = []
+            if (!types.UIElement[selector])
+                selectors[selector].push(value)
+        }
     })
-    
-    console.log(ast.dict);
 })
-// debugger
-all
+   
+ 
 
 
 function normalize(obj) {

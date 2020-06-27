@@ -1,100 +1,50 @@
+import {settings} from "../model/Settings"
 
-/// Provides functions to communicate asynchronously with a Pod (Personal Online Datastore) for storage of data and/or for
-/// executing actions
-class ClientError{
-    private Int: any;
-    String: any;
-    type = "ClientError";
-
-    constructor(Int, String) {
-        this.Int = Int;
-        this.String = String;
-    }
-}
-
-/// Specifies used http methods
-let HTTPMethod = {
-    GET: "GET",
-    POST: "POST",
-    DELETE: "DELETE",
-    PUT: "PUT"
-};
-
-class PodAPI {
+export class PodAPI {
     key;
-
-    HTTPError = {ClientError};
-    
+     
     constructor(podkey) {
         this.key = podkey
     }
     
-    http(method = HTTPMethod.GET, path = "", body = null, callback, data) {
+    async http({method = "GET", path = "", body, data}, callback) {
 
-        let session = new URLSession(.default, null, .main)//TODO
-        let podhost = Settings.get("user/pod/host") || ""//TODO
+        let podhost = settings.get("user/pod/host") || ""
 
-        var baseUrl = URL(podhost)//TODO
-        if (!baseUrl) {
+        var url = new URL(podhost)
+        if (!url) {
             let message = `Invalid pod host set in settings: ${podhost}`
             // debugHistory.error(message)
             callback(message, null)
             return
         }
 
-        baseUrl = baseUrl
-            .appendingPathComponent("v1")
-            .appendingPathComponent(path)
+        url.pathname += "v1/" + path
         
-        // TODO when the backend sends the correct caching headers
-        // this can be changed: .reloadIgnoringCacheData
-
-        let username = Settings.get("user/pod/username");
-        let password = Settings.get("user/pod/password");
-
-        if (!username || !password) {
-            console.log("ERROR: Could not find login credentials, so could not authenticate to pod")
-            return
+        let username = settings.get("user/pod/username");
+        let password = settings.get("user/pod/password");
+        
+        let loginString = undefined;
+        if (username && password) {
+            loginString = btoa(`${username}:${password}`)
+            loginString = `Basic ${loginString}`;
         }
-
-        let loginString = `${username}:${password}`
-        let loginData = loginString.data(String.Encoding.utf8)
-        if (!loginData) {
-            return
+        
+        var result, error
+        try {
+            result = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: loginString,
+                },
+                body
+            })
+            result = await result.json()
+        } catch(e) {
+            error = e;
         }
-        let base64LoginString = loginData.base64EncodedString()
-        
-        var urlRequest = new URLRequest(
-            baseUrl,
-            this.reloadIgnoringCacheData,
-            this.greatestFiniteMagnitude)
-        urlRequest.httpMethod = method
-        urlRequest.addValue("application/json", "Content-Type")
-        if (body) { urlRequest.httpBody = body }
-        urlRequest.allowsCellularAccess = true
-        urlRequest.allowsExpensiveNetworkAccess = true
-        urlRequest.allowsConstrainedNetworkAccess = true
-        urlRequest.setValue("Basic \(base64LoginString)", "Authorization")
-        
-        let task = session.dataTask(urlRequest, function (data, response, error) {
-            if (error) {
-                callback(error, data)
-            }
-            else if (response instanceof HTTPURLResponse) {
-                let httpResponse = response;
-                if (httpResponse.statusCode > 399) {
-                    let httpError = new HTTPError.ClientError(httpResponse.statusCode,
-                        `URL: ${baseUrl.absoluteString}\nBody:` +
-                            + (String(data ?? Data(), .utf8) ?? ""))
-                    callback(httpError, data)
-                    return
-                }
-            }
-            
-            callback(null, data)
-        });
-
-        task.resume()
+        callback && callback(null, result);
     }
     
     getArray(item, prop) {
@@ -150,7 +100,7 @@ class PodAPI {
                     if (prop.name == "syncState" || prop.name == "deleted" || (removeUID && prop.name == "uid")) {
                         // Ignore
                     }
-                    else if (updatedFields == null || updatedFields?.contains(prop.name) ?? false) {
+                    else if (updatedFields == null || updatedFields?.contains(prop.name)) {
                         /*if (prop.type == .object) {
                             if (prop.isArray) {
                                 var toList = [[String:Any]]()
@@ -197,9 +147,9 @@ class PodAPI {
     ///   - memriID: The memriID of the data item to retrieve
     ///   - callback: Function that is called when the task is completed either with a result, or an error
     /// - Remark: Note that it is not necessary to specify the type here as the pod has a global namespace for uids
-    get(memriID, callback, item) {
+    get(memriID, callback) {
         
-        this.http(HTTPMethod.GET, `items/${memriID}`, null, function (error, data) {
+        this.http({method: "GET", body: `items/${memriID}`}, function (error, data) {
 
             if (data) {
                 // TODO Refactor: Error handling
@@ -242,7 +192,7 @@ class PodAPI {
     /// - Remark: Note that data items that are marked as deleted are by default not returned when querying
     remove(memriID, callback, success) {
         
-        this.http(HTTPMethod.DELETE, "items/\(memriID)", null, function (error, data) {
+        this.http(HTTPMethod.DELETE, `items/${memriID}`, null, function (error, data) {
             callback(error, error == null)
         }, null)
     }
@@ -262,17 +212,17 @@ class PodAPI {
         
         var data = null
         
-        let query = queryOptions.query ?? ""
-        // let matches = query.match(#"^(\w+) AND memriID = '(.+)'$"#)//TODO
-        if (matches.count == 3) {
+        let query = queryOptions.query || ""
+        let matches = query.match(/^(\w+) AND memriID = '(.+)'$/)
+        if (matches) {
             let type = matches[1]
             let memriID = matches[2]
             
             console.log("Requesting single \(type) with memriID \(memriID)")
             
-            data = ""`
+            data = `
                 {
-                  items(function: type(${type})) @filter(eq(memriID, ${memriID})) {
+                  items(func: type(${type})) @filter(eq(memriID, ${memriID})) {
                     uid
                     type : dgraph.type
                     expand(_all_) {
@@ -286,16 +236,16 @@ class PodAPI {
                     }
                   }
                 }
-            `"".data(.utf8)
+            `
         }
-        else {
-            let type = query.split(" ").first ?? ""
+        else if (query.match(/^(\w+)$/)) {
+            let type = query.split(" ")[0] || ""
             
-            console.log(`Requesting query result of ${type}: ${queryOptions.query ?? ""}`)
+            console.log(`Requesting query result of ${type}: ${queryOptions.query || ""}`)
             
-            data = ""`
+            data = `
                 {
-                  items(function: type(${type})) {
+                  items(func: type(${type})) {
                     uid
                     type : dgraph.type
                     expand(_all_) {
@@ -309,30 +259,15 @@ class PodAPI {
                     }
                   }
                 }
-            `"".data(.utf8)
+            ` 
         }
         
-        this.http(HTTPMethod.POST, "all", data, function (error, data) {
+        this.http({method: "POST", path: "all", body: data}, function (error, data) {
             if (error) {
-                // debugHistory.error(`Could not load data from pod: \n${error}`)
                 callback(error, null)
             }
-            else if (data) {
-                try {
-                    var items:[DataItem]?
-                     JSONErrorReporter() {
-                        items =  MemriJSONDecoder
-                            .decode(family: DataItemFamily.self, from: data)
-                    }
-                    
-                    callback(nil, items)
-                }
-                catch (error) {
-                    debugHistory.error("Could not load data from pod: \n\(error)")
-                    callback(error, nil)
-                }
-            }
-        }, null)
+            callback(null, data)
+        })
         
     }
     
@@ -379,7 +314,7 @@ class PodAPI {
 
 /*
 {
-          item(function: eq(isPartiallyLoaded, true)) {
+          item(func: eq(isPartiallyLoaded, true)) {
             uid
             ~syncState {
               expand(_all_) {
@@ -395,15 +330,15 @@ class PodAPI {
         }
         
         {
-          get(function: type(note)) @filter(NOT anyofterms(title, "3") OR eq(starred, false)) @recurse {
+          get(func: type(note)) @filter(NOT anyofterms(title, "3") OR eq(starred, false)) @recurse {
             uid
             type : dgraph.type
             expand(note)
           }
         }
-        This will give you the uid and type of both note node and the label nodes that are linked to it via labels edge, and all properties of note. If you want more properties of the linked label, you can either specify it e.g. name under expand(note) , or if (you want all of them, do query like this:
-       ) {
-          get(function: type(note)) @filter(NOT anyofterms(title, "3") OR eq(starred, false)) @recurse {
+        This will give you the uid and type of both note node and the label nodes that are linked to it via labels edge, and all properties of note. If you want more properties of the linked label, you can either specify it e.g. name under expand(note) , or if you want all of them, do query like this:
+        {
+          get(func: type(note)) @filter(NOT anyofterms(title, "3") OR eq(starred, false)) @recurse {
             uid
             type : dgraph.type
             expand(_all_)
@@ -413,14 +348,14 @@ class PodAPI {
         
         
         {
-          get(function: anyofterms(title, "5")) @recurse {
+          get(func: anyofterms(title, "5")) @recurse {
             uid
             type : dgraph.type
             expand(note)
           }
         }
-        The expand() trick as I wrote in the last post also applies here, so if (you want only uid and type of 2nd layer nodes, you use expand(note) (all properties of the 1st layer node). I give the result here:
-       ) {
+        The expand() trick as I wrote in the last post also applies here, so if you want only uid and type of 2nd layer nodes, you use expand(note) (all properties of the 1st layer node). I give the result here:
+        {
           "data": {
             "get": [
               {
@@ -450,7 +385,7 @@ class PodAPI {
             
             
             {
-              item(function: anyofterms(name, "Home"))  {
+              item(func: anyofterms(name, "Home"))  {
                 ~labels {
                   uid
                   dgraph.type
@@ -460,4 +395,27 @@ class PodAPI {
                 }
               }
             }
+*/
+
+
+// api = new PodAPI()
+// api.get("10011")
+// api.query({query: "CVUStoredDefinition AND memriID = '10001'"}, console.log)
+
+/*
+fetch("http://localhost:3030/v1/all", {method: "POST", body: `{
+    items(func: type(CVUStoredDefinition)) {
+    uid
+    type : dgraph.type
+    expand(all) {
+        uid
+        type : dgraph.type
+        expand(all) {
+        uid
+        memriID
+        type : dgraph.type
+        }
+    }
+  }
+}` }).then(x=>x.json()).then(console.log)
 */
