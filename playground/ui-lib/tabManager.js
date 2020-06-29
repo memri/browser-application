@@ -17,7 +17,7 @@ class TabManager {
         this.containers = {};
         this.containers.console = options.console;
         this.containers.main = options.main;
-        this.tabs = [];
+        this.tabs = {};
     }
     toJSON() {
         var containers = this.containers
@@ -53,6 +53,8 @@ class TabManager {
                     boxData.tabBar.tabList.forEach((tab) => {
                         tab = box.tabBar.addTab(tab)
                         this.tabs[tab.path] = tab;
+                        if (tab.preview)
+                            this.previewTab = tab;
                     })
                     box.tabBar.freeze = false;
                     box.tabBar.render();
@@ -156,6 +158,7 @@ class TabManager {
         }
         tab.parent.removeSelections()
         tab.parent.activateTab(tab);
+        return tab;
     }
     
     clearPreviewStatus(tab) {

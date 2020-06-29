@@ -183,3 +183,13 @@ body {
     font-family: inherit;
     border: none;
 }
+
+
+.ace_listBox .ace_ {
+    margin-left: 1em;
+}
+.ace_listBox .ace_header {
+    font-weight: bold;
+    margin-left: 0;
+}
+

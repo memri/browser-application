@@ -227,10 +227,9 @@ var types = {
 export function getCompletions(ast, pos, doc) {
     var completions = []
     var currentNode = ast.findNode({ line: pos.row, col: pos.column });
-    console.log(currentNode + "")
     var definition = false;
     var parents = [];
-    currentNode.traverseUp("Rule(Selector(x), y)", function ({ x, y }) {
+    currentNode?.traverseUp("Rule(Selector(x), y)", function ({ x, y }) {
         if (!definition) {
             var definitionType = /Prop\("(\w+)"/.exec(x + "")
             if (
@@ -247,7 +246,9 @@ export function getCompletions(ast, pos, doc) {
     var propertyName;
     var line = doc.getLine(pos.row)
     var lineBefore = line.slice(0, pos.column)
-    if (currentNode.cons == "Prop") {
+    if (!currentNode) {
+        // 
+    } else if (currentNode.cons == "Prop") {
         if (!/=/.test(lineBefore)) {
             Object.keys(types.$definitions).map(value => completions.push({value}))
         } else if (types.$definitions[currentNode[0].value]?.$values) {

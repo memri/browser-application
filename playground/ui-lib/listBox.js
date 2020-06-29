@@ -136,45 +136,7 @@ function prompt(editor, message, options, callback) {
  
  
 }
- 
-prompt.modes = function(editor, callback) {
-    var modesArray = modelist.modes;
-    modesArray = modesArray.map(function(item) {
-        return {value: item.caption, mode: item.name};
-    });
-    prompt(editor, "",  {
-        name: "modes",
-        selection: [0, Number.MAX_VALUE],
-        onAccept: function(data) {
-            if (data.item) {
-                var modeName = "ace/mode/" + data.item.mode;
-                editor.session.setMode(modeName);
-            }
-        },
-        getPrefix: function(cmdLine) {
-            var currentPos = cmdLine.getCursorPosition();
-            var filterValue = cmdLine.getValue();
-            return filterValue.substring(0, currentPos.column);
-        },
-        getCompletions: function(cmdLine) {
-            function getFilteredCompletions(modes, prefix) {
-                var resultCommands = JSON.parse(JSON.stringify(modes));
-
-                var filtered = new FilteredList(resultCommands);
-                return filtered.filterCompletions(resultCommands, prefix);
-            }
-
-            var prefix = this.getPrefix(cmdLine);
-            var completions = getFilteredCompletions(modesArray, prefix);
-            return completions.length > 0 ? completions : [{
-                "caption": "No mode matching",
-                "value": "No mode matching",
-                "error": 1
-            }];
-        }
-    });
-};
-
+  
 var {Box} = require("./box");
 var lib = require("./lib");
 
@@ -212,6 +174,11 @@ class ListBox extends Box {
         this.element.appendChild(popup.container);
         this.popup = popup;
         delete popup.focus
+        
+        // popup.session.bgTokenizer.$tokenizeRow = function() { return {tokens: [{}], state: "start"} }
+        // popup.renderer.$textLayer.$renderLine = function() {
+            // debugger
+        // }
         
         // updateCompletions();
         return this.element;

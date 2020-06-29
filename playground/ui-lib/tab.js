@@ -21,6 +21,7 @@ class Tab {
             tabIcon: this.tabIcon || undefined,
             active: this.active || undefined,
             path: this.path || undefined,
+            preview: this.preview || undefined,
         };
     }
     activate() {

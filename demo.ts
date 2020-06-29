@@ -18,6 +18,8 @@ let demoWorker = new DemoWorker();
 
 
 
+ace.Editor.prototype.__defineGetter__("$readOnly", function() { return this.session.$readOnly })
+
 var defaults = {
     /*require("text-loader!./cvu/defaults/default_user_views.json"),*/
     /*require("text-loader!./cvu/defaults/macro_views.json"),*/
@@ -223,7 +225,7 @@ tabManager.loadFile = function(tab) {
     } else if (!tab.path) {
         return setSession(tab, "")
     } else if (defaults[tab.path]) {
-        return setSession(tab, defaults[tab.path])
+        return setSession(tab, defaults[tab.path], true)
     } else if (tab.path) {
         tab.editor.container.style.display = "none";
         loadCVUDefinition(tab.path, function(err, value) {
@@ -233,30 +235,35 @@ tabManager.loadFile = function(tab) {
         tab.editor.container.style.display = "none";
     }
 }; 
-
-function setSession(tab, value) {
+function updateSaveButton(e, editor) {
+    var tab = editor.session.tab;
+    if (tab.parent && tab.parent.activeTab == tab) {
+        if (tab.session.getUndoManager().isClean() != refs.saveButton.disabled) {
+            refs.saveButton.disabled = tab.session.getUndoManager().isClean();
+        } 
+        if (refs.saveButton.disabled) {
+            tab.element.classList.remove("changed");
+        } else {
+            tab.element.classList.add("changed");
+        }
+    }
+    if (e && tab.preview) {
+        tabManager.clearPreviewStatus(tab);
+    }
+}
+function setSession(tab, value, readOnly) {
     var editor = tab.editor
     if (!editor) return;
     if (typeof value == "string") {
         tab.session = ace.createEditSession(value || "", cvumode);
-        tab.updateSaveButton = function(e) {
-            if (tab.parent && tab.parent.activeTab == tab) {
-                if (tab.session.getUndoManager().isClean() != refs.saveButton.disabled) {
-                    refs.saveButton.disabled = tab.session.getUndoManager().isClean();
-                } 
-                if (refs.saveButton.disabled) {
-                    tab.element.classList.remove("changed");
-                } else {
-                    tab.element.classList.add("changed");
-                }
-            }
-            if (e && tab.preview) {
-                tabManager.clearPreviewStatus(tab);
-            }
-        }
-        tab.session.on("change", tab.updateSaveButton)
+        tab.session.tab = tab;
+        tab.editor.on("input", updateSaveButton)
+        loadMetadata(tab)
     }
+    if (readOnly != undefined)
+        tab.session.$readOnly = readOnly;
     editor.setSession(tab.session);
+    editor.$options.readOnly.set.call(editor, editor.$readOnly);
     
     if (sharedWorker.$doc)
         sharedWorker.$doc.off("change", sharedWorker.changeListener);
@@ -276,7 +283,7 @@ function setSession(tab, value) {
     });
     editor.completers = cvuCompleters
     
-    tab.updateSaveButton();
+    updateSaveButton(true, editor);
 }
 
 
@@ -312,12 +319,51 @@ function saveJson(name, value) {
 }
 
 
+function saveMetadata() {
+    Object.values(tabManager.tabs).forEach(function(tab) {
+        if (!tab.path || !tab.session) return;
+        
+        var session = tab.session
+        var undoManager = tab.session.$undoManager;
+        localStorage["@file@" + tab.path] = JSON.stringify({
+            selection: session.selection.toJSON(),
+            undoManager: undoManager.toJSON(),
+            value: undoManager.isClean() ? undefined : session.getValue(),
+            scroll: [
+                session.getScrollLeft(),
+                session.getScrollTop()
+            ],
+        });
+    })
+}
+function loadMetadata(tab) {
+    var path = tab.path
+    var session = tab.session;
+    var metadata = getJson("@file@" + path)
+    if (!metadata) return;
+    try {
+        if (typeof metadata.value == "string" && metadata.value != session.getValue()) {
+            session.doc.setValue(metadata.value);
+        }
+        if (metadata.selection) {
+            session.selection.fromJSON(metadata.selection);
+        }
+        if (metadata.scroll) {
+            session.setScrollLeft(metadata.scroll[0]);
+            session.setScrollTop(metadata.scroll[1]);
+        }
+        
+    }catch(e) {
+        console.error(e)
+    }
+    
+        
+    
+}
 
 window.onbeforeunload = function() {
-    window.localStorage.mode = mode;
-    window.localStorage.session = refs.session.value;
-    
-    saveJson("tabs", tabManager)
+    saveJson("tabs", tabManager);
+    saveMetadata();
 }
 
 import {settings} from "./model/Settings"
@@ -334,30 +380,41 @@ var api = new PodAPI();
 updateTree() 
  
 var defaultFilelist = Object.keys(defaults).sort().map(function(key) {
-    return key && {name: key}
+    return key && {name: key, readonly: true}
 }).filter(Boolean);
 
 listBox.popup.setData(defaultFilelist);
  
 function updateTree() {
     listCVUDefinitions(function(err, files) {
-        listBox.popup.setData(files.concat(defaultFilelist));
+        listBox.popup.setData(
+            [].concat(
+                [{className: "header", name: "User"}],
+                files,
+                [{className: "header", name: "Default"}],
+                defaultFilelist
+            )
+        );
         listBox.popup.resize(true)
     })
 }
  
-listBox.on("select", function(data) {
+function open(data, preview) {
     tabManager.open({
         path: data.name,
         preview: true,
     })
-})
+}
+ 
+listBox.on("select", function(data) {
+    if (data.className) return;
+    open(data, true);
+});
  
 listBox.on("choose", function(data) {
-    tabManager.open({
-        path: data.name,
-    })
-})
+    if (data.className) return;
+    open(data, false);
+});
 
  
 function listCVUDefinitions(callback) {
