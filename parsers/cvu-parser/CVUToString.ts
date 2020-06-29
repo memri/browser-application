@@ -124,7 +124,7 @@ export class CVUSerializer {
 
     dictToString(dict, depth: number = 0, tab: string = "    ",
                  withDef: boolean = true, extraNewLine: boolean = false,
-                 sortFunc): string {
+                 sortFunc?): string {
         var keys: [string];
         try {
             keys = dict/*(sortFunc)

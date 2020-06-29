@@ -11,27 +11,25 @@ const {ExprParser} = require("./ExprParser");
 
 
 export class Expression {
+    code: string;
+    startInStringMode: boolean;
+    lookup;
+    execFunc;
     context;
 
     interpreter;
     parsed = false;
     ast;
 
-    constructor(code, startInStringMode) {
+    constructor(code, startInStringMode, lookup?, execFunc?) {
         this.code = code;
         this.startInStringMode = startInStringMode;
-    }
-
-    lookup() {//TODO
-
-    }
-
-    execFunc() {//TODO
-
+        this.lookup = lookup;
+        this.execFunc = execFunc
     }
 
     toCVUString(depth, tab) {
-        this.startInStringMode ? `\"${this.code}\"` : `{{${this.code}}}`//TODO
+        this.startInStringMode ? `"${this.code}"` : `{{${this.code}}}`
     }
 
     toString() {
@@ -40,7 +38,7 @@ export class Expression {
 
     isTrue() {
         let x =  this.execForReturnType()
-        return x != null ? x : false;
+        return x ?? false;
     }
 
     toggleBool() {
@@ -50,18 +48,25 @@ export class Expression {
             var sequence = node.sequence
             let lastProperty = sequence.pop()
             if (lastProperty instanceof ExprVariableNode) {
-                let lookupNode = ExprLookupNode(sequence);
+                let lookupNode = new ExprLookupNode(sequence);
                 let lookupValue =  this.lookup(lookupNode, ViewArguments())//TODO
 
                 let obj = lookupValue;
                 let context = this.context;
-                if (obj instanceof Object && context) {
+                if (obj instanceof UserState && context) {
                     // realmWriteIfAvailable(context.realm) {//TODO
                     //     obj[lastProperty.name] =
                     //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
                     // }
                     return
                 }
+                else if (obj instanceof Object && context) {
+                   /* realmWriteIfAvailable(context.realm) {
+                    obj[lastProperty.name] =
+                        !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
+                }*/
+                return
+            }
                 // TODO FIX: Implement LookUpAble
                 else if (obj instanceof MemriContext && context){
                     // realmWriteIfAvailable(context.realm) {//TODO
@@ -92,11 +97,11 @@ export class Expression {
             var sequence = node.sequence
             let lastProperty = sequence.pop()
             if (lastProperty instanceof ExprVariableNode) {
-                let lookupNode = ExprLookupNode(sequence)
+                let lookupNode = new ExprLookupNode(sequence)
                 let dataItem = this.lookup(lookupNode, viewArguments)//TODO
                 if (dataItem instanceof DataItem) {
-                    let property = dataItem.objectSchema[lastProperty.name];
-                    if (property) {
+                    let propType = dataItem.objectSchema[lastProperty.name]?.type;
+                    if (propType) {
                         let propType = property.type
                         return (propType, dataItem, lastProperty.name)//TODO
                     }
@@ -108,13 +113,13 @@ export class Expression {
     }
 
     parse() {
-        let lexer = ExprLexer(this.code, this.startInStringMode)
-        let parser = ExprParser(lexer.tokenize());
+        let lexer = new ExprLexer(this.code, this.startInStringMode)
+        let parser = new ExprParser(lexer.tokenize());
         this.ast = parser.parse()
 
         // TODO: Error handlign
         if (this.ast) {
-            this.interpreter = ExprInterpreter(this.ast, this.lookup, this.execFunc)
+            this.interpreter = new ExprInterpreter(this.ast, this.lookup, this.execFunc)
             this.parsed = true
         }
         else {
@@ -126,22 +131,20 @@ export class Expression {
         this.parse()
     }
 
-    execForReturnType(args) {
+    execForReturnType(args = null) {
         if (!this.parsed) this.parse()
-        if (args == undefined) args = ViewArguments()//TODO
-        let value = this.interpreter && this.interpreter.execute(args)
+        let value = this.interpreter?.execute(args ?? ViewArguments())
 
-        // if (value == undefined) { return }//TODO
-        // if (value instanceof T) { return value }
-        // if (T.self == Bool.self) { return ExprInterpreter.evaluateBoolean(value) as? T }
-        // if (T.self == Double.self) { return ExprInterpreter.evaluateNumber(value) as? T }
-        // if (T.self == Int.self) { return ExprInterpreter.evaluateNumber(value) as? T }
-        // if (T.self == String.self) { return ExprInterpreter.evaluateString(value) as? T }
-
-        return;
+        if (value == null) { return null}
+        if (typeof value == "object") { return value }
+        if (typeof value == "boolean") { return new ExprInterpreter(undefined, undefined, undefined).evaluateBoolean(value) }
+        if (typeof value == "number") { return new ExprInterpreter(undefined, undefined, undefined).evaluateNumber(value) }
+        if (typeof value == "string") { return new ExprInterpreter(undefined, undefined, undefined).evaluateString(value) }
+        //TODO: this should be quite the same
+        return null;
     }
 
-    execute(args) {
+    execute(args = null) {
         if (!this.parsed) this.parse()
 
         return this.interpreter.execute(args)

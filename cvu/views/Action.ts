@@ -199,9 +199,12 @@ public func executeAction(_ actions:[Action], with dataItem:DataItem? = nil,
 }*/
 
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {Expression} from "../../parsers/expression-parser/Expression";
+import {ActionError} from "./ActionErrors";
+import {CVUParsedSessionDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
 class Action/* : HashableClass, CVUToString*/ {
-    name; /*= .noop*/
+    name = ActionFamily.noop;
     arguments = {};
 
     get binding() {
@@ -216,14 +219,14 @@ class Action/* : HashableClass, CVUToString*/ {
     };
 
     get argumentTypes() {
-        return this.defaultValues["argumentTypes"] ?? {}//TODO;
+        return (typeof this.defaultValues["argumentTypes"] == "object")? this.defaultValues["argumentTypes"]: {}
     }
 
     defaultValues = {};
 
     baseValues = {
         "icon": "exclamationmark.triangle",
-        "renderAs": RenderType.button,//TODO
+        "renderAs": RenderType.button,
         "showTitle": false,
         "opensView": false,
         "color": Color("#999999"),//TODO
@@ -279,7 +282,7 @@ class Action/* : HashableClass, CVUToString*/ {
     }
 
     get description(): string {
-        return toCVUString(0, "    ")//TODO
+        return this.toCVUString(0, "    ")
     }
 
     constructor(context: MemriContext, name: string, argumentsJs = null, values = {}) {
@@ -287,18 +290,18 @@ class Action/* : HashableClass, CVUToString*/ {
 
         super();//TODO:
 
-        let actionName = ActionFamily[name];//TODO:
+        let actionName = ActionFamily[name];
         if (actionName) {
             this.name = actionName
         } else {
-            this.name /*= .noop*/ //TODO
+            this.name = ActionFamily.noop;
         } // TODO REfactor: Report error to user
 
         this.arguments = argumentsJs ?? this.arguments;
         this.values = values;
         let x = this.values["renderAs"];
         if (typeof x == "string") {
-            this.values["renderAs"] = RenderType[x]//TODO: check
+            this.values["renderAs"] = RenderType[x]
         }
     }
 
@@ -313,7 +316,7 @@ class Action/* : HashableClass, CVUToString*/ {
 
                 let value = expr.execForReturnType(viewArguments);
                 return value
-            } catch {
+            } catch (error) {
                 console.log(`ACTION ERROR: ${error}`);
                 // TODO Refactor: Error reporting
                 return null;
@@ -333,12 +336,12 @@ class Action/* : HashableClass, CVUToString*/ {
     }
 
     getColor(key:string, viewArguments = null) {
-        let x = this.get(key, viewArguments) ?? Color.black;
+        let x = this.get(key, viewArguments) ?? Color.black;//TODO
         return x;
     }
 
     getRenderAs(viewArguments = null): RenderType {
-        let x:RenderType = this.get("renderAs", viewArguments) //?? .button//TODO
+        let x:RenderType = this.get("renderAs", viewArguments) ?? RenderType.button
         return x;
     }
 
@@ -347,19 +350,19 @@ class Action/* : HashableClass, CVUToString*/ {
         let tabsEnd = depth > 0 ? tab.repeat(depth - 1) : "";
         var strBuilder: string[] = [];
 
-        if (this.arguments.length > 0) {
+        if (Object.keys(this.arguments).length > 0) {
             strBuilder.push(`arguments: ${new CVUSerializer().dictToString(this.arguments, depth + 1, tab)}`);
         }
         let value = this.values["binding"];
         if (value instanceof Expression) {
-            strBuilder.push(`binding: ${value.description}`)//TODO:
+            strBuilder.push(`binding: ${value.toString()}`)
         }
 
         let keys = this.values;/*.keys.sorted(by: { $0 < $1 })*/ //TODO:
         for (key in keys) {
             let value = this.values[key];
             if (value instanceof Expression) {
-                strBuilder.push(`${key}: ${value.description}`);//TODO:
+                strBuilder.push(`${key}: ${value.toString()}`);
             }
             else if (this.values[key]) {
                 strBuilder.push(`${key}: ${new CVUSerializer().valueToString(value, depth, tab)}`);
@@ -457,8 +460,8 @@ class ActionBack extends Action {
     defaultValues: {
         "icon": "chevron.left",
         "opensView": true,
-        "color": Color(hex: "#434343"),
-        "inactiveColor": Color(hex: "#434343"),
+        "color": Color("#434343"),//TODO
+        "inactiveColor": Color("#434343"),//TODO
         "withAnimation": false
     }
 
@@ -472,9 +475,9 @@ class ActionBack extends Action {
         if (session.currentViewIndex == 0) {
             console.log("Warn: Can't go back. Already at earliest view in session");
         } else {
-            realmWriteIfAvailable(this.context.realm, function () {
+            /*realmWriteIfAvailable(this.context.realm, function () {
                 session.currentViewIndex -= 1
-            });//TODO;
+            });//TODO;*/
             this.context.scheduleCascadingViewUpdate();
         }
     }
@@ -487,7 +490,7 @@ class ActionBack extends Action {
 class ActionAddDataItem extends Action {
     defaultValues = {
         "icon": "plus",
-        "argumentTypes": {"template": DataItemFamily.self},//TODO
+        "argumentTypes": {"template": DataItemFamily.constructor},//TODO
         "opensView": true,
         "color": Color("#6aa84f"),
         "inactiveColor": Color("#434343")
@@ -499,7 +502,7 @@ class ActionAddDataItem extends Action {
 
     exec(argumentsJs) {
         let dataItem = argumentsJs["template"]
-        if (dataItem instanceof DataItem) {
+        if (dataItem instanceof DataItem) {//TODO
             // Copy template
             let copy = this.context.cache.duplicate(dataItem);
 
@@ -523,7 +526,7 @@ class ActionAddDataItem extends Action {
 
 class ActionOpenView extends Action {
     defaultValues = {
-        "argumentTypes": {"view": SessionView.self, "viewArguments": ViewArguments.self},//TODO: self=constructor?
+        "argumentTypes": {"view": SessionView.constructor, "viewArguments": ViewArguments.constructor},//TODO
         "withAnimation": false,
         "opensView": true
     };
@@ -540,8 +543,7 @@ class ActionOpenView extends Action {
         if (dict) {
             let viewArguments = view.viewArguments;
             if (viewArguments) {
-                /* view.viewArguments = ViewArguments(viewArguments.asDict()//TODO:
-                     .merging(dict, uniquingKeysWith: { current, new in new }) as [String : Any])*///TODO:
+                 view.viewArguments = ViewArguments(Object.assign(viewArguments.asDict(), dict)) //TODO:
             }
         }
 
@@ -555,7 +557,7 @@ class ActionOpenView extends Action {
         context.updateCascadingView() // scheduleCascadingViewUpdate()
     }
 
-    openView(context: MemriContext, item: DataItem, argumentsJs = null) {
+    /*openView(context: MemriContext, item: DataItem, argumentsJs = null) {
         // Create a new view
         let view = new SessionView({
             "datasource": new Datasource({
@@ -566,12 +568,12 @@ class ActionOpenView extends Action {
 
         // Open the view
         this.openView(context, view, argumentsJs);
-    } //TODO: totally need to check
+    }*/ //TODO: totally need to check
 
     exec(argumentsJs) {
 //        let selection = context.cascadingView.userState.get("selection") as? [DataItem]
         let dataItem = argumentsJs["dataItem"] instanceof DataItem;
-        let viewArguments = argumentsJs["viewArguments"] instanceof ViewArguments;
+        let viewArguments = argumentsJs["viewArguments"] /*instanceof ViewArguments*/;
 
 
         // if let selection = selection, selection.count > 0 { self.openView(context, selection) }
@@ -583,7 +585,7 @@ class ActionOpenView extends Action {
             if (item instanceof SessionView) {
                 this.openView(this.context, item, viewArguments);
             } else if (item) {
-                this.openView(context, item,
+                this.openView(this.context, item,
                     viewArguments)
             } else {
                 // TODO Error handling
@@ -599,7 +601,7 @@ class ActionOpenView extends Action {
 
 class ActionOpenViewByName extends Action {
     defaultValues = {
-        "argumentTypes": {"name": String.self, "viewArguments": ViewArguments.self},//TODO
+        "argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO
         "withAnimation": false,
         "opensView": true
     };
@@ -609,7 +611,7 @@ class ActionOpenViewByName extends Action {
     }
 
     exec(argumentsJs) {
-        let viewArguments = argumentsJs["viewArguments"] instanceof ViewArguments;
+        let viewArguments = argumentsJs["viewArguments"]/* instanceof ViewArguments*/;
         let name = argumentsJs["name"];
         if (typeof name == "string") {
             // Fetch a dynamic view based on its name
@@ -617,7 +619,7 @@ class ActionOpenViewByName extends Action {
             let parsed = this.context.views.parseDefinition(stored);
 
             let view = new SessionView().fromCVUDefinition(
-                parsed instanceof CVUParsedViewDefinition,
+                parsed /*instanceof CVUParsedViewDefinition*/,
                 stored,
                 viewArguments)
 
@@ -636,7 +638,7 @@ class ActionOpenViewByName extends Action {
 class ActionToggleEditMode extends Action {
     defaultValues = {
         "icon": "pencil",
-        "binding": Expression("currentSession.editMode"),//TODO:
+        "binding": new Expression("currentSession.editMode"),//TODO:
         "activeColor": Color("#6aa84f"),
         "inactiveColor": Color("#434343"),
         "withAnimation": false
@@ -658,7 +660,7 @@ class ActionToggleEditMode extends Action {
 class ActionToggleFilterPanel extends Action {
     defaultValues = {
         "icon": "rhombus.fill",
-        "binding": Expression("currentSession.showFilterPanel"),//TODO
+        "binding": new Expression("currentSession.showFilterPanel"),//TODO
         "activeColor": Color("#6aa84f")
     };
 
@@ -678,7 +680,7 @@ class ActionToggleFilterPanel extends Action {
 class ActionStar extends Action {
     defaultValues = {
         "icon": "star.fill",
-        "binding": Expression("dataItem.starred")//TODO
+        "binding": new Expression("dataItem.starred")//TODO
     };
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -716,7 +718,7 @@ class ActionStar extends Action {
 class ActionShowStarred extends Action {
     defaultValues = {
         "icon": "star.fill",
-        "binding": Expression("view.userState.showStarred"),//TODO
+        "binding": new Expression("view.userState.showStarred"),//TODO
         "opensView": true,
         "activeColor": Color("#ffdb00"),
         "withAnimation": false
@@ -751,7 +753,7 @@ class ActionShowStarred extends Action {
 class ActionShowContextPane extends Action {
     defaultValues = {
         "icon": "ellipsis",
-        "binding": Expression("currentSession.showContextPane")//TODO
+        "binding": new Expression("currentSession.showContextPane")//TODO
     };
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -760,7 +762,7 @@ class ActionShowContextPane extends Action {
 
     exec(argumentsJs) {
         // Hide Keyboard
-        dismissCurrentResponder()
+        //dismissCurrentResponder()//TODO
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
@@ -771,7 +773,7 @@ class ActionShowContextPane extends Action {
 class ActionShowNavigation extends Action {
     defaultValues = {
         "icon": "line.horizontal.3",
-        "binding": Expression("context.showNavigation"),
+        "binding": new Expression("context.showNavigation"),
         "inactiveColor": Color("#434343")//TODO:
     };
 
@@ -781,7 +783,7 @@ class ActionShowNavigation extends Action {
 
     exec(argumentsJs) {
         // Hide Keyboard
-        dismissCurrentResponder()
+        //dismissCurrentResponder()//TODO
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
@@ -809,7 +811,7 @@ class ActionSchedule extends Action {
 class ActionShowSessionSwitcher extends Action {
     defaultValues = {
         "icon": "ellipsis",
-        "binding": Expression("context.showSessionSwitcher"),
+        "binding": new Expression("context.showSessionSwitcher"),
         "color": Color("#CCC")
     }
 
@@ -841,7 +843,7 @@ class ActionForward extends Action {
             console.log("Warn: Can't go forward. Already at last view in session")
         }
         else {
-            realmWriteIfAvailable(this.context.cache.realm, function () {session.currentViewIndex += 1 });
+            //realmWriteIfAvailable(this.context.cache.realm, function () {session.currentViewIndex += 1 });
             this.context.scheduleCascadingViewUpdate()
         }
     }
@@ -862,9 +864,9 @@ class ActionForwardToFront extends Action {
 
     exec(argumentsJs) {
         let session = this.context.currentSession;
-        realmWriteIfAvailable(this.context.cache.realm, function () {
+        /*realmWriteIfAvailable(this.context.cache.realm, function () {
             session.currentViewIndex = session.views.count - 1
-        });
+        });*/
         this.context.scheduleCascadingViewUpdate()
     }
 
@@ -892,10 +894,10 @@ class ActionBackAsSession extends Action {
         else {
             let duplicateSession = this.context.cache.duplicate(session);//TODO:
             if (duplicateSession instanceof Session) {
-                realmWriteIfAvailable(this.context.cache.realm, function (){
+                /*realmWriteIfAvailable(this.context.cache.realm, function (){
                 duplicateSession.currentViewIndex -= 1
             });
-
+*/
             new ActionOpenSession(this.context).exec({"session": duplicateSession});
         }
         else {
@@ -912,7 +914,7 @@ class ActionBackAsSession extends Action {
 
 class ActionOpenSession extends Action {
     defaultValues = {
-        "argumentTypes": {"session": Session.self, "viewArguments": ViewArguments.self},//TODO:
+        "argumentTypes": {"session": Session.constructor, "viewArguments": ViewArguments.constructor},//TODO:
         "opensView": true,
             "withAnimation": false
     };
@@ -973,7 +975,7 @@ class ActionOpenSession extends Action {
 // TODO How to deal with viewArguments in sessions
 class ActionOpenSessionByName extends Action {
     defaultValues = {
-        "argumentTypes": {"name": String.self, "viewArguments": ViewArguments.self},//TODO:
+        "argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO:
         "opensView": true,
             "withAnimation": false
     };
@@ -1168,7 +1170,7 @@ class ActionClosePopup extends Action {
 
 class ActionLink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": DataItemFamily.self, "property": String.self}//TODO:
+        "argumentTypes": {"subject": DataItemFamily.constructor, "property": String.constructor}//TODO:
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1219,7 +1221,7 @@ class ActionLink extends Action {
 
 class ActionUnlink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": DataItemFamily.self, "property": String.self}//TODO
+        "argumentTypes": {"subject": DataItemFamily.constructor, "property": String.constructor}//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1270,7 +1272,7 @@ class ActionUnlink extends Action {
 
 class ActionMultiAction extends Action {
     defaultValues = {
-        "argumentTypes": {"actions": [Action].self},//TODO:?
+        "argumentTypes": {"actions": [Action].constructor},//TODO:?
         "opensView": true
     }
 
