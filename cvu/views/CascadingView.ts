@@ -6,21 +6,21 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-class CascadingView extends Cascadable, ObservableObject {//TODO 
+class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
     /// The name of the cascading view
-    name() { return this.sessionView.name ?? "" } // by copy??
+    get name() { return this.sessionView.name ?? "" } // by copy??
 
     /// The session view that is being cascaded
     sessionView;
 
-    datasource() {
-        let x = this.localCache["datasource"]//TODO 
+    get datasource() {
+        let x = this.localCache["datasource"];
         if (x instanceof CascadingDatasource) { return x }
 
-        let ds = this.sessionView.datasource
+        let ds = this.sessionView.datasource;
         if (ds) {
-            let stack = this.cascadeStack.map (x => function(x) {//TODO 
+            let stack = this.cascadeStack.map (x => {//TODO
                 x && x["datasourceDefinition"] instanceof CVUParsedDatasourceDefinition
             })
 
@@ -32,103 +32,111 @@ class CascadingView extends Cascadable, ObservableObject {//TODO
             // Missing datasource on sessionview, that should never happen (I think)
             // TODO ERROR REPORTING
 
-            return new CascadingDatasource([], new ViewArguments(), Datasource())
+            return new CascadingDatasource([], new ViewArguments(), new Datasource())
         }
     }
 
-    userState  =/*UserState*/ function (){//TODO 
-        this.sessionView.userState ?? UserState(function (args) {
-            realmWriteIfAvailable(this.sessionView.realm)
-            this.sessionView.userState = args
+    get userState() {
+        return this.sessionView.userState ?? new UserState(function (args) {
+            /*realmWriteIfAvailable(this.sessionView.realm, function (args) {
+                this.sessionView.userState = args
+            })*/
         })
     }
 
     // TODO let this cascade when the use case for it arrises
-    viewArguments(){//TODO
-        get {
-            sessionView.viewArguments ?? ViewArguments(onFirstSave: { args in
-                    realmWriteIfAvailable(self.sessionView.realm) { self.sessionView.userState = args }
+    get viewArguments() {
+        return this.sessionView.viewArguments ?? new ViewArguments(function (args) {
+            /*realmWriteIfAvailable(this.sessionView.realm, function (args) {
+                this.sessionView.userState = args
+            })*/
         })
-            // cascadeProperty("viewArguments", )
-        }
-        set (value) {
-            // Do Nothing
-        }
+        // cascadeProperty("viewArguments", )
     }
 
-    resultSet() /*ResultSet*/ {//TODO
+    get resultSet() {
         let x = this.localCache["resultSet"]
         if (x instanceof ResultSet) { return x }
 
         // Update search result to match the query
         // NOTE: allowed force unwrap
-        let resultSet = context!.cache.getResultSet(this.datasource.flattened())
-        this.localCache["resultSet"] = resultSet
+        let resultSet = this.context!.cache.getResultSet(this.datasource.flattened());//TODO
+        this.localCache["resultSet"] = resultSet;
 
         // Filter the results
-        let ft = userState.get("filterText") ?? ""
+        let ft = this.userState("filterText") ?? "";
         if (resultSet.filterText != ft) {
-            filterText = ft
+            this.filterText = ft;
         }
 
         return resultSet
 
     } // TODO: Refactor set when datasource changes ??
 
-    activeRenderer: /*String*/ {//TODO
-        /*get {
-            if (let userState = sessionView.userState) {
-                if (let s:String = userState.get("activeRenderer")) { return s }
-            }
-            if (let s:String = cascadeProperty("defaultRenderer")) { return s }
-
-            debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
-            return ""
+    get activeRenderer() {
+        let userState = this.sessionView.userState;
+        if (userState) {
+            let s:string = userState("activeRenderer");
+            if (s) { return s }
         }
-        set (value) {
-            this.localCache.removeValue(forKey: value) // Remove renderConfig reference
-            userState.set("activeRenderer", value)
-        }*/
+        let s:string = this.cascadeProperty("defaultRenderer");
+        if (s) { return s }
+
+        //debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
+        return ""
     }
 
-/*    backTitle: String? { cascadeProperty("backTitle") }
-    searchHint: String { cascadeProperty("searchHint") ?? "" }
-    showLabels: Bool { cascadeProperty("showLabels") ?? true }
+    set activeRenderer(value) {
+        this.localCache.removeValue(value) // Remove renderConfig reference TODO
+        this.userState.set("activeRenderer", value) //TODO:??
+    }
 
-    actionButton: Action? { cascadeProperty("actionButton") }
-    editActionButton: Action? { cascadeProperty("editActionButton") }
+    get backTitle() { return this.cascadeProperty("backTitle") }
+    get searchHint() { return this.cascadeProperty("searchHint") ?? "" }
+    get showLabels() { return this.cascadeProperty("showLabels") ?? true }
 
-    sortFields: [String] { cascadeList("sortFields") }
-    editButtons: [Action] { cascadeList("editButtons") }
-    filterButtons: [Action] { cascadeList("filterButtons") }
-    actionItems: [Action] { cascadeList("actionItems") }
-    navigateItems: [Action] { cascadeList("navigateItems") }
-    contextButtons: [Action] { cascadeList("contextButtons") }*/
+    get actionButton() { return this.cascadeProperty("actionButton") }
+    get editActionButton() { return this.cascadeProperty("editActionButton") }
+
+    get sortFields() { return this.cascadeList("sortFields") }
+    get editButtons() { return this.cascadeList("editButtons") }
+    get filterButtons() { return this.cascadeList("filterButtons") }
+    get actionItems() { return this.cascadeList("actionItems") }
+    get navigateItems() { return this.cascadeList("navigateItems") }
+    get contextButtons() { return this.cascadeList("contextButtons") }
 
     context;
 
-    renderConfig()/*: CascadingRenderConfig?*/ {
-        let x = this.localCache[activeRenderer]
+    get renderConfig() {
+        let x = this.localCache[this.activeRenderer]
         if (x instanceof CascadingRenderConfig) { return x }
-
-        /*var stack = this.cascadeStack.compactMap {
-            ($0["renderDefinitions"] instanceof [CVUParsedRendererDefinition] ?? [])
+        var stack = [];
+        /*var stack = this.cascadeStack.map (x => {
+            (x["renderDefinitions"] /!*instanceof [CVUParsedRendererDefinition]*!/ ?? [])
                 .filter { $0.name == activeRenderer }.first
-        }*/
+        })*///TODO
 
-        let renderDSLDefinitions = this.context!.views
-            .fetchDefinitions(activeRenderer, "renderer")
+        let renderDef = this.context?.views
+            .fetchDefinitions(this.activeRenderer, "renderer") ?? [];
 
-        for (let def of renderDSLDefinitions) {
+        let name = this.activeRenderer.split(".")[0];
+        if (this.activeRenderer.indexOf(".") > -1 && name)  {
+            renderDef.push(this.context?.views
+                .fetchDefinitions(/*String(*/name/*)*/, "renderer") ?? [])
+        }
+
+        for (let def of renderDef) {
             try {
                 let parsedRenderDef = this.context?.views.parseDefinition(def)
                 if (parsedRenderDef instanceof CVUParsedRendererDefinition) {
                     if (parsedRenderDef.domain == "user") {
-                        /*let insertPoint:Int = {
-                            for i in 0..<stack.count { if (stack[i].domain == "view") { return i } }
-                            return stack.count
-                        }()*/
-
+                        let insertPoint = stack.length;
+                        for (let i = 0; i < stack.length; i++) {
+                            if (stack[i].domain == "view") {
+                                insertPoint = i;
+                                break;
+                            }
+                        }
                         stack.splice(insertPoint, 0, parsedRenderDef)
                     }
                     else {
@@ -142,116 +150,110 @@ class CascadingView extends Cascadable, ObservableObject {//TODO
             }
             catch (error) {
                 // TODO Error logging
-                debugHistory.error("\(error)")
+                debugHistory.error(`${error}`);
             }
         }
 
-        let RenderConfigType = allRenderers.allConfigTypes[activeRenderer]
-        if (allRenderers && RenderConfigType) {
-            let renderConfig = RenderConfigType.init(stack, this.viewArguments)
+        let RenderConfigType = this.allRenderers.allConfigTypes[this.activeRenderer]
+        if (this.allRenderers && RenderConfigType) {
+            let renderConfig = RenderConfigType.init(stack, this.viewArguments)//TODO:?
             // Not actively preventing conflicts in namespace - assuming chance to be low
-            this.localCache[activeRenderer] = renderConfig
+            this.localCache[this.activeRenderer] = renderConfig;
             return renderConfig
         }
         else {
             // TODO Error Logging
             // debugHistory.error("Exception: Unable to cascade render config")
-            return CascadingRenderConfig([], ViewArguments())
+            return new CascadingRenderConfig([], ViewArguments())//TODO
         }
     }
 
-    _emptyResultTextTemp = null
-    emptyResultText()/*: String*/ {
-        /*get {
-            return _emptyResultTextTemp ?? cascadeProperty("emptyResultText") ?? "No items found"
-        }
-        set (newEmptyResultText) {
-            if newEmptyResultText == "" { _emptyResultTextTemp = nil }
-            else { _emptyResultTextTemp = newEmptyResultText }
-        }*/
+    _emptyResultTextTemp = null;
+
+    get emptyResultText(){
+        return this._emptyResultTextTemp ?? this.cascadeProperty("emptyResultText") ?? "No items found"
     }
 
-    _titleTemp = null
-    title()/*: String*/ {
-        /*get {
-            return _titleTemp ?? cascadeProperty("title") ?? ""
-        }
-        set (newTitle) {
-            if newTitle == "" { _titleTemp = nil }
-            else { _titleTemp = newTitle }
-        }*/
+    set emptyResultText(newEmptyResultText){
+        if (newEmptyResultText == "") { this._emptyResultTextTemp = null }
+        else { this._emptyResultTextTemp = newEmptyResultText }
     }
 
-    _subtitleTemp = null
-    subtitle()/*: String*/ {
-        /*get {
-            return _subtitleTemp ?? cascadeProperty("subtitle") ?? ""
-        }
-        set (newSubtitle) {
-            if newSubtitle == "" { _subtitleTemp = nil }
-            else { _subtitleTemp = newSubtitle }
-        }*/
+    _titleTemp = null;
+    get title() {
+        return this._titleTemp ?? this.cascadeProperty("title", String.constructor)?.nilIfBlank  ?? this.cascadeProperty("titleIfNil") ?? ""//TODO
     }
 
-    filterText()/*: String*/ {
-        /*get {
-            return userState.get("filterText") ?? ""
-        }*/
-        set (newFilter) {
-            // Don't update the filter when it's already set
-            if (newFilter.count > 0 && _titleTemp != nil &&
-                userState.get("filterText")  == newFilter) {
-                return
-            }
+    set title(newTitle) {
+        if (newTitle == "") { this._titleTemp = null }
+        else { this._titleTemp = newTitle }
+    }
 
-            // Store the new value
-            if (userState.get("filterText") ?? "") != newFilter {
-                userState.set("filterText", newFilter)
-            }
+    _subtitleTemp = null;
+    get subtitle() {
+        return this._subtitleTemp ?? this.cascadeProperty("subtitle") ?? ""
+    }
 
-            // If this is a multi item result set
-            if (self.resultSet.isList) {
+    set subtitle(newSubtitle) {
+        if (newSubtitle == "") { this._subtitleTemp = null }
+        else { this._subtitleTemp = newSubtitle }
+    }
 
-                // TODO we should probably ask the renderer if (this is preferred
-                // Some renderers such as the charts would probably rather highlight the
-                // found results instead of filtering the other data points out
+    get filterText() {
+        return this.userState.get("filterText") ?? ""//TODO:?
+    }
 
-                // Filter the result set
-                self.resultSet.filterText = newFilter
-            }
-            else {
-                print("Warn: Filtering for single items not Implemented Yet!")
-            }
+    set filterText(newFilter) {
+        // Don't update the filter when it's already set
+        if (newFilter.length > 0 && this._titleTemp != null &&
+            this.userState.get("filterText") == newFilter) {
+            return
+        }
 
-            if (userState.get("filterText") == "") {
-                title = ""
-                subtitle = ""
-                emptyResultText = ""
-            }
-            else {
-                // Set the title to an appropriate message
-                if (resultSet.count == 0) { title = "No results" }
-                else if (resultSet.count == 1) { title = "1 item found" }
-                else { title = "\(resultSet.count) items found" }
+        // Store the new value
+        if ((this.userState.get("filterText") ?? "") != newFilter) {
+            this.userState.set("filterText", newFilter)
+        }
 
-                // Temporarily hide the subtitle
-                // subtitle = " " // TODO how to clear the subtitle ??
+        // If this is a multi item result set
+        if (this.resultSet.isList) {
 
-                emptyResultText = "No results found using '\(userState.get("filterText") ?? "")'"
-            }
+            // TODO we should probably ask the renderer if this is preferred
+            // Some renderers such as the charts would probably rather highlight the
+            // found results instead of filtering the other data points out
+
+            // Filter the result set
+            this.resultSet.filterText = newFilter
+        }
+        else {
+            console.log("Warn: Filtering for single items not Implemented Yet!")
+        }
+
+        if (this.userState.get("filterText") == "") {
+            this.title = ""
+            this.subtitle = ""
+            this.emptyResultText = ""
+        }
+        else {
+            // Set the title to an appropriate message
+            if (this.resultSet.length == 0) { this.title = "No results" }
+            else if (this.resultSet.length == 1) { this.title = "1 item found" }
+            else { this.title = `${this.resultSet.length} items found` }
+
+            // Temporarily hide the subtitle
+            // subtitle = " " // TODO how to clear the subtitle ??
+
+            this.emptyResultText = `No results found using '${this.userState.get("filterText") ?? ""}'`
         }
     }
 
-    searchMatchText()/*: String*/ {
-        get() {
-            return userState.get("searchMatchText") ?? ""
-        }
-        set(newValue) {
-            userState.set("searchMatchText", newValue)
-        }
+    get searchMatchText() {
+        return this.userState.get("searchMatchText") ?? ""
     }
 
-
+    set searchMatchText(newValue) {
+        this.userState.set("searchMatchText", newValue)
+    }
 
     constructor(sessionView,
                 cascadeStack
@@ -260,7 +262,7 @@ class CascadingView extends Cascadable, ObservableObject {//TODO
         this.sessionView = sessionView
     }
 
-    subscript(propName) {
+    subscript(propName) {//TODO:
         function get() {
             switch (propName) {
             case "name": return name
@@ -301,39 +303,59 @@ class CascadingView extends Cascadable, ObservableObject {//TODO
         }
     }
 
+    inherit(source,
+            viewArguments: ViewArguments,
+            context: MemriContext,
+            sessionView: SessionView) {
+
+        var result = source;
+        let expr = source;
+        if (expr instanceof Expression) {
+            let args = viewArguments ?? new ViewArguments()
+            result = expr.execute(args);
+        }
+        let viewName = result;
+        if (typeof viewName == "string") {
+            return context.views.fetchDefinitions(viewName)[0];
+        } else if (result instanceof SessionView) {
+            sessionView.mergeState(result)
+            return result.viewDefinition;
+        } else if (result instanceof CascadingView) {
+            sessionView.mergeState(result.sessionView)
+            return result.sessionView.viewDefinition
+        }
+
+        return null;
+    }
+
     fromSessionView(sessionView, context) {
         var cascadeStack = []
         var isList = true
-        var type = ""
 
         // Fetch query from the view from session
         let datasource = sessionView.datasource
-        if (datasource) {
-
-            // Look up the associated result set
-            let resultSet = context.cache.getResultSet(datasource)
-
-            // Determine whether this is a list or a single item resultset
-            isList = resultSet.isList
-
-            // Fetch the type of the results
-            let determinedType = resultSet.determinedType
-            if (determinedType) {
-                type = determinedType
-            }
-            else {
-                throw "Exception: ResultSet does not know the type of its data"
-            }
-        }
-        else {
+        if (!datasource) {
             throw "Exception: Cannot compute a view without a query to fetch data"
+
         }
 
-        var needles
+        // Look up the associated result set
+        let resultSet = context.cache.getResultSet(datasource)
+
+        // Determine whether this is a list or a single item resultset
+        isList = resultSet.isList
+
+        // Fetch the type of the results
+        let type = resultSet.determinedType
+        if (!type) {
+            throw "Exception: ResultSet does not know the type of its data"
+        }
+
+        var needles;
         if (type != "mixed") {
             // Determine query
             needles = [
-                isList ? "\(type)[]" : "\(type)", // TODO if (this is not found it should get the default template
+                isList ? `${type}[]` : `${type}`, // TODO if (this is not found it should get the default template
                 isList ? "*[]" : "*"
             ]
         }
@@ -341,63 +363,64 @@ class CascadingView extends Cascadable, ObservableObject {//TODO
             needles = [isList ? "*[]" : "*"]
         }
 
-        var activeRenderer = null
+        var activeRenderer = null;
 
-        function parse(def, domain) {
+        function parse(def, domain, self = this) {//TODO:?
             try {
                 if (!def) {
                     throw "Exception: missing view definition"
                 }
 
-                let parsedDef = this.context.views.parseDefinition(def)
+                let parsedDef = self.context.views.parseDefinition(def)
                 if (parsedDef) {
                     parsedDef.domain = domain
 
                     let d = parsedDef["defaultRenderer"]
                     if (activeRenderer == null && d) {
-                        if (d instanceof String) { activeRenderer = d }
-                        else {
-                            // TODO ERror logging
-                            debugHistory.error("Could not fnd default renderer")
+                        activeRenderer = d
+                    }
+
+                    if (cascadeStack.indexOf(parsedDef) == -1) {
+                        cascadeStack.push(parsedDef);
+                        let inheritedView = parsedDef["inherit"]
+                        if (inheritedView) {
+                            let args = sessionView.viewArguments
+                            let view = self.inherit(inheritedView, args, context, sessionView)
+
+                            parse(view, domain)
                         }
                     }
 
-                    cascadeStack.push(parsedDef)
                 }
                 else {
-                    // TODO Error logging
-                    debugHistory.error("Could not parse definition")
+                    //debugHistory.error("Could not parse definition")
                 }
-            }
-            catch (error) {
-                // TODO Error logging
+            } catch (error) {
                 if (error instanceof CVUParseErrors) {
-                    debugHistory.error(`${error.toString(def?.definition ?? "")}`)
-                }
-                else {
-                    debugHistory.error(`${error}`)
+                    //debugHistory.error(`${error.toString(def?.definition ?? "")}`)
+                } else {
+                    //debugHistory.error(`${error}`)
                 }
             }
         }
 
         // Find views based on datatype
-        for (var key of ["user", "session", "defaults"]) {
-            if (key == "session") {
-                parse(sessionView.viewDefinition, key)
+        for (var domain of ["user", "session", "defaults"]) {
+            if (domain == "session") {
+                parse(sessionView.viewDefinition, domain)
                 continue
             }
 
             for (var needle of needles) {
-                let sessionViewDef = this.context.views
-                    .fetchDefinitions(needle, key).first
-                if (sessionViewDef) {
-
-                    parse(sessionViewDef, key)
+                let def = this.context.views
+                    .fetchDefinitions(needle, domain)[0]
+                if (def) {
+                    parse(def, domain)
                 }
-                else if (key != "user") {
+                else if (domain != "user") {
                     // TODO Warn logging
-                    debugHistory.warn(`Could not find definition for '${needle}' in domain '${key}'`)
-                    console.log(`Could not find definition for '${needle}' in domain '${key}'`)
+                    //debugHistory.warn(`Could not find definition for '${needle}' in domain '${key}'`)
+                    console.log(`Could not find definition for '${needle}' in domain '${domain}'`)
                 }
             }
         }
@@ -408,8 +431,8 @@ class CascadingView extends Cascadable, ObservableObject {//TODO
         }
 
         // Create a new view
-        let c = new CascadingView(sessionView, cascadeStack)
-        c.context = this.context
-        return c
+        let cascadingView = new CascadingView(sessionView, cascadeStack);
+        cascadingView.context = this.context;
+        return cascadingView
     }
 }
