@@ -254,6 +254,11 @@ function updateSaveButton(e, editor) {
 function setSession(tab, value, readOnly) {
     var editor = tab.editor
     if (!editor) return;
+    
+    if (editor.session && editor.session.tab) {
+        saveMetadataForTab(editor.session.tab);
+    }
+    
     if (typeof value == "string") {
         tab.session = ace.createEditSession(value || "", cvumode);
         tab.session.tab = tab;
@@ -325,22 +330,25 @@ function saveJson(name, value) {
 
 
 function saveMetadata() {
-    Object.values(tabManager.tabs).forEach(function(tab) {
-        if (!tab.path || !tab.session) return;
-        
-        var session = tab.session
-        var undoManager = tab.session.$undoManager;
-        localStorage["@file@" + tab.path] = JSON.stringify({
-            selection: session.selection.toJSON(),
-            undoManager: undoManager.toJSON(),
-            value: undoManager.isClean() ? undefined : session.getValue(),
-            scroll: [
-                session.getScrollLeft(),
-                session.getScrollTop()
-            ],
-        });
-    })
+    Object.values(tabManager.tabs).forEach(saveMetadataForTab)
 }
+
+function saveMetadataForTab(tab) {
+    if (!tab.path || !tab.session) return;
+        
+    var session = tab.session
+    var undoManager = tab.session.$undoManager;
+    localStorage["@file@" + tab.path] = JSON.stringify({
+        selection: session.selection.toJSON(),
+        undoManager: undoManager.toJSON(),
+        value: undoManager.isClean() ? undefined : session.getValue(),
+        scroll: [
+            session.getScrollLeft(),
+            session.getScrollTop()
+        ],
+    });
+}
+
 function loadMetadata(tab) {
     var path = tab.path
     var session = tab.session;
