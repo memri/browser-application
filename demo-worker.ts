@@ -58,7 +58,8 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
     "use strict";
 
     var oop = require("ace/lib/oop");
-    var Mirror = require("ace/worker/mirror").Mirror;
+    var {Mirror} = require("ace/worker/mirror");
+    var {Document} = require("ace/document");
 
     var MyWorker = function(sender) {
         Mirror.call(this, sender);
@@ -100,6 +101,26 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
                 result = JSON.stringify(this.data.tokens, null, 4)
             }
             this.sender.callback(result, callbackId);
+        };
+        this.split = function(value, callbackId) {
+            try {
+                var lexer = new CVULexer(value)
+                var tokens = lexer.tokenize()
+                let parser = new CVUParser(tokens)
+            } catch(e) {
+                return this.sender.callback({error: e}, callbackId);
+            }
+            var ast = parseCVU(value);
+            var doc = new Document(value);
+            var start = {row: 0, column: 0};
+            var parts = []
+            for (var i =0; i < ast.length; i++) {
+                var astPos = ast[i].getPos()
+                var end = {row: astPos.el, column: astPos.ec};
+                parts.push(doc.getTextRange({start, end}))
+                start = end
+            }
+            this.sender.callback({parts}, callbackId);
         };
     }).call(MyWorker.prototype);
 

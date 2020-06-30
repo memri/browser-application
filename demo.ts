@@ -283,21 +283,26 @@ function setSession(tab, value, readOnly) {
     });
     editor.completers = cvuCompleters
     
-    updateSaveButton(true, editor);
+    updateSaveButton(false, editor);
 }
 
 
 function saveCurrentFile() {
     var tab = tabManager.activeTab;
-    if (tab) {
+    if (tab && !tab.session.$readOnly) {
         if (!tab.path)
             tab.path = prompt(`save ${tab.title} as:`, tab.title);
         if (!tab.path) return
         var value = tab.editor.getValue();
+            
         tab.session.getUndoManager().markClean();
-        saveCVUDefinition(tab.path, value, function() {
-            tab.updateSaveButton();
-        });
+        sharedWorker.call("split", [value], function(result) {
+            console.log(result.parts)
+            saveCVUDefinition(tab.path, value, function() {
+                updateSaveButton(false, tab.editor);
+            });
+        })
+        
     }
 }
 
