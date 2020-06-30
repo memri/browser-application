@@ -198,10 +198,11 @@ public func executeAction(_ actions:[Action], with dataItem:DataItem? = nil,
     }
 }*/
 
-import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {CVUSerializer, orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {ActionError} from "./ActionErrors";
 import {CVUParsedSessionDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {Color} from "../../parsers/cvu-parser/CVUParser";
 
 class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -229,12 +230,12 @@ class Action/* : HashableClass, CVUToString*/ {
         "renderAs": RenderType.button,
         "showTitle": false,
         "opensView": false,
-        "color": Color("#999999"),//TODO
-        "backgroundColor": Color.white,//TODO
-        "activeColor": Color("#ffdb00"),//TODO
-        "inactiveColor": Color("#999999"),//TODO
-        "activeBackgroundColor": Color.white,//TODO
-        "inactiveBackgroundColor": Color.white,//TODO
+        "color": new Color("#999999"),//TODO
+        "backgroundColor": new Color("white"),//TODO
+        "activeColor": new Color("#ffdb00"),//TODO
+        "inactiveColor": new Color("#999999"),//TODO
+        "activeBackgroundColor": new Color("white"),//TODO
+        "inactiveBackgroundColor": new Color("white"),//TODO
         "withAnimation": true
     };
 
@@ -249,7 +250,7 @@ class Action/* : HashableClass, CVUToString*/ {
                 return binding.isTrue()
             } catch {
                 // TODO error handling
-                debugHistory.warn(`Could not read boolean value from binding ${binding}`);//TODO:?
+                //debugHistory.warn(`Could not read boolean value from binding ${binding}`);//TODO:?
             }
         }
         return null;
@@ -288,7 +289,7 @@ class Action/* : HashableClass, CVUToString*/ {
     constructor(context: MemriContext, name: string, argumentsJs = null, values = {}) {
         this.context = context;
 
-        super();//TODO:
+        //super();//TODO:
 
         let actionName = ActionFamily[name];
         if (actionName) {
@@ -336,7 +337,7 @@ class Action/* : HashableClass, CVUToString*/ {
     }
 
     getColor(key:string, viewArguments = null) {
-        let x = this.get(key, viewArguments) ?? Color.black;//TODO
+        let x = this.get(key, viewArguments) ?? new Color("black");//TODO
         return x;
     }
 
@@ -358,8 +359,8 @@ class Action/* : HashableClass, CVUToString*/ {
             strBuilder.push(`binding: ${value.toString()}`)
         }
 
-        let keys = this.values;/*.keys.sorted(by: { $0 < $1 })*/ //TODO:
-        for (key in keys) {
+        let keys = orderKeys(this.values, undefined);/*.keys.sorted(by: { $0 < $1 })*/ //TODO:
+        for (let key in keys) {
             let value = this.values[key];
             if (value instanceof Expression) {
                 strBuilder.push(`${key}: ${value.toString()}`);
@@ -381,7 +382,7 @@ class Action/* : HashableClass, CVUToString*/ {
         try {
             exec()
         } catch (error) {
-            debugHistory.error(`Could not execute action: ${error}`);
+            //debugHistory.error(`Could not execute action: ${error}`);
         }
     }
 }
@@ -390,13 +391,14 @@ enum RenderType {
     popup, button, emptytype
 }
 
-enum ActionFamily {
-back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel,
-        star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate,
-        schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack,
-        delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView,
-        showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName,
-        link, closePopup, unlink, multiAction, noop
+export enum ActionFamily {
+    back, addItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel,
+    star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate,
+    schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack,
+    delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView,
+    showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName,
+    link, closePopup, unlink, multiAction, noop, runIndexerInstance, runImporterInstance,
+    setProperty
 
     /*func getType() -> Action.Type {
         switch self {
@@ -429,9 +431,42 @@ back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, to
     }*/
 }
 
+export var getActionType = function (name) {
+    switch (name) {
+        case ActionFamily.back: return ActionBack;
+        case ActionFamily.addItem: return ActionAddItem
+        case ActionFamily.openView: return ActionOpenView
+        case ActionFamily.openViewByName: return ActionOpenViewByName
+        case ActionFamily.toggleEditMode: return ActionToggleEditMode
+        case ActionFamily.toggleFilterPanel: return ActionToggleFilterPanel
+        case ActionFamily.star: return ActionStar
+        case ActionFamily.showStarred: return ActionShowStarred
+        case ActionFamily.showContextPane: return ActionShowContextPane
+        case ActionFamily.showNavigation: return ActionShowNavigation
+        case ActionFamily.duplicate: return ActionDuplicate
+        case ActionFamily.schedule: return ActionSchedule
+        case ActionFamily.delete: return ActionDelete
+        case ActionFamily.showSessionSwitcher: return ActionShowSessionSwitcher
+        case ActionFamily.forward: return ActionForward
+        case ActionFamily.forwardToFront: return ActionForwardToFront
+        case ActionFamily.backAsSession: return ActionBackAsSession
+        case ActionFamily.openSession: return ActionOpenSession
+        case ActionFamily.openSessionByName: return ActionOpenSessionByName
+        case ActionFamily.closePopup: return ActionClosePopup
+        case ActionFamily.link: return ActionLink
+        case ActionFamily.unlink: return ActionUnlink
+        case ActionFamily.multiAction: return ActionMultiAction
+        case ActionFamily.runIndexerInstance: return ActionRunIndexerInstance
+        case ActionFamily.runImporterInstance: return ActionRunImporterInstance
+        case ActionFamily.setProperty: return ActionSetProperty
+        case ActionFamily.noop:
+        default: return ActionNoop
+    }
+};
+
 enum ActionProperties {
-name, arguments, binding, icon, renderAs, showTitle, opensView, color,
-        backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor, title
+    name, arguments, binding, icon, renderAs, showTitle, opensView, color,
+    backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor, title
 
     /*func validate(_ key:String, _ value:Any?) -> Bool {
         if value is Expression { return true }
@@ -457,11 +492,11 @@ protocol ActionExec {
 */
 
 class ActionBack extends Action {
-    defaultValues: {
+    defaultValues = {
         "icon": "chevron.left",
         "opensView": true,
-        "color": Color("#434343"),//TODO
-        "inactiveColor": Color("#434343"),//TODO
+        "color": new Color("#434343"),//TODO
+        "inactiveColor": new Color("#434343"),//TODO
         "withAnimation": false
     }
 
@@ -487,22 +522,22 @@ class ActionBack extends Action {
     }*/
 }
 
-class ActionAddDataItem extends Action {
+class ActionAddItem extends Action {
     defaultValues = {
         "icon": "plus",
-        "argumentTypes": {"template": DataItemFamily.constructor},//TODO
+        "argumentTypes": {"template": ItemFamily.constructor},//TODO
         "opensView": true,
-        "color": Color("#6aa84f"),
-        "inactiveColor": Color("#434343")
+        "color": new Color("#6aa84f"),
+        "inactiveColor": new Color("#434343")
     };
 
     constructor(context, argumentsJs = null, values = {}) {
-        super(context, "addDataItem", argumentsJs, values);
+        super(context, "addItem", argumentsJs, values);
     }
 
     exec(argumentsJs) {
         let dataItem = argumentsJs["template"]
-        if (dataItem instanceof DataItem) {//TODO
+        if (dataItem instanceof Item) {//TODO
             // Copy template
             let copy = this.context.cache.duplicate(dataItem);
 
@@ -510,7 +545,7 @@ class ActionAddDataItem extends Action {
             this.context.cache.addToCache(copy);
 
             // Open view with the now managed copy
-            new ActionOpenView(this.context).exec([copy]);//TODO:
+            new ActionOpenView(this.context).exec({"dataItem":copy});//TODO:
         } else {
             // TODO Error handling
             // TODO User handling
@@ -572,7 +607,7 @@ class ActionOpenView extends Action {
 
     exec(argumentsJs) {
 //        let selection = context.cascadingView.userState.get("selection") as? [DataItem]
-        let dataItem = argumentsJs["dataItem"] instanceof DataItem;
+        let dataItem = argumentsJs["dataItem"] /*instanceof Item;*/
         let viewArguments = argumentsJs["viewArguments"] /*instanceof ViewArguments*/;
 
 
@@ -639,8 +674,8 @@ class ActionToggleEditMode extends Action {
     defaultValues = {
         "icon": "pencil",
         "binding": new Expression("currentSession.editMode"),//TODO:
-        "activeColor": Color("#6aa84f"),
-        "inactiveColor": Color("#434343"),
+        "activeColor": new Color("#6aa84f"),
+        "inactiveColor": new Color("#434343"),
         "withAnimation": false
     }
 
@@ -661,7 +696,7 @@ class ActionToggleFilterPanel extends Action {
     defaultValues = {
         "icon": "rhombus.fill",
         "binding": new Expression("currentSession.showFilterPanel"),//TODO
-        "activeColor": Color("#6aa84f")
+        "activeColor": new Color("#6aa84f")
     };
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -670,7 +705,7 @@ class ActionToggleFilterPanel extends Action {
 
     exec(argumentsJs) {
         // Hide Keyboard
-        dismissCurrentResponder()//TODO:?
+        //dismissCurrentResponder()//TODO:?
     }
 
     /*    class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
@@ -720,7 +755,7 @@ class ActionShowStarred extends Action {
         "icon": "star.fill",
         "binding": new Expression("view.userState.showStarred"),//TODO
         "opensView": true,
-        "activeColor": Color("#ffdb00"),
+        "activeColor": new Color("#ffdb00"),
         "withAnimation": false
     };
 
@@ -774,7 +809,7 @@ class ActionShowNavigation extends Action {
     defaultValues = {
         "icon": "line.horizontal.3",
         "binding": new Expression("context.showNavigation"),
-        "inactiveColor": Color("#434343")//TODO:
+        "inactiveColor": new Color("#434343")//TODO:
     };
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -812,7 +847,7 @@ class ActionShowSessionSwitcher extends Action {
     defaultValues = {
         "icon": "ellipsis",
         "binding": new Expression("context.showSessionSwitcher"),
-        "color": Color("#CCC")
+        "color": new Color("#CCC")
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1058,13 +1093,13 @@ class ActionDelete extends Action {
 //                items.append(item)
 //            }
 //        }
-        let selection: DataItem[] = this.context.cascadingView.userState.get("selection");
+        let selection: Item[] = this.context.cascadingView.userState.get("selection");
         if (selection && selection.length > 0) {
             this.context.cache.delete(selection);
             this.context.scheduleCascadingViewUpdate(true);
         } else {
             let dataItem = arguments["dataItem"];
-            if (dataItem instanceof DataItem) {
+            if (dataItem instanceof Item) {
                 this.context.cache.delete(dataItem);
                 this.context.scheduleCascadingViewUpdate(true);
             } else {
@@ -1084,15 +1119,15 @@ class ActionDuplicate extends Action {
     }
 
     exec(argumentsJs) {
-        let selection: DataItem[] = this.context.cascadingView.userState.get("selection");
+        let selection: Item[] = this.context.cascadingView.userState.get("selection");
         if (selection && selection.length > 0) {
             selection.forEach(function (item) {
-                new ActionAddDataItem(this.context).exec({"dataItem": item})
+                new ActionAddItem(this.context).exec({"dataItem": item})
             });//TODO:
         } else {
             let item = arguments["dataItem"];
-            if (item instanceof DataItem) {
-                new ActionAddDataItem(this.context).exec({"dataItem": item});
+            if (item instanceof Item) {
+                new ActionAddItem(this.context).exec({"dataItem": item});
             } else {
                 // TODO Error handling
                 throw "Cannot execute ActionDupliate. The user either needs to make a selection, or a dataItem needs to be passed to this call."
@@ -1105,9 +1140,9 @@ class ActionDuplicate extends Action {
     }*/
 }
 
-class ActionImport extends Action {
+class ActionRunImporterInstance extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "import", argumentsJs, values)
+        super(context, "runImporterInstance", argumentsJs, values)
     }
 
     exec(argumentsJs) {
@@ -1116,7 +1151,7 @@ class ActionImport extends Action {
         if (importerInstance instanceof ImporterInstance) {
             let cachedImporterInstance = this.context.cache.addToCache(importerInstance);
 
-            this.context.podAPI.runImport(cachedImporterInstance.memriID, function (error, success) {
+            this.context.podAPI.runImport(cachedImporterInstance.uid, function (error, success) {
                 if (error) {
                     console.log(`Cannot execute actionImport: ${error}`);
                 }
@@ -1130,15 +1165,17 @@ class ActionImport extends Action {
 }
 
 
-class ActionIndex extends Action {
+class ActionRunIndexerInstance extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "index", argumentsJs, values)
+        super(context, "runIndexerInstance", argumentsJs, values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs) {//TODO: this is stop point from today changes;
         // TODO: parse options
         let indexerInstance = arguments["indexerInstance"]
-        if (indexerInstance instanceof IndexerInstance) {
+        if (indexerInstance !instanceof IndexerInstance) {
+            throw "Error, no memriID"
+        }
             let cachedIndexerInstance = this.context.cache.addToCache(indexerInstance);
 
             this.context.podAPI.runImport(cachedIndexerInstance.memriID, function (error, success) {
@@ -1146,7 +1183,6 @@ class ActionIndex extends Action {
                     console.log(`Cannot execute actionIndex: ${error}`);
                 }
             });
-        }
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {

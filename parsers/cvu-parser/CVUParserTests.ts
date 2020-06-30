@@ -522,7 +522,7 @@ Person {
         snippet:
 `Person {
     test: 1`,
-        error: 'UnexpectedToken(EOF)'
+        error: 'UnexpectedToken(EOF,1,12)'
     },
     testErrorMissingBracketCloseInDefinition: {
         snippet:
@@ -536,14 +536,14 @@ Person {
 `Person {
     expr: {{.test}
 }`,
-        error: 'MissingExpressionClose(EOF)'
+        error: 'MissingExpressionClose(EOF,1,21)'
     },
     testErrorMissingExprCloseBrackets: {
         snippet:
 `Person {
     expr: {{.test
 }`,
-        error: 'MissingExpressionClose(EOF)'
+        error: 'MissingExpressionClose(EOF,1,20)'
     },
     testErrorExtraBracket: {
         snippet:
@@ -582,7 +582,7 @@ Person {
 `Person {
     string: "value
 }`,
-        error: 'MissingQuoteClose(EOF)'
+        error: 'MissingQuoteClose(EOF,1,21)'
     },
 }
 

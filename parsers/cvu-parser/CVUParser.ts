@@ -19,32 +19,46 @@ import {
     CVUParsedSessionDefinition
     
 } from "./CVUParsedDefinition"
+import {ActionFamily, getActionType} from "../../cvu/views/Action";
+import {UIElement, UIElementFamily} from "../../cvu/views/UIElement";
 
-export class ActionFamily {
-    static allCases = "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop".split(/,\s*/)
-}
+/*export class ActionFamily {
+    static allCases = "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop".split(/,\s*!/)
+}*/
 
-export class UIElementFamily {
-    static allCases = "VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack, Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image, Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, Empty".split(/,\s*/)
-}
+/*export class UIElementFamily {
+    static allCases = "VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack, Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image, Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, Empty".split(/,\s*!/)
+}*/
 
-export class UIElement {
+/*export class UIElement {
     
-}
+}*/
 
 
 export class Color {
+    value;
     constructor(value) {
-        this.value = "#" + value;
+        switch (value) {
+            case "white":
+                this.value = "#ffffff";
+                break;
+            case "black":
+                this.value = "#000000";
+                break;
+            default:
+                this.value = (value[0] != "#") ? "#" + value : value;
+                break;
+        }
     }
     toLowerCase(){
         return this.value.toLowerCase();
     }
+
 }
 
 
 export function CGFloat(num) {
-    return num;
+    return Number(num);
 }
 
 export enum VerticalAlignment{
@@ -62,7 +76,11 @@ export enum Alignment{
     center,
     bottom,
     leading,
-    trailing
+    trailing,
+    topLeading,
+    topTrailing,
+    bottomLeading,
+    bottomTrailing
 }
 export enum TextAlignment{
     leading,
@@ -84,12 +102,13 @@ export var Font = {
 
 
 export class CVUParser {
-
+    context: MemriContext;
+    tokens;
     index = 0;
     lastToken;
 
-    /*lookup: (ExprLookupNode, ViewArguments)
-        let execFunc: (ExprLookupNode, [Any], ViewArguments)*/
+    lookup;
+    execFunc;
 
     constructor(tokens, context, lookup, execFunc) {
         this.context = context;
@@ -100,13 +119,13 @@ export class CVUParser {
 
     peekCurrentToken() {
         return this.index >= this.tokens.length
-            ? new CVUToken.EOF()
+            ? new CVUToken.EOF()//TODO:?
             : this.tokens[this.index]
     }
 
     popCurrentToken() {
         if (this.index >= this.tokens.length) {
-            this.lastToken = new CVUToken.EOF;
+            this.lastToken = new CVUToken.EOF();//TODO:?
             return this.lastToken
         }
 
@@ -172,7 +191,7 @@ export class CVUParser {
         // Example: Person {
         let token = this.popCurrentToken();
         if (token.constructor != CVUToken.Identifier) {
-            throw new CVUParseErrors.ExpectedIdentifier(this.lastToken);
+            throw new CVUParseErrors.ExpectedIdentifier(this.lastToken!);
         }
         let type = token.value;
 
@@ -295,7 +314,7 @@ export class CVUParser {
             this.lookup, this.execFunc)
     }
 
-    parseDict(uiElementName) {
+    parseDict(uiElementName?) {
         var dict = {};
         var stack = [];
 
@@ -325,7 +344,7 @@ export class CVUParser {
         }
 
         function addUIElement(type, properties) {//TODO:
-            var children = dict.children || [];
+            var children = dict["children"] || [];
             let subChildren = properties.children;
             children.push(new UIElement(type,
                 subChildren || [],
@@ -356,23 +375,23 @@ export class CVUParser {
                             value.push(selector);
                             dict["renderDefinitions"] = value;
                             this.parseDefinition(selector);
-                            lastKey = undefined;
+                            lastKey = null;
                         } else if (selector instanceof CVUParsedSessionDefinition) {
                             var value = (Array.isArray(dict["sessionDefinitions"]) && dict["sessionDefinitions"].length > 0 && dict["sessionDefinitions"][0] instanceof CVUParsedSessionDefinition) ? dict["sessionDefinitions"]: [];
                             value.push(selector);
                             dict["sessionDefinitions"] = value;
                             this.parseDefinition(selector);
-                            lastKey = undefined;
+                            lastKey = null;
                         } else if (selector instanceof CVUParsedViewDefinition) {
                             var value = (Array.isArray(dict["viewDefinitions"]) && dict["viewDefinitions"].length > 0 && dict["viewDefinitions"][0] instanceof CVUParsedViewDefinition) ? dict["viewDefinitions"]: [];
                             value.push(selector);
                             dict["viewDefinitions"] = value;
                             this.parseDefinition(selector);
-                            lastKey = undefined;
+                            lastKey = null;
                         } else if (selector instanceof CVUParsedDatasourceDefinition) {
                             dict["datasourceDefinition"] = selector;
                             this.parseDefinition(selector);
-                            lastKey = undefined;
+                            lastKey = null;
                         } else {
                             // TODO other defininitions
                             console.log("this inline definition is not yet supported");
@@ -383,7 +402,7 @@ export class CVUParser {
                     if (isArrayMode) {
                         setPropertyValue();
                         isArrayMode = false;
-                        lastKey = undefined;
+                        lastKey = null;
                     } else {
                         throw new CVUParseErrors.UnexpectedToken(this.lastToken!) // We should never get here
                     }
@@ -402,7 +421,7 @@ export class CVUParser {
                 case CVUToken.Expression:
                     stack.push(this.createExpression(v));
                     break;
-                case CVUToken.Color :
+                case CVUToken.Color:
                     stack.push(new Color(v));
                     break;
                 case CVUToken.Identifier:
@@ -411,23 +430,32 @@ export class CVUParser {
                         if (CVUToken.Colon == nextToken.constructor) {
                             this.popCurrentToken();
                             lastKey = v;
-                        } else {
-                            let type = this.knownUIElements[v.toLowerCase()];
-                            if (type) {
-                                var properties = {};
-                                if (CVUToken.CurlyBracketOpen == this.peekCurrentToken().constructor) {
-                                    this.popCurrentToken();
-                                    properties = this.parseDict(v);
-                                }
+                            nextToken = this.peekCurrentToken()
+                        }
 
-                                addUIElement(type, properties);//TODO
-                                continue;
-                            } else if (v.toLowerCase() == "datasource") {
-
-                            } else if (CVUToken.CurlyBracketOpen == nextToken.constructor) {
-                            } else {
-                                throw new CVUParseErrors.ExpectedKey(this.lastToken!);
+                        let lvalue = v.toLowerCase();
+                        let type = this.knownUIElements[lvalue];
+                        if (lastKey == null && type) {
+                            var properties = {};
+                            if (CVUToken.CurlyBracketOpen == this.peekCurrentToken().constructor) {
+                                this.popCurrentToken();
+                                properties = this.parseDict(v);
                             }
+
+                            addUIElement(type, properties);//TODO
+                            continue;
+                        } else if (lvalue == "userstate" || lvalue == "viewarguments") {
+                            var properties = {};
+                            if (CVUToken.CurlyBracketOpen == this.peekCurrentToken().constructor) {
+                                this.popCurrentToken();
+                                properties = this.parseDict(v);
+                            }
+                            stack.push(new UserState(properties));//TODO:
+                            continue;
+                        } else if (CVUToken.CurlyBracketOpen == nextToken.constructor) {
+                            // Do nothing
+                        } else if (lastKey == null) {
+                            throw new CVUParseErrors.ExpectedKey(this.lastToken!)
                         }
 
                         lastKey = v;
@@ -452,13 +480,13 @@ export class CVUParser {
                             }
 
                             //let arguments = options.removeValue("arguments") instanceOf [String:Any] ?? [:]//TODO:
-                            let actionFamily = ActionFamily.allCases.find(function (el){return el == name});
-
+                            //let actionFamily = ActionFamily.allCases.find(function (el){return el == name});
+                            let actionFamily = ActionFamily[name];
                             if (actionFamily) {
                                 //TODO:
-                                // let ActionType = ActionFamily.getType(actionFamily)();//TODO:
-                                // stack.push(ActionType.init(main, arguments, options));[this.context, arguments, options]
-                                stack.push(actionFamily)
+                                 let ActionType = getActionType(actionFamily);//TODO:
+                                 stack.push(new ActionType(this.context, arguments, options));//[this.context, arguments, options]
+                                //stack.push(actionFamily)
                             } else {
                                 // TODO ERROR REPORTING
                             }
@@ -477,14 +505,14 @@ export class CVUParser {
                     } // IGNORE
                 case CVUToken.SemiColon:
                     setPropertyValue();
-                    lastKey = undefined;
+                    lastKey = null;
                     break;
-                case CVUToken.Nil://TODO
+                case CVUToken.Nil:
                     let x = null;
                     stack.push(x);
                     break;
                 case CVUToken.Number:
-                    stack.push(forUIElement ? CGFloat(v) : v);//TODO????
+                    stack.push(forUIElement ? CGFloat(v) : Number(v));//TODO????
                     break;
                 case CVUToken.String:
                     if (!isArrayMode && CVUToken.Colon == this.peekCurrentToken().constructor) {
@@ -492,7 +520,7 @@ export class CVUParser {
                         setPropertyValue(); // TODO: Is this every necessary?
                         this.popCurrentToken();
                         lastKey = v;
-                    } else if (lastKey == undefined) {
+                    } else if (lastKey == null) {
                         lastKey = v
                     } else {
                         stack.push(v)
@@ -542,7 +570,7 @@ export class CVUParser {
 // Based on keyword when its added to the dict
     knownActions = function () {
         var result = {};
-        for (let name of ActionFamily.allCases) {
+        for (let name in ActionFamily) {
             result[name.toLowerCase()] = name
         }//TODO
         return result
@@ -550,7 +578,7 @@ export class CVUParser {
 // Only when key is this should it parse the properties
     knownUIElements = function () {
         var result = {};
-        for (let name of UIElementFamily.allCases) {//TODO
+        for (let name in UIElementFamily) {//TODO
             result[name.toLowerCase()] = name
         }
         return result
@@ -582,7 +610,7 @@ export class CVUParser {
                         return value // TODO Test if (this crashes the view renderer
                 }
             },
-        "align": function (value, type) {
+        "align": function (value) {
             switch (value) {
                 case "left":
                     return Alignment.leading;
@@ -610,7 +638,7 @@ export class CVUParser {
                     return value // TODO Test if (this crashes the view renderer
             }
         },
-        "textAlign": function (value, type) {
+        "textAlign": function (value) {
             switch (value) {
                 case "left":
                     return TextAlignment.leading;
@@ -622,9 +650,9 @@ export class CVUParser {
                     return value // TODO Test if (this crashes the view renderer
             }
         },
-        "font": function (input, type) {
+        "font": function (input) {
             var value = input;
-            if (value instanceof Array) {
+            if (Array.isArray(value)) {
                 if (value[0] instanceof CGFloat) {
                     if (value.length == 1) {
                         value.push(Font.Weight.regular)
@@ -676,11 +704,11 @@ export class CVUParser {
                     dict["align"]
                 ];
 
-                dict["minWidth"] = undefined;
-                dict["maxWidth"] = undefined;
-                dict["minHeight"] = undefined;
-                dict["maxHeight"] = undefined;
-                dict["align"] = undefined;
+                dict["minWidth"] = null;
+                dict["maxWidth"] = null;
+                dict["minHeight"] = null;
+                dict["maxHeight"] = null;
+                dict["align"] = null;
 
                 dict["frame"] = values;
                 break;
@@ -692,7 +720,7 @@ export class CVUParser {
             value.push(dict["cornerRadius"] ?? 0);
 
             dict["cornerborder"] = value;
-            dict["border"] = undefined;
+            dict["border"] = null;
         }
     }
 }

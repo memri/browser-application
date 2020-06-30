@@ -9,8 +9,9 @@ import {
     CVUParsedRendererDefinition,
     CVUParsedSessionDefinition, CVUParsedViewDefinition
 } from "./CVUParsedDefinition";
+import {UIElement} from "../../cvu/views/UIElement";
 
-function UIElement() {}
+//function UIElement() {}
 
 export class CVUSerializer {
 
@@ -29,15 +30,15 @@ export class CVUSerializer {
                 return String(p.toLowerCase().substr(0, 7));
             } else if (typeof p == "number") {//TODO: Double;
                 if (p % 1 == 0) {
-                    return `${p}`
+                    return `${Number(p)}`
                 }
             } else if (p instanceof CGFloat) {
                 if (p % 1 == 0) {
-                    return `${p}`
+                    return `${Number(p)}`
                 }
-            } /*else if (p instanceof VerticalAlignment) {
-                return VerticalAlignment.hasOwnProperty(p) ? p : "center";//TODO: just test
-            } else if (p instanceof HorizontalAlignment) {
+            } /*else if (VerticalAlignment.hasOwnProperty(p)) {
+                return  p;//TODO:
+            } else if (HorizontalAlignment.hasOwnProperty(p)) {
                 switch (p) {
                     case HorizontalAlignment.leading:
                         return "left";
@@ -48,7 +49,7 @@ export class CVUSerializer {
                     default:
                         return "center"
                 }
-            } else if (p instanceof Alignment) {
+            } else if (Alignment.hasOwnProperty(p)) {
                 switch (p) {
                     case Alignment.top:
                         return "top"
@@ -63,7 +64,7 @@ export class CVUSerializer {
                     default:
                         return "center"
                 }
-            } else if (p instanceof TextAlignment) {
+            } else if (TextAlignment.hasOwnProperty(p)) {
                 switch (p) {
                     case TextAlignment.leading:
                         return "left"
@@ -72,7 +73,7 @@ export class CVUSerializer {
                     case TextAlignment.trailing:
                         return "right"
                 }
-            } else if (p instanceof Font.Weight) {
+            } else if (Font.Weight.hasOwnProperty(p)) {
                 switch (p) {
                     case Font.Weight.regular:
                         return "regular"
@@ -125,13 +126,11 @@ export class CVUSerializer {
     dictToString(dict, depth: number = 0, tab: string = "    ",
                  withDef: boolean = true, extraNewLine: boolean = false,
                  sortFunc?): string {
-        var keys: [string];
+        var keys: string[];
         try {
-            keys = dict/*(sortFunc)
-                ? dict.keys.sort(sortFunc)
-                : dict.keys.sort((a, b) =>  a > b);*///TODO: some sort methods of objects
+            keys = orderKeys(dict, sortFunc);
         } catch (e) {
-            keys = dict.keys.sort((a, b) => a - b);
+            keys = orderKeys(dict, sortFunc);
         }
 
         let tabs = tab.repeat(depth);
@@ -145,8 +144,7 @@ export class CVUSerializer {
             } else if (key == "cornerborder") {
                 var value = dict[key];
                 if (Array.isArray(value)) {
-                    let radius = value.pop();
-                    //str.push(`cornerradius: ${this.valueToString(radius, depth, tab)}`);
+                    value.pop();
                     str.push(`border: ${this.valueToString(value, depth, tab)}`);
                 } else {
                     // ???
@@ -173,7 +171,7 @@ export class CVUSerializer {
         }
 
         var children: string = "";
-        var definitions: string = "";
+        var definitions: string[] = [];
         let p = dict["children"];
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof UIElement) {
             let body = this.arrayToString(p, depth, tab, false, true);
@@ -182,27 +180,49 @@ export class CVUSerializer {
         p = dict["datasourceDefinition"];
         if (p instanceof CVUParsedDatasourceDefinition) {
             let body = p.toCVUString(depth - 1, tab);
-            definitions = `${str.length > 0 ? `\n\n${tabs}` : ``}${body}`;
+            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
         }
         p = dict["sessionDefinitions"];//TODO normal check
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedSessionDefinition) {
             let body = this.arrayToString(p, depth - 1, tab, false, true);
-            definitions = `${str.length > 0 ? `\n\n${tabs}` : ``}${body}`;
+            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
         }
         p = dict["viewDefinitions"];//TODO normal check
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedViewDefinition) {
             let body = this.arrayToString(p, depth - 1, tab, false, true);
-            definitions = `${str.length > 0 ? `\n\n${tabs}` : ``}${body}`;
+            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
         }
         p = dict["renderDefinitions"];//TODO normal check
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedRendererDefinition) {
             let body = this.arrayToString(p, depth - 1, tab, false, true);
-            definitions = `${str.length > 0 ? `\n\n${tabs}` : ``}${body}`;
+            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
         }
 
         return withDef
             ? `{\n${tabs}${str.join(`\n${tabs}`)}${children}${definitions}\n${tabsEnd}}`
-            : `${str.join(`\n${tabs}`)}${children}${definitions}`
+            : `${str.join(`\n${tabs}`)}${children}${definitions.join('')}`
     }
 
+}
+
+export function orderKeys(obj, sortFunc) {
+    if (!sortFunc)
+        sortFunc = function keyOrder(k1, k2) {
+            if (k1 < k2)
+                return -1;
+            else if (k1 > k2)
+                return +1;
+            else
+                return 0;
+        };
+    var keys = Object.keys(obj).sort(sortFunc);
+    var i, after = {};
+    for (i = 0; i < keys.length; i++) {
+        after[keys[i]] = obj[keys[i]];
+        delete obj[keys[i]];
+    }
+    for (i = 0; i < keys.length; i++) {
+        obj[keys[i]] = after[keys[i]];
+    }
+    return obj;
 }

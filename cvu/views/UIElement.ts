@@ -5,13 +5,16 @@
 //
 
 
-class UIElement extends CVUToString {
+import {Expression} from "../../parsers/expression-parser/Expression";
+import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+
+export class UIElement /*extends CVUToString */{
 	type
 	children = []
 	properties = {} // TODO: ViewParserDefinitionContext
 
 	constructor(type, children = null, properties = {}) {
-		super()
+		//super()
 		this.type = type
 		this.children = children ?? this.children
 		this.properties = properties
@@ -41,14 +44,14 @@ class UIElement extends CVUToString {
 				viewArguments.set(".", item) // TODO: Optimization This is called a billion times. Find a better place for this
 
 				try {
-					if (T.self == [DataItem].self) {//TODO
+					//if (T.self == [DataItem].self) {//TODO
 						let x =  expr.execute(viewArguments)
 
 						var result = []
 						let list = x
 						if (Array.isArray(list)) {//TODO
 							for (var edge of list) {
-								let d = this.getDataItem(edge)
+								let d = this.getItem(edge)
 								if (d) {
 									result.push(d)
 								}
@@ -58,17 +61,17 @@ class UIElement extends CVUToString {
 						}
 
 						return (result)
-					} else {
-						let x =  expr.execForReturnType(T.self/*TODO*/, viewArguments); return x
-					}
+					/*} else {
+						let x =  expr.execForReturnType(T.self/!*TODO*!/, viewArguments); return x
+					}*/
 				} catch (error) {
 					// TODO: Refactor error handling
-					debugHistory.error(`Could note compute ${propName}\n
+					/*debugHistory.error(`Could note compute ${propName}\n
 						Arguments: [${viewArguments.asDict().keys.join(", ")}]\n
 						${expr.startInStringMode
 							? `Expression: ${expr.code}\n`
 							: `Expression: ${expr.code}\n`}
-						Error: ${error}`)
+						Error: ${error}`)*/
 					return null
 				}
 			}
@@ -92,13 +95,13 @@ class UIElement extends CVUToString {
 				try { return expr.getTypeOfDataItem(viewArguments) }
 				catch (error) {
 					// TODO: Refactor: Error Handling
-					debugHistory.error(`could not get type of ${item}`)
+					//debugHistory.error(`could not get type of ${item}`)
 				}
 			}
 		}
 
 		// TODO: Refactor: Error Handling
-		return (.any, item, "")//TODO
+		//return (.any, item, "")//TODO
 	}
 
 	processText(text) {
@@ -108,37 +111,38 @@ class UIElement extends CVUToString {
 		outText = (this.get("maxChar")).map(function (item) {
 			String(outText.substring(parseInt(item)))//TODO
 		}) ?? outText
-		// guard outText.contains(where: { !$0.isWhitespace }) else { return null } // Return null if (blank//TODO
+		if (/\s*/.test(outText))
+			return null; // Return nil if blank
 		return outText
 	}
 
-	removeWhiteSpace(text) {//TODO
-		text
-			.trimmingCharacters(.whitespacesAndNewlines) // Remove whitespace/newLine from start/end of string
-			.split { $0.isNewline }.join(" ") // Replace new-lines with a space
+	removeWhiteSpace(text: string) {//TODO
+		return text
+			.trim()// Remove whitespace/newLine from start/end of string
+			.replace(/\r?\n/g," ") // Replace new-lines with a space
 	}
 
 	toCVUString(depth, tab) {
-		let tabs = new Array(depth).map(function(){ _ in "" }) .join(tab)//TODO
-		let tabsPlus = new Array(depth + 1).map(function(){ _ in "" }).join(tab)//TODO
+		let tabs = tab.repeat(depth);
+		let tabsPlus = tab.repeat(depth + 1);
 		//let tabsEnd = new Array(depth - 1).map(function(){ _ in "" }).join(tab)//TODO
 
 		let propertiesLength = Object.keys(this.properties).length
 		let childrenLength = this.children.length
 
 		return propertiesLength > 0 || childrenLength > 0
-			? `${type} {\n` +
+			? `${this.type} {\n` +
 			+ (propertiesLength > 0
-				? `${tabsPlus}${CVUSerializer.dictToString(this.properties, depth, tab, false)}`
+				? `${tabsPlus}${new CVUSerializer().dictToString(this.properties, depth, tab, false)}`
 				: "")
 			+ (propertiesLength > 0 && childrenLength > 0
 				? "\n\n"
 				: "")
 			+ (childrenLength > 0
-				? `${tabsPlus}${CVUSerializer.arrayToString(this.children, depth, tab, false, true)}`
+				? `${tabsPlus}${new CVUSerializer().arrayToString(this.children, depth, tab, false, true)}`
 				: "")
 			+ `\n${tabs}}`
-			: "${type}\n"
+			: `${this.type}\n`
 	}
 
 	toString() {
@@ -147,21 +151,14 @@ class UIElement extends CVUToString {
 }
 
 
-//TODO enums
-/*enum UIElementFamily: String, CaseIterable {
-	case VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack,
+export enum UIElementFamily {
+	VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack,
 		Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image,
 		Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, RichTextfield, Empty
-}*/
-/*
-export const UIElementFamily = {
-	VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack,
-	Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image,
-	Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, RichTextfield, Empty
-};*/
+}
 
 enum UIElementProperties {
-	case resizable, show, alignment, align, textAlign, spacing, title, text, image, nopadding,
+	resizable, show, alignment, align, textAlign, spacing, title, text, image, nopadding,
 		press, bold, italic, underline, strikethrough, list, viewName, view, arguments, location,
 		address, systemName, cornerRadius, hint, value, datasource, defaultValue, empty, style,
 		frame, color, font, padding, background, rowbackground, cornerborder, border, margin,
