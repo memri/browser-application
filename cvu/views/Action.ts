@@ -1170,19 +1170,83 @@ class ActionRunIndexerInstance extends Action {
         super(context, "runIndexerInstance", argumentsJs, values)
     }
 
-    exec(argumentsJs) {//TODO: this is stop point from today changes;
+    exec(argumentsJs) {
         // TODO: parse options
         let indexerInstance = arguments["indexerInstance"]
         if (indexerInstance !instanceof IndexerInstance) {
             throw "Error, no memriID"
         }
-            let cachedIndexerInstance = this.context.cache.addToCache(indexerInstance);
+        if (indexerInstance.indexer?.runDestination == "ios") {
+            this.runLocal(indexerInstance)
+        } else {
+            // First make sure the indexer exists
 
-            this.context.podAPI.runImport(cachedIndexerInstance.memriID, function (error, success) {
-                if (error) {
-                    console.log(`Cannot execute actionIndex: ${error}`);
+            //            print("starting IndexerInstance with memrID \(memriID)")
+            indexerInstance.set("progress", 0)
+            this.context.scheduleUIUpdate()
+            // TODO: indexerInstance items should have been automatically created already by now
+
+            function getAndrunIndexerInstance(tries) {
+                if (tries > 20) {
+                    return
                 }
-            });
+                let uid = indexerInstance.get("uid");
+                if (uid == 0 || uid == null) {
+                   /* new DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        getAndrunIndexerInstance(tries + 1)
+                    }*///TODO:
+                } else {
+                    this.runIndexerInstance(indexerInstance, uid!)
+                }
+            }
+            getAndrunIndexerInstance(0)
+        }
+    }
+
+    runIndexerInstance(indexerInstance: IndexerInstance, uid: number) {
+    let start = new Date();
+
+    /*Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+    let timePassed = Int(Date().timeIntervalSince(start))
+        print("polling indexerInstance")
+        self.context.podAPI.get(uid) { error, data in
+            if let updatedInstance = data as? IndexerInstance {
+                if let progress: Int = updatedInstance.get("progress") {
+                if timePassed > 5 || progress >= 100 {
+                    timer.invalidate()
+                } else {
+                    print("setting random progress")
+                    let randomProgress = Int.random(in: 1 ... 20)
+                    indexerInstance.set("progress", randomProgress)
+                    self.context.scheduleUIUpdate()
+
+                    let p: Int? = indexerInstance.get("progress")
+                        print(p)
+                }
+            } else {
+                print("ERROR, could not get progress \(error)")
+                timer.invalidate()
+            }
+        } else {
+                print("Error, no instance")
+                timer.invalidate()
+            }
+        }
+    }*/ //TODO:
+}
+
+    runLocal(indexerInstance: IndexerInstance) {
+        let query: string = indexerInstance.indexer?.get("query");
+        if (!query) {
+            throw "Cannot execute IndexerInstance \(indexerInstance), no query specified"
+        }
+        let ds = new Datasource(query)
+
+        this.context.cache.query(ds, function (result) {//TODO: something like that?
+            if (result) {
+                this.context.indexerAPI.execute(indexerInstance, result)
+            }
+        }).bind("this");
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
@@ -1204,9 +1268,46 @@ class ActionClosePopup extends Action {
     }*/
 }
 
+class ActionSetProperty extends Action {
+    defaultValues: {
+        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor, "value": AnyObject.constructor},//TODO
+    }
+
+    constructor(context: MemriContext, argumentsJs = null, values = {}) {
+        super(context, "setProperty", argumentsJs, values)
+    }
+
+    exec(argumentsJs) {
+        let subject = argumentsJs["subject"];
+        if (subject !instanceof Item) {
+            throw "Exception: subject is not set"
+        }
+
+        let propertyName = argumentsJs["property"];
+        if (typeof propertyName !== "string") {
+            throw "Exception: property is not set to a string"
+        }
+
+        // Check that the property exists to avoid hard crash
+        if (!subject.objectSchema[propertyName]) {
+            throw `Exception: Invalid property access of ${propertyName} for ${subject}`
+        }
+
+        //#warning("Ask Toby for how to cast this")
+        subject.set(propertyName, argumentsJs["value"])//TODO
+
+            // TODO: refactor
+            ((this.context /*instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate()//TODO
+    }
+
+    /*class func exec(_ context: MemriContext, _ arguments: [String: Any]) throws {
+        execWithoutThrow { try ActionLink(context).exec(arguments) }
+    }*/
+}
+
 class ActionLink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": DataItemFamily.constructor, "property": String.constructor}//TODO:
+        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO:
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1215,7 +1316,7 @@ class ActionLink extends Action {
 
     exec(argumentsJs) {
         let subject = arguments["subject"];
-        if (subject !instanceof DataItem) {
+        if (subject !instanceof Item) {
             throw "Exception: subject is not set";
         }
 
@@ -1225,7 +1326,7 @@ class ActionLink extends Action {
         }
 
         let selected = arguments["dataItem"];
-        if (selected !instanceof DataItem) {
+        if (selected !instanceof Item) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1257,7 +1358,7 @@ class ActionLink extends Action {
 
 class ActionUnlink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": DataItemFamily.constructor, "property": String.constructor}//TODO
+        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1266,7 +1367,7 @@ class ActionUnlink extends Action {
 
     exec(argumentsJs) {
         let subject = arguments["subject"];
-        if (subject !instanceof DataItem) {
+        if (subject !instanceof Item) {
             throw "Exception: subject is not set";
         }
 
@@ -1276,7 +1377,7 @@ class ActionUnlink extends Action {
         }
 
         let selected = arguments["dataItem"];
-        if (selected !instanceof DataItem) {
+        if (selected !instanceof Item) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1289,12 +1390,14 @@ class ActionUnlink extends Action {
             // Get list and append
             var list = dataItemListToArray(subject[propertyName]); //TODO:?
 
-            list.push(selected);
+            //list.push(selected);
+            var index = list.indexOf(selected);
+            if (index !== -1) list.splice(index, 1);//TODO?
 
             subject.set(propertyName, list)//TODO
         }
         else {
-            subject.set(propertyName, selected)//TODO
+            subject.set(propertyName, null)//TODO
         }
 
         // TODO refactor
