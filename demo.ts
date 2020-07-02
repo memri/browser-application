@@ -315,6 +315,43 @@ var tabState = getJson("tabs") || {};
 tabManager.setState(tabState);
 
 
+var {MenuManager} = require("./playground/ui-lib/menu");
+var menuManager = new MenuManager()
+
+function closeTabs() {
+    var tab = menuManager.targetElement;
+    var tabs = []
+    if (this.id == "Close Tab") {
+        tabs = [tab]
+    } else if (this.id == "Close All Tabs") {
+        tabs = tab.parent.tabList.slice()
+    } else if (this.id == "Close Other Tabs") {
+        tabs = tab.parent.tabList.filter((x) => x != tab);
+    } else if (this.id == "Close Tabs to the Left") {
+        let index = tab.parent.tabList.indexOf(tab)
+        tabs = tab.parent.tabList.slice(0, index);
+    } else if (this.id == "Close Tabs to the Right") {
+        let index = tab.parent.tabList.indexOf(tab)
+        tabs = tab.parent.tabList.slice(index + 1);
+    }
+    tabs.forEach(tab => tab.close());
+}
+menuManager.add("/context/tabs/Close Tab", {exec: closeTabs})
+menuManager.add("/context/tabs/Close All Tabs", {exec: closeTabs})
+menuManager.add("/context/tabs/Close Other Tabs", {exec: closeTabs})
+menuManager.add("/context/tabs/Close Tabs to the Left", {exec: closeTabs})
+menuManager.add("/context/tabs/Close Tabs to the Right", {exec: closeTabs})
+
+
+window.oncontextmenu = function(e) {
+    var host = MenuManager.findHost(e.target)
+    if (host?.parent?.tabContainer) {
+        menuManager.openMenuByPath("/context/tabs", e)
+        menuManager.targetElement = host
+        e.preventDefault();
+    }
+}
+    
 
 
 function getJson(name) {
@@ -415,7 +452,7 @@ function updateTree() {
 function open(data, preview) {
     tabManager.open({
         path: data.name,
-        preview: true,
+        preview,
     })
 }
  

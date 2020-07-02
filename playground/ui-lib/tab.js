@@ -356,9 +356,8 @@ class TabBar {
                     class: "tabContainer",
                     ref: "tabContainer",
                     onclick: this.onTabClick,
-                    onmousedown: function (e) {
-                        tabbarMouseDown(e, Tab, TabBar, true)
-                    },
+                    onmouseup: this.onTabMouseUp,
+                    onmousedown: this.onTabMouseDown,
                 }]
             ],
             ["span", {
@@ -598,15 +597,32 @@ class TabBar {
         var target = e.target;
         var tab = lib.findHost(target, Tab);
         if (tab) {
-            if (target.classList.contains("tabCloseButton")) {
+            if (e.button == 0 && target.classList.contains("tabCloseButton")) {
                 this.closeTab(tab);
-            } else if (tab.editor) {
+            } else if (e.button == 0 && tab.editor) {
                 tab.editor.focus();
+            } else if (e.button == 1) {
+                tab.close();
             }
         }
     }
     onTabClick = this.onTabClick.bind(this);
-
+    
+    onTabMouseUp(e) {
+        if (e.button == 1) {
+            var tab = lib.findHost(e.target, Tab);
+            if (tab)
+                tab.close();
+        }
+    }
+    onTabMouseUp = this.onTabMouseUp.bind(this);
+    
+    onTabMouseDown(e) {
+        if (e.button == 0)
+            tabbarMouseDown(e, Tab, TabBar, true)
+    }
+    onTabMouseDown = this.onTabMouseDown.bind(this)
+    
     onTabPlusClick(e) {
         this.removeSelections();
         tabManager.addNewTab(this.parent);

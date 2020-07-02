@@ -110,8 +110,12 @@
     background-color: #e7e7e7;
 }
 .tab.active {
-    background-color: whitesmoke!important;//rgb(14, 98, 165);
+    background-color: whitesmoke;
  }
+ .tabDragging > .tab.active {
+    background-color: #e7e7e7;
+}
+ 
 .tabCloseButton {
     transform: rotate(45deg);
     width: 11px;
