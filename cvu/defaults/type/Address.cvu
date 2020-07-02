@@ -21,7 +21,7 @@ Address[] {
             }
             Spacer
             Map {
-                address: {{.}}
+                addressKey: self
                 maxWidth: 150
                 minHeight: 150
                 maxHeight: 150
@@ -32,7 +32,11 @@ Address[] {
         }
     }
     
-    [renderer = generalEditor]{
+    [renderer = map] {
+        addressKey: self
+    }
+    
+    [renderer = generalEditor] {
         EditorRow {
             title: "{.type}"
             nopadding: {{!readOnly}}
@@ -46,7 +50,7 @@ Address[] {
                 }
                 Spacer
                 Map {
-                    address: {{.}}
+                    addressKey: self
                     maxWidth: 150
                     minHeight: 150
                     maxHeight: 150
@@ -105,7 +109,7 @@ Address {
             sectionTitle: ""
             
             Map {
-                address: {{.}}
+                addressKey: self
                 minHeight: 150
                 maxHeight: 150
             }

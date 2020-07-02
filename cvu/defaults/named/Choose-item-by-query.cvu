@@ -4,7 +4,7 @@
     
     editActionButton: toggleEditMode
     actionButton:
-        addDataItem {
+        addItem {
             arguments {
                 type: {{type}}
             }

@@ -29,7 +29,7 @@ SessionView[] {
                 alignment: top
             
                 Text {
-                    text: "{.computedDescription()}"
+                    text: "{.computedTitle()}"
                     font: 18 semibold
                     color: #333
                     padding: 0 0 3 0

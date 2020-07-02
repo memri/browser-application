@@ -198,7 +198,7 @@ IndexerInstance[] {
     }
 
     actionButton:
-        addDataItem {
+        addItem {
             arguments {
                 template {
                     type: IndexerInstanceInstance

@@ -26,7 +26,7 @@
     all: "Alle"
 }
  
-.defaultButtonsForDataItem {
+.defaultButtonsForItem {
     editActionButton: toggleEditMode
     filterButtons: [
         openView {
@@ -100,7 +100,7 @@ Person {
     defaultRenderer: generalEditor
     
     /*include:
-        "defaultButtonsForDataItem" { type: Person }*/
+        "defaultButtonsForItem" { type: Person }*/
     
     editActionButton: toggleEditMode
     filterButtons: [
@@ -341,7 +341,7 @@ Person[] {
     }
     
     actionButton:
-        addDataItem {
+        addItem {
             arguments: {
                 template: {
                     type: Person
@@ -384,7 +384,7 @@ Person[] {
                         padding: 0 0 3 0
                     }
                     Text {
-                        text: "{relationships[target = me].edgeLabel}"
+                        text: "{.relations[.firstName = 'Alice'].lastName}"
                         font: 14 regular
                         color: #888
                         padding: 0 0 5 0
@@ -417,14 +417,32 @@ Person[] {
         }
     }
     
+    [renderer = map] {
+        addressKey: addresses
+        labelKey: firstName
+    }
+    
     [renderer = chart] {
-        /*chartTitle: "Override title"*/ /* Use this to override the auto-generated chart title */
+        chartTitle: "People by height" /* Use this to override the auto-generated chart title */
         
-        xAxisKey: age /* used only for line chart */
-        labelKey: firstName /* used for bar chart (also provides label on line chart) */
-        yAxisKey: height
+        label: "{.firstName}" /* used for bar chart (also provides label on line chart) */
+        yAxis: "{.height}"
         
-        sortProperty: height /* line chart ignores sort (automatically sorted by x-axis) */
+        hideGridlines: true
+        yAxisStartAtZero: true /* use this to force y-Axis to start at zero (vs fitting data)*/
+        
+        sortProperty: height
         sortAscending: true
+    }
+    
+    [renderer = chart.line] {
+        chartTitle: "Height vs. Age"
+        chartSubtitle: "A demo of dynamically graphing your data."
+        
+        xAxis: "{.age}" /* Feeling old? Try "{.age - 10}" to give everyone back a decade ;) */
+        yAxis: "{.height}"
+        label: "{.firstName}" /* The label to show over the point */
+        
+        /* line chart ignores sort (automatically sorted by x-axis) */
     }
 }

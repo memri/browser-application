@@ -85,12 +85,11 @@ Indexer[] {
         sortAscending: false
     }
 
-    editActionButton: toggleEditMode
     filterButtons: showStarred toggleFilterPanel
 
     [renderer = list] {
         press:
-            addDataItem {
+            addItem {
                 arguments {
                     template {
                         type: IndexerInstance
@@ -132,12 +131,17 @@ Indexer[] {
                 rowInset: 12 20 -12 20
     
     
-
-                Text {
-                    text: "{.name}"
-                    font: 18 semibold
-                    color: #333
-                    padding: 0 0 3 0
+                HStack {
+                    Text {
+                        text: "{.name}"
+                        font: 18 semibold
+                        color: #333
+                        padding: 0 0 3 0
+                    }
+                    Text {
+                        show: {{.runDestination="ios"}}
+                        text: "   (Local)"
+                    }
                 }
                 HStack {
                     Text {

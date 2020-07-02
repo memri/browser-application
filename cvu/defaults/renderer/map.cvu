@@ -1,0 +1,3 @@
+[renderer = map] {
+    press: openView /* open the item when pressing info on the map callout */
+}

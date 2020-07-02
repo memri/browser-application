@@ -32,6 +32,7 @@ var defaults = {
     "chart.cvu": require("text-loader!./cvu/defaults/renderer/chart.cvu"),
     "list.cvu": require("text-loader!./cvu/defaults/renderer/list.cvu"),
     "thumbnail.cvu": require("text-loader!./cvu/defaults/renderer/thumbnail.cvu"),
+    "map.cvu": require("text-loader!./cvu/defaults/renderer/map.cvu"),
     "Sessions.cvu": require("text-loader!./cvu/defaults/Session/Sessions.cvu"),
     "defaults.cvu": require("text-loader!./cvu/defaults/styles/defaults.cvu"),
     /*require("text-loader!./cvu/defaults/template_views.json"),*/

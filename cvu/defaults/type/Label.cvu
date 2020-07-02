@@ -13,7 +13,7 @@ Label[]: {
     emptyResultText: "You have not added any labels yet"
     defaultRenderer: thumbnail
     
-    actionButton: addDataItem {
+    actionButton: addItem {
         arguments: {
             type: "label"
             name: "new label"

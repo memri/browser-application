@@ -116,7 +116,7 @@ Note[] {
     }
     
     actionButton:
-        addDataItem {
+        addItem {
             arguments {
                 template {
                     type: Note
