@@ -21,7 +21,9 @@ var CvuHighlightRules = function() {
             "VStack|HStack|ZStack|EditorSection|EditorRow|EditorLabel|Button|FlowStack|Text|Textfield|ItemCell|SubView|Map|Picker|SecureField|ActionButton|MemriButton|Image|Circle|HorizontalLine|Rectangle|RoundedRectangle|Spacer|Divider|Empty|Title|RichTextfield|Action",
         "keyword":
             "and|AND|or|OR|equals|EQUALS|not|NOT|"+
-            "back|addDataItem|openView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showNavigation|share|duplicate|schedule|addToList|delete|setRenderer|select|selectAll|unselectAll|openLabelView|showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|addSelectionToList|closePopup|noop|"+
+            "back|addItem|openView|openDynamicView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showOverlay|showNavigation|share|addToPanel|duplicate|schedule|addToList|" +
+            "duplicateNote|noteTimeline|starredNotes|allNotes|exampleUnpack|delete|setRenderer|select|selectAll|unselectAll|showAddLabel|openLabelView|setProperty|" +
+            "showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|link|addSelectionToList|closePopup|noop|unlink|multiAction|runIndexerInstance|runImporterInstance"+
             "datasource|view"
     }, "identifier");
 
