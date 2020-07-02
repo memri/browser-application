@@ -417,7 +417,22 @@ Person {
             cornerRadius: 10
         }
     }
-}`,
+}`},
+    testUserState: {//TODO: different check (instanceof?)
+            snippet:
+`Person {
+    userState: {
+        showStarred: true
+    }
+}`
+    },
+    testViewArguments: {//TODO: different check (instanceof?)
+        snippet:
+`Person {
+    viewArguments: {
+        readOnly: true
+    }
+}`
     },
     testUIElementWithoutProperties: {
         snippet:
@@ -487,11 +502,11 @@ Person {
     }
 }`
     },
-    testActionAddDataItem: {
+    testActionAddItem: {
         snippet:
 `Person {
     [renderer = list] {
-        press: addDataItem {
+        press: addItem {
             arguments: {
                 template: {
                     type: "ImporterInstance"
@@ -510,14 +525,13 @@ Person {
             link {
                 arguments: {
                     property: {{property}}
-        dataItem: {{dataItem}}
+                    dataItem: {{dataItem}}
+                }
+            }
+            closePopup
+        ]
     }
-    }
-        closePopup
-    ]
-    }
-}`
-    },
+}`},
     testErrorMissingCurlBracketClose: {
         snippet:
 `Person {
@@ -584,7 +598,7 @@ Person {
 }`,
         error: 'MissingQuoteClose(EOF,1,21)'
     },
-}
+};
 
 function toCVUString(list) {
     return list.map(x => x.toCVUString(0, "    ")).join("\n\n")
@@ -594,7 +608,7 @@ function parse(snippet) {
     let lexer = new CVULexer(snippet);
     let tokens = lexer.tokenize();
     let parser = new CVUParser(tokens, "",
-        "", "");
+        undefined, undefined);
     let x = parser.parse();
     return x
 }

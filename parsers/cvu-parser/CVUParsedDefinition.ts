@@ -4,8 +4,11 @@ class CVUToString {
     
 }
 export class CVUParsedDefinition extends CVUToString {
+    name: string
+    selector: string
+    domain: string
 
-    constructor(selector, name, domain = "user", parsed) {
+    constructor(selector, name, domain = "user", parsed?) {
         super(selector, name, domain, parsed)
         this.selector = selector
         this.name = name
@@ -48,7 +51,7 @@ export class CVUParsedDefinition extends CVUToString {
     }
     
     toString() {
-        this.toCVUString(0, "    ")
+        return this.toCVUString(0, "    ")
     }
 }
 export class CVUParsedDatasourceDefinition extends CVUParsedDefinition {
@@ -58,18 +61,12 @@ export class CVUParsedStyleDefinition extends CVUParsedDefinition {
 export class CVUParsedLanguageDefinition extends CVUParsedDefinition {
 }
 export class CVUParsedColorDefinition extends CVUParsedDefinition {
-    constructor(selector, name, domain, parsed) {
-        super(selector, name, domain, parsed)
-    }
 }
 export class CVUParsedRendererDefinition extends CVUParsedDefinition {
-    constructor(selector, name, domain, parsed) {
-        super(selector, name, domain, parsed)
-    }
 }
 export class CVUParsedViewDefinition extends CVUParsedDefinition {
-    constructor(selector, name, type, query) {
-        super(selector, name, type, query)
+    constructor(selector, name, type?, query?) {
+        super(selector, name)
         this.type = type
         this.query = query
     }
