@@ -201,8 +201,10 @@ public func executeAction(_ actions:[Action], with dataItem:DataItem? = nil,
 import {CVUSerializer, orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {ActionError} from "./ActionErrors";
-import {CVUParsedSessionDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedSessionDefinition, CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {ViewArguments} from "./UserState";
+import {Item} from "../../model/DataItem";
 
 class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -392,13 +394,49 @@ enum RenderType {
 }
 
 export enum ActionFamily {
-    back, addItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel,
-    star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate,
-    schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack,
-    delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView,
-    showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName,
-    link, closePopup, unlink, multiAction, noop, runIndexerInstance, runImporterInstance,
-    setProperty
+    back = "back",
+    addItem = "addItem",
+    openView = "openView",
+    openDynamicView = "openDynamicView",
+    openViewByName = "openViewByName",
+    toggleEditMode = "toggleEditMode",
+    toggleFilterPanel = "toggleFilterPanel",
+    star = "star",
+    showStarred = "showStarred",
+    showContextPane = "showContextPane",
+    showOverlay = "showOverlay",
+    share = "share",
+    showNavigation = "showNavigation",
+    addToPanel = "addToPanel",
+    duplicate = "duplicate",
+    schedule = "schedule",
+    addToList = "addToList",
+    duplicateNote = "duplicateNote",
+    noteTimeline = "noteTimeline",
+    starredNotes = "starredNotes",
+    allNotes = "allNotes",
+    exampleUnpack = "exampleUnpack",
+    delete = "delete",
+    setRenderer = "setRenderer",
+    select = "select",
+    selectAll = "selectAll",
+    unselectAll = "unselectAll",
+    showAddLabel = "showAddLabel",
+    openLabelView = "openLabelView",
+    showSessionSwitcher = "showSessionSwitcher",
+    forward = "forward",
+    forwardToFront = "forwardToFront",
+    backAsSession = "backAsSession",
+    openSession = "openSession",
+    openSessionByName = "openSessionByName",
+    link = "link",
+    closePopup = "closePopup",
+    unlink = "unlink",
+    multiAction = "multiAction",
+    noop = "noop",
+    runIndexerInstance = "runIndexerInstance",
+    runImporterInstance = "runImporterInstance",
+    setProperty = "setProperty"
 
     /*func getType() -> Action.Type {
         switch self {
@@ -525,7 +563,7 @@ class ActionBack extends Action {
 class ActionAddItem extends Action {
     defaultValues = {
         "icon": "plus",
-        "argumentTypes": {"template": ItemFamily.constructor},//TODO
+        //"argumentTypes": {"template": ItemFamily.constructor},//TODO
         "opensView": true,
         "color": new Color("#6aa84f"),
         "inactiveColor": new Color("#434343")
@@ -561,7 +599,7 @@ class ActionAddItem extends Action {
 
 class ActionOpenView extends Action {
     defaultValues = {
-        "argumentTypes": {"view": SessionView.constructor, "viewArguments": ViewArguments.constructor},//TODO
+        //"argumentTypes": {"view": SessionView.constructor, "viewArguments": ViewArguments.constructor},//TODO
         "withAnimation": false,
         "opensView": true
     };
@@ -636,7 +674,7 @@ class ActionOpenView extends Action {
 
 class ActionOpenViewByName extends Action {
     defaultValues = {
-        "argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO
+        //"argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO
         "withAnimation": false,
         "opensView": true
     };
@@ -680,15 +718,15 @@ class ActionToggleEditMode extends Action {
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "toggleEditMode", arguments, values)
+        super(context, "toggleEditMode", argumentsJs, values)
     }
 
     exec(argumentsJs) {
         // Do Nothing
     }
 
-    /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-        execWithoutThrow { try ActionToggleEditMode(context).exec(arguments) }
+    /*class func exec(_ context:MemriContext, _ argumentsJs:[String: Any]) throws {
+        execWithoutThrow { try ActionToggleEditMode(context).exec(argumentsJs) }
     }*/
 }
 
@@ -700,7 +738,7 @@ class ActionToggleFilterPanel extends Action {
     };
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "toggleFilterPanel", arguments, values)
+        super(context, "toggleFilterPanel", argumentsJs, values)
     }
 
     exec(argumentsJs) {
@@ -708,8 +746,8 @@ class ActionToggleFilterPanel extends Action {
         //dismissCurrentResponder()//TODO:?
     }
 
-    /*    class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-            execWithoutThrow { try ActionToggleFilterPanel(context).exec(arguments) }
+    /*    class func exec(_ context:MemriContext, _ argumentsJs:[String: Any]) throws {
+            execWithoutThrow { try ActionToggleFilterPanel(context).exec(argumentsJs) }
         }*/
 }
 class ActionStar extends Action {
@@ -724,7 +762,7 @@ class ActionStar extends Action {
 
     // TODO selection handling for binding
     exec(argumentsJs) {
-//        if let item = arguments["dataItem"] as? DataItem {
+//        if let item = argumentsJs["dataItem"] as? DataItem {
 //            var selection:[DataItem] = context.cascadingView.userState.get("selection") ?? []
 //            let toValue = !item.starred
 //
@@ -741,12 +779,12 @@ class ActionStar extends Action {
 //        }
 //        else {
 //            // TODO Error handling
-//            throw "Cannot execute ActionStar, missing dataItem in arguments."
+//            throw "Cannot execute ActionStar, missing dataItem in argumentsJs."
 //        }
     }
 /*
-    class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-        execWithoutThrow { try ActionStar.exec(context, arguments) }
+    class func exec(_ context:MemriContext, _ argumentsJs:[String: Any]) throws {
+        execWithoutThrow { try ActionStar.exec(context, argumentsJs) }
     }*/
 }
 
@@ -780,8 +818,8 @@ class ActionShowStarred extends Action {
         }
     }
 
-    /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-        execWithoutThrow { try ActionShowStarred(context).exec(arguments) }
+    /*class func exec(_ context:MemriContext, _ argumentsJs:[String: Any]) throws {
+        execWithoutThrow { try ActionShowStarred(context).exec(argumentsJs) }
     }*/
 }
 
@@ -800,8 +838,8 @@ class ActionShowContextPane extends Action {
         //dismissCurrentResponder()//TODO
     }
 
-    /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-        execWithoutThrow { try ActionShowContextPane(context).exec(arguments) }
+    /*class func exec(_ context:MemriContext, _ argumentsJs:[String: Any]) throws {
+        execWithoutThrow { try ActionShowContextPane(context).exec(argumentsJs) }
     }*/
 }
 
@@ -821,8 +859,8 @@ class ActionShowNavigation extends Action {
         //dismissCurrentResponder()//TODO
     }
 
-    /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-        execWithoutThrow { try ActionShowNavigation.exec(context, arguments) }
+    /*class func exec(_ context:MemriContext, _ argumentsJs:[String: Any]) throws {
+        execWithoutThrow { try ActionShowNavigation.exec(context, argumentsJs) }
     }*/
 }
 class ActionSchedule extends Action {
@@ -949,7 +987,7 @@ class ActionBackAsSession extends Action {
 
 class ActionOpenSession extends Action {
     defaultValues = {
-        "argumentTypes": {"session": Session.constructor, "viewArguments": ViewArguments.constructor},//TODO:
+        //"argumentTypes": {"session": Session.constructor, "viewArguments": ViewArguments.constructor},//TODO:
         "opensView": true,
             "withAnimation": false
     };
@@ -981,7 +1019,7 @@ class ActionOpenSession extends Action {
     /// Adds a view to the history of the currentSession and displays it. If the view was already part of the currentSession.views it
     /// reorders it on top
     exec(argumentsJs) {
-        let item = arguments["session"]
+        let item = argumentsJs["session"]
         if (item) {
             let session = item;
             if (session instanceof Session) {
@@ -992,7 +1030,7 @@ class ActionOpenSession extends Action {
             }
         }
     else {
-            let session = arguments["dataItem"];
+            let session = argumentsJs["dataItem"];
             if (session instanceof Session) {
                 this.openSession(this.context, session);
             }
@@ -1002,7 +1040,7 @@ class ActionOpenSession extends Action {
         }
     }
 
-    /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
+    /*class func exec(_ context:MemriContext, _ argumentsJs:[String: Any]) throws {
         execWithoutThrow { try ActionOpenSession.exec(context, arguments) }
     }*/
 }
@@ -1010,7 +1048,7 @@ class ActionOpenSession extends Action {
 // TODO How to deal with viewArguments in sessions
 class ActionOpenSessionByName extends Action {
     defaultValues = {
-        "argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO:
+        //"argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO:
         "opensView": true,
             "withAnimation": false
     };
@@ -1020,8 +1058,8 @@ class ActionOpenSessionByName extends Action {
     }
 
     exec(argumentsJs) {
-        let viewArguments = arguments["viewArguments"] instanceof ViewArguments;
-        let name = arguments["name"];
+        let viewArguments = argumentsJs["viewArguments"] instanceof ViewArguments;
+        let name = argumentsJs["name"];
         if (typeof name != "string") {
             throw "Cannot execute ActionOpenSessionByName, no name defined in viewArguments";
         }
@@ -1098,7 +1136,7 @@ class ActionDelete extends Action {
             this.context.cache.delete(selection);
             this.context.scheduleCascadingViewUpdate(true);
         } else {
-            let dataItem = arguments["dataItem"];
+            let dataItem = argumentsJs["dataItem"];
             if (dataItem instanceof Item) {
                 this.context.cache.delete(dataItem);
                 this.context.scheduleCascadingViewUpdate(true);
@@ -1125,7 +1163,7 @@ class ActionDuplicate extends Action {
                 new ActionAddItem(this.context).exec({"dataItem": item})
             });//TODO:
         } else {
-            let item = arguments["dataItem"];
+            let item = argumentsJs["dataItem"];
             if (item instanceof Item) {
                 new ActionAddItem(this.context).exec({"dataItem": item});
             } else {
@@ -1147,7 +1185,7 @@ class ActionRunImporterInstance extends Action {
 
     exec(argumentsJs) {
         // TODO: parse options
-        let importerInstance = arguments["importerInstance"];
+        let importerInstance = argumentsJs["importerInstance"];
         if (importerInstance instanceof ImporterInstance) {
             let cachedImporterInstance = this.context.cache.addToCache(importerInstance);
 
@@ -1172,7 +1210,7 @@ class ActionRunIndexerInstance extends Action {
 
     exec(argumentsJs) {
         // TODO: parse options
-        let indexerInstance = arguments["indexerInstance"]
+        let indexerInstance = argumentsJs["indexerInstance"]
         if (indexerInstance !instanceof IndexerInstance) {
             throw "Error, no memriID"
         }
@@ -1270,7 +1308,7 @@ class ActionClosePopup extends Action {
 
 class ActionSetProperty extends Action {
     defaultValues: {
-        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor, "value": AnyObject.constructor},//TODO
+        //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor, "value": AnyObject.constructor},//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1307,7 +1345,7 @@ class ActionSetProperty extends Action {
 
 class ActionLink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO:
+        //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO:
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1315,17 +1353,17 @@ class ActionLink extends Action {
     }
 
     exec(argumentsJs) {
-        let subject = arguments["subject"];
+        let subject = argumentsJs["subject"];
         if (subject !instanceof Item) {
             throw "Exception: subject is not set";
         }
 
-        let propertyName = arguments["property"]
+        let propertyName = argumentsJs["property"]
         if (typeof propertyName != "string") {
             throw "Exception: property is not set to a string"
         }
 
-        let selected = arguments["dataItem"];
+        let selected = argumentsJs["dataItem"];
         if (selected !instanceof Item) {
             throw "Exception: selected data item is not passed"
         }
@@ -1358,7 +1396,7 @@ class ActionLink extends Action {
 
 class ActionUnlink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO
+        //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1366,17 +1404,17 @@ class ActionUnlink extends Action {
     }
 
     exec(argumentsJs) {
-        let subject = arguments["subject"];
+        let subject = argumentsJs["subject"];
         if (subject !instanceof Item) {
             throw "Exception: subject is not set";
         }
 
-        let propertyName = arguments["property"]
+        let propertyName = argumentsJs["property"]
         if (typeof propertyName != "string") {
             throw "Exception: property is not set to a string"
         }
 
-        let selected = arguments["dataItem"];
+        let selected = argumentsJs["dataItem"];
         if (selected !instanceof Item) {
             throw "Exception: selected data item is not passed"
         }
@@ -1411,7 +1449,7 @@ class ActionUnlink extends Action {
 
 class ActionMultiAction extends Action {
     defaultValues = {
-        "argumentTypes": {"actions": [Action].constructor},//TODO:?
+        //"argumentTypes": {"actions": [Action].constructor},//TODO:?
         "opensView": true
     }
 
@@ -1420,7 +1458,7 @@ class ActionMultiAction extends Action {
     }
 
     exec(argumentsJs) {
-        let actions = arguments["actions"];
+        let actions = argumentsJs["actions"];
         if (!(Array.isArray(actions) && actions[0] instanceof Action)) {
             throw "Cannot execute ActionMultiAction: no actions passed in arguments"
         }

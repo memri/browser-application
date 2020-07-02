@@ -8,7 +8,7 @@
 const {ExprLookupNode, ExprVariableNode} = require("./ExprNodes");
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
-
+import {UserState, ViewArguments} from "../../cvu/views/UserState";
 
 export class Expression {
     code: string;
@@ -21,7 +21,7 @@ export class Expression {
     parsed = false;
     ast;
 
-    constructor(code, startInStringMode, lookup?, execFunc?) {
+    constructor(code, startInStringMode = false, lookup?, execFunc?) {
         this.code = code;
         this.startInStringMode = startInStringMode;
         this.lookup = lookup;
@@ -29,11 +29,11 @@ export class Expression {
     }
 
     toCVUString(depth, tab) {
-        this.startInStringMode ? `"${this.code}"` : `{{${this.code}}}`
+        return this.startInStringMode ? `"${this.code}"` : `{{${this.code}}}`
     }
 
     toString() {
-        this.toCVUString(0, "    ")
+        return this.toCVUString(0, "    ")
     }
 
     isTrue() {
@@ -49,7 +49,7 @@ export class Expression {
             let lastProperty = sequence.pop()
             if (lastProperty instanceof ExprVariableNode) {
                 let lookupNode = new ExprLookupNode(sequence);
-                let lookupValue =  this.lookup(lookupNode, ViewArguments())//TODO
+                let lookupValue =  this.lookup(lookupNode, new ViewArguments())//TODO
 
                 let obj = lookupValue;
                 let context = this.context;

@@ -10,6 +10,7 @@ import {
     CVUParsedSessionDefinition, CVUParsedViewDefinition
 } from "./CVUParsedDefinition";
 import {UIElement} from "../../cvu/views/UIElement";
+import {Expression} from "../expression-parser/Expression";
 
 //function UIElement() {}
 
@@ -24,7 +25,7 @@ export class CVUSerializer {
                 return `"${p.replace("\"", "\\\"")}"`;
             } else if (Array.isArray(p)) {
                 return this.arrayToString(p, depth + 1, tab)
-            } else if (p instanceof CVUParsedDefinition) {//TODO:
+            } else if (typeof p.toCVUString === "function") {//TODO:
                 return p.toCVUString(depth + 1, tab)
             } else if (p instanceof Color) {
                 return String(p.toLowerCase().substr(0, 7));
@@ -161,11 +162,11 @@ export class CVUSerializer {
                 }
             } else {
                 let p = dict[key];
-                if (typeof p == "object") {
+                if (Array.isArray(p) || key == "value" || typeof p != "object" || p instanceof Expression) { //TODO: need way to determinate dictionary
+                    str.push(`${key}: ${this.valueToString(dict[key], depth, tab)}`)
+                } else {
                     str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
                         + `${key}: ${this.valueToString(p, depth, tab)}`)
-                } else if (dict[key]) {
-                    str.push(`${key}: ${this.valueToString(dict[key], depth, tab)}`)
                 }
             }
         }

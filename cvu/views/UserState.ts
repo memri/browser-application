@@ -5,21 +5,24 @@
 //
 
 
-class UserState extends Object, CVUToString {
+import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {DataItem} from "../../model/DataItem";
+
+export class UserState /*extends Object, CVUToString*/ {
 	memriID = DataItem.generateUUID()
 	state = ""
 
 	onFirstSave
 
 	constructor(dict, onFirstSave) {//TODO
-		super()
+		//super()
 
 		this.onFirstSave = onFirstSave
 
-		try { InMemoryObjectCache.set(this.memriID, dict) }
+		/*try { InMemoryObjectCache.set(this.memriID, dict) }
 		catch {
 			// TODO: Refactor error reporting
-		}
+		}*/
 	}
 
 	get(propName) {
@@ -68,7 +71,7 @@ class UserState extends Object, CVUToString {
 			dict[key] = value.value
 		}
 
-		InMemoryObjectCache.set(this.memriID, dict)//TODO
+		//InMemoryObjectCache.set(this.memriID, dict)//TODO
 		return dict
 	}
 
@@ -95,7 +98,7 @@ class UserState extends Object, CVUToString {
 
 		let x = InMemoryObjectCache.get(this.memriID)
 		if (x && typeof x == "object") {
-			realmWriteIfAvailable(realm) {
+			/*realmWriteIfAvailable(realm) {
 				try {
 					var values = {}
 
@@ -112,7 +115,7 @@ class UserState extends Object, CVUToString {
 				} catch {
 					debugHistory.error(`Could not persist state object: ${error}`)
 				}
-			}
+			}*/
 		}
 	}
 
@@ -136,8 +139,8 @@ class UserState extends Object, CVUToString {
 	}
 
 	merge(state) {
-		let dict = this.asDict().merging(state.asDict(), { _, new in new })//TODO
-		InMemoryObjectCache.set(this.memriID, dict)
+		let dict = this.asDict().concat(state.asDict()) //TODO
+		//InMemoryObjectCache.set(this.memriID, dict) TODO
 	}
 
 	clone() {
@@ -145,8 +148,8 @@ class UserState extends Object, CVUToString {
 	}
 
 	toCVUString(depth, tab) {
-		CVUSerializer.dictToString(this.asDict(), depth, tab)
+		new CVUSerializer().dictToString(this.asDict(), depth, tab)
 	}
 }
 
-var ViewArguments = UserState
+export var ViewArguments = UserState

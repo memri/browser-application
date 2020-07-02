@@ -21,19 +21,7 @@ import {
 } from "./CVUParsedDefinition"
 import {ActionFamily, getActionType} from "../../cvu/views/Action";
 import {UIElement, UIElementFamily} from "../../cvu/views/UIElement";
-
-/*export class ActionFamily {
-    static allCases = "back, addDataItem, openView, openDynamicView, openViewByName, toggleEditMode, toggleFilterPanel, star, showStarred, showContextPane, showOverlay, share, showNavigation, addToPanel, duplicate, schedule, addToList, duplicateNote, noteTimeline, starredNotes, allNotes, exampleUnpack, delete, setRenderer, select, selectAll, unselectAll, showAddLabel, openLabelView, showSessionSwitcher, forward, forwardToFront, backAsSession, openSession, openSessionByName, link, closePopup, unlink, multiAction, noop".split(/,\s*!/)
-}*/
-
-/*export class UIElementFamily {
-    static allCases = "VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack, Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image, Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, Empty".split(/,\s*!/)
-}*/
-
-/*export class UIElement {
-    
-}*/
-
+import {UserState} from "../../cvu/views/UserState";
 
 export class Color {
     value;
@@ -479,13 +467,13 @@ export class CVUParser {
                                 }
                             }
 
-                            //let arguments = options.removeValue("arguments") instanceOf [String:Any] ?? [:]//TODO:
-                            //let actionFamily = ActionFamily.allCases.find(function (el){return el == name});
+                            let argumentsJs = options["arguments"] ? JSON.parse(JSON.stringify(options["arguments"])) : {} //TODO:
+                            delete options["arguments"];
                             let actionFamily = ActionFamily[name];
                             if (actionFamily) {
                                 //TODO:
                                  let ActionType = getActionType(actionFamily);//TODO:
-                                 stack.push(new ActionType(this.context, arguments, options));//[this.context, arguments, options]
+                                 stack.push(new ActionType(this.context, argumentsJs, options));//[this.context, arguments, options]
                                 //stack.push(actionFamily)
                             } else {
                                 // TODO ERROR REPORTING
