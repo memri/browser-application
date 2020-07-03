@@ -83,13 +83,13 @@ export class UserState /*extends Object, CVUToString*/ {
 			this.scheduled = true
 
 			// Schedule update
-			DispatchQueue.main.async {
+			/*DispatchQueue.main.async {
 				// Reset scheduled
 				this.scheduled = false
 
 				// Update UI
 				this.persist()
-			}
+			}*/
 		}
 	}
 

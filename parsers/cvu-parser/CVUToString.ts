@@ -37,7 +37,7 @@ export class CVUSerializer {
                 if (p % 1 == 0) {
                     return `${Number(p)}`
                 }
-            } /*else if (VerticalAlignment.hasOwnProperty(p)) {
+            } else if (VerticalAlignment.hasOwnProperty(p)) {
                 return  p;//TODO:
             } else if (HorizontalAlignment.hasOwnProperty(p)) {
                 switch (p) {
@@ -93,9 +93,9 @@ export class CVUSerializer {
                     default:
                         return "regular"
                 }
-            }*/ else if (typeof p == "object") {
+            } else if (typeof p == "object") {
                 return this.dictToString(p, depth + 1, tab)
-            } 
+            }
 
             return `${p}`
         }
@@ -140,7 +140,7 @@ export class CVUSerializer {
         var str = [];
         for (let key in keys) {
             if (key == "children" || key == "renderDefinitions" || key == "datasourceDefinition"
-                || key == "sessionDefinitions" || key == "viewDefinitions") {
+                || key == "sessionDefinitions" || key == "viewDefinitions" || key == "isCVUObject") {
                 continue;
             } else if (key == "cornerborder") {
                 var value = dict[key];
@@ -162,11 +162,11 @@ export class CVUSerializer {
                 }
             } else {
                 let p = dict[key];
-                if (Array.isArray(p) || key == "value" || typeof p != "object" || p instanceof Expression) { //TODO: need way to determinate dictionary
-                    str.push(`${key}: ${this.valueToString(dict[key], depth, tab)}`)
-                } else {
+                if (p && typeof p.isCVUObject === "function") {
                     str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
-                        + `${key}: ${this.valueToString(p, depth, tab)}`)
+                        + `${key}: ${this.valueToString(p, depth, tab)}`);
+                } else {
+                    str.push(`${key}: ${this.valueToString(dict[key], depth, tab)}`);
                 }
             }
         }
@@ -200,7 +200,7 @@ export class CVUSerializer {
         }
 
         return withDef
-            ? `{\n${tabs}${str.join(`\n${tabs}`)}${children}${definitions}\n${tabsEnd}}`
+            ? `{\n${tabs}${str.join(`\n${tabs}`)}${children}${definitions.join('')}\n${tabsEnd}}`
             : `${str.join(`\n${tabs}`)}${children}${definitions.join('')}`
     }
 

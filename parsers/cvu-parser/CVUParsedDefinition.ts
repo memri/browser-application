@@ -28,19 +28,19 @@ export class CVUParsedDefinition extends CVUToString {
 
         }
 
-        let body = new CVUSerializer().dictToString(this.parsed, depth+1, tab, true, false, function (lhp, rhp) {
+        let body = new CVUSerializer().dictToString(this.parsed, depth+1, tab, true, true, function (lhp, rhp) {
             let lv = this.parsed[lhp];
             let rv = this.parsed[rhp]
 
-            let leftIsDict = typeof lv == "object"
-            let rightIsDict = typeof rv == "object"
+            let leftIsDict = lv && typeof lv.isCVUObject === "function"
+            let rightIsDict = rv && typeof rv.isCVUObject === "function"
             let leftHasChildren = lv && lv["children"] != null
             let rightHasChildren = rv && rv["children"] != null
 
-            if (leftHasChildren && !rightHasChildren) return -1
-            if (!leftHasChildren && rightHasChildren) return 1
-            if (leftIsDict && !rightIsDict) return -1
-            if (!leftIsDict && rightIsDict) return 1
+            if (leftHasChildren && !rightHasChildren) return 1
+            if (!leftHasChildren && rightHasChildren) return -1
+            if (leftIsDict && !rightIsDict) return 1
+            if (!leftIsDict && rightIsDict) return -1
             if (lhp.toLowerCase() < rhp.toLowerCase()) {
                 return -1;
             } else

@@ -50,30 +50,30 @@ export function CGFloat(num) {
 }
 
 export enum VerticalAlignment{
-    top,
-    center,
-    bottom
+    top = "top",
+    center = "center",
+    bottom = "bottom"
 }
 export enum HorizontalAlignment{
-    leading,
-    center,
-    trailing
+    leading = "leading",
+    center = "center",
+    trailing = "trailing"
 }
 export enum Alignment{
-    top,
-    center,
-    bottom,
-    leading,
-    trailing,
-    topLeading,
-    topTrailing,
-    bottomLeading,
-    bottomTrailing
+    top = "top",
+    center = "center",
+    bottom = "bottom",
+    leading = "leading",
+    trailing = "trailing",
+    topLeading = "topLeading",
+    topTrailing = "topTrailing",
+    bottomLeading = "bottomLeading",
+    bottomTrailing = "bottomTrailing"
 }
 export enum TextAlignment{
-    leading,
-    center,
-    trailing
+    leading = "leading",
+    center = "center",
+    trailing = "trailing"
 }
 
 export var Font = {
@@ -396,7 +396,11 @@ export class CVUParser {
                     }
                     break;
                 case CVUToken.CurlyBracketOpen:
-                    stack.push(this.parseDict(lastKey!));
+                    let obj = this.parseDict(lastKey);
+                    obj.isCVUObject = () => {
+                        return true;
+                    };
+                    stack.push(obj);
                     break;
                 case CVUToken.CurlyBracketClose:
                     setPropertyValue();
@@ -692,11 +696,11 @@ export class CVUParser {
                     dict["align"]
                 ];
 
-                dict["minWidth"] = null;
-                dict["maxWidth"] = null;
-                dict["minHeight"] = null;
-                dict["maxHeight"] = null;
-                dict["align"] = null;
+                dict["minWidth"] = undefined;
+                dict["maxWidth"] = undefined;
+                dict["minHeight"] = undefined;
+                dict["maxHeight"] = undefined;
+                dict["align"] = undefined;
 
                 dict["frame"] = values;
                 break;
@@ -708,7 +712,7 @@ export class CVUParser {
             value.push(dict["cornerRadius"] ?? 0);
 
             dict["cornerborder"] = value;
-            dict["border"] = null;
+            dict["border"] = undefined;
         }
     }
 }

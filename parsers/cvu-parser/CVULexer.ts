@@ -467,7 +467,8 @@ export class CVULexer {
 
             if (isMode == Mode.expression) {
                 if (c == "}" && lastChar == "}") {
-                    if (tokens.pop()) {
+                    let tokensT = tokens.pop();
+                    if (CVUToken.CurlyBracketOpen == tokensT.constructor) {
                         keyword.pop()
 
                         tokens.push(new CVUToken.Expression(keyword.join(""), ln, ch - 1 - keyword.length))

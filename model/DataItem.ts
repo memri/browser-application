@@ -7,13 +7,13 @@ enum CodingKeys {
 enum DataItemError {
 	cannotMergeItemWithDifferentId
 }
-class DataItem extends Object, Codable, Identifiable, ObservableObject {//TODO
+export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*/ {//TODO
 	/// name of the DataItem implementation class (E.g. "note" or "person")
 	genericType () { return "unknown" }
 
 	/// Title computed by implementations of the DataItem class
 	computedTitle() {
-		return `${genericType} [${memriID}]`
+		return `${this.genericType} [${this.memriID}]`
 	}
 
 	test = DataItem.generateUUID()//TODO
@@ -57,7 +57,7 @@ class DataItem extends Object, Codable, Identifiable, ObservableObject {//TODO
 	DataItemError = DataItemError//TODO
 
 	constructor(decoder) {
-		super()
+		//super()
 
 		this.functions["describeChangelog"] = function() {
 			let dateCreated = Views.formatDate(this.dateCreated)
@@ -178,9 +178,9 @@ class DataItem extends Object, Codable, Identifiable, ObservableObject {//TODO
 	///   - name: property name
 	///   - value: value
 	set(name, value) {
-		realmWriteIfAvailable(realm) {//TODO
+		/*realmWriteIfAvailable(realm) {//TODO
 			this[name] = value
-		}
+		}*/
 	}
 
 	addEdge(propertyName, item) {
@@ -320,7 +320,7 @@ class DataItem extends Object, Codable, Identifiable, ObservableObject {//TODO
 		let realm = this.realm
 		if (realm) {
 			try {
-				realm.write { this.doMerge(item, mergeDefaults) }//TODO
+				//realm.write { this.doMerge(item, mergeDefaults) }//TODO
 			} catch(error) {
 				console.log(`Could not write merge of ${item} and ${this} to realm`)
 			}
@@ -359,9 +359,9 @@ class DataItem extends Object, Codable, Identifiable, ObservableObject {//TODO
 
 	/// update the dateAccessed property to the current date
 	access() {
-		realmWriteIfAvailable(realm) {//TODO
+		/*realmWriteIfAvailable(realm) {//TODO
 			this.dateAccessed = Date()
-		}
+		}*/
 	}
 
 	/// compare two dataItems
@@ -447,3 +447,5 @@ class Edge extends Object {
 	//        subjectUid = try decoder.decodeIfPresent("subjectUid") ?? subjectUid
 	//    }
 }
+
+export var Item = DataItem;

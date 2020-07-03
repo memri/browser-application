@@ -13,7 +13,7 @@ export class UIElement /*extends CVUToString */{
 	children = []
 	properties = {} // TODO: ViewParserDefinitionContext
 
-	constructor(type, children = null, properties = {}) {
+	constructor(type, children, properties = {}) {
 		//super()
 		this.type = type
 		this.children = children ?? this.children
@@ -131,7 +131,7 @@ export class UIElement /*extends CVUToString */{
 		let childrenLength = this.children.length
 
 		return propertiesLength > 0 || childrenLength > 0
-			? `${this.type} {\n` +
+			? `${this.type} {\n`
 			+ (propertiesLength > 0
 				? `${tabsPlus}${new CVUSerializer().dictToString(this.properties, depth, tab, false)}`
 				: "")
@@ -152,9 +152,35 @@ export class UIElement /*extends CVUToString */{
 
 
 export enum UIElementFamily {
-	VStack, HStack, ZStack, EditorSection, EditorRow, EditorLabel, Title, Button, FlowStack,
-		Text, Textfield, ItemCell, SubView, Map, Picker, SecureField, Action, MemriButton, Image,
-		Circle, HorizontalLine, Rectangle, RoundedRectangle, Spacer, Divider, RichTextfield, Empty
+	VStack = "VStack",
+	HStack = "HStack",
+	ZStack = "ZStack",
+	EditorSection = "EditorSection",
+	EditorRow = "EditorRow",
+	EditorLabel = "EditorLabel",
+	Title = "Title",
+	Button = "Button",
+	FlowStack = "FlowStack",
+
+	Text = "Text",
+	Textfield = "Textfield",
+	ItemCell = "ItemCell",
+	SubView = "SubView",
+	Map = "Map",
+	Picker = "Picker",
+	SecureField = "SecureField",
+	Action = "Action",
+	MemriButton = "MemriButton",
+	Image = "Image",
+
+	Circle = "Circle",
+	HorizontalLine = "HorizontalLine",
+	Rectangle = "Rectangle",
+	RoundedRectangle = "RoundedRectangle",
+	Spacer = "Spacer",
+	Divider = "Divider",
+	RichTextfield = "RichTextfield",
+	Empty = "Empty"
 }
 
 enum UIElementProperties {

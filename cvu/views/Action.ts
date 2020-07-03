@@ -376,7 +376,7 @@ class Action/* : HashableClass, CVUToString*/ {
         }
 
         return strBuilder.length > 0
-            ? `${this.name} {\n${tabs}${strBuilder.join(`\n${tabs}`)}\n${tabsEnd}`
+            ? `${this.name} {\n${tabs}${strBuilder.join(`\n${tabs}`)}\n${tabsEnd}}`
             : `${this.name}`
     }
 
