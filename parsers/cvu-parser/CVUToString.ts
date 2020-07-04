@@ -25,6 +25,8 @@ export class CVUSerializer {
                 return `"${p.replace("\"", "\\\"")}"`;
             } else if (Array.isArray(p)) {
                 return this.arrayToString(p, depth + 1, tab)
+            } else if (typeof p.isCVUObject === "function") {//TODO:
+                return this.dictToString(p, depth + 1, tab)
             } else if (typeof p.toCVUString === "function") {//TODO:
                 return p.toCVUString(depth + 1, tab)
             } else if (p instanceof Color) {
@@ -210,9 +212,9 @@ export function orderKeys(obj, sortFunc) {
     if (!sortFunc)
         sortFunc = function keyOrder(k1, k2) {
             if (k1 < k2)
-                return -1;
+                return 1;
             else if (k1 > k2)
-                return +1;
+                return -1;
             else
                 return 0;
         };

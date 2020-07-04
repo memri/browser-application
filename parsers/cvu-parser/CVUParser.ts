@@ -34,7 +34,19 @@ export class Color {
                 this.value = "#000000";
                 break;
             default:
-                this.value = (value[0] != "#") ? "#" + value : value;
+                if (value.charAt(0) == "#") {
+                    if (value.length == 4) {
+                        this.value = value.charAt(0) + value.charAt(1) + value.charAt(1) + value.charAt(2) + value.charAt(2) + value.charAt(3) + value.charAt(3);
+                    } else {
+                        this.value = value;
+                    }
+                } else {
+                    if (value.length == 3) {
+                        this.value = "#" + value.charAt(0) + value.charAt(0) + value.charAt(1) + value.charAt(1) + value.charAt(2) + value.charAt(2);
+                    } else {
+                        this.value = "#" + value;
+                    }
+                }
                 break;
         }
     }
@@ -333,12 +345,13 @@ export class CVUParser {
 
         function addUIElement(type, properties) {//TODO:
             var children = dict["children"] || [];
-            let subChildren = properties.children;
+            let subChildren = Object.assign({},properties.children);
+            delete properties.children;
             children.push(new UIElement(type,
                 subChildren || [],
                 properties));
                 children.push(properties)
-            dict.children = children;
+            dict["children"]= children;
         }
 
         while (true) {
@@ -471,7 +484,7 @@ export class CVUParser {
                                 }
                             }
 
-                            let argumentsJs = options["arguments"] ? JSON.parse(JSON.stringify(options["arguments"])) : {} //TODO:
+                            let argumentsJs = options["arguments"] ? Object.assign({}, options["arguments"]) : {} //TODO:
                             delete options["arguments"];
                             let actionFamily = ActionFamily[name];
                             if (actionFamily) {

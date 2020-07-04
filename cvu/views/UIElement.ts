@@ -128,7 +128,7 @@ export class UIElement /*extends CVUToString */{
 		//let tabsEnd = new Array(depth - 1).map(function(){ _ in "" }).join(tab)//TODO
 
 		let propertiesLength = Object.keys(this.properties).length
-		let childrenLength = this.children.length
+		let childrenLength = this.children.length ?? 0
 
 		return propertiesLength > 0 || childrenLength > 0
 			? `${this.type} {\n`

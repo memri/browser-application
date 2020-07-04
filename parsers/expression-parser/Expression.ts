@@ -51,38 +51,39 @@ export class Expression {
                 let lookupNode = new ExprLookupNode(sequence);
                 let lookupValue =  this.lookup(lookupNode, new ViewArguments())//TODO
 
-                let obj = lookupValue;
-                let context = this.context;
-                if (obj instanceof UserState && context) {
-                    // realmWriteIfAvailable(context.realm) {//TODO
-                    //     obj[lastProperty.name] =
-                    //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
-                    // }
-                    return
-                }
-                else if (obj instanceof Object && context) {
-                   /* realmWriteIfAvailable(context.realm) {
-                    obj[lastProperty.name] =
-                        !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
-                }*/
-                return
-            }
-                // TODO FIX: Implement LookUpAble
-                else if (obj instanceof MemriContext && context){
-                    // realmWriteIfAvailable(context.realm) {//TODO
-                    //     obj[lastProperty.name] =
-                    //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
-                    // }
-                    return
-                }
-                else if (obj instanceof UserState && context){
-                    // realmWriteIfAvailable(context.realm) {//TODO
-                    //     obj.set(lastProperty.name,
-                    //         !ExprInterpreter.evaluateBoolean(obj.get(lastProperty.name)))
-                    // }
-                    return
-                }
 
+                let context = this.context;
+                if (context) {
+                    let obj = lookupValue;
+                    if (obj instanceof UserState && context) {
+                        // realmWriteIfAvailable(context.realm) {//TODO
+                        //     obj[lastProperty.name] =
+                        //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
+                        // }
+                        return
+                    } else if (obj instanceof Object && context) {
+                        /* realmWriteIfAvailable(context.realm) {
+                         obj[lastProperty.name] =
+                             !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
+                     }*/
+                        return
+                    }
+                    // TODO FIX: Implement LookUpAble
+                    else if (obj instanceof MemriContext && context) {
+                        // realmWriteIfAvailable(context.realm) {//TODO
+                        //     obj[lastProperty.name] =
+                        //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
+                        // }
+                        return
+                    } else if (obj instanceof UserState && context) {
+                        // realmWriteIfAvailable(context.realm) {//TODO
+                        //     obj.set(lastProperty.name,
+                        //         !ExprInterpreter.evaluateBoolean(obj.get(lastProperty.name)))
+                        // }
+                        return
+                    }
+
+                }
             }
         }
 
