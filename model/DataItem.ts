@@ -7,6 +7,14 @@ enum CodingKeys {
 enum DataItemError {
 	cannotMergeItemWithDifferentId
 }
+
+export function UUID() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
 export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*/ {//TODO
 	/// name of the DataItem implementation class (E.g. "note" or "person")
 	genericType () { return "unknown" }
@@ -376,7 +384,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	/// Generate a new UUID, which are used by swift to identify objects
 	/// - Returns: UUID string with "0xNEW" prepended
 	static generateUUID() {//TODO
-		return `Memri${UUID().uuidString}`
+		return `Memri${UUID()}`
 	}
 
 	/// Reads DataItems from file
@@ -415,7 +423,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	}
 }
 
-class Edge extends Object {
+class Edge/* extends Object*/ {
 	objectMemriID = DataItem.generateUUID()//TODO
 	subjectMemriID = DataItem.generateUUID()//TODO
 
@@ -425,7 +433,7 @@ class Edge extends Object {
 	// required init() {}//TODO
 
 	constructor(subjectMemriID, objectMemriID, subjectType = "unknown", objectType = "unknown") {
-		super()
+		//super()
 		subjectMemriID = subjectMemriID || DataItem.generateUUID()
 		objectMemriID = objectMemriID || DataItem.generateUUID()
 		this.objectMemriID = objectMemriID

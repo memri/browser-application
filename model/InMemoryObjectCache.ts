@@ -5,7 +5,7 @@
 //
 
 // TODO: using NSCache for OS level purging of cache when memory is needed
-class InMemoryObjectCache {
+export class InMemoryObjectCache {
 	cache = {}
 
 	set(key, value)  {

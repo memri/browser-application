@@ -67,36 +67,36 @@ export enum VerticalAlignment{
     bottom = "bottom"
 }
 export enum HorizontalAlignment{
-    leading = "leading",
+    leading = "left",
     center = "center",
-    trailing = "trailing"
+    trailing = "right"
 }
 export enum Alignment{
     top = "top",
     center = "center",
     bottom = "bottom",
-    leading = "leading",
-    trailing = "trailing",
+    leading = "left",
+    trailing = "right",
     topLeading = "topLeading",
     topTrailing = "topTrailing",
     bottomLeading = "bottomLeading",
     bottomTrailing = "bottomTrailing"
 }
 export enum TextAlignment{
-    leading = "leading",
+    leading = "left",
     center = "center",
-    trailing = "trailing"
+    trailing = "right"
 }
 
 export var Font = {
     Weight: {
-        regular: 0,
-        bold: 1,
-        semibold: 2,
-        heavy: 3,
-        light: 4,
-        ultraLight: 5,
-        black: 6
+        regular: "regular",
+        bold: "bold",
+        semibold: "semibold",
+        heavy: "heavy",
+        light: "light",
+        ultraLight: "ultraLight",
+        black: "black"
     }
 }
 
@@ -350,7 +350,6 @@ export class CVUParser {
             children.push(new UIElement(type,
                 subChildren || [],
                 properties));
-                children.push(properties)
             dict["children"]= children;
         }
 
@@ -459,7 +458,7 @@ export class CVUParser {
                             continue;
                         } else if (CVUToken.CurlyBracketOpen == nextToken.constructor) {
                             // Do nothing
-                        } else if (lastKey == null) {
+                        } else if (lastKey == undefined) {
                             throw new CVUParseErrors.ExpectedKey(this.lastToken!)
                         }
 
@@ -525,7 +524,7 @@ export class CVUParser {
                         setPropertyValue(); // TODO: Is this every necessary?
                         this.popCurrentToken();
                         lastKey = v;
-                    } else if (lastKey == null) {
+                    } else if (lastKey == undefined) {
                         lastKey = v
                     } else {
                         stack.push(v)
@@ -709,11 +708,11 @@ export class CVUParser {
                     dict["align"]
                 ];
 
-                dict["minWidth"] = undefined;
-                dict["maxWidth"] = undefined;
-                dict["minHeight"] = undefined;
-                dict["maxHeight"] = undefined;
-                dict["align"] = undefined;
+                delete dict["minWidth"];
+                delete dict["maxWidth"];
+                delete dict["minHeight"];
+                delete dict["maxHeight"] ;
+                delete dict["align"];
 
                 dict["frame"] = values;
                 break;
@@ -725,7 +724,7 @@ export class CVUParser {
             value.push(dict["cornerRadius"] ?? 0);
 
             dict["cornerborder"] = value;
-            dict["border"] = undefined;
+            delete dict["border"];
         }
     }
 }

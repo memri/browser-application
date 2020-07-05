@@ -125,23 +125,23 @@ export class UIElement /*extends CVUToString */{
 	toCVUString(depth, tab) {
 		let tabs = tab.repeat(depth);
 		let tabsPlus = tab.repeat(depth + 1);
-		//let tabsEnd = new Array(depth - 1).map(function(){ _ in "" }).join(tab)//TODO
+		let tabsEnd = (depth - 1 > 0)? tab.repeat(depth - 1) : ""; //TODO:
 
-		let propertiesLength = Object.keys(this.properties).length
-		let childrenLength = this.children.length ?? 0
-
+		let propertiesLength = Object.keys(this.properties).length ?? 0
+		let childrenLength = Object.keys(this.children).length ?? 0
+		//TODO: i changed some code here to pass all tests with UIElements in CVUParser; don't know if i right
 		return propertiesLength > 0 || childrenLength > 0
 			? `${this.type} {\n`
 			+ (propertiesLength > 0
-				? `${tabsPlus}${new CVUSerializer().dictToString(this.properties, depth, tab, false)}`
+				? `${tabs}${new CVUSerializer().dictToString(this.properties, depth, tab, false)}`
 				: "")
 			+ (propertiesLength > 0 && childrenLength > 0
 				? "\n\n"
 				: "")
 			+ (childrenLength > 0
-				? `${tabsPlus}${new CVUSerializer().arrayToString(this.children, depth, tab, false, true)}`
+				? `${tabs}${new CVUSerializer().arrayToString(this.children, depth, tab, false, true)}`
 				: "")
-			+ `\n${tabs}}`
+			+ `\n${tabsEnd}}`
 			: `${this.type}\n`
 	}
 

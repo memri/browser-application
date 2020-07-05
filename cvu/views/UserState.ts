@@ -7,9 +7,10 @@
 
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {DataItem} from "../../model/DataItem";
+import {InMemoryObjectCache} from "../../model/InMemoryObjectCache";
 
 export class UserState /*extends Object, CVUToString*/ {
-	memriID = DataItem.generateUUID()
+	memriID = DataItem.generateUUID();
 	state = ""
 
 	onFirstSave
@@ -19,10 +20,10 @@ export class UserState /*extends Object, CVUToString*/ {
 
 		this.onFirstSave = onFirstSave
 
-		/*try { InMemoryObjectCache.set(this.memriID, dict) }
+		try { new InMemoryObjectCache().set(this.memriID, dict) }
 		catch {
 			// TODO: Refactor error reporting
-		}*/
+		}
 	}
 
 	get(propName) {
@@ -30,11 +31,11 @@ export class UserState /*extends Object, CVUToString*/ {
 
 		let lookup = dict[propName]
 		
-		if (lookup && typeof lookup == "object" && lookup["memriID"] != null) {
+		if (lookup && typeof lookup.isCVUObject === "function" && lookup["memriID"] != undefined) {
 			let x = this.getDataItem(lookup["type"]  ?? "",
 										   lookup["memriID"]  ?? "")
 			return x
-		} else if (dict[propName] == null) {
+		} else if (dict[propName] == undefined) {
 			return null
 		}
 
@@ -56,7 +57,7 @@ export class UserState /*extends Object, CVUToString*/ {
 			x[propName] = newValue
 		}
 
-		try {  globalInMemoryObjectCache.set(this.memriID, x) }
+		try {  new InMemoryObjectCache().set(this.memriID, x) }
 		catch { /* TODO: ERROR HANDLIGNN */ }
 
 		if (persist) { this.scheduleWrite() }
@@ -64,14 +65,14 @@ export class UserState /*extends Object, CVUToString*/ {
 
 	transformToDict() {
 		if (this.state == "") { return {} }
-		let stored = JSON.parse(this.state) ?? {}//TODO
+		let stored = Object.assign({},this.state) //TODO
 		var dict = {}
 
 		for (let [key, value] of Object.entries(stored)) {
 			dict[key] = value.value
 		}
 
-		//InMemoryObjectCache.set(this.memriID, dict)//TODO
+		new InMemoryObjectCache().set(this.memriID, dict)//TODO
 		return dict
 	}
 
@@ -96,7 +97,7 @@ export class UserState /*extends Object, CVUToString*/ {
 	persist() {
 		if (realm == null) { return }//TODO
 
-		let x = InMemoryObjectCache.get(this.memriID)
+		let x = new InMemoryObjectCache().get(this.memriID)
 		if (x && typeof x == "object") {
 			/*realmWriteIfAvailable(realm) {
 				try {
@@ -133,18 +134,18 @@ export class UserState /*extends Object, CVUToString*/ {
 
 	asDict() {
 		var x
-		x = InMemoryObjectCache.get(this.memriID)
+		x = new InMemoryObjectCache().get(this.memriID)
 		try { if (x == null) { x = this.transformToDict() } } catch { return {} } // TODO: refactor: handle error
 		return x ?? {}
 	}
 
 	merge(state) {
 		let dict = this.asDict().concat(state.asDict()) //TODO
-		//InMemoryObjectCache.set(this.memriID, dict) TODO
+		new InMemoryObjectCache().set(this.memriID, dict) //TODO
 	}
 
 	clone() {
-		UserState(this.asDict())//TODO
+		new UserState(this.asDict())//TODO
 	}
 
 	toCVUString(depth, tab) {

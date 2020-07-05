@@ -1,4 +1,6 @@
+import {CVU} from "./CVU";
 
+var fs = require("fs");
 const {CVUParser} = require("./CVUParser");
 const {CVULexer} = require("./CVULexer");
 
@@ -402,17 +404,17 @@ Person {
         snippet:
 `Person {
     VStack {
-        alignment: left
         font: 14
-        
+        alignment: left
+
         Text {
+            textAlign: center
             align: top
-            textalign: center
             font: 12 light
         }
+
         Text {
             maxHeight: 500
-            cornerRadius: 10
             border: #ff0000 1
             cornerRadius: 10
         }
@@ -462,9 +464,6 @@ Person {
     }
 }`
     },
-    testSerialization: {
-        //TODO:
-    },
     testNestedViews: {
         snippet:
 `Person {
@@ -478,7 +477,7 @@ Person {
                 view: {
                     defaultRenderer: "thumbnail.grid"
 
-                        [datasource = pod] {
+                    [datasource = pod] {
                         query: "Photo AND ANY includes.memriID = '{.memriID}'"
                     }
 
@@ -632,5 +631,20 @@ describe("CVUParser", function() {
                 assert.equal(e.toErrorString(), test.error);
             }
         });
-    })
+    });
+
+    it("testSerialization", function () {
+        let fileURL = "playground/example.view";
+        let code = fs.readFileSync(fileURL, "utf8");
+
+        let viewDef = new CVU(code, "" , undefined, undefined);
+
+        let codeClone = toCVUString(viewDef.parse());
+        //        print(codeClone) // .prefix(1500))
+
+        let viewDefClone = new CVU(codeClone, "", undefined, undefined);
+
+        let codeCloneClone = toCVUString(viewDefClone.parse());
+        assert.equal(codeClone, codeCloneClone);
+    });
 })

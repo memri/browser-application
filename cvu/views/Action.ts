@@ -361,7 +361,14 @@ class Action/* : HashableClass, CVUToString*/ {
             strBuilder.push(`binding: ${value.toString()}`)
         }
 
-        let keys = orderKeys(this.values, undefined);/*.keys.sorted(by: { $0 < $1 })*/ //TODO:
+        let keys = orderKeys(this.values, function (k1, k2) {
+            if (k1 < k2)
+                return 1;
+            else if (k1 > k2)
+                return -1;
+            else
+                return 0;
+        });/*.keys.sorted(by: { $0 < $1 })*/ //TODO:
         for (let key in keys) {
             let value = this.values[key];
             if (value instanceof Expression) {

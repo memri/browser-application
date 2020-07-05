@@ -21,62 +21,15 @@ export class CVUSerializer {
             return "null"
         } else {
             let p = value;
-            if (typeof p == "string") { //}, (p.contains(" ") || p.contains("\t") || p.contains("\"") || p == "") {
-                return `"${p.replace("\"", "\\\"")}"`;
-            } else if (Array.isArray(p)) {
-                return this.arrayToString(p, depth + 1, tab)
-            } else if (typeof p.isCVUObject === "function") {//TODO:
-                return this.dictToString(p, depth + 1, tab)
-            } else if (typeof p.toCVUString === "function") {//TODO:
-                return p.toCVUString(depth + 1, tab)
-            } else if (p instanceof Color) {
-                return String(p.toLowerCase().substr(0, 7));
-            } else if (typeof p == "number") {//TODO: Double;
-                if (p % 1 == 0) {
-                    return `${Number(p)}`
-                }
-            } else if (p instanceof CGFloat) {
-                if (p % 1 == 0) {
-                    return `${Number(p)}`
-                }
-            } else if (VerticalAlignment.hasOwnProperty(p)) {
-                return  p;//TODO:
-            } else if (HorizontalAlignment.hasOwnProperty(p)) {
-                switch (p) {
-                    case HorizontalAlignment.leading:
-                        return "left";
-                    case HorizontalAlignment.center:
-                        return "center";
-                    case HorizontalAlignment.trailing:
-                        return "right";
-                    default:
-                        return "center"
-                }
-            } else if (Alignment.hasOwnProperty(p)) {
-                switch (p) {
-                    case Alignment.top:
-                        return "top"
-                    case Alignment.center:
-                        return "center"
-                    case Alignment.bottom:
-                        return "bottom"
-                    case Alignment.leading:
-                        return "left"
-                    case Alignment.trailing:
-                        return "right"
-                    default:
-                        return "center"
-                }
-            } else if (TextAlignment.hasOwnProperty(p)) {
-                switch (p) {
-                    case TextAlignment.leading:
-                        return "left"
-                    case TextAlignment.center:
-                        return "center"
-                    case TextAlignment.trailing:
-                        return "right"
-                }
-            } else if (Font.Weight.hasOwnProperty(p)) {
+            if (Object.values(VerticalAlignment).includes(p)) {
+                return  p.replace(/^"|"$/g, '');//TODO:
+            } else if (Object.values(HorizontalAlignment).includes(p)) {
+                return p.replace(/^"|"$/g, '');
+            } else if (Object.values(Alignment).includes(p)) {
+                return p.replace(/^"|"$/g, '');
+            } else if (Object.values(TextAlignment).includes(p)) {
+                return p.replace(/^"|"$/g, '');
+            } else if (Object.values(Font.Weight).includes(p)) {
                 switch (p) {
                     case Font.Weight.regular:
                         return "regular"
@@ -95,9 +48,28 @@ export class CVUSerializer {
                     default:
                         return "regular"
                 }
-            } else if (typeof p == "object") {
+            } else
+            if (typeof p == "string") { //}, (p.contains(" ") || p.contains("\t") || p.contains("\"") || p == "") {
+                return `"${p.replace("\"", "\\\"")}"`;
+            } else if (Array.isArray(p)) {
+                return this.arrayToString(p, depth + 1, tab)
+            } else if (typeof p.isCVUObject === "function") {//TODO:
                 return this.dictToString(p, depth + 1, tab)
-            }
+            } else if (typeof p.toCVUString === "function") {//TODO:
+                return p.toCVUString(depth + 1, tab)
+            } else if (p instanceof Color) {
+                return String(p.toLowerCase().substr(0, 7));
+            } else if (typeof p == "number") {//TODO: Double;
+                if (p % 1 == 0) {
+                    return `${Number(p)}`
+                }
+            } else if (p instanceof CGFloat) {
+                if (p % 1 == 0) {
+                    return `${Number(p)}`
+                }
+            } /*else if (typeof p == "object") {
+                return this.dictToString(p, depth + 1, tab)
+            }*/
 
             return `${p}`
         }
@@ -111,8 +83,8 @@ export class CVUSerializer {
 
         var str = [];
         var isMultiline = false;
-        for (let value of list) {
-            let strValue = this.valueToString(value, depth, tab);
+        for (let value in list) {
+            let strValue = this.valueToString(list[value], depth, tab);
             str.push(strValue);
             if (!isMultiline) {
                 isMultiline = (strValue.indexOf("\n") > -1)
@@ -168,7 +140,7 @@ export class CVUSerializer {
                     str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
                         + `${key}: ${this.valueToString(p, depth, tab)}`);
                 } else {
-                    str.push(`${key}: ${this.valueToString(dict[key], depth, tab)}`);
+                    str.push(`${key}: ${this.valueToString(p, depth, tab)}`);
                 }
             }
         }
@@ -182,7 +154,7 @@ export class CVUSerializer {
         }
         p = dict["datasourceDefinition"];
         if (p instanceof CVUParsedDatasourceDefinition) {
-            let body = p.toCVUString(depth - 1, tab);
+            let body = p.toCVUString(depth, tab);
             definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
         }
         p = dict["sessionDefinitions"];//TODO normal check

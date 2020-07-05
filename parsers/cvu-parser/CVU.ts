@@ -7,7 +7,10 @@
 //
 
 
-class CVU {
+import {CVUParser} from "./CVUParser";
+import {CVULexer} from "./CVULexer";
+
+export class CVU {
     code;
     context;
     lookup;
@@ -27,8 +30,8 @@ class CVU {
             return this.parsed
         }
         else {
-            let lexer = CVULexer(this.code);
-            let parser = CVUParser(lexer.tokenize(), this.context, this.lookup, this.execFunc)
+            let lexer = new CVULexer(this.code);
+            let parser = new CVUParser(lexer.tokenize(), this.context, this.lookup, this.execFunc)
             this.parsed =  parser.parse()
             return this.parsed != null ? this.parsed : []
         }
