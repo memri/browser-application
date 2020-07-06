@@ -206,7 +206,7 @@ import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {ViewArguments} from "./UserState";
 import {Item} from "../../model/DataItem";
 
-class Action/* : HashableClass, CVUToString*/ {
+export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
     arguments = {};
 
@@ -509,25 +509,51 @@ export var getActionType = function (name) {
     }
 };
 
-enum ActionProperties {
-    name, arguments, binding, icon, renderAs, showTitle, opensView, color,
-    backgroundColor, inactiveColor, activeBackgroundColor, inactiveBackgroundColor, title
+export enum ActionProperties {
+    name = "name",
+    arguments = "arguments",
+    binding = "binding",
+    icon = "icon",
+    renderAs = "renderAs",
+    showTitle = "showTitle",
+    opensView = "opensView",
+    color = "color",
 
-    /*func validate(_ key:String, _ value:Any?) -> Bool {
-        if value is Expression { return true }
+    backgroundColor = "backgroundColor",
+    inactiveColor = "inactiveColor",
+    activeBackgroundColor = "activeBackgroundColor",
+    inactiveBackgroundColor = "inactiveBackgroundColor",
+    title = "title"
+}
 
-        let prop = ActionProperties(rawValue: key)
-        switch prop {
-            case .name: return value is String
-            case .arguments: return value is [Any?] // TODO do better by implementing something similar to executeAction
-            case .renderAs: return value is RenderType
-            case .title, .showTitle, .icon: return value is String
-            case .opensView: return value is Bool
-            case .color, .backgroundColor, .inactiveColor, .activeBackgroundColor, .inactiveBackgroundColor:
-                return value is Color
-            default: return false
-        }
-    }*/
+export var validateActionType = function (key: string, value): boolean {
+    if (value instanceof Expression) {
+        return true
+    }
+
+    let prop = ActionProperties[key];
+    switch (prop) {
+        case ActionProperties.name:
+            return typeof value == "string";
+        case ActionProperties.arguments:
+            return Array.isArray(value) // TODO do better by implementing something similar to executeAction
+        case ActionProperties.renderAs:
+            return (value instanceof RenderType); //TODO
+        case ActionProperties.title:
+        case ActionProperties.showTitle:
+        case ActionProperties.icon:
+            return typeof value == "string";
+        case ActionProperties.opensView:
+            return typeof value == "boolean"
+        case ActionProperties.color:
+        case ActionProperties.backgroundColor:
+        case ActionProperties.inactiveColor:
+        case ActionProperties.activeBackgroundColor:
+        case ActionProperties.inactiveBackgroundColor:
+            return value instanceof Color;
+        default:
+            return false
+    }
 }
 
 /*

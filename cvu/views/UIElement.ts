@@ -7,6 +7,17 @@
 
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {
+	Alignment,
+	CGFloat,
+	Color, Font,
+	HorizontalAlignment,
+	TextAlignment,
+	VerticalAlignment
+} from "../../parsers/cvu-parser/CVUParser";
+import {Action} from "./Action";
+import {DataItem, Item} from "../../model/DataItem";
+import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
 export class UIElement /*extends CVUToString */{
 	type
@@ -183,61 +194,143 @@ export enum UIElementFamily {
 	Empty = "Empty"
 }
 
-enum UIElementProperties {
-	resizable, show, alignment, align, textAlign, spacing, title, text, image, nopadding,
-		press, bold, italic, underline, strikethrough, list, viewName, view, arguments, location,
-		address, systemName, cornerRadius, hint, value, datasource, defaultValue, empty, style,
-		frame, color, font, padding, background, rowbackground, cornerborder, border, margin,
-		shadow, offset, blur, opacity, zindex, minWidth, maxWidth, minHeight, maxHeight
+export enum UIElementProperties {
+	resizable = "resizable",
+	show = "show",
+	alignment = "alignment",
+	align = "align",
+	textAlign = "textAlign",
+	spacing = "spacing",
+	title = "title",
+	text = "text",
+	image = "image",
+	nopadding = "nopadding",
 
-	/*function validate(key, value) {
-		if (value is Expression) { return true }
+	press = "press",
+	bold = "bold",
+	italic = "italic",
+	underline = "underline",
+	strikethrough = "strikethrough",
+	list = "list",
+	viewName = "viewName",
+	view = "view",
+	arguments = "arguments",
+	location = "location",
 
-		let prop = UIElementProperties(rawValue: key)
-		switch prop {
-		case .resizable, .title, .text, .viewName, .systemName, .hint, .empty, .style, .defaultValue:
-			return value is String
-		case .show, .nopadding, .bold, .italic, .underline, .strikethrough:
-			return value is Bool
-		case .alignment: return value is VerticalAlignment || value is HorizontalAlignment
-		case .align: return value is Alignment
-		case .textAlign: return value is TextAlignment
-		case .spacing, .cornerRadius, .minWidth, .maxWidth, .minHeight, .maxHeight, .blur, .opacity, .zindex:
-			return value is CGFloat
-		case .image: return value is File || value is String
-		case .press: return value is Action || value is [Action]
-		case .list: return value is [DataItem]
-		case .view: return value is CVUParsedDefinition || value is [String: Any?]
-		case .arguments: return value is [String: Any?]
-		case .location: return value is Location
-		case .address: return value is Address
-		case .value: return true
-		case .datasource: return value is Datasource
-		case .color, .background, .rowbackground: return value is Color
-		case .font:
-			if (let list = value as? [Any?]) {
-				return list[0] is CGFloat || list[0] is CGFloat && list[1] is Font.Weight
-			} else { return value is CGFloat }
-		case .padding, .margin:
-			if (let list = value as? [Any?]) {
-				return list[0] is CGFloat && list[1] is CGFloat
-					&& list[2] is CGFloat && list[3] is CGFloat
-			} else { return value is CGFloat }
-		case .border:
-			if (let list = value as? [Any?]) {
-				return list[0] is Color && list[1] is CGFloat
-			} else { return false }
-		case .shadow:
-			if (let list = value as? [Any?]) {
-				return list[0] is Color && list[1] is CGFloat
-					&& list[2] is CGFloat && list[3] is CGFloat
-			} else { return false }
-		case .offset:
-			if (let list = value as? [Any?]) {
-				return list[0] is CGFloat && list[1] is CGFloat
-			} else { return false }
+	address = "address",
+	systemName = "systemName",
+	cornerRadius = "cornerRadius",
+	hint = "hint",
+	value = "value",
+	datasource = "datasource",
+	defaultValue = "defaultValue",
+	empty = "empty",
+	style = "style",
+
+	frame = "frame",
+	color = "color",
+	font = "font",
+	padding = "padding",
+	background = "background",
+	rowbackground = "rowbackground",
+	cornerborder = "cornerborder",
+	border = "border",
+	margin = "margin",
+
+	shadow = "shadow",
+	offset = "offset",
+	blur = "blur",
+	opacity = "opacity",
+	zindex = "zindex",
+	minWidth = "minWidth",
+	maxWidth = "maxWidth",
+	minHeight = "minHeight",
+	maxHeight = "maxHeight"
+}
+
+export var validateUIElementProperties = function (key, value) {
+	if (value instanceof Expression) {
+		return true
+	}
+
+	let prop = UIElementProperties[key];
+	switch (prop) {
+		case UIElementProperties.resizable:
+		case UIElementProperties.title:
+		case UIElementProperties.text:
+		case UIElementProperties.viewName:
+		case UIElementProperties.systemName:
+		case UIElementProperties.hint:
+		case UIElementProperties.empty:
+		case UIElementProperties.style:
+		case UIElementProperties.defaultValue:
+			return typeof value == "string";
+		case UIElementProperties.show:
+		case UIElementProperties.nopadding:
+		case UIElementProperties.bold:
+		case UIElementProperties.italic:
+		case UIElementProperties.underline:
+		case UIElementProperties.strikethrough:
+			return typeof value == "boolean";
+		case UIElementProperties.alignment:
+			return Object.values(VerticalAlignment).includes(value) || Object.values(HorizontalAlignment).includes(value)
+		case UIElementProperties.align:
+			return Object.values(Alignment).includes(value)
+		case UIElementProperties.textAlign:
+			return Object.values(TextAlignment).includes(value)
+		case UIElementProperties.spacing:
+		case UIElementProperties.cornerRadius:
+		case UIElementProperties.minWidth:
+		case UIElementProperties.maxWidth:
+		case UIElementProperties.minHeight:
+		case UIElementProperties.maxHeight:
+		case UIElementProperties.blur:
+		case UIElementProperties.opacity:
+		case UIElementProperties.zindex:
+			return value instanceof CGFloat || typeof value == "number";
+		case UIElementProperties.image: return value instanceof File || typeof value == "string";
+		case UIElementProperties.press: return value instanceof Action || Array.isArray(value) && value[0] instanceof Action
+		case UIElementProperties.list: return Array.isArray(value) && value[0] instanceof Item
+		case UIElementProperties.view: return value instanceof CVUParsedDefinition || typeof value.isCVUObject === "function"
+		case UIElementProperties.arguments: return typeof value.isCVUObject === "function"
+		case UIElementProperties.location: return value instanceof Location
+		case UIElementProperties.address: return value instanceof Address
+		case UIElementProperties.value: return true
+		case UIElementProperties.datasource: return value instanceof Datasource
+		case UIElementProperties.color:
+		case UIElementProperties.background:
+		case UIElementProperties.rowbackground:
+			return value instanceof Color
+		case UIElementProperties.font:
+			if (Array.isArray(value)) {
+			return value[0] instanceof CGFloat || typeof value[0] == "number" || (value[0] instanceof CGFloat || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
+		} else { return value instanceof CGFloat || typeof value == "number"}
+		case UIElementProperties.padding:
+		case UIElementProperties.margin:
+			if (Array.isArray(value)) {
+				return (value[0] instanceof CGFloat || typeof value[0] == "number") && (value[1] instanceof CGFloat || typeof value[1] == "number")
+					&& (value[2] instanceof CGFloat || typeof value[2] == "number") && (value[3] instanceof CGFloat || typeof value[3] == "number")
+			} else {
+				return value instanceof CGFloat || typeof value == "number"
+			}
+		case UIElementProperties.border:
+			if (Array.isArray(value)) {
+			return value[0] instanceof Color && (value[1] instanceof CGFloat || typeof value[1] == "number")
+		} else { return false }
+		case UIElementProperties.shadow:
+			if (Array.isArray(value)) {
+				return value[0] instanceof Color && (value[1] instanceof CGFloat || typeof value[1] == "number")
+					&& (value[2] instanceof CGFloat || typeof value[2] == "number") && (value[3] instanceof CGFloat || typeof value[3] == "number")
+			} else {
+				return false
+			}
+		case UIElementProperties.offset:
+			if (Array.isArray(value)) {
+				return (value[0] instanceof CGFloat || typeof value[0] == "number") && (value[1] instanceof CGFloat || typeof value[1] == "number")
+			} else {
+				return false
+			}
 		default:
 			return false
-		}
-	}*/
+	}
 }

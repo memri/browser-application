@@ -31,23 +31,34 @@
 //        }
 //    }
 
-class CVUValidator {
+import {Action, ActionFamily, ActionProperties, validateActionType} from "../../cvu/views/Action";
+import {UIElement, UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../cvu/views/UIElement";
+import {Expression} from "../expression-parser/Expression";
+import {
+    CVUParsedDatasourceDefinition, CVUParsedRendererDefinition,
+    CVUParsedSessionDefinition,
+    CVUParsedSessionsDefinition,
+    CVUParsedViewDefinition
+} from "./CVUParsedDefinition";
+import {UserState, ViewArguments} from "../../cvu/views/UserState";
+
+export class CVUValidator {
     // Based on keyword when its added to the dict
-    knownActions() {
-        var result = []
-        for (let name of ActionFamily.allCases) {//TODO ask Harut
+    knownActions = function () {
+        var result = {};
+        for (let name in ActionFamily) {
             result[name.toLowerCase()] = name
-        }
+        }//TODO
         return result
-    }
+    }();
     // Only when key is this should it parse the properties
-    knownUIElements() {
-        var result = []
-        for (let name of UIElementFamily.allCases) {//TODO ask Harut
+    knownUIElements = function () {
+        var result = {};
+        for (let name in UIElementFamily) {//TODO
             result[name.toLowerCase()] = name
         }
         return result
-    }
+    }();
 
     warnings = []
     errors = []
@@ -64,29 +75,29 @@ class CVUValidator {
     }
 
     /// Forces parsing of expression
-    validateExpression(expr) {
-        try {expr.validate()}//TODO ask Harut
+    validateExpression(expr: Expression) {
+        try {expr.validate()}
         catch (error) {
-            this.errors.push(error.localizedDescription)
+            this.errors.push(error.localizedDescription)//TODO
         }
     }
 
     // Check that there are no fields that are not known UIElement properties (warn)
     // Check that they have the right type (error)
     // Error if (required fields are missing (e.g. text for Text, image for Image)
-    validateUIElement(element) {
+    validateUIElement(element: UIElement) {
         var validate = (prop, key, value) => {
-            if (!prop.validate(key, value)) {
+            if (!validateUIElementProperties(key, value)) {
                 this.errors.push(`Invalid property value '${this.valueToTruncatedString(value)}' for '${key}' at element ${element.type}.`)
             }
         }
 
         for (let [key, value] of Object.entries(element.properties)) {
-            let prop = UIElementProperties(key)
+            let prop = UIElementProperties[key]
             if (prop) {
                 if (key == "frame") {
                     let list = value
-                    if (list) {
+                    if (Array.isArray(list)) {
                         if (list[0]) { validate(prop, "minWidth", list[0]) }
                         if (list[1]) { validate(prop, "maxWidth", list[1]) }
                         if (list[2]) { validate(prop, "minHeight", list[2]) }
@@ -97,14 +108,21 @@ class CVUValidator {
                 }
                 else if (key == "cornerborder") {
                     let list = value
-                    if (list) {
+                    if (Array.isArray(list)) {
                         validate(prop, "border", [list[0], list[1]])
-                        validate(prop, "cornerradius", list[2])
+                        validate(prop, "cornerRadius", list[2])
                         continue
                     }
                 }
                 else {
-                    validate(prop, key, value)
+                    /*if (Array.isArray(value)) {
+                        value.map(function(el) {
+                            validate(prop, key, el)
+                        });
+                    } else {*/ //TODO:
+                        validate(prop, key, value)
+                    //}
+
                     continue
                 }
             }
@@ -112,8 +130,8 @@ class CVUValidator {
             this.warnings.push(`Unknown property '${key}' for element ${element.type}.`)
         }
 
-        for (let child of element.children) {
-            this.validateUIElement(child)
+        for (let child in element.children) {
+            this.validateUIElement(element.children[child])
         }
     }
 
@@ -121,9 +139,9 @@ class CVUValidator {
     // Check that they have the right type (error)
     validateAction(action) {
         for (let [key, value] of Object.entries(action.values)) {
-            let prop = new ActionProperties(key)
+            let prop = ActionProperties[key];
             if (prop) {
-                if (!prop.validate(key, value)) {
+                if (!validateActionType(key, value)) {
                     this.errors.push(`Invalid property value '${this.valueToTruncatedString(value != null ? value : "null")}' for '${key}' at action ${action.name}.`)//TODO ask Harut
                 }
             }
@@ -139,9 +157,18 @@ class CVUValidator {
                 if (value instanceof Expression) { continue }
 
                 try {
-                    if (!validate(key, value)) {
-                        this.errors.push(`Invalid property value '${this.valueToTruncatedString(value)}' for '${key}' at definition ${definition.selector != null ? definition.selector : ""}.`)
+                    if (Array.isArray(value)) {
+                        value.map(function (el) {
+                            if (validate(key, el) == false) {
+                                this.errors.push(`Invalid property value '${this.valueToTruncatedString(el)}' for '${key}' at definition ${definition.selector != null ? definition.selector : ""}.`)
+                            }
+                        }.bind(this))
+                    } else {
+                        if (validate(key, value) == false) {
+                            this.errors.push(`Invalid property value '${this.valueToTruncatedString(value)}' for '${key}' at definition ${definition.selector != null ? definition.selector : ""}.`)
+                        }
                     }
+                    //TODO
                 }
                 catch {
                     this.warnings.push(`Unknown property '${key}' for definition ${definition.selector ?? ""}.`)
@@ -152,8 +179,8 @@ class CVUValidator {
         if (definition instanceof CVUParsedSessionsDefinition) {
             check(definition, function(key, value) {
                 switch (key) {
-                    case "currentSessionIndex": return typeof value == "number"//TODO double?
-                    case "sessionDefinitions": return  typeof value == "array" && value[0] instanceof CVUParsedSessionDefinition//TODO ask Harut
+                    case "currentSessionIndex": return typeof value == "number"
+                    case "sessionDefinitions": return  Array.isArray(value) && value[0] instanceof CVUParsedSessionDefinition
                     default: throw "Unknown"
                 }
             })
@@ -162,10 +189,10 @@ class CVUValidator {
             check(definition, function (key, value) {
                 switch (key) {
                     case "name": return typeof value == "string"
-                    case "currentViewIndex": return typeof value == "number"//TODO double?
-                    case "viewDefinitions": return value instanceof Array && value[0] instanceof CVUParsedViewDefinition//TODO
+                    case "currentViewIndex": return typeof value == "number"
+                    case "viewDefinitions": return Array.isArray(value) && value[0] instanceof CVUParsedViewDefinition
                     case "editMode": case "showFilterPanel": case "showContextPane": return typeof value == "boolean"
-                    case "screenshot": return value instanceof File//TODO ask Harut
+                    case "screenshot": return value instanceof File //TODO ask Harut
                     default: throw "Unknown"
                 }
             })
@@ -176,19 +203,22 @@ class CVUValidator {
                     case "name": case "emptyResultText": case "title": case "subTitle": case "filterText": case
                 "activeRenderer": case "defaultRenderer": case "backTitle": case "searchHint":
                     return typeof value == "string"
-                    case "userState": return value instanceof Array && typeof value[0] == "string" // TODO
-                    case "datasourceDefinition": return value instanceof CVUParsedDatasourceDefinition
-                    case "viewArguments": return value instanceof Array && typeof value[0] == "string" // TODO
+                    case "userState": return value instanceof UserState
+                    case "datasourceDefinition":
+                    case "datasource": //TODO: in original file there is no such key, but i think this is correct
+                        return value instanceof CVUParsedDatasourceDefinition
+                    case "viewArguments": return value instanceof ViewArguments
                     case "showLabels": return typeof value == "boolean"
                     case "actionButton": case "editActionButton":
                     if (value instanceof Action) { this.validateAction(value) }
                     else { return false }
+                    break;
                     case "sortFields":
-                        if (value instanceof Array) { return typeof value[0] == "string" }// TODO
+                        if (Array.isArray(value)) { return typeof value[0] == "string" }
                         else { return typeof value == "string" }
                     case "editButtons": case "filterButtons": case "actionItems": case
                 "navigateItems": case "contextButtons":
-                    if (value instanceof Array) {
+                    if (Array.isArray(value)) {
                         for (let action in value) {
                             if (action instanceof Action) { this.validateAction(action) }
                             else {
@@ -196,18 +226,17 @@ class CVUValidator {
                             }
                         }
                     }
-                    else if (value instanceof Action) { validateAction(value) }
+                    else if (value instanceof Action) { this.validateAction(value) }
                     else { return false }
+                    break;
                     case "include":
-                        if (value instanceof Array) {
-                            return value[0] instanceof String /*TODO*/ && value[1] instanceof Array && value[1][0] instanceof String//TODO
+                        if (Array.isArray(value)) {
+                            return typeof value[0] == "string" && Array.isArray(value[1]) && typeof value[1][0].isCVUObject === "function"
                         }
-                        else { return value instanceof String }
-                    case "renderDefinitions": return value instanceof Array && value[0] instanceof CVUParsedRendererDefinition
+                        else { return typeof value == "string" || typeof value.isCVUObject === "function" }//TODO: in original file there is no such check, but i think this is correct to pass tests
+                    case "renderDefinitions": return Array.isArray(value) && value[0] instanceof CVUParsedRendererDefinition
                     default: throw "Unknown"
                 }
-
-                return true
             })
         }
         else if (definition instanceof CVUParsedRendererDefinition) {
@@ -221,11 +250,11 @@ class CVUValidator {
             // })
 
             let children = definition.parsed["children"]
-            if (children.isArray) {
-                for (let child of children) {
-                    if (child instanceof UIElement) { this.validateUIElement(child) }
+            if (Array.isArray(children)) {
+                for (let child in children) {
+                    if (children[child] instanceof UIElement) { this.validateUIElement(children[child]) }
                     else {
-                        this.errors.push(`Expected element definition but found '${this.valueToTruncatedString(child)}' in ${definition.selector != null ? definition.selector : ""}`)
+                        this.errors.push(`Expected element definition but found '${this.valueToTruncatedString(children[child])}' in ${definition.selector != null ? definition.selector : ""}`)
                     }
                 }
             }
@@ -249,8 +278,8 @@ class CVUValidator {
         this.warnings = []
         this.errors = []
 
-        for (let def of definitions) {
-            this.validateDefinition(def)
+        for (let def in definitions) {
+            this.validateDefinition(definitions[def])
         }
 
         return this.errors.length == 0
