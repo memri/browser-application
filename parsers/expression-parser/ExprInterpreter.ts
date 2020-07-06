@@ -4,8 +4,11 @@
 //  Copyright © 2020 Memri. All rights reserved.
 //
 
+import { ViewArguments } from "../../cvu/views/UserState";
+
 const {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} = require("./ExprLexer");
-const {ExprNodes} = require("./ExprNodes");
+const {ExprBinaryOpNode, ExprConditionNode, ExprStringModeNode, ExprNegationNode,
+    ExprNumberNode, ExprStringNode, ExprBoolNode, ExprNumberExpressionNode, ExprLookupNode, ExprCallNode} = require("./ExprNodes");
 
 class ExprInterpreter {
     ast;
@@ -20,7 +23,7 @@ class ExprInterpreter {
     }
     
     execute(args) {
-        return this.execSingle(this.ast, args ?? ViewArguments())
+        return this.execSingle(this.ast, args ?? new ViewArguments())
     }
     
     evaluateBoolean(x) {
@@ -45,44 +48,44 @@ class ExprInterpreter {
     }
     
     execSingle(expr, args) {
-        if (expr instanceof ExprNodes.ExprBinaryOpNode) {
+        if (expr instanceof ExprBinaryOpNode) {
             let result = this.execSingle(expr.lhs, args);
             
             switch (expr.op) {
-                case expr.ConditionEquals:
+                case ExprOperator.ConditionEquals:
                     var otherResult = this.execSingle(expr.rhs, args)
                     return this.compare(result, otherResult)
-                case expr.ConditionAND:
+                case ExprOperator.ConditionAND:
                     var boolLHS = this.evaluateBoolean(result)
                     if (!boolLHS) { return false }
                     else {
                         var otherResult = this.execSingle(expr.rhs, args)
                         return this.evaluateBoolean(otherResult)
                     }
-                case expr.ConditionOR:
+                case ExprOperator.ConditionOR:
                     var boolLHS = this.evaluateBoolean(result)
                     if (boolLHS) { return true }
                     else {
                         var otherResult = this.execSingle(expr.rhs, args)
                         return this.evaluateBoolean(otherResult)
                     }
-                case expr.Division:
+                case ExprOperator.Division:
                     var otherResult = this.execSingle(expr.rhs, args)
                     return this.evaluateNumber(result) / this.evaluateNumber(otherResult)
-                case expr.Minus:
+                case ExprOperator.Minus:
                     var otherResult = this.execSingle(expr.rhs, args)
                     return this.evaluateNumber(result) - this.evaluateNumber(otherResult)
-                case expr.Multiplication:
+                case ExprOperator.Multiplication:
                     var otherResult = this.execSingle(expr.rhs, args)
                     return this.evaluateNumber(result) * this.evaluateNumber(otherResult)
-                case expr.Plus:
+                case ExprOperator.Plus:
                     var otherResult = this.execSingle(expr.rhs, args)
                     return this.evaluateNumber(result) + this.evaluateNumber(otherResult)
                 default:
                     break // this can never happen
             }
         }
-        else if (expr instanceof ExprNodes.ExprConditionNode) {
+        else if (expr instanceof ExprConditionNode) {
             if (this.evaluateBoolean(this.execSingle(expr.condition, args))) {
                 return this.execSingle(expr.trueExp, args)
             }
@@ -90,30 +93,30 @@ class ExprInterpreter {
                 return this.execSingle(expr.falseExp, args)
             }
         }
-        else if (expr instanceof ExprNodes.ExprStringModeNode) {
+        else if (expr instanceof ExprStringModeNode) {
             var result = []
             for (var exprI in expr.expressions) {
                 result.push(this.evaluateString(this.execSingle(expr.expressions[exprI], args), ""))
             }
             return result.join("")
         }
-        else if (expr instanceof ExprNodes.ExprNegationNode) {
+        else if (expr instanceof ExprNegationNode) {
             let result = this.execSingle(expr.exp, args)
             return !this.evaluateBoolean(result)
         }
-        else if (expr instanceof ExprNodes.ExprNumberNode) { return expr.value }
-        else if (expr instanceof ExprNodes.ExprStringNode) { return expr.value }
-        else if (expr instanceof ExprNodes.ExprBoolNode) { return expr.value }
-        else if (expr instanceof ExprNodes.ExprNumberExpressionNode) {
+        else if (expr instanceof ExprNumberNode) { return expr.value }
+        else if (expr instanceof ExprStringNode) { return expr.value }
+        else if (expr instanceof ExprBoolNode) { return expr.value }
+        else if (expr instanceof ExprNumberExpressionNode) {
             let result = this.execSingle(expr.exp, args)
             return this.evaluateNumber(result)
         }
-        else if (expr instanceof ExprNodes.ExprLookupNode) {
+        else if (expr instanceof ExprLookupNode) {
             let x = this.lookup(expr, args)
             return x
         }
-        else if (expr instanceof ExprNodes.ExprCallNode) {
-            let fArgs = expr.arguments.map(x => this.execSingle(x, args))//TODO
+        else if (expr instanceof ExprCallNode) {
+            let fArgs = expr.argumentsJs.map(x => this.execSingle(x, args))//TODO
             return this.execFunc(expr.lookup, fArgs, args)
         }
         
