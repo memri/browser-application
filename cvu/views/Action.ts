@@ -205,6 +205,7 @@ import {CVUParsedSessionDefinition, CVUParsedViewDefinition} from "../../parsers
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {ViewArguments} from "./UserState";
 import {Item} from "../../model/DataItem";
+import {realmWriteIfAvailable} from "../../gui/util";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -581,9 +582,9 @@ export class ActionBack extends Action {
             if (session.currentViewIndex == 0) {
                 console.log("Warn: Can't go back. Already at earliest view in session");
             } else {
-                /*realmWriteIfAvailable(this.context.realm, function () {
+                realmWriteIfAvailable(this.context.realm, function () {
                     session.currentViewIndex -= 1
-                });//TODO;*/
+                });//TODO;
                 this.context.scheduleCascadingViewUpdate();
             }
         } else {
@@ -952,7 +953,7 @@ export class ActionForward extends Action {
             if (session.currentViewIndex == (session.views?.length ?? 0) - 1) {
                 console.log("Warn: Can't go forward. Already at last view in session")
             } else {
-                //realmWriteIfAvailable(this.context.cache.realm, function () {session.currentViewIndex += 1 });
+                realmWriteIfAvailable(this.context.cache.realm, function () {session.currentViewIndex += 1 });
                 this.context.scheduleCascadingViewUpdate()
             }
         } else {
@@ -977,9 +978,9 @@ export class ActionForwardToFront extends Action {
     exec(argumentsJs) {
         let session = this.context.currentSession;
         if (session) {
-            /*realmWriteIfAvailable(this.context.cache.realm, function () {
-            session.currentViewIndex = (session.views?.count ?? 0) - 1
-        });*/
+            realmWriteIfAvailable(this.context.cache.realm, function () {
+            session.currentViewIndex = (session.views?.length ?? 0) - 1
+        });
             this.context.scheduleCascadingViewUpdate()
         } else {
             // TODO: Error handling
@@ -1010,10 +1011,9 @@ export class ActionBackAsSession extends Action {
             } else {
                 let duplicateSession = this.context.cache.duplicate(session);//TODO:
                 if (duplicateSession instanceof Session) {
-                    /*realmWriteIfAvailable(this.context.cache.realm, function (){
+                    realmWriteIfAvailable(this.context.cache.realm, function (){
                     duplicateSession.currentViewIndex -= 1
                 });
-    */
                     new ActionOpenSession(this.context).exec({"session": duplicateSession});
                 } else {
                     // TODO Error handling

@@ -8,6 +8,7 @@
 
 import {CVUParsedDatasourceDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {UserState, ViewArguments} from "./UserState";
+import {realmWriteIfAvailable} from "../../gui/util";
 
 class SessionView extends DataItem {
  
@@ -41,18 +42,18 @@ class SessionView extends DataItem {
     }
     
     mergeState(view: SessionView) {
-        /*realmWriteIfAvailable(this.realm, function () {//TODO
+        realmWriteIfAvailable(this.realm, function () {
             let us = view.userState
             if (us) {
                 if (this.userState == null) { this.userState = new UserState() }
-                Object.assign(this.userState, us);//TODO
+                Object.assign(this.userState, us);
             }
             let args = view.viewArguments
             if (args) {
                 if (this.viewArguments == null) { this.viewArguments = new ViewArguments() }
-                Object.assign(this.viewArguments, args);//TODO
+                Object.assign(this.viewArguments, args);
             }
-        })*/
+        }.bind(this))
     }
     
     fromCVUDefinition(parsed = null, stored = null, viewArguments = null, userState = null, datasource = null) {

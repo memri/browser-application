@@ -8,6 +8,7 @@
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {DataItem, UUID} from "../../model/DataItem";
 import {InMemoryObjectCache} from "../../model/InMemoryObjectCache";
+import {realmWriteIfAvailable} from "../../gui/util";
 class SchemaItem {
 
 }//TODO: replace with normal class
@@ -110,7 +111,7 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 
 		let x = this.getFromCache();
 		if (x) {
-			/*realmWriteIfAvailable(realm) {
+			realmWriteIfAvailable(this.realm, function () {
 				try {
 					var values = {}
 
@@ -119,19 +120,19 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 							values[key] = {"_type": value.genericType,
 										   "_uid": value.uid.value,
 										   "___": true}
-						} else if let value = value as? AnyCodable {
+						} else if (value instanceof AnyCodable) {
 							values[key] = value
 						} else {
-							values[key] = AnyCodable(value)
+							values[key] = AnyCodable(value)//TODO
 						}
 					}
 
-					et data = try MemriJSONEncoder.encode(values)
-					self["state"] = String(data: data, encoding: .utf8) ?? ""
-				} catch {
-					debugHistory.error(`Could not persist state object: ${error}`)
+					let data = new MemriJSONEncoder.encode(values) //TODO
+					this["state"] = String(data) ?? ""
+				} catch (error) {
+					//debugHistory.error(`Could not persist state object: ${error}`)
 				}
-			}*/ //TODO
+			}.bind(this))
 		}
 	}
 
