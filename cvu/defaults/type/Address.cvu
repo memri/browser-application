@@ -38,7 +38,7 @@ Address[] {
     
     [renderer = generalEditor] {
         EditorRow {
-            title: "{.type}"
+            title: "{edge.label or edge.type}"
             nopadding: {{!readOnly}}
             
             HStack {
@@ -62,7 +62,7 @@ Address[] {
             HStack {
                 show: {{!readOnly}}
                 EditorLabel {
-                    title: "{.type}"
+                    title: "{edge.label or edge.type}"
                     edge: {{edge}}
                     hierarchy: Ayuddress
                 }
@@ -119,24 +119,22 @@ Address {
             foreach: false
             
             VSTack {
-                foreach: false
-                sectionTitle: ""
                 padding: 10 36 10 36
                 
                 Text {
-                    show: {{!.labels.count}}
+                    show: {{ !.labels }}
                     text: "no labels yet"
                 }
                 FlowStack {
-                    list: {{.labels}}
+                    list: {{ .labels[] }}
                     
                     Button {
                         press: openViewByName {
                             arguments {
                                 name: all-items-with-label
                                 viewArguments: {
-                                    name: "Soccer team"
-                                    memriID: 0x0124
+                                    name: "{.name}"
+                                    uid: {{.uid}}
                                 }
                             }
                         }

@@ -16,6 +16,7 @@ var tokens = new ExprLexer("true ? x : false").tokenize()
 new ExprParser(tokens).parse()
 
 
+import {CVUValidator} from "./parsers/cvu-parser/CVUValidator"
 import {CVUParser} from "./parsers/cvu-parser/CVUParser"
 import {CVULexer} from "./parsers/cvu-parser/CVULexer"
 import {CVUSerializer} from "./parsers/cvu-parser/CVUToString";
@@ -43,6 +44,9 @@ var validate = function(input, doc) {
             text: JSON.stringify(e, null, 4)
         })
     }
+    
+    let validator = new CVUValidator()
+    let result = validator.validate(resultArray);
     
     var cvuString = new CVUSerializer().valueToString(resultArray, 0, "    ");
     

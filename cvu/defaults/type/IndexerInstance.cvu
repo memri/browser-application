@@ -1,13 +1,13 @@
 [session = all-indexer-instances] {
     [view] {
-        title: "All IndexerInstances"
+        title: "All IndexerRuns"
         [datasource = pod] {
-            query: "IndexerInstance"
+            query: "IndexerRun"
         }
     }
 }
 
-IndexerInstance {
+IndexerRun {
     title: "{.name}"
     defaultRenderer: generalEditor
     editActionButton: toggleEditMode
@@ -127,7 +127,7 @@ IndexerInstance {
                 }
                 EditorRow {
                     Text {
-                        text: {{.indexer.indexerDescription}}
+                        text: {{.indexer.itemDescription}}
                         font: 14 regular
                         color: #555
                         padding: 8 36 8 0
@@ -141,7 +141,7 @@ IndexerInstance {
                     Button {
                         margin: 0 5 10 35
                         
-                        press: runIndexerInstance {
+                        press: runIndexerRun {
                             arguments {
                                 indexerInstance: {{.}}
                             }
@@ -184,15 +184,15 @@ IndexerInstance {
     }
 }
 
-IndexerInstance[] {
+IndexerRun[] {
     name: "all-indexer-instances"
-    title: "All IndexerInstances"
-    emptyResultText: "There are no IndexerInstances"
+    title: "All IndexerRuns"
+    emptyResultText: "There are no IndexerRuns"
     defaultRenderer: thumbnail
     sortFields: datatype dateModified dateAccessed dateCreated
     
     [datasource = pod] {
-        query: "IndexerInstance"
+        query: "IndexerRun"
         sortProperty: dateModified
         sortAscending: false
     }
@@ -201,7 +201,7 @@ IndexerInstance[] {
         addItem {
             arguments {
                 template {
-                    type: IndexerInstanceInstance
+                    type: IndexerRunInstance
                     name: {{.name}}
                 }
             }

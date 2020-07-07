@@ -6,6 +6,14 @@
         }
     }
 }
+ 
+[view = views-in-current-session] {
+    title: "Views in current session"
+    
+    [datasource = pod] {
+        "query": "SessionView AND ANY allEdges.targetItemID = {session.uid}"
+    }
+}
 
 SessionView[] {
     name: "all-sessionviews"

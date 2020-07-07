@@ -180,7 +180,7 @@ Person {
         
          sequence: profilePicture labels names picturesOfPerson phoneNumbers relations addresses websites companies diets medicalConditions publicKeys onlineProfiles other dates
         
-         /*excluded: profilePicture labels names picturesOfPerson phoneNumbers*/
+        /*excluded: profilePicture labels names picturesOfPerson phoneNumbers*/
         
         /*readOnly:*/
         
@@ -247,7 +247,7 @@ Person {
                     defaultRenderer: thumbnail.horizontalgrid
                     
                     [datasource = pod] {
-                        query: "Photo AND ANY includes.objectMemriID = '{.memriID}'"
+                        query: "Photo AND ANY allEdges.targetItemID = {.uid}"
                     }
                     
                     [renderer = thumbnail.horizontalgrid] {
@@ -259,7 +259,7 @@ Person {
                 arguments: {
                     toolbar: false
                     searchbar: false
-                    readonly: true
+                    readOnly: true
                 }
             }
         }
@@ -272,19 +272,19 @@ Person {
                 padding: 10 36 5 36
             
                 Text {
-                    show: {{!.labels.count}}
+                    show: {{ !.labels }}
                     text: "no labels yet"
                 }
                 
                 FlowStack {
-                    list: {{.labels}}
+                    list: {{ .labels[] }}
                 
                     button {
                         press: openViewByName {
                             name: "all-items-with-label"
                             arguments: {
-                                name: "Soccer team"
-                                memriID: 0x0124
+                                name: "{.name}"
+                                uid: {{.uid}}
                             }
                         }
                     
@@ -336,7 +336,7 @@ Person[] {
     emptyResultText: "There are no people here yet"
     
      [datasource = pod] {
-        query: "person"
+        query: "Person"
         sortProperty: dateModified
     }
     
@@ -384,7 +384,7 @@ Person[] {
                         padding: 0 0 3 0
                     }
                     Text {
-                        text: "{.relations[.firstName = 'Alice'].lastName}"
+                        text: "{.relation[.firstName = 'Alice'].lastName}"
                         font: 14 regular
                         color: #888
                         padding: 0 0 5 0

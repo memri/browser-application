@@ -1,7 +1,7 @@
 [renderer = generalEditor] {
     sequence: labels starred other dates
-    excluded: version deleted syncState memriID uid
-    readOnly: uid memriID
+    excluded: version deleted syncState uid externalID allEdges
+    readOnly: uid
     
     groups {
         dates: dateCreated dateModified dateAccessed changelog
@@ -18,20 +18,20 @@
         
         EditorRow {
             Text {
-                show: {{!.labels.count}}
+                show: {{ !.labels }}
                 text: "No labels yet"
                 padding: 10 0 5 0
                 color: #777
             }
             FlowStack {
-                list: {{.labels}}
+                list: {{ .labels[] }}
             
                 Button {
                     press: openViewByName {
                         name: "all-items-with-label"
                         arguments: {
-                            name: "Soccer team"
-                            memriID: 0x0124
+                            name: "{.name}"
+                            uid: {{.uid}}
                         }
                     }
                 

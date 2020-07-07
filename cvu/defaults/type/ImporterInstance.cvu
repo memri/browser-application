@@ -1,13 +1,13 @@
 [session = all-importer-instances] {
     [view] {
-        title: "All ImporterInstances"
+        title: "All ImporterRuns"
         [datasource = pod] {
-            query: "ImporterInstance"
+            query: "ImporterRun"
         }
     }
 }
 
-ImporterInstance {
+ImporterRun {
     title: "{.name} importer run"
     defaultRenderer: generalEditor
     editActionButton: toggleEditMode
@@ -125,9 +125,9 @@ ImporterInstance {
                     Button {
                         margin: 5 5 5 35
                         
-                        press: runImporterInstance {
+                        press: runImporterRun {
                             arguments {
-                                importerInstance: {{.}}
+                                importerRun: {{.}}
                             }
                         }
                         
@@ -147,15 +147,15 @@ ImporterInstance {
     }
 }
 
-ImporterInstance[] {
+ImporterRun[] {
     name: "all-importer-instances"
-    title: "All ImporterInstances"
-    emptyResultText: "There are no ImporterInstances"
+    title: "All ImporterRuns"
+    emptyResultText: "There are no ImporterRuns"
     defaultRenderer: thumbnail
     sortFields: datatype dateModified dateAccessed dateCreated
     
     [datasource = pod] {
-        query: "ImporterInstance"
+        query: "ImporterRun"
         sortProperty: dateModified
         sortAscending: false
     }
@@ -164,7 +164,7 @@ ImporterInstance[] {
         addItem {
             arguments {
                 template {
-                    type: ImporterInstanceInstance
+                    type: ImporterRunInstance
                     name: {{.name}}
                 }
             }

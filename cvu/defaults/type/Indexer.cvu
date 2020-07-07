@@ -92,7 +92,7 @@ Indexer[] {
             addItem {
                 arguments {
                     template {
-                        type: IndexerInstance
+                        type: IndexerRun
                         name: {{.name}}
                         indexer: {{.}}
                     }
@@ -145,7 +145,7 @@ Indexer[] {
                 }
                 HStack {
                     Text {
-                        text: "{.indexerDescription}"
+                        text: "{.itemDescription}"
                         removeWhiteSpace: true
                         maxChar: 100
                         color: #555

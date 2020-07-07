@@ -91,7 +91,7 @@ Importer[] {
         press: addItem {
             arguments {
                 template {
-                    type: ImporterInstance
+                    type: ImporterRun
                     name: {{.name}}
                     importer: {{.}}
                 }

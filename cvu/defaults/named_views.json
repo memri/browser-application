@@ -83,7 +83,7 @@
         "name": "all-items-with-label",
         "title": "Items with label {name}",
         "datasource": {
-            "query": "* AND ANY labels.uid = '{uid}'"
+            "query": "* AND ANY labels.uid = {uid}"
         },
         "rendererName": "list",
         "renderConfigs": {

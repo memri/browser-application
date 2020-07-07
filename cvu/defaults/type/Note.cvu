@@ -8,9 +8,8 @@
 }
 
 Note {
-    title: "{.title}"
-    titleIfNil: "Untitled"
-    defaultRenderer: richTextEditor
+    title: {{.title or "Untitled" }}
+    defaultRenderer: custom
     editActionButton: toggleEditMode
     filterButtons: [
         openView {
@@ -79,25 +78,12 @@ Note {
     ]
     
     [renderer = custom] {
-        VStack {
-            padding: 10
-            spacing: 5
-
-            Textfield {
-                value: {{.title}}
-                hint: "Enter a title"
-/*                color: lightInputText*/
-                maxHeight: 50
-                border: #ff0 0
-                font: 14 semibold
-            }
-            RichTextfield {
-                value: {{.textContent}}
-/*                color: inputText*/
-                border: #ff0 0
-                padding: 0
-                font: 12 regular
-            }
+        RichTextfield {
+            htmlValue: {{.content}}
+            value: {{.textContent}}
+            title: {{.title}}
+            titleHint: "Untitled Note"
+            fontSize: 18
         }
     }
 }
@@ -134,8 +120,7 @@ Note[] {
             
             HStack {
                 Text {
-                    text: "{.title}"
-                    nilText: "Untitled Note"
+                    text: {{.title or "Untitled Note"}}
                     font: 18 semibold
                     color: #333
                     padding: 0 0 0 0
@@ -149,7 +134,7 @@ Note[] {
                 }
             }
             Text {
-                text: "{.textContent}"
+                text: "{.content}"
                 removeWhiteSpace: true
                 maxChar: 100
                 color: #555
@@ -174,7 +159,7 @@ Note[] {
             alignment: center
             
             Text {
-                text: "{.textContent}"
+                text: "{.content}"
                 allowNil: true
                 maxChar: 100
                 color: #333
@@ -189,8 +174,7 @@ Note[] {
             }
             HStack {
                 Text {
-                    text: "{.title}"
-                    nilText: "Untitled Note"
+                    text: {{.title or "Untitled Note"}}
                     padding: 5 0 0 0
                     color: #333
                     font: 12 semibold
