@@ -6,33 +6,33 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+import {CVUParsedDatasourceDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {UserState, ViewArguments} from "./UserState";
+
 class SessionView extends DataItem {
  
     get genericType (){return "SessionView"}
  
-    name = null
-    viewDefinition = null
-    userState = null
-    viewArguments = null
-    datasource = null // TODO refactor: fix cascading
-    session = null
+    name?: string
+    viewDefinition?: CVUStoredDefinition
+    userState?: UserState
+    viewArguments?: ViewArguments
+    datasource?: Datasource // TODO refactor: fix cascading
+    session?: Session
     
     get computedTitle() {
-//        let value = this.name || this.title
-//        let rendererName = this.rendererName
-//        let query = this.datasource.query
-//        if (value) { return value }
-//        else if (rendererName) {
-//            return `A ${rendererName} showing: ${query ?? ""}`
-//        }
-//        else if (query) {
-//            return `Showing: ${query}`
-//        }
+        //        if let value = self.name ?? self.title { return value }
+        //        else if let rendererName = self.rendererName {
+        //            return "A \(rendererName) showing: \(self.datasource?.query ?? "")"
+        //        }
+        //        else if let query = self.datasource?.query {
+        //            return "Showing: \(query)"
+        //        }
         return "[No Name]"
     }
     
-    constructor(values){
-        super(values);
+    constructor(){
+        super();
         
         this.computedDescription = function () {//TODO
             console.log("MAKE THIS DISSAPEAR")
@@ -40,8 +40,8 @@ class SessionView extends DataItem {
         }
     }
     
-    mergeState(view) {
-        realmWriteIfAvailable(this.realm, function () {//TODO
+    mergeState(view: SessionView) {
+        /*realmWriteIfAvailable(this.realm, function () {//TODO
             let us = view.userState
             if (us) {
                 if (this.userState == null) { this.userState = new UserState() }
@@ -52,7 +52,7 @@ class SessionView extends DataItem {
                 if (this.viewArguments == null) { this.viewArguments = new ViewArguments() }
                 Object.assign(this.viewArguments, args);//TODO
             }
-        })
+        })*/
     }
     
     fromCVUDefinition(parsed = null, stored = null, viewArguments = null, userState = null, datasource = null) {
@@ -70,16 +70,16 @@ class SessionView extends DataItem {
             ds = new Datasource().fromCVUDefinition(src, viewArguments)//TODO
         }
         if (userState == null && parsed["userState"] instanceof UserState) {//TODO
-            us = Object.assign({}, parsed["userState"]);
+            us = parsed["userState"]?.clone();
         }
         if (viewArguments == null && parsed["viewArguments"] instanceof ViewArguments) {//TODO
-            args = Object.assign({}, parsed["viewArguments"]);
+            args = parsed["viewArguments"].clone();
         }
         
         var values = {//TODO
-            selector: parsed.selector || stored.selector || "[view]",
+            selector: parsed?.selector ?? stored?.selector ?? "[view]",
             name: typeof parsed["name"] === 'string' ? parsed["name"] : stored?.name || "",
-            viewDefinition: stored || new CVUStoredDefinition({
+            viewDefinition: stored ?? new CVUStoredDefinition({
                 type: "view",
                 selector: parsed?.selector,
                 domain: parsed?.domain,

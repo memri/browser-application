@@ -6,73 +6,84 @@
 
 
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
-import {DataItem} from "../../model/DataItem";
+import {DataItem, UUID} from "../../model/DataItem";
 import {InMemoryObjectCache} from "../../model/InMemoryObjectCache";
+class SchemaItem {
 
-export class UserState /*extends Object, CVUToString*/ {
-	memriID = DataItem.generateUUID();
+}//TODO: replace with normal class
+
+export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 	state = ""
 
-	onFirstSave
+	cacheID = UUID();
 
-	constructor(dict, onFirstSave) {//TODO
-		//super()
+	/// Primary key used in the realm database of this Item
+	primaryKey() {
+		return "uid"
+	}
 
-		this.onFirstSave = onFirstSave
+	constructor(dict) {//TODO
+		super()
+		this.storeInCache(dict);
+		this.persist()
+	}
 
-		try { new InMemoryObjectCache().set(this.memriID, dict) }
-		catch {
-			// TODO: Refactor error reporting
-		}
+	storeInCache(dict) {
+		new InMemoryObjectCache().set(`UserState:${this.uid && this.uid.value != undefined ? `${this.uid}` : this.cacheID}`, dict)
+	}
+
+	getFromCache() {
+		return new InMemoryObjectCache().get(`UserState:${this.uid && this.uid.value != undefined ? `${this.uid}` : this.cacheID}`)
 	}
 
 	get(propName) {
 		let dict = this.asDict()
 
-		let lookup = dict[propName]
-		
-		if (lookup && typeof lookup.isCVUObject === "function" && lookup["memriID"] != undefined) {
-			let x = this.getDataItem(lookup["type"]  ?? "",
-										   lookup["memriID"]  ?? "")
-			return x
-		} else if (dict[propName] == undefined) {
+		if (dict[propName] == undefined) {
 			return null
 		}
 
-		return dict[propName]
+		return dict[propName];
 	}
 
 	set(propName, newValue, persist = true) {
-		let event = this.onFirstSave
-		if (event) {
-			event(this)
-			this.onFirstSave = null
+		var dict = this.asDict()
+		dict[propName] = newValue
+
+		try {
+			this.storeInCache(dict)
+		} catch {
+			/* TODO: ERROR HANDLIGNN */
+			//debugHistory.warn("Unable to store user state property \(propName)")
+			return
 		}
 
-		var x = this.asDict()
-
-		if (newValue instanceof DataItem) {
-			x[propName] = {type: newValue.genericType, memriID: newValue.memriID}
-		} else {
-			x[propName] = newValue
+		if (this.persist) {
+			this.scheduleWrite()
 		}
-
-		try {  new InMemoryObjectCache().set(this.memriID, x) }
-		catch { /* TODO: ERROR HANDLIGNN */ }
-
-		if (persist) { this.scheduleWrite() }
 	}
 
 	transformToDict() {
 		if (this.state == "") { return {} }
-		let stored = Object.assign({},this.state) //TODO
+		let stored = this.unserialize(this.state) ?? {}
 		var dict = {}
 
-		for (let [key, value] of Object.entries(stored)) {
-			dict[key] = value.value
+		for (let [key, wrapper] of Object.entries(stored)) {
+			let lookup = wrapper.value;
+			if (typeof lookup.isCVUObject() == "function" && lookup["___"] != undefined) {
+				let itemType = lookup["_type"];
+				let uid = lookup["_uid"];
+				if (typeof itemType == "string" && typeof uid == "number") {
+					dict[key] = this.getItem(itemType, uid)
+				} else {
+					//debugHistory.warn("Could not expand item. View may not load as expected")
+				}
+			} else {
+				dict[key] = wrapper.value
+			}
 		}
 
-		new InMemoryObjectCache().set(this.memriID, dict)//TODO
+		this.storeInCache(dict);
 		return dict
 	}
 
@@ -90,33 +101,37 @@ export class UserState /*extends Object, CVUToString*/ {
 
 				// Update UI
 				this.persist()
-			}*/
+			}*/ //TODO:
 		}
 	}
 
 	persist() {
-		if (realm == null) { return }//TODO
+		//if (realm == null) { return }//TODO
 
-		let x = new InMemoryObjectCache().get(this.memriID)
-		if (x && typeof x == "object") {
+		let x = this.getFromCache();
+		if (x) {
 			/*realmWriteIfAvailable(realm) {
 				try {
 					var values = {}
 
 					for (let [key, value] of Object.entries(x)) {
-						if (value instanceof AnyCodable) {
+						if (value instanceof Item) {
+							values[key] = {"_type": value.genericType,
+										   "_uid": value.uid.value,
+										   "___": true}
+						} else if let value = value as? AnyCodable {
 							values[key] = value
 						} else {
-							values[key] = new AnyCodable(value)
+							values[key] = AnyCodable(value)
 						}
 					}
 
-					let data = JSON.stringify(values)//TODO
-					this.state = String(data, encoding: .utf8) ?? ""//TODO
+					et data = try MemriJSONEncoder.encode(values)
+					self["state"] = String(data: data, encoding: .utf8) ?? ""
 				} catch {
 					debugHistory.error(`Could not persist state object: ${error}`)
 				}
-			}*/
+			}*/ //TODO
 		}
 	}
 
@@ -133,24 +148,41 @@ export class UserState /*extends Object, CVUToString*/ {
 	}
 
 	asDict() {
-		var x
-		x = new InMemoryObjectCache().get(this.memriID)
-		try { if (x == null) { x = this.transformToDict() } } catch { return {} } // TODO: refactor: handle error
-		return x ?? {}
+		let cached = this.getFromCache();
+		if (cached) {
+			return cached
+		} else {
+			try {
+				return this.transformToDict()
+			} catch {
+				//debugHistory.error("Could not unserialize state object: \(error)")
+				return {}
+			} // TODO: refactor: handle error
+		}
 	}
 
 	merge(state) {
 		let dict = this.asDict().concat(state.asDict()) //TODO
-		new InMemoryObjectCache().set(this.memriID, dict) //TODO
-	}
-
-	clone() {
-		new UserState(this.asDict())//TODO
+		this.storeInCache(dict);
+		this.persist();
 	}
 
 	toCVUString(depth, tab) {
 		new CVUSerializer().dictToString(this.asDict(), depth, tab)
 	}
+
+	clone(viewArguments?: ViewArguments, values?, managed: boolean = true) {
+		var dict = viewArguments?.asDict() ?? {}
+		//let values = values;
+		if (values)  {
+			dict = Object.assign({}, values, dict);
+		}
+
+		if (managed) { return new UserState(dict).fromDict(dict) }
+		else { return new UserState(dict) }
+	}
+
+
 }
 
 export var ViewArguments = UserState
