@@ -468,50 +468,104 @@ listBox.on("choose", function(data) {
 
 var cache = Object.create(null)
 function listCVUDefinitions(callback) {
+    cache = Object.create(null)
     api.query({query: "CVUStoredDefinition"}, function(err, items) {
         if (err) return callback(error);
-        console.log(items)
-        var files = items.map(function(item) {
-            var name = (item.selector || item.uid ) + ""
+        items.forEach(function(item) {
+            if (!item.definition || item.deleted) return;
+            var name = "";
+            item.definition = item.definition.replace(
+                /^\s*\/\*file:(\d+):([^*\s]+)\*\//g, 
+                function(_, _index, _name) {
+                    name = _name;
+                    item.index = parseInt(_index);
+                    return "";
+                }
+            );
+            
+            if (!name)
+                name = item.selector;
             if (!name) return console.error(item)
-            cache[name] = {
+            
+            if (!cache[name]) cache[name] = []
+            
+            cache[name].push(item); 
+            
+            if (!item.index) item.index = item.uid;
+        });
+        
+        var files = Object.keys(cache).map(function(name) {
+            return {
                 name, 
-                src: "pod", 
-                contents: item.query,
-                uid: item.uid,
-            }
-            return cache[name];
-        }).filter(Boolean);
+                src: "pod",
+            };
+        });
         callback(null, files)
     });
 }
 
 function loadCVUDefinition(name, callback) {
     setTimeout(function() {
-        if (cache[name])
-            callback(null, cache[name].contents || "")
+        if (cache[name]) {
+            var text = cache[name].map(item=>item.definition).join("\n")
+            return callback(null, text || "")
+        }
+            
         if (name == "example.cvu")
-            callback(null, example)
+            return callback(null, example)
         if (localStorage["file-" + name])
-            callback(null, localStorage["file-" + name])
+            return callback(null, localStorage["file-" + name])
     }, 100);
 }
 
 function saveCVUDefinition(name, value, parts, callback) {
     localStorage["file-" + name] = value;
-    var promises = parts.map(function(part) {
-        return new Promise(function(resolve, reject) {
-            api.create({
-                _type: "CVUStoredDefinition",
-                uid: Math.ceil(Math.random() *100000),
-                selector: part.selector,
-                query: part.contents,
-            }, function(err, uid) {
-                console.log(err, uid)
+    var saved = cache[name] || [];
+    var promises = [];
+    var newParts = [];
+    
+    for (var i = 0; i < parts.length; i++) {
+        var part = parts[i]
+        var existing = saved[i];
+        
+        var definition = `/*file:${i+1}:${name}*/` + part.definition;
+        var data = {
+            _type: "CVUStoredDefinition",
+            domain: "user",
+            definition: definition,                    
+            selector: part.selector,
+            name: part.name,
+        };
+        
+        if (existing) {
+            data.uid = existing.uid;
+        } else {
+            data.uid = Math.ceil(Math.random() *100000);
+        }
+            
+        promises.push(new Promise(function(resolve, reject) {
+            if (!existing) {
+                api.create(data, function(err, uid) {
+                    resolve(uid)
+                });
+            } else {
+                api.update(data, function(err, uid) {
+                    resolve(uid)
+                });
+            }
+        }))
+    }
+    
+    while(i < saved.length) {
+        var existing = saved[i];
+        promises.push(new Promise(function(resolve, reject) {
+            api.remove(existing.uid, function(err, uid) {
                 resolve(uid)
-            });
-        })
-    })
+            })
+        }));
+        i++;
+    }
+    
     Promise.all(promises).then(function() {
         updateTree()
         callback()

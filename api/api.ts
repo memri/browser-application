@@ -299,24 +299,22 @@ export class PodAPI {
     /// - Parameters:
     ///   - item: The data item to update on the pod
     ///   - callback: Function that is called when the task is completed either with the new version number, or an error
-    // update(item, callback, version) {
-    //
-    //     this.http(HTTPMethod.PUT, `items/${item.memriID}`, toJSON(item), function (error, data) {
-    //         callback(error, (data != null ? Int(String(data ?? Data(), ".utf8") ?? "") : null))
-    //     }, null)
-    // }
+    update(item, callback, uid) {
+        this.http({method: "PUT", path: `items/${item.uid}`, body: this.toJSON(item, true)}, function(error, data) {
+            callback(error, data)
+        }, null)
+    }
     
     /// Marks a data item as deleted on the pod.
     /// - Parameters:
     ///   - memriID: The memriID of the data item to remove
     ///   - callback: Function that is called when the task is completed either with a result, or  an error
     /// - Remark: Note that data items that are marked as deleted are by default not returned when querying
-    // remove(memriID, callback, success) {
-    //
-    //     this.http(HTTPMethod.DELETE, `items/${memriID}`, null, function (error, data) {
-    //         callback(error, error == null)
-    //     }, null)
-    // }
+    remove(memriID, callback, uid) {
+        this.http({method: "DELETE", path: `items/${memriID}`}, function(error, data) {
+            callback(error, data)
+        }, null)
+    } 
     
     /// Queries the database for a subset of DataItems and returns a list of DataItems
     /// - Parameters:
