@@ -10,6 +10,8 @@ export class PodAPI {
     async http({method = "GET", path = "", body, data}, callback) {
 
         let podhost = settings.get("user/pod/host") || ""
+        
+        if (podhost && !/^http/.test(podhost)) podhost = "http://" + podhost;
 
         var url = new URL(podhost)
         if (!url) {
@@ -29,22 +31,24 @@ export class PodAPI {
             loginString = btoa(`${username}:${password}`)
             loginString = `Basic ${loginString}`;
         }
+        let headers = {
+            "Content-Type": "application/json"
+        }
+        if (loginString)
+            headers.Authorization = loginString
         
         var result, error
         try {
             result = await fetch(url, {
                 method,
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: loginString,
-                },
-                body
+                headers,
+                body,
             })
             result = await result.json()
         } catch(e) {
             error = e;
         }
-        callback && callback(null, result);
+        callback && callback(error, result);
     }
     
     /*getArray(item, prop) {
@@ -182,7 +186,7 @@ export class PodAPI {
 	}
 
 	toJSON(result) {
-		return MemriJSONEncoder.encode(AnyCodable(result))
+		return JSON.stringify(result)
 	}
 
 	simplifyItem(item) {
@@ -284,12 +288,12 @@ export class PodAPI {
     /// - Parameters:
     ///   - item: The data item to create on the pod
     ///   - callback: Function that is called when the task is completed either with the new uid, or an error
-    // create(item, callback, uid) {
-    //
-    //     this.http(HTTPMethod.POST, "items", toJSON(item, true), function (error, data) {
-    //         callback(error, data != null ? Int(String(data ?? Data(), ".utf8") ?? "") : null)
-    //     }, null)
-    // }
+    create(item, callback, uid) {
+    
+        this.http({method: "POST", path: "items", body: this.toJSON(item, true)}, function(error, data) {
+            callback(error, data)
+        }, null)
+    }
     
     /// Updates a data item and returns the new version number
     /// - Parameters:
@@ -332,7 +336,7 @@ export class PodAPI {
         let query = queryOptions.query || ""
         let matches = query.match(/^(\w+) AND memriID = '(.+)'$/)
 
-        if (matches.length == 3) {
+        if (matches) {
             let type = matches[1]
             let uid = matches[2]
 
@@ -359,23 +363,12 @@ export class PodAPI {
             }
         }
 
-        this.http({method: "POST", path: "search_by_fields", body: data}, function (error, data) {
+        this.http({method: "POST", path: "search_by_fields", body: data}, function (error, items) {
             if (error) {
                 debugHistory.error(`Could not load data from pod: \n${error}`)
                 callback(error, null)
-            } else if (data) {
-                try {
-                    var items
-                    JSONErrorReporter {//TODO
-                        items = MemriJSONDecoder
-                            .decode(ItemFamily.constructor, data)
-                    }
-
-                    callback(null, items)
-                } catch (error) {
-                    debugHistory.error(`Could not load data from pod: \n${error}`)
-                    callback(error, null)
-                }
+            } else {
+                 callback(null, items)
             }
         })
         

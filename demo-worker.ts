@@ -119,9 +119,19 @@ ace.define('ace/worker/my-worker',[], function(require, exports, module) {
             var start = {row: 0, column: 0};
             var parts = []
             for (var i =0; i < ast.length; i++) {
+                var selector = ast[i][0];
+                var selectorPos = selector.getPos();
+                var selectorText = doc.getTextRange({
+                    start: {row: selectorPos.sl, column: selectorPos.sc}, 
+                    end: {row: selectorPos.el, column: selectorPos.ec},
+                }).trim().replace(/\s*{$/g, "");
+
                 var astPos = ast[i].getPos()
                 var end = {row: astPos.el, column: astPos.ec};
-                parts.push(doc.getTextRange({start, end}))
+                parts.push({
+                    selector: selectorText,
+                    contents: doc.getTextRange({start, end})
+                })
                 start = end
             }
             this.sender.callback({parts}, callbackId);

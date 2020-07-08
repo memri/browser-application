@@ -303,8 +303,7 @@ function saveCurrentFile() {
             
         tab.session.getUndoManager().markClean();
         sharedWorker.call("split", [value], function(result) {
-            console.log(result.parts)
-            saveCVUDefinition(tab.path, value, function() {
+            saveCVUDefinition(tab.path, value, result.parts, function() {
                 updateSaveButton(false, tab.editor);
             });
         })
@@ -467,27 +466,56 @@ listBox.on("choose", function(data) {
     open(data, false);
 });
 
- 
+var cache = Object.create(null)
 function listCVUDefinitions(callback) {
-    setTimeout(function() {
-        callback(null, [
-            {name: "example.cvu", src: "pod"},
-            {name: Date.now() + ".cvu", src: "pod"},
-        ])
-    }, 100)
-    // api.query()
+    api.query({query: "CVUStoredDefinition"}, function(err, items) {
+        if (err) return callback(error);
+        console.log(items)
+        var files = items.map(function(item) {
+            var name = (item.selector || item.uid ) + ""
+            if (!name) return console.error(item)
+            cache[name] = {
+                name, 
+                src: "pod", 
+                contents: item.query,
+                uid: item.uid,
+            }
+            return cache[name];
+        }).filter(Boolean);
+        callback(null, files)
+    });
 }
 
 function loadCVUDefinition(name, callback) {
     setTimeout(function() {
+        if (cache[name])
+            callback(null, cache[name].contents || "")
         if (name == "example.cvu")
             callback(null, example)
+        if (localStorage["file-" + name])
+            callback(null, localStorage["file-" + name])
     }, 100);
 }
 
-function saveCVUDefinition(name, value, callback) {
+function saveCVUDefinition(name, value, parts, callback) {
     localStorage["file-" + name] = value;
-    callback()
+    var promises = parts.map(function(part) {
+        return new Promise(function(resolve, reject) {
+            api.create({
+                _type: "CVUStoredDefinition",
+                uid: Math.ceil(Math.random() *100000),
+                selector: part.selector,
+                query: part.contents,
+            }, function(err, uid) {
+                console.log(err, uid)
+                resolve(uid)
+            });
+        })
+    })
+    Promise.all(promises).then(function() {
+        updateTree()
+        callback()
+    })
 }
 
 

@@ -418,7 +418,7 @@ export class CVULexer {
                 else if (isMode == Mode.namedIdentifier) {
                     tokens.push(new CVUToken.NamedIdentifier(kw, ln, ch - kw.length - 1))
                 }
-                else if (kw.length){ tokens.push(new CVUToken.Identifier(kw, ln, ch - kw.length)) }
+                else if (kw.length){ tokens.push(new CVUToken.Identifier(kw, ln, ch - kw.length - 1)) }
 
                 keyword = []
                 isMode = Mode.idle
@@ -467,8 +467,7 @@ export class CVULexer {
 
             if (isMode == Mode.expression) {
                 if (c == "}" && lastChar == "}") {
-                    let tokensT = tokens.pop();
-                    if (CVUToken.CurlyBracketOpen == tokensT.constructor) {
+                    if (tokens.pop()) {
                         keyword.pop()
 
                         tokens.push(new CVUToken.Expression(keyword.join(""), ln, ch - 1 - keyword.length))
