@@ -23,7 +23,7 @@ var CvuHighlightRules = function() {
             "and|AND|or|OR|equals|EQUALS|not|NOT|"+
             "back|addItem|openView|openDynamicView|openViewByName|toggleEditMode|toggleFilterPanel|star|showStarred|showContextPane|showOverlay|showNavigation|share|addToPanel|duplicate|schedule|addToList|" +
             "duplicateNote|noteTimeline|starredNotes|allNotes|exampleUnpack|delete|setRenderer|select|selectAll|unselectAll|showAddLabel|openLabelView|setProperty|" +
-            "showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|link|addSelectionToList|closePopup|noop|unlink|multiAction|runIndexerInstance|runImporterInstance"+
+            "showSessionSwitcher|forward|forwardToFront|backAsSession|openSession|openSessionByName|link|addSelectionToList|closePopup|noop|unlink|multiAction|runIndexerRun|runImporterRun"+
             "datasource|view"
     }, "identifier");
 
