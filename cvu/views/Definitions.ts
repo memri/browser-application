@@ -7,14 +7,14 @@
 
 
 class CVUStoredDefinition extends DataItem {
-    constructor(args) {
+    constructor() {
         super();
     }
-    type = null
-    name = null
-    selector = null
-    definition = null
-    query = null
+    type
+    name
+    selector
+    definition
+    query
     domain = "user"
     get genericType (){return "CVUStoredDefinition"}
 }

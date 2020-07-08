@@ -20,11 +20,11 @@ import {DataItem, Item} from "../../model/DataItem";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
 export class UIElement /*extends CVUToString */{
-	type
+	type: UIElementFamily
 	children = []
 	properties = {} // TODO: ViewParserDefinitionContext
 
-	constructor(type, children, properties = {}) {
+	constructor(type, children?, properties = {}) {
 		//super()
 		this.type = type
 		this.children = children ?? this.children
@@ -62,7 +62,7 @@ export class UIElement /*extends CVUToString */{
 						let list = x
 						if (Array.isArray(list)) {//TODO
 							for (var edge of list) {
-								let d = this.getItem(edge)
+								let d = edge.item()
 								if (d) {
 									result.push(d)
 								}
@@ -77,12 +77,12 @@ export class UIElement /*extends CVUToString */{
 					}*/
 				} catch (error) {
 					// TODO: Refactor error handling
-					/*debugHistory.error(`Could note compute ${propName}\n
-						Arguments: [${viewArguments.asDict().keys.join(", ")}]\n
-						${expr.startInStringMode
-							? `Expression: ${expr.code}\n`
-							: `Expression: ${expr.code}\n`}
-						Error: ${error}`)*/
+					/*debugHistory.error("Could note compute \(propName)\n"
+						+ "Arguments: [\(viewArguments.asDict().keys.description)]\n"
+						+ (expr.startInStringMode
+							? "Expression: \"\(expr.code)\"\n"
+							: "Expression: \(expr.code)\n")
+						+ "Error: \(error)")*/
 					return null
 				}
 			}
@@ -103,7 +103,7 @@ export class UIElement /*extends CVUToString */{
 			// Execute expression to get the right value
 			let expr = propValue
 			if (expr instanceof Expression) {
-				try { return expr.getTypeOfDataItem(viewArguments) }
+				try { return expr.getTypeOfItem(viewArguments) }
 				catch (error) {
 					// TODO: Refactor: Error Handling
 					//debugHistory.error(`could not get type of ${item}`)

@@ -47,7 +47,7 @@ export class PodAPI {
         callback && callback(null, result);
     }
     
-    getArray(item, prop) {
+    /*getArray(item, prop) {
         let className = item.objectSchema[prop]?.objectClassName
         
         if (className == "Edge") {
@@ -76,72 +76,162 @@ export class PodAPI {
         else {
             return dataItemListToArray(item[prop])
         }
-    }
+    }*/
     
     MAXDEPTH = 2;
-    toJSON(dataItem, removeUID =  false) {
-        
-        let updatedFields = dataItem.syncState?.actionNeeded == "updated"
-            ? dataItem.syncState?.updatedFields
-            : null
-        
-        function recur(dataItem, depth) {
-            let properties = dataItem.objectSchema.properties
-            var result = []
-            var isPartiallyLoaded = false
-            
-            // TODO Refactor: this will change when edges are implemented
-            if (depth == this.MAXDEPTH) {
-                isPartiallyLoaded = true
-                result["memriID"] = dataItem.memriID
+    recursiveSearch(item, removeUID = false) {
+		if (item.syncState?.actionNeeded === null) { throw new Error("No action required") }
+
+		var createItems = []
+		var updateItems = []
+		var deleteItems = []
+		var createEdges = []
+		var updateEdges = []
+		var deleteEdges = []
+
+		function recurEdge(edge, forceInclude = false) {
+			let a = edge.syncState?.actionNeeded
+			if (a == null && !forceInclude) { return }
+            let action = a
+            if (!action) return
+
+			var result = {}
+
+			let properties = item.objectSchema.properties
+			for (var prop of properties) {
+				if (prop.name == "syncState" || prop.name == "deleted"
+					|| prop.name == "targetItemType" || prop.name == "targetItemID"
+					|| prop.name == "sourceItemType" || prop.name == "sourceItemID") {
+					// Ignore
+				} else {
+					result[prop.name] = edge[prop.name]
+				}
+			}
+
+            let tgt = edge.item()
+			if (tgt) {
+				recur(tgt)
+				result["_source"] = edge.sourceItemID
+				result["_target"] = edge.targetItemID
+			} else {
+				// Database is corrupt
+				debugHistory.warn("Database corruption; edge to nowhere")//TODO
+			}
+
+			switch (action) {
+                case "create": createEdges.push(result); break
+                case "update": updateEdges.push(result); break
+                case "delete": deleteEdges.push(result); break
+                default: throw new Error("Unexpected action")
+			}
+		}
+
+		function recur(item, forceInclude = false) {
+			let a = item.syncState?.actionNeeded
+			if (a == null, !forceInclude) { return }
+            let action = a
+			if (!action) { return }
+
+			let updatedFields = item.syncState?.updatedFields
+			var result = {
+                _type: item.genericType,
             }
-            else {
-                for (let prop of properties) {
-                    if (prop.name == "syncState" || prop.name == "deleted" || (removeUID && prop.name == "uid")) {
-                        // Ignore
-                    }
-                    else if (updatedFields == null || updatedFields?.contains(prop.name)) {
-                        /*if (prop.type == .object) {
-                            if (prop.isArray) {
-                                var toList = [[String:Any]]()
-                                for item in getArray(dataItem, prop.name) {
-                                    toList.append(recur(item, depth + 1))
-                                }
-                                result[prop.name] = toList
-                            }
-                            else {
-                                result[prop.name] = recur(dataItem[prop.name] as! DataItem, depth + 1)
-                            }
-                        }
-                        else {
-                            result[prop.name] = dataItem[prop.name]
-                        }*///TODO
-                    }
-                    else {
-                        isPartiallyLoaded = true
-                    }
-                }
-            }
-            
-            var syncState = []
-            if (isPartiallyLoaded) { syncState["isPartiallyLoaded"] = true }
-            
-            result["type"] = dataItem.genericType
-            result["syncState"] = syncState
-            
-            return result
-        }
-        
-        // TODO refactor: error handling
+
+			let properties = item.objectSchema.properties
+			for (var prop of properties) {
+				if (prop.name == "syncState" || prop.name == "deleted") {
+					// Ignore
+				} else if (prop.name == "allEdges") {
+					for (var edge of item.allEdges) {
+						recurEdge(edge, action == "create")
+					}
+				} else if (updatedFields == null || updatedFields?.includes(prop.name)) {
+					if (prop.type == ".object") {//TODO
+						throw new Error("Unexpected object schema")
+					} else {
+						result[prop.name] = item[prop.name]
+					}
+				}
+			}
+
+			switch (action) {
+                case "create": createItems.push(result); break
+                case "update": updateItems.push(result); break
+                case "delete": deleteItems.push(result); break
+                default: throw new Error("Unexpected action")
+			}
+		}
+
+		// TODO: refactor: error handling
         try {
-            return MemriJSONEncoder.encode(AnyCodable(recur(dataItem, 1)))
-        }
-        catch (error) {
-            debugHistory.error("Exception while communicating with the pod: \(error)")
-            return Data()
-        }
-    }
-    
+			recur(item)
+
+			var result = {}
+			if (createItems.length > 0) { result["createItems"] = createItems }
+			if (updateItems.length > 0) { result["updateItems"] = updateItems }
+			if (deleteItems.length > 0) { result["deleteItems"] = deleteItems }
+			if (createEdges.length > 0) { result["createEdges"] = createEdges }
+			if (updateEdges.length > 0) { result["updateEdges"] = updateEdges }
+			if (deleteEdges.length > 0) { result["deleteEdges"] = deleteEdges }
+
+			return result
+		} catch {
+			debugHistory.error(`Exception while communicating with the pod: ${error}`)//TODO
+			return {}
+		}
+	}
+
+	toJSON(result) {
+		return MemriJSONEncoder.encode(AnyCodable(result))
+	}
+
+	simplifyItem(item) {
+		let updatedFields = item.syncState?.updatedFields
+		var result = {
+			_type: item.genericType,
+		}
+
+		let properties = item.objectSchema.properties
+		for (var prop of properties) {
+			if (prop.name == "syncState" || prop.name == "deleted" || prop.name == "allEdges") {
+				// Ignore
+			} else if (updatedFields == null || updatedFields?.includes(prop.name)) {
+				if (prop.type == ".object") {//TODO
+					debugHistory.warn("Unexpected object schema")//TODO
+				} else {
+					result[prop.name] = item[prop.name]
+				}
+			}
+		}
+
+		return result
+	}
+
+	simplifyEdge(edge) {
+		var result = {}
+
+		let properties = edge.objectSchema.properties
+		for (var prop of properties) {
+			if (prop.name == "syncState" || prop.name == "deleted"
+				|| prop.name == "targetItemType" || prop.name == "targetItemID"
+				|| prop.name == "sourceItemType" || prop.name == "sourceItemID") {
+				// Ignore
+			} else {
+				result[prop.name] = edge[prop.name]
+			}
+		}
+
+		if (edge.item()) {
+			result["_source"] = edge.sourceItemID
+			result["_target"] = edge.targetItemID
+		} else {
+			// Database is corrupt
+			debugHistory.warn("Database corruption; edge to nowhere")//TODO
+		}
+
+		return result
+	}
+
     /// Retrieves a single data item from the pod
     /// - Parameters:
     ///   - memriID: The memriID of the data item to retrieve
@@ -162,40 +252,67 @@ export class PodAPI {
             }
         }, null)
     }
-    
+
+	sync1(item, callback) {
+        this.http({method: "POST", path: "bulk_action", body: this.toJSON(this.recursiveSearch(item))}, function (error) {
+            callback(error)
+        })
+	}
+
+	sync(createItems?,
+         updateItems?,
+         deleteItems?,
+         createEdges?,
+         updateEdges?,
+         deleteEdges?,
+         callback) {
+		var result = {}
+		if (createItems?.length ?? 0 > 0) { result["createItems"] = createItems?.map (function(item){ this.simplify(item) }) }
+		if (updateItems?.length ?? 0 > 0) { result["updateItems"] = updateItems?.map (function(item){ this.simplify(item) }) }
+		if (deleteItems?.length ?? 0 > 0) { result["deleteItems"] = deleteItems?.map (function(item){ this.simplify(item) }) }
+		if (createEdges?.length ?? 0 > 0) { result["createEdges"] = createEdges?.map (function(item){ this.simplify(item) }) }
+		if (updateEdges?.length ?? 0 > 0) { result["updateEdges"] = updateEdges?.map (function(item){ this.simplify(item) }) }
+		if (deleteEdges?.length ?? 0 > 0) { result["deleteEdges"] = deleteEdges?.map (function(item){ this.simplify(item) }) }
+
+
+        this.http({method: "POST", path: "bulk_action", body: this.toJSON(result)}, function (error) {
+            callback(error)
+        })
+	}
+
     /// Create a data item and return the new uid for that data item
     /// - Parameters:
     ///   - item: The data item to create on the pod
     ///   - callback: Function that is called when the task is completed either with the new uid, or an error
-    create(item, callback, uid) {
-        
-        this.http(HTTPMethod.POST, "items", toJSON(item, true), function (error, data) {
-            callback(error, data != null ? Int(String(data ?? Data(), ".utf8") ?? "") : null)
-        }, null)
-    }
+    // create(item, callback, uid) {
+    //
+    //     this.http(HTTPMethod.POST, "items", toJSON(item, true), function (error, data) {
+    //         callback(error, data != null ? Int(String(data ?? Data(), ".utf8") ?? "") : null)
+    //     }, null)
+    // }
     
     /// Updates a data item and returns the new version number
     /// - Parameters:
     ///   - item: The data item to update on the pod
     ///   - callback: Function that is called when the task is completed either with the new version number, or an error
-    update(item, callback, version) {
-                       
-        this.http(HTTPMethod.PUT, `items/${item.memriID}`, toJSON(item), function (error, data) {
-            callback(error, (data != null ? Int(String(data ?? Data(), ".utf8") ?? "") : null))
-        }, null)
-    }
+    // update(item, callback, version) {
+    //
+    //     this.http(HTTPMethod.PUT, `items/${item.memriID}`, toJSON(item), function (error, data) {
+    //         callback(error, (data != null ? Int(String(data ?? Data(), ".utf8") ?? "") : null))
+    //     }, null)
+    // }
     
     /// Marks a data item as deleted on the pod.
     /// - Parameters:
     ///   - memriID: The memriID of the data item to remove
     ///   - callback: Function that is called when the task is completed either with a result, or  an error
     /// - Remark: Note that data items that are marked as deleted are by default not returned when querying
-    remove(memriID, callback, success) {
-        
-        this.http(HTTPMethod.DELETE, `items/${memriID}`, null, function (error, data) {
-            callback(error, error == null)
-        }, null)
-    }
+    // remove(memriID, callback, success) {
+    //
+    //     this.http(HTTPMethod.DELETE, `items/${memriID}`, null, function (error, data) {
+    //         callback(error, error == null)
+    //     }, null)
+    // }
     
     /// Queries the database for a subset of DataItems and returns a list of DataItems
     /// - Parameters:
@@ -214,59 +331,52 @@ export class PodAPI {
         
         let query = queryOptions.query || ""
         let matches = query.match(/^(\w+) AND memriID = '(.+)'$/)
-        if (matches) {
+
+        if (matches.length == 3) {
             let type = matches[1]
-            let memriID = matches[2]
-            
-            console.log("Requesting single \(type) with memriID \(memriID)")
-            
+            let uid = matches[2]
+
+            console.log(`Requesting single ${type} with memriID ${uid}`)
+
             data = `
-                {
-                  items(func: type(${type})) @filter(eq(memriID, ${memriID})) {
-                    uid
-                    type : dgraph.type
-                    expand(_all_) {
-                      uid
-                      type : dgraph.type
-                      expand(_all_) {
-                        uid
-                        memriID
-                        type : dgraph.type
-                      }
-                    }
-                  }
-                }
-            `
-        }
-        else if (query.match(/^(\w+)$/)) {
-            let type = query.split(" ")[0] || ""
-            
-            console.log(`Requesting query result of ${type}: ${queryOptions.query || ""}`)
-            
-            data = `
-                {
-                  items(func: type(${type})) {
-                    uid
-                    type : dgraph.type
-                    expand(_all_) {
-                      uid
-                      type : dgraph.type
-                      expand(_all_) {
-                        uid
-                        memriID
-                        type : dgraph.type
-                      }
-                    }
-                  }
-                }
-            ` 
-        }
-        
-        this.http({method: "POST", path: "all", body: data}, function (error, data) {
-            if (error) {
-                callback(error, null)
+            {
+                "_type": "${type}",
+                "uid": ${uid}
             }
-            callback(null, data)
+            `/*.data(using: .utf8)*///TODO
+        } else {
+            let type = query.match(/^(\w+)$/)[1]//TODO
+            if (type) {
+                console.log(`Requesting query result of ${type}: ${queryOptions.query ?? ""}`)
+                data = `
+                {
+                    "_type": "${type}"
+                }
+                `/*.data(.utf8)*///TODO
+            } else {
+                callback("Not implemented yet", null)
+                return
+            }
+        }
+
+        this.http({method: "POST", path: "search_by_fields", body: data}, function (error, data) {
+            if (error) {
+                debugHistory.error(`Could not load data from pod: \n${error}`)
+                callback(error, null)
+            } else if (data) {
+                try {
+                    var items
+                    JSONErrorReporter {//TODO
+                        items = MemriJSONDecoder
+                            .decode(ItemFamily.constructor, data)
+                    }
+
+                    callback(null, items)
+                } catch (error) {
+                    debugHistory.error(`Could not load data from pod: \n${error}`)
+                    callback(error, null)
+                }
+            }
         })
         
     }
@@ -275,22 +385,20 @@ export class PodAPI {
     /// - Parameters:
     ///   - memriID: The memriID of the data item to remove
     ///   - callback: Function that is called when the task is completed either with a result, or  an error
-    runImport(memriID, callback, success) {
-        
-        this.http(HTTPMethod.PUT, "import/\(memriID)", null, function (error, data) {
+    runImporterRun(uid, callback) {
+        this.http({method: HTTPMethod.PUT, path: `import/${uid}`}, function (error) {
             callback(error, error == null)
-        }, null)
+        })
     }
 
     /// Runs an indexer on the pod
     /// - Parameters:
     ///   - memriID: The memriID of the data item to remove
     ///   - callback: Function that is called when the task is completed either with a result, or  an error
-    runIndex(memriID, callback, success) {
-
-        this.http(HTTPMethod.PUT, "index/\(memriID)", null, function (error, data) {
+    runIndexerRun(uid, callback) {
+        this.http({method: HTTPMethod.PUT, path: `index/${uid}`}, function (error) {
             callback(error, error == null)
-        }, null)
+        })
     }
     
     

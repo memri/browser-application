@@ -4,9 +4,9 @@
 //  Created by Ruben Daniels on 5/15/20.
 //  Copyright © 2020 Memri. All rights reserved.
 //
-const {ExprParser} = require("./ExprParser");
-const {ExprLexer} = require("./ExprLexer");
-const {ExprInterpreter} = require("./ExprInterpreter");
+import {ExprParser} from "./ExprParser";
+import {ExprLexer} from "./ExprLexer";
+import {ExprInterpreter} from "./ExprInterpreter";
 const assert = require("assert");
 
 const ExprInterpreterTests = {
@@ -25,7 +25,27 @@ const ExprInterpreterTests = {
         snippet: "true or false",
         result: true,
     },
-    
+
+    testEqualsTrue: {
+        snippet: "1 = '1'",
+        result: true,
+    },
+
+    testEqualsFalse: {
+        snippet: "1 = 2",
+        result: false,
+    },
+
+    testAndValue: {
+        snippet: "true and 10",
+        result: 10,
+    },
+
+    testOrValue: {
+        snippet: "10 or 0",
+        result: 10,
+    },
+
     testSimpleCondition: {
         snippet: "true ? 'yes' : 'no'",
         result: "yes",
@@ -50,11 +70,11 @@ const ExprInterpreterTests = {
             return true
         },
         callBack: function (result) {
-            try {assert.equal(this.results.length, 3)} catch (e) {console.log(e)}
+            assert.equal(this.results.length, 3)
 
-            try {assert.equal(this.results[0].toString(), "LookupNode([VariableNode(__DEFAULT__), VariableNode(bar)])")} catch (e) {console.log(e)}
-            try {assert.equal(this.results[1].toString(), "LookupNode([VariableNode(bar), VariableNode(foo)])")} catch (e) {console.log(e)}
-            try {assert.equal(this.results[2].toString(), "LookupNode([VariableNode(bar), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(foo)]), rhs: NumberNode(10.0))])])")} catch (e) {console.log(e)}
+            assert.equal(this.results[0].toString(), "LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(bar, type:propertyOrItem, list:single)])")
+            assert.equal(this.results[1].toString(), "LookupNode([VariableNode(bar, type:propertyOrItem, list:single), VariableNode(foo, type:propertyOrItem, list:single)])")
+            assert.equal(this.results[2].toString(), "LookupNode([VariableNode(bar, type:propertyOrItem, list:list), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(foo, type:propertyOrItem, list:single)]), rhs: NumberNode(10.0))])])")
         }
     },
 

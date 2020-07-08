@@ -3,7 +3,7 @@
 //
 //  Copyright © 2020 Memri. All rights reserved.
 //
-const ExprParser = require("./ExprParser");
+import {ExprParseErrors} from "./ExprParser";
 
 class Token {
     type: any;
@@ -248,7 +248,7 @@ export const ExprToken = {
     EOF
 };
 
-var ExprOperator = exports.ExprOperator = {
+export var ExprOperator  = {
     // ConditionStart: "?",
     // ConditionElse: ":",
     // ConditionAND: "AND",
@@ -269,7 +269,7 @@ var ExprOperator = exports.ExprOperator = {
     Division: "Division",
 }
     
-exports.ExprOperatorPrecedence = {
+export var ExprOperatorPrecedence = {
     ConditionStart: 5,
     ConditionElse: 10,
     ConditionAND: 20,
@@ -302,7 +302,10 @@ let keywords = {
     "EQUALS": (i) => { return new ExprToken.Operator(ExprOperator.ConditionEquals, i) }
 }
     
-exports.ExprLexer = class ExprLexer {
+export class ExprLexer {
+    input
+    startInStringMode
+
     constructor(input, startInStringMode) {
         this.input = input
         this.startInStringMode = startInStringMode
@@ -399,14 +402,14 @@ exports.ExprLexer = class ExprLexer {
                     addToken(new ExprToken.CurlyBracketOpen(i))
                     isMode = Mode.idle
                 }
-                else { throw new ExprParser.ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
+                else { throw new ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
                 break
             case "}":
                 if (startInStringMode) {
                     addToken(new ExprToken.CurlyBracketClose(i))
                     isMode = Mode.string
                 }
-                else { throw new ExprParser.ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
+                else { throw new ExprParseErrors.UnexpectedToken(new ExprToken.CurlyBracketOpen(i)) }
                 break
             default:
                 isMode = Mode.keyword
@@ -424,14 +427,11 @@ exports.ExprLexer = class ExprLexer {
             }
         }
         else if (isMode == Mode.string) {
-            throw new ExprParser.ExprParseErrors.MissingQuoteClose
+            throw new ExprParseErrors.MissingQuoteClose
         }
         
         return tokens
     }
 }
-function tokenize(string) {
-    return new exports.ExprLexer(string).tokenize()
-}
-// tokenize("(5 + 10 * 4 - 3 / 10) / 10")
-// console.log(tokenize(`a || "Hello {'{fetchName()}'}"`))
+
+

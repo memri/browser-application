@@ -2,150 +2,13 @@ import {CVU} from "./CVU";
 import {CVUValidator} from "./CVUValidator";
 
 var fs = require("fs");
-const {CVUParser} = require("./CVUParser");
-const {CVULexer} = require("./CVULexer");
+import {CVUParser} from "./CVUParser";
+import {CVULexer} from "./CVULexer";
 
 const assert = require("assert");
 
-const CVUParserTests = {
-
-    testColorDefinition: {
-        snippet:
-`[color = "background"] {
-    dark: #ff0000
-    light: #330000
-}`,
-    },
-    testStyleDefinition: {
-        snippet:
-`[style = my-label-text] {
-    color: highlight
-    border: background 1
-}`,
-        result:
-`[style = "my-label-text"] {
-    color: highlight
-    border: background 1
-}`
-    },
-    testRendererDefinition: {
-        snippet:
-`[renderer = "generalEditor"] {
-    sequence: labels starred other dates
-}`,
-    },
-    testLanguageDefinition: {
-        snippet:
-`[language = "Dutch"] {
-    addtolist: "Voeg toe aan lijst..."
-    sharewith: "Deel met..."
-}`
-    },
-    testNamedViewDefinition: {
-        snippet:
-`.defaultButtonsForItem {
-    editActionButton: toggleEditMode
-}`
-    },
-    testTypeViewDefinition: {
-        snippet:
-`Person {
-    title: "{.firstName}"
-}`
-    },
-    testListViewDefinition: {
-        snippet:
-`Person[] {
-    title: "All People"
-}`
-    },
-    testMultipleDefinitions: {
-        snippet:
-`[color = "background"] {
-    dark: #ff0000
-    light: #330000
-}
-
-[style = "my-label-text"] {
-    border: background 1
-    color: highlight
-}`,
-        result:
-`[color = background] {
-    dark: #ff0000
-    light: #330000
-}
-
-[style = my-label-text] {
-    border: "background" 1
-    color: "highlight"
-}`
-    },
-    testUIElementProperties: {
-        snippet:
-`[renderer = "list"] {
-    VStack {
-        alignment: lkjlkj
-        font: 14
-
-        Text {
-            align: top
-            textAlign: center
-            font: 12 light
-        }
-        Text {
-            maxheight: 500
-            cornerRadius: 10
-            border: #ff0000 1
-        }
-    }
-}`, errors: 1, warnings: 1},
-    testActionProperties: {
-        snippet:
-`Person {
-    viewArguments: { readonly: true }
-
-    navigateItems: [
-        openView {
-            title: 10
-            arguments: {
-                view: {
-                    defaultRenderer: timeline
-
-                    datasource {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-
-                    [renderer = "timeline"] {
-                        timeProperty: dateCreated
-                    }
-                }
-            }
-        }
-        openViewByName {
-            title: "{$starred} {type.plural()}"
-            arguments: {
-                name: "filter-starred"
-                include: "all-{type}"
-            }
-        }
-        openViewByName {
-            title: "{$all} {type.lowercased().plural()}"
-            arguments: {
-                name: "all-{type}"
-            }
-        }
-    ]
-}`,
-        errors: 1, warnings: 0
-    },
-};
-
-function toCVUString(list) {
-    return list.map(x => x.toCVUString(0, "    ")).join("\n\n")
-}
+var testCases = fs.readFileSync("tests/CVUValidatorTests.json", "utf8");
+const CVUValidatorTests = JSON.parse(testCases);
 
 function parse(snippet) {
     let lexer = new CVULexer(snippet);
@@ -157,9 +20,9 @@ function parse(snippet) {
 }
 
 describe("CVUValidator", function() {
-    Object.keys(CVUParserTests).forEach(function(key) {
+    Object.keys(CVUValidatorTests).forEach(function(key) {
         it (key, function() {
-            var test = CVUParserTests[key];
+            var test = CVUValidatorTests[key];
             try {
                 let validator = new CVUValidator()
                 let result = validator.validate(parse(test.snippet));

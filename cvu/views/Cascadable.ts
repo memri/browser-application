@@ -6,11 +6,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {Action} from "ts-loader/dist/interfaces";
 import {Expression} from "../../parsers/expression-parser/Expression";
+import {Action, ActionMultiAction} from "./Action";
 
-class Cascadable {
-    viewArguments;
+export class Cascadable {
+    viewArguments?;
     cascadeStack;
     localCache = [];
     
@@ -160,7 +160,7 @@ class Cascadable {
         return result
     }
     
-    init(cascadeStack, viewArguments) {
+    constructor(cascadeStack, viewArguments?) {
         this.viewArguments = viewArguments
         this.cascadeStack = cascadeStack
     }

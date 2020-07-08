@@ -5,8 +5,10 @@
 //  Copyright © 2015 Matthew Cheok. All rights reserved.
 //  Copyright © 2020 memri. All rights reserved.
 //
-const {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} = require("./ExprLexer");
-const ExprNodes = require("./ExprNodes");
+import {ExprVariableList, ExprNodes} from "./ExprNodes";
+
+import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "./ExprLexer";
+
 
 class ParseErrors {
     type: any;
@@ -107,7 +109,8 @@ export const ExprParseErrors = {
     MissingQuoteClose
 };
 
-class ExprParser {
+export class ExprParser {
+    tokens;
     index = 0;
     lastToken = undefined;
     countStringModeNodes = 0;
@@ -217,7 +220,7 @@ class ExprParser {
             throw new ExprParseErrors.UnexpectedToken(this.lastToken);
         }
 
-        return this.parseIdentifier(new ExprNodes.ExprVariableNode("__DEFAULT__"))
+        return this.parseIdentifier(new ExprNodes.ExprVariableNode("@@DEFAULT@@"))
     }
 
     parseOperator() {
@@ -272,7 +275,7 @@ class ExprParser {
         return exp;
     }
 
-    parseIdentifier(defaultNode) {
+    parseIdentifier(defaultNode?) {
         var sequence = [];
 
         if (defaultNode) {
@@ -291,12 +294,26 @@ class ExprParser {
             if (token.constructor == ExprToken.BracketOpen) {
                 this.popCurrentToken();
 
-                let exp = this.parseLookupExpression();
-                sequence.push(new ExprNodes.ExprLookupNode([exp]));
+                var lastVar = sequence[sequence.length - 1];
+                if (!(lastVar instanceof ExprNodes.ExprVariableNode)) {
+                    throw new ExprParseErrors.ExpectedIdentifier
+                }
 
-                token = this.popCurrentToken();
-                if (token.constructor != ExprToken.BracketClose) {
-                    throw new ExprParseErrors.ExpectedCharacter("]");
+                token = this.peekCurrentToken();
+                if (token.constructor == ExprToken.BracketClose) {
+                    this.popCurrentToken();
+                    lastVar.list = ExprVariableList.list;
+                    sequence[sequence.length - 1] = lastVar
+                } else {
+                    let exp = this.parseLookupExpression();
+                    lastVar.list = ExprVariableList.list;
+                    sequence[sequence.length - 1] = lastVar
+                    sequence.push(new ExprNodes.ExprLookupNode([exp]));
+
+                    token = this.popCurrentToken();
+                    if (token.constructor != ExprToken.BracketClose) {
+                        throw new ExprParseErrors.ExpectedCharacter("]");
+                    }
                 }
             }
             token = this.peekCurrentToken();
@@ -305,15 +322,17 @@ class ExprParser {
             } else {
                 break;
             }
-            token = this.popCurrentToken();
-            if (token.constructor == ExprToken.Identifier) {
-                let name = token.value;
+
+            let nextToken = this.peekCurrentToken();
+            if (nextToken.constructor == ExprToken.Identifier) {
+                let name = nextToken.value;
+                this.popCurrentToken();
                 sequence.push(new ExprNodes.ExprVariableNode(name));
-            }
-            else if (ExprToken.EOF = this.lastToken) {
+            } else if (ExprToken.EOF == nextToken.constructor) {
                 return new ExprNodes.ExprLookupNode(sequence)
-            }
-            else {
+            } else if (sequence.length == 1 && sequence[0] instanceof ExprNodes.ExprVariableNode) {
+                break
+            } else {
                 throw new ExprParseErrors.ExpectedIdentifier;
             }
         }
@@ -419,7 +438,7 @@ class ExprParser {
         return new ExprNodes.ExprConditionNode(conditionNode, trueExp, falseExp);
     }
 
-    parseStringMode(firstNode) {
+    parseStringMode(firstNode?) {
         ++this.countStringModeNodes;
         if (this.countStringModeNodes > 1) {
             throw new ExprParseErrors.UnexpectedToken(this.lastToken);
@@ -463,4 +482,4 @@ class ExprParser {
 // let result =  parser.parse();
 
 
-exports.ExprParser = ExprParser
+//exports.ExprParser = ExprParser

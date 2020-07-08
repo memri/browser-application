@@ -1,0 +1,38 @@
+{
+  "testColorDefinition": {
+    "snippet": "[color = \"background\"] {\n    dark: #ff0000\n    light: #330000\n}"
+  },
+  "testStyleDefinition": {
+    "snippet": "[style = my-label-text] {\n    color: highlight\n    border: background 1\n}",
+    "result": "[style = \"my-label-text\"] {\n    color: highlight\n    border: background 1\n}"
+  },
+  "testRendererDefinition": {
+    "snippet": "[renderer = \"generalEditor\"] {\n    sequence: labels starred other dates\n}"
+  },
+  "testLanguageDefinition": {
+    "snippet": "[language = \"Dutch\"] {\n    addtolist: \"Voeg toe aan lijst...\"\n    sharewith: \"Deel met...\"\n}"
+  },
+  "testNamedViewDefinition": {
+    "snippet": ".defaultButtonsForItem {\n    editActionButton: toggleEditMode\n}"
+  },
+  "testTypeViewDefinition": {
+    "snippet": "Person {\n    title: \"{.firstName}\"\n}"
+  },
+  "testListViewDefinition": {
+    "snippet": "Person[] {\n    title: \"All People\"\n}"
+  },
+  "testMultipleDefinitions": {
+    "snippet": "[color = \"background\"] {\n    dark: #ff0000\n    light: #330000\n}\n\n[style = \"my-label-text\"] {\n    border: background 1\n    color: highlight\n}",
+    "result": "[color = background] {\n    dark: #ff0000\n    light: #330000\n}\n\n[style = my-label-text] {\n    border: \"background\" 1\n    color: \"highlight\"\n}"
+  },
+  "testUIElementProperties": {
+    "snippet": "[renderer = \"list\"] {\n    VStack {\n        alignment: lkjlkj\n        font: 14\n\n        Text {\n            align: top\n            textAlign: center\n            font: 12 light\n        }\n        Text {\n            maxheight: 500\n            cornerRadius: 10\n            border: #ff0000 1\n        }\n    }\n}",
+    "errors": 1,
+    "warnings": 1
+  },
+  "testActionProperties": {
+    "snippet": "Person {\n    viewArguments: { readonly: true }\n\n    navigateItems: [\n        openView {\n            title: 10\n            arguments: {\n                view: {\n                    defaultRenderer: timeline\n\n                    datasource {\n                        query: \"AuditItem appliesTo:{.id}\"\n                        sortProperty: dateCreated\n                        sortAscending: true\n                    }\n\n                    [renderer = \"timeline\"] {\n                        timeProperty: dateCreated\n                    }\n                }\n            }\n        }\n        openViewByName {\n            title: \"{$starred} {type.plural()}\"\n            arguments: {\n                name: \"filter-starred\"\n                include: \"all-{type}\"\n            }\n        }\n        openViewByName {\n            title: \"{$all} {type.lowercased().plural()}\"\n            arguments: {\n                name: \"all-{type}\"\n            }\n        }\n    ]\n}",
+    "errors": 1,
+    "warnings": 0
+  }
+}

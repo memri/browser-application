@@ -6,6 +6,11 @@
 
 
 // Potential solution: https://stackoverflow.com/questions/42746981/list-all-subclasses-of-one-class
+import {Action} from "./Action";
+import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {UIElement, UIElementFamily} from "./UIElement";
+import {Cascadable} from "./Cascadable";
+
 var allRenderers = null
 
 class Renderers {
@@ -15,15 +20,7 @@ class Renderers {
 
     register(name, title, order, icon =  "", view, renderConfigType, canDisplayResults) {
 
-        // var context = new FilterPanelRendererButton(context, name, order, title, icon, canDisplayResults)//TODO
-
-        /*this.all[name] = { context in FilterPanelRendererButton(context,
-            name: name,
-            order: order,
-            title: title,
-            icon: icon,
-            canDisplayResults: canDisplayResults
-        ) }*/
+        this.all[name] = new FilterPanelRendererButton(context, name, order, title, icon, canDisplayResults) //TODO: confusing
         this.allViews[name] = view
         this.allConfigTypes[name] = renderConfigType
     }
@@ -55,7 +52,7 @@ class Renderers {
     }
 }
 
-class FilterPanelRendererButton extends Action, ActionExec {
+class FilterPanelRendererButton extends Action/*, ActionExec*/ {
     defaults = {
         activeColor: new Color("#6aa84f"),
         activeBackgroundColor: new Color("#eee"),
@@ -79,18 +76,18 @@ class FilterPanelRendererButton extends Action, ActionExec {
     }*/
     
     isActive() {
-        return this.context.cascadingView.activeRenderer == this.rendererName
+        return this.context.cascadingView?.activeRenderer == this.rendererName
     }
     
     exec(argumentsJs) {
         this.context.cascadingView.activeRenderer = this.rendererName
-        this.context.scheduleUIUpdate(){ _ in true }//TODO // scheduleCascadingViewUpdate() // TODO why are userState not kept?
+        this.context.scheduleUIUpdate()/*{ _ in true }*///TODO // scheduleCascadingViewUpdate() // TODO why are userState not kept?
     }
 }
 
 class RenderGroup {
     options = {}
-    body = null
+    body: UIElement = null
     
     constructor(dict) {
         if (Array.isArray(dict["children"]) && dict["children"][0] instanceof UIElement) this.body = dict["children"][0]
@@ -121,7 +118,6 @@ interface CascadingRendererDefaults {
 class CascadingRenderConfig extends Cascadable {
     
     constructor(cascadeStack = [], viewArguments) {
-        viewArguments = viewArguments || new ViewArguments();
         super(cascadeStack, viewArguments)
     }
     
@@ -146,7 +142,7 @@ class CascadingRenderConfig extends Cascadable {
         else if (group == "*" && this.cascadeProperty("*") == null) {
             let list = this.cascadeProperty("children")
             if (list) {
-                var dict = {children: list}
+                var dict = {"children": list}
                 let renderGroup = new RenderGroup(dict)
                 this.localCache[group] = renderGroup
                 return renderGroup
@@ -167,7 +163,7 @@ class CascadingRenderConfig extends Cascadable {
  
     render(item, group =  "*", argumentsJs =  null) {
         
-        function doRender(renderGroup) {
+        function doRender(renderGroup, item) {
             let body = renderGroup.body
             if (body) {
                 let s = this;//TODO
@@ -177,15 +173,15 @@ class CascadingRenderConfig extends Cascadable {
                 
                 return new UIElementView(body, item, argumentsJs ?? viewArguments)
             }
-            return new UIElementView(new UIElement(), item)
+            return new UIElementView(new UIElement(UIElementFamily.Empty), item)
         }
 
         let renderGroup = this.getRenderGroup(group)
-        if (renderGroup) {
-            return doRender(renderGroup)
+        if (item && renderGroup) {
+            return doRender(renderGroup, item)
         }
         else {
-            return new UIElementView(new UIElement(), item)
+            return new UIElementView(new UIElement(UIElementFamily.Empty), item ?? new Item())
         }
     }
 }

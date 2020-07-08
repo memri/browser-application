@@ -5,9 +5,11 @@
 //
 
 
-class Colors {
+import {Color} from "../../parsers/cvu-parser/CVUParser";
+
+export class Colors {
     byName(name) {
         return new Color("#ff0000")
     }
 }
-var globalColors = new Colors()
+export var globalColors = new Colors()

@@ -6,6 +6,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+import {Cascadable} from "./Cascadable";
+import {UserState, ViewArguments} from "./UserState";
+import {CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {Expression} from "../../parsers/expression-parser/Expression";
+
 class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
     /// The name of the cascading view
@@ -31,26 +36,40 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         else {
             // Missing datasource on sessionview, that should never happen (I think)
             // TODO ERROR REPORTING
-
+            //debugHistory.error("Unexpected state")
             return new CascadingDatasource([], new ViewArguments(), new Datasource())
         }
     }
 
     get userState() {
-        return this.sessionView.userState ?? new UserState(function (args) {
-            /*realmWriteIfAvailable(this.sessionView.realm, function (args) {
-                this.sessionView.userState = args
-            })*/
-        })
+        let args = this.sessionView.userState;
+        if (args) {
+            return args
+        }
+        try {
+            let args = new Cache.createItem(UserState.self, {});//TODO
+            this.sessionView.set("userState", args)
+            return args
+        } catch {
+            //debugHistory.error("Exception: Unable to create user state for session view: \(error)")
+            return null
+        }
     }
 
     // TODO let this cascade when the use case for it arrises
     get viewArguments() {
-        return this.sessionView.viewArguments ?? new ViewArguments(function (args) {
-            /*realmWriteIfAvailable(this.sessionView.realm, function (args) {
-                this.sessionView.userState = args
-            })*/
-        })
+        let args = this.sessionView.viewArguments;
+        if (args) {
+            return args
+        }
+        try {
+            let args = new Cache.createItem(ViewArguments.self, {});//TODO
+            this.sessionView.set("viewArguments", args)
+            return args
+        } catch {
+            //debugHistory.error("Exception: Unable to create arguments for session view: \(error)")
+            return null
+        }
         // cascadeProperty("viewArguments", )
     }
 
@@ -64,7 +83,7 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         this.localCache["resultSet"] = resultSet;
 
         // Filter the results
-        let ft = this.userState("filterText") ?? "";
+        let ft = this.userState?.get("filterText") ?? "";
         if (resultSet.filterText != ft) {
             this.filterText = ft;
         }
@@ -87,8 +106,8 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
     }
 
     set activeRenderer(value) {
-        this.localCache.removeValue(value) // Remove renderConfig reference TODO
-        this.userState.set("activeRenderer", value) //TODO:??
+        this.localCache[value] = undefined; // Remove renderConfig reference TODO
+        this.userState?.set("activeRenderer", value) //TODO:??
     }
 
     get backTitle() { return this.cascadeProperty("backTitle") }
@@ -124,9 +143,8 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
             renderDef.push(this.context?.views
                 .fetchDefinitions(/*String(*/name/*)*/, "renderer") ?? [])
         }
-
-        for (let def of renderDef) {
-            try {
+        try {
+            for (let def of renderDef) {
                 let parsedRenderDef = this.context?.views.parseDefinition(def)
                 if (parsedRenderDef instanceof CVUParsedRendererDefinition) {
                     if (parsedRenderDef.domain == "user") {
@@ -138,35 +156,34 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
                             }
                         }
                         stack.splice(insertPoint, 0, parsedRenderDef)
-                    }
-                    else {
+                    } else {
                         stack.push(parsedRenderDef)
                     }
-                }
-                else {
+                } else {
                     // TODO Error logging
                     // debugHistory.error("Exception: Unable to cascade render config")
                 }
             }
-            catch (error) {
-                // TODO Error logging
-                debugHistory.error(`${error}`);
+
+            let RenderConfigType = this.allRenderers.allConfigTypes[this.activeRenderer]
+            if (this.allRenderers && RenderConfigType) {
+                let renderConfig = RenderConfigType.init(stack, new ViewArguments.clone(this.viewArguments, false)) //TODO:?
+                // Not actively preventing conflicts in namespace - assuming chance to be low
+                this.localCache[this.activeRenderer] = renderConfig;
+                return renderConfig
+            } else {
+                // TODO Error Logging
+                throw "Exception: Unable to cascade render config"
             }
+
+        } catch (error) {
+            // TODO Error logging
+            debugHistory.error(`${error}`);
         }
 
-        let RenderConfigType = this.allRenderers.allConfigTypes[this.activeRenderer]
-        if (this.allRenderers && RenderConfigType) {
-            let renderConfig = RenderConfigType.init(stack, this.viewArguments)//TODO:?
-            // Not actively preventing conflicts in namespace - assuming chance to be low
-            this.localCache[this.activeRenderer] = renderConfig;
-            return renderConfig
-        }
-        else {
-            // TODO Error Logging
-            // debugHistory.error("Exception: Unable to cascade render config")
-            return new CascadingRenderConfig([], ViewArguments())//TODO
-        }
+        return new CascadingRenderConfig([])//TODO
     }
+
 
     _emptyResultTextTemp = null;
 
@@ -181,7 +198,7 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
     _titleTemp = null;
     get title() {
-        return this._titleTemp ?? this.cascadeProperty("title", String.constructor)?.nilIfBlank  ?? this.cascadeProperty("titleIfNil") ?? ""//TODO
+        return this._titleTemp ?? this.cascadeProperty("title"/*, String.constructor*/) ?? ""//TODO
     }
 
     set title(newTitle) {
@@ -200,19 +217,19 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
     }
 
     get filterText() {
-        return this.userState.get("filterText") ?? ""//TODO:?
+        return this.userState?.get("filterText") ?? ""//TODO:?
     }
 
     set filterText(newFilter) {
         // Don't update the filter when it's already set
         if (newFilter.length > 0 && this._titleTemp != null &&
-            this.userState.get("filterText") == newFilter) {
+            this.userState?.get("filterText") == newFilter) {
             return
         }
 
         // Store the new value
-        if ((this.userState.get("filterText") ?? "") != newFilter) {
-            this.userState.set("filterText", newFilter)
+        if ((this.userState?.get("filterText") ?? "") != newFilter) {
+            this.userState?.set("filterText", newFilter)
         }
 
         // If this is a multi item result set
@@ -229,7 +246,7 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
             console.log("Warn: Filtering for single items not Implemented Yet!")
         }
 
-        if (this.userState.get("filterText") == "") {
+        if (this.userState?.get("filterText") == "") {
             this.title = ""
             this.subtitle = ""
             this.emptyResultText = ""
@@ -243,22 +260,20 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
             // Temporarily hide the subtitle
             // subtitle = " " // TODO how to clear the subtitle ??
 
-            this.emptyResultText = `No results found using '${this.userState.get("filterText") ?? ""}'`
+            this.emptyResultText = `No results found using '${this.userState?.get("filterText") ?? ""}'`
         }
     }
 
     get searchMatchText() {
-        return this.userState.get("searchMatchText") ?? ""
+        return this.userState?.get("searchMatchText") ?? ""
     }
 
     set searchMatchText(newValue) {
-        this.userState.set("searchMatchText", newValue)
+        this.userState?.set("searchMatchText", newValue)
     }
 
-    constructor(sessionView,
-                cascadeStack
-    ) {
-        super(cascadeStack, ViewArguments())
+    constructor(sessionView, cascadeStack) {
+        super(cascadeStack)
         this.sessionView = sessionView
     }
 
@@ -311,8 +326,7 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         var result = source;
         let expr = source;
         if (expr instanceof Expression) {
-            let args = viewArguments ?? new ViewArguments()
-            result = expr.execute(args);
+            result = expr.execute(viewArguments);
         }
         let viewName = result;
         if (typeof viewName == "string") {
@@ -386,8 +400,11 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
                         if (inheritedView) {
                             let args = sessionView.viewArguments
                             let view = self.inherit(inheritedView, args, context, sessionView)
-
-                            parse(view, domain)
+                            if (view) {
+                                parse(view, domain)
+                            } else {
+                                throw `Exception: Unable to inherit view from ${inheritedView}`
+                            }
                         }
                     }
 
@@ -407,7 +424,10 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         // Find views based on datatype
         for (var domain of ["user", "session", "defaults"]) {
             if (domain == "session") {
-                parse(sessionView.viewDefinition, domain)
+                let viewDef = sessionView.viewDefinition;
+                if (viewDef) {
+                    parse(viewDef, domain)
+                }
                 continue
             }
 
@@ -420,7 +440,6 @@ class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
                 else if (domain != "user") {
                     // TODO Warn logging
                     //debugHistory.warn(`Could not find definition for '${needle}' in domain '${key}'`)
-                    console.log(`Could not find definition for '${needle}' in domain '${domain}'`)
                 }
             }
         }

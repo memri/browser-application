@@ -205,6 +205,7 @@ import {CVUParsedSessionDefinition, CVUParsedViewDefinition} from "../../parsers
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {ViewArguments} from "./UserState";
 import {Item} from "../../model/DataItem";
+import {realmWriteIfAvailable} from "../../gui/util";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -320,7 +321,7 @@ export class Action/* : HashableClass, CVUToString*/ {
                 let value = expr.execForReturnType(viewArguments);
                 return value
             } catch (error) {
-                console.log(`ACTION ERROR: ${error}`);
+                //debugHistory.error("Could not execute Action expression: \(error)")
                 // TODO Refactor: Error reporting
                 return null;
             }
@@ -441,8 +442,8 @@ export enum ActionFamily {
     unlink = "unlink",
     multiAction = "multiAction",
     noop = "noop",
-    runIndexerInstance = "runIndexerInstance",
-    runImporterInstance = "runImporterInstance",
+    runIndexerRun = "runIndexerRun",
+    runImporterRun = "runImporterRun",
     setProperty = "setProperty"
 
     /*func getType() -> Action.Type {
@@ -501,8 +502,8 @@ export var getActionType = function (name) {
         case ActionFamily.link: return ActionLink
         case ActionFamily.unlink: return ActionUnlink
         case ActionFamily.multiAction: return ActionMultiAction
-        case ActionFamily.runIndexerInstance: return ActionRunIndexerInstance
-        case ActionFamily.runImporterInstance: return ActionRunImporterInstance
+        case ActionFamily.runIndexerRun: return ActionRunIndexerInstance
+        case ActionFamily.runImporterRun: return ActionRunImporterInstance
         case ActionFamily.setProperty: return ActionSetProperty
         case ActionFamily.noop:
         default: return ActionNoop
@@ -562,7 +563,7 @@ protocol ActionExec {
 }
 */
 
-class ActionBack extends Action {
+export class ActionBack extends Action {
     defaultValues = {
         "icon": "chevron.left",
         "opensView": true,
@@ -575,16 +576,19 @@ class ActionBack extends Action {
         super(context, "back", argumentsJs, values)
     }
 
-    exec(argumentsJs) {
+    exec() {
         let session = this.context.currentSession;
-
-        if (session.currentViewIndex == 0) {
-            console.log("Warn: Can't go back. Already at earliest view in session");
+        if (session) {
+            if (session.currentViewIndex == 0) {
+                console.log("Warn: Can't go back. Already at earliest view in session");
+            } else {
+                realmWriteIfAvailable(this.context.realm, function () {
+                    session.currentViewIndex -= 1
+                });//TODO;
+                this.context.scheduleCascadingViewUpdate();
+            }
         } else {
-            /*realmWriteIfAvailable(this.context.realm, function () {
-                session.currentViewIndex -= 1
-            });//TODO;*/
-            this.context.scheduleCascadingViewUpdate();
+            // TODO: Error Handling?
         }
     }
 
@@ -593,7 +597,7 @@ class ActionBack extends Action {
     }*/
 }
 
-class ActionAddItem extends Action {
+export class ActionAddItem extends Action {
     defaultValues = {
         "icon": "plus",
         //"argumentTypes": {"template": ItemFamily.constructor},//TODO
@@ -610,13 +614,11 @@ class ActionAddItem extends Action {
         let dataItem = argumentsJs["template"]
         if (dataItem instanceof Item) {//TODO
             // Copy template
-            let copy = this.context.cache.duplicate(dataItem);
-
-            // Add the new item to the cache
-            this.context.cache.addToCache(copy);
+            //let copy = this.context.cache.duplicate(dataItem);
+            //#warning("Test that this creates a unique node")
 
             // Open view with the now managed copy
-            new ActionOpenView(this.context).exec({"dataItem":copy});//TODO:
+            new ActionOpenView(this.context).exec({"dataItem": dataItem});//TODO:
         } else {
             // TODO Error handling
             // TODO User handling
@@ -630,7 +632,7 @@ class ActionAddItem extends Action {
 }
 
 
-class ActionOpenView extends Action {
+export class ActionOpenView extends Action {
     defaultValues = {
         //"argumentTypes": {"view": SessionView.constructor, "viewArguments": ViewArguments.constructor},//TODO
         "withAnimation": false,
@@ -643,24 +645,27 @@ class ActionOpenView extends Action {
 
     openView(context: MemriContext, view: SessionView, argumentsJs = null) {
         let session = context.currentSession;
-
-        // Merge arguments into view
-        let dict = argumentsJs?.asDict();
-        if (dict) {
-            let viewArguments = view.viewArguments;
-            if (viewArguments) {
-                 view.viewArguments = ViewArguments(Object.assign(viewArguments.asDict(), dict)) //TODO:
+        if (session) {
+            // Merge arguments into view
+            let dict = argumentsJs?.asDict();
+            if (dict) {
+                let viewArguments = view.viewArguments;
+                if (viewArguments) {
+                    view.set("viewArguments", new ViewArguments.fromDict(Object.assign(viewArguments.asDict(), dict))) //TODO:
+                }
             }
+
+            // Add view to session
+            session.setCurrentView(view)
+
+            // Set accessed date to now
+            view.access();//TODO?
+
+            // Recompute view
+            context.updateCascadingView() // scheduleCascadingViewUpdate()
+        } else {
+            // TODO: Error Handling
         }
-
-        // Add view to session
-        session.setCurrentView(view)
-
-        // Set accessed date to now
-        view.access();//TODO?
-
-        // Recompute view
-        context.updateCascadingView() // scheduleCascadingViewUpdate()
     }
 
     /*openView(context: MemriContext, item: DataItem, argumentsJs = null) {
@@ -705,7 +710,7 @@ class ActionOpenView extends Action {
     }*/
 }
 
-class ActionOpenViewByName extends Action {
+export class ActionOpenViewByName extends Action {
     defaultValues = {
         //"argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO
         "withAnimation": false,
@@ -741,7 +746,7 @@ class ActionOpenViewByName extends Action {
     }*/
 }
 
-class ActionToggleEditMode extends Action {
+export class ActionToggleEditMode extends Action {
     defaultValues = {
         "icon": "pencil",
         "binding": new Expression("currentSession.editMode"),//TODO:
@@ -763,7 +768,7 @@ class ActionToggleEditMode extends Action {
     }*/
 }
 
-class ActionToggleFilterPanel extends Action {
+export class ActionToggleFilterPanel extends Action {
     defaultValues = {
         "icon": "rhombus.fill",
         "binding": new Expression("currentSession.showFilterPanel"),//TODO
@@ -783,7 +788,7 @@ class ActionToggleFilterPanel extends Action {
             execWithoutThrow { try ActionToggleFilterPanel(context).exec(argumentsJs) }
         }*/
 }
-class ActionStar extends Action {
+export class ActionStar extends Action {
     defaultValues = {
         "icon": "star.fill",
         "binding": new Expression("dataItem.starred")//TODO
@@ -821,7 +826,7 @@ class ActionStar extends Action {
     }*/
 }
 
-class ActionShowStarred extends Action {
+export class ActionShowStarred extends Action {
     defaultValues = {
         "icon": "star.fill",
         "binding": new Expression("view.userState.showStarred"),//TODO
@@ -856,7 +861,7 @@ class ActionShowStarred extends Action {
     }*/
 }
 
-class ActionShowContextPane extends Action {
+export class ActionShowContextPane extends Action {
     defaultValues = {
         "icon": "ellipsis",
         "binding": new Expression("currentSession.showContextPane")//TODO
@@ -876,7 +881,7 @@ class ActionShowContextPane extends Action {
     }*/
 }
 
-class ActionShowNavigation extends Action {
+export class ActionShowNavigation extends Action {
     defaultValues = {
         "icon": "line.horizontal.3",
         "binding": new Expression("context.showNavigation"),
@@ -896,7 +901,7 @@ class ActionShowNavigation extends Action {
         execWithoutThrow { try ActionShowNavigation.exec(context, argumentsJs) }
     }*/
 }
-class ActionSchedule extends Action {
+export class ActionSchedule extends Action {
     defaultValues = {
         "icon": "alarm"
     };
@@ -914,7 +919,7 @@ class ActionSchedule extends Action {
     }*/
 }
 
-class ActionShowSessionSwitcher extends Action {
+export class ActionShowSessionSwitcher extends Action {
     defaultValues = {
         "icon": "ellipsis",
         "binding": new Expression("context.showSessionSwitcher"),
@@ -933,7 +938,7 @@ class ActionShowSessionSwitcher extends Action {
         // Do Nothing
     }*/
 }
-class ActionForward extends Action {
+export class ActionForward extends Action {
     defaultValues = {
         "opensView": true,
     };
@@ -942,15 +947,17 @@ class ActionForward extends Action {
         super(context, "forward", argumentsJs, values)
     }
 
-    exec(argumentsJs) {
-        let session = this.context.currentSession
-
-        if (session.currentViewIndex == session.views.count - 1) {
-            console.log("Warn: Can't go forward. Already at last view in session")
-        }
-        else {
-            //realmWriteIfAvailable(this.context.cache.realm, function () {session.currentViewIndex += 1 });
-            this.context.scheduleCascadingViewUpdate()
+    exec() {
+        let session = this.context.currentSession;
+        if (session) {
+            if (session.currentViewIndex == (session.views?.length ?? 0) - 1) {
+                console.log("Warn: Can't go forward. Already at last view in session")
+            } else {
+                realmWriteIfAvailable(this.context.cache.realm, function () {session.currentViewIndex += 1 });
+                this.context.scheduleCascadingViewUpdate()
+            }
+        } else {
+            // TODO: Error handling?
         }
     }
 
@@ -959,7 +966,7 @@ class ActionForward extends Action {
     }*/
 }
 
-class ActionForwardToFront extends Action {
+export class ActionForwardToFront extends Action {
     defaultValues = {
         "opensView": true,
     }
@@ -970,10 +977,15 @@ class ActionForwardToFront extends Action {
 
     exec(argumentsJs) {
         let session = this.context.currentSession;
-        /*realmWriteIfAvailable(this.context.cache.realm, function () {
-            session.currentViewIndex = session.views.count - 1
-        });*/
-        this.context.scheduleCascadingViewUpdate()
+        if (session) {
+            realmWriteIfAvailable(this.context.cache.realm, function () {
+            session.currentViewIndex = (session.views?.length ?? 0) - 1
+        });
+            this.context.scheduleCascadingViewUpdate()
+        } else {
+            // TODO: Error handling
+        }
+
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
@@ -981,7 +993,7 @@ class ActionForwardToFront extends Action {
     }*/
 }
 
-class ActionBackAsSession extends Action {
+export class ActionBackAsSession extends Action {
     defaultValues = {
         "opensView": true,
         "withAnimation": false
@@ -991,25 +1003,25 @@ class ActionBackAsSession extends Action {
         super(context, "backAsSession", argumentsJs, values)
     }
 
-    exec(argumentsJs) {
+    exec() {
         let session = this.context.currentSession;
-
-        if (session.currentViewIndex == 0) {
-            throw "Warn: Can't go back. Already at earliest view in session"
-        }
-        else {
-            let duplicateSession = this.context.cache.duplicate(session);//TODO:
-            if (duplicateSession instanceof Session) {
-                /*realmWriteIfAvailable(this.context.cache.realm, function (){
-                duplicateSession.currentViewIndex -= 1
-            });
-*/
-            new ActionOpenSession(this.context).exec({"session": duplicateSession});
-        }
-        else {
-                // TODO Error handling
-                throw new ActionError.Warning("Cannot execute ActionBackAsSession, duplicating currentSession resulted in a different type")
+        if (session) {
+            if (session.currentViewIndex == 0) {
+                throw "Warn: Can't go back. Already at earliest view in session"
+            } else {
+                let duplicateSession = this.context.cache.duplicate(session);//TODO:
+                if (duplicateSession instanceof Session) {
+                    realmWriteIfAvailable(this.context.cache.realm, function (){
+                    duplicateSession.currentViewIndex -= 1
+                });
+                    new ActionOpenSession(this.context).exec({"session": duplicateSession});
+                } else {
+                    // TODO Error handling
+                    throw new ActionError.Warning("Cannot execute ActionBackAsSession, duplicating currentSession resulted in a different type")
+                }
             }
+        } else {
+            // TODO: Error handling
         }
     }
 
@@ -1018,7 +1030,7 @@ class ActionBackAsSession extends Action {
     }*/
 }
 
-class ActionOpenSession extends Action {
+export class ActionOpenSession extends Action {
     defaultValues = {
         //"argumentTypes": {"session": Session.constructor, "viewArguments": ViewArguments.constructor},//TODO:
         "opensView": true,
@@ -1029,12 +1041,14 @@ class ActionOpenSession extends Action {
         super(context, "openSession", argumentsJs, values)
     }
 
-    openSession(context: MemriContext, session:Session) {
+    openSession(context: MemriContext, session: Session) {
         let sessions = context.sessions // TODO generalize
-
-        // Add view to session and set it as current
-        sessions.setCurrentSession(session)
-
+        if (sessions) {
+            // Add view to session and set it as current
+            sessions.setCurrentSession(session)
+        } else {
+            // TODO: Error handling
+        }
         // Recompute view
         context.scheduleCascadingViewUpdate()
     }
@@ -1079,7 +1093,7 @@ class ActionOpenSession extends Action {
 }
 
 // TODO How to deal with viewArguments in sessions
-class ActionOpenSessionByName extends Action {
+export class ActionOpenSessionByName extends Action {
     defaultValues = {
         //"argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO:
         "opensView": true,
@@ -1104,34 +1118,23 @@ class ActionOpenSessionByName extends Action {
 
             // See if this is a session, if so take the last view
             let def = fromDB;
-            if (def !instanceof CVUParsedSessionDefinition) {
+            if (!(def instanceof CVUParsedSessionDefinition)) {
                 // TODO Error handling
                 throw `Exception: Cannot open session with name ${name} " +
-                "cannot be casted as CVUParsedSessionDefinition`
+                "cannot be cast as CVUParsedSessionDefinition`
             }
 
-            let session = new Session();
-            let viewDefs = def["viewDefinitions"];
-            if (!(Array.isArray(viewDefs) && viewDefs[0] instanceof CVUParsedViewDefinition)) {
+            let session = new Session();/*new Cache.createItem(Session.self)*/ //TODO:
+            let parsedDefs = def["viewDefinitions"];
+            if (!(Array.isArray(parsedDefs) && parsedDefs.length > 0 && parsedDefs[0] instanceof CVUParsedViewDefinition)) {
                 throw `Exception: Session ${name} has no views.`
             }
 
-            var list: SessionView[] = [];
-
-            for (let viewDef of viewDefs) {
-                list.push(new SessionView({
-                    "viewDefinition": new CVUStoredDefinition(
-                        {"definition": viewDef.toCVUString(0, "    ")}
-                    ),
-                    "viewArguments": viewArguments
-                }))
+            for (let parsed in parsedDefs) {
+                let view = new SessionView().fromCVUDefinition(
+                    parsed, viewArguments)
+                session.link(view, "views"); //TODO
             }
-
-            if (list.length == 0) {
-                throw `Exception: Session ${name} has no views.`
-            }
-
-            session["views"] = list;
 
             // Open the view
             new ActionOpenSession(this.context).openSession(this.context, session);
@@ -1147,7 +1150,7 @@ class ActionOpenSessionByName extends Action {
     }*/
 }
 
-class ActionDelete extends Action {
+export class ActionDelete extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
         super(context, "delete", argumentsJs, values)
     }
@@ -1164,7 +1167,7 @@ class ActionDelete extends Action {
 //                items.append(item)
 //            }
 //        }
-        let selection: Item[] = this.context.cascadingView.userState.get("selection");
+        let selection: Item[] = this.context.cascadingView?.userState?.get("selection");
         if (selection && selection.length > 0) {
             this.context.cache.delete(selection);
             this.context.scheduleCascadingViewUpdate(true);
@@ -1184,13 +1187,13 @@ class ActionDelete extends Action {
     }*/
 }
 
-class ActionDuplicate extends Action {
+export class ActionDuplicate extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
         super(context, "duplicate", argumentsJs, values);
     }
 
     exec(argumentsJs) {
-        let selection: Item[] = this.context.cascadingView.userState.get("selection");
+        let selection: Item[] = this.context.cascadingView?.userState?.get("selection");
         if (selection && selection.length > 0) {
             selection.forEach(function (item) {
                 new ActionAddItem(this.context).exec({"dataItem": item})
@@ -1211,18 +1214,25 @@ class ActionDuplicate extends Action {
     }*/
 }
 
-class ActionRunImporterInstance extends Action {
+export class ActionRunImporterRun extends Action {
+    defaultValues = {
+        "argumentTypes": ["importerRun"],
+    }
+
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "runImporterInstance", argumentsJs, values)
+        super(context, "runImporterRun", argumentsJs, values)
     }
 
     exec(argumentsJs) {
         // TODO: parse options
-        let importerInstance = argumentsJs["importerInstance"];
-        if (importerInstance instanceof ImporterInstance) {
-            let cachedImporterInstance = this.context.cache.addToCache(importerInstance);
+        let run = argumentsJs["importerRun"];
+        if (run instanceof ImporterRun) {
+            let uid = run.uid.value;
+            if (!uid) {
+                throw "Uninitialized import run"
+            }
 
-            this.context.podAPI.runImport(cachedImporterInstance.uid, function (error, success) {
+            this.context.podAPI.runImporterRun(uid, function (error) {
                 if (error) {
                     console.log(`Cannot execute actionImport: ${error}`);
                 }
@@ -1236,80 +1246,81 @@ class ActionRunImporterInstance extends Action {
 }
 
 
-class ActionRunIndexerInstance extends Action {
+export class ActionRunIndexerRun extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "runIndexerInstance", argumentsJs, values)
+        super(context, "runIndexerRun", argumentsJs, values)
     }
 
     exec(argumentsJs) {
         // TODO: parse options
-        let indexerInstance = argumentsJs["indexerInstance"]
-        if (indexerInstance !instanceof IndexerInstance) {
-            throw "Error, no memriID"
+        let run = argumentsJs["indexerRun"]
+        if (!(run instanceof IndexerRun)) {
+            throw "Exception: no indexer run passed"
         }
-        if (indexerInstance.indexer?.runDestination == "ios") {
-            this.runLocal(indexerInstance)
+        if (run.indexer?.runDestination == "ios") {
+            this.runLocal(run)
         } else {
             // First make sure the indexer exists
 
-            //            print("starting IndexerInstance with memrID \(memriID)")
-            indexerInstance.set("progress", 0)
+            //            print("starting IndexerRun with memrID \(memriID)")
+            run.set("progress", 0)
             this.context.scheduleUIUpdate()
             // TODO: indexerInstance items should have been automatically created already by now
 
-            function getAndrunIndexerInstance(tries) {
+            function getAndRunIndexerRun(tries) {
                 if (tries > 20) {
                     return
                 }
-                let uid = indexerInstance.get("uid");
+                let uid = run.get("uid");
                 if (uid == 0 || uid == null) {
                    /* new DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        getAndrunIndexerInstance(tries + 1)
+                        getAndRunIndexerRun(tries + 1)
                     }*///TODO:
                 } else {
-                    this.runIndexerInstance(indexerInstance, uid!)
+                    this.runIndexerRun(run, uid!) //TODO:
                 }
             }
-            getAndrunIndexerInstance(0)
+            getAndRunIndexerRun(0)
         }
     }
 
-    runIndexerInstance(indexerInstance: IndexerInstance, uid: number) {
+    runIndexerRun(run: IndexerRun, uid: number) {
     let start = new Date();
 
     /*Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-    let timePassed = Int(Date().timeIntervalSince(start))
-        print("polling indexerInstance")
-        self.context.podAPI.get(uid) { error, data in
-            if let updatedInstance = data as? IndexerInstance {
-                if let progress: Int = updatedInstance.get("progress") {
-                if timePassed > 5 || progress >= 100 {
-                    timer.invalidate()
-                } else {
-                    print("setting random progress")
-                    let randomProgress = Int.random(in: 1 ... 20)
-                    indexerInstance.set("progress", randomProgress)
-                    self.context.scheduleUIUpdate()
+			let timePassed = Int(Date().timeIntervalSince(start))
+			print("polling indexerInstance")
+			self.context.podAPI.get(uid) { error, data in
+				if let updatedInstance = data as? IndexerRun {
+					if let progress: Int = updatedInstance.get("progress") {
+						if timePassed > 5 || progress >= 100 {
+							timer.invalidate()
+						} else {
+							print("setting random progress")
+							let randomProgress = Int.random(in: 1 ... 20)
+							run.set("progress", randomProgress)
+							self.context.scheduleUIUpdate()
 
-                    let p: Int? = indexerInstance.get("progress")
-                        print(p)
-                }
-            } else {
-                print("ERROR, could not get progress \(error)")
-                timer.invalidate()
-            }
-        } else {
-                print("Error, no instance")
-                timer.invalidate()
-            }
-        }
-    }*/ //TODO:
+							let p: Int? = run.get("progress")
+							p.map { print($0) }
+						}
+					} else {
+						print("ERROR, could not get progress: \(String(describing: error))")
+						timer.invalidate()
+					}
+				} else {
+					print("Error, no instance")
+					timer.invalidate()
+				}
+			}
+		}
+	}*/ //TODO:
 }
 
-    runLocal(indexerInstance: IndexerInstance) {
+    runLocal(indexerInstance: IndexerRun) {
         let query: string = indexerInstance.indexer?.get("query");
         if (!query) {
-            throw "Cannot execute IndexerInstance \(indexerInstance), no query specified"
+            throw `Cannot execute IndexerRun ${indexerInstance}, no query specified`
         }
         let ds = new Datasource(query)
 
@@ -1325,7 +1336,7 @@ class ActionRunIndexerInstance extends Action {
     }*/
 }
 
-class ActionClosePopup extends Action {
+export class ActionClosePopup extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
         super(context, "closePopup", argumentsJs, values)
     }
@@ -1339,7 +1350,7 @@ class ActionClosePopup extends Action {
     }*/
 }
 
-class ActionSetProperty extends Action {
+export class ActionSetProperty extends Action {
     defaultValues: {
         //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor, "value": AnyObject.constructor},//TODO
     }
@@ -1350,7 +1361,7 @@ class ActionSetProperty extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (subject !instanceof Item) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set"
         }
 
@@ -1365,6 +1376,7 @@ class ActionSetProperty extends Action {
         }
 
         //#warning("Ask Toby for how to cast this")
+        //#warning("@Ruben not sure what you're asking here")
         subject.set(propertyName, argumentsJs["value"])//TODO
 
             // TODO: refactor
@@ -1376,7 +1388,7 @@ class ActionSetProperty extends Action {
     }*/
 }
 
-class ActionLink extends Action {
+export class ActionLink extends Action {
     defaultValues = {
         //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO:
     }
@@ -1387,7 +1399,7 @@ class ActionLink extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (subject !instanceof Item) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set";
         }
 
@@ -1397,7 +1409,7 @@ class ActionLink extends Action {
         }
 
         let selected = argumentsJs["dataItem"];
-        if (selected !instanceof Item) {
+        if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1427,7 +1439,7 @@ class ActionLink extends Action {
     }*/
 }
 
-class ActionUnlink extends Action {
+export class ActionUnlink extends Action {
     defaultValues = {
         //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO
     }
@@ -1438,7 +1450,7 @@ class ActionUnlink extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (subject !instanceof Item) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set";
         }
 
@@ -1448,7 +1460,7 @@ class ActionUnlink extends Action {
         }
 
         let selected = argumentsJs["dataItem"];
-        if (selected !instanceof Item) {
+        if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1480,7 +1492,7 @@ class ActionUnlink extends Action {
     }*/
 }
 
-class ActionMultiAction extends Action {
+export class ActionMultiAction extends Action {
     defaultValues = {
         //"argumentTypes": {"actions": [Action].constructor},//TODO:?
         "opensView": true
@@ -1506,7 +1518,7 @@ class ActionMultiAction extends Action {
     }*/
 }
 
-class ActionNoop extends Action {
+export class ActionNoop extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
         super(context, "noop", argumentsJs, values)
     }
