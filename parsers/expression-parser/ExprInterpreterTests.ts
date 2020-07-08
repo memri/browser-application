@@ -4,9 +4,9 @@
 //  Created by Ruben Daniels on 5/15/20.
 //  Copyright © 2020 Memri. All rights reserved.
 //
-const {ExprParser} = require("./ExprParser");
-const {ExprLexer} = require("./ExprLexer");
-const {ExprInterpreter} = require("./ExprInterpreter");
+import {ExprParser} from "./ExprParser";
+import {ExprLexer} from "./ExprLexer";
+import {ExprInterpreter} from "./ExprInterpreter";
 const assert = require("assert");
 
 const ExprInterpreterTests = {
@@ -72,9 +72,9 @@ const ExprInterpreterTests = {
         callBack: function (result) {
             assert.equal(this.results.length, 3)
 
-            assert.equal(this.results[0].toString(), "LookupNode([VariableNode(@@DEFAULT@@), VariableNode(bar)])")//TODO type,list
-            assert.equal(this.results[1].toString(), "LookupNode([VariableNode(bar), VariableNode(foo)])")//TODO type,list
-            assert.equal(this.results[2].toString(), "LookupNode([VariableNode(bar), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(foo)]), rhs: NumberNode(10.0))])])")//TODO type,list
+            assert.equal(this.results[0].toString(), "LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(bar, type:propertyOrItem, list:single)])")
+            assert.equal(this.results[1].toString(), "LookupNode([VariableNode(bar, type:propertyOrItem, list:single), VariableNode(foo, type:propertyOrItem, list:single)])")
+            assert.equal(this.results[2].toString(), "LookupNode([VariableNode(bar, type:propertyOrItem, list:list), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(foo, type:propertyOrItem, list:single)]), rhs: NumberNode(10.0))])])")
         }
     },
 
@@ -186,7 +186,7 @@ describe("ExprInterpreter", function() {
                 if (test.lookup) test.lookup = test.lookup.bind(test)
                 if (test.execFunc) test.execFunc = test.execFunc.bind(test)
 
-                result = exec(test.snippet, test.startMode, test.lookup, test.execFunc)
+                let result = exec(test.snippet, test.startMode, test.lookup, test.execFunc)
                 if (test.callBack) test.callBack(result)
                 if (!test.result) {
                     if (test.error) {

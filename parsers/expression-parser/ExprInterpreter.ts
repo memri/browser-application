@@ -6,11 +6,11 @@
 
 import { ViewArguments } from "../../cvu/views/UserState";
 
-const {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} = require("./ExprLexer");
-const {ExprBinaryOpNode, ExprConditionNode, ExprStringModeNode, ExprNegationNode,
-    ExprNumberNode, ExprStringNode, ExprBoolNode, ExprNumberExpressionNode, ExprLookupNode, ExprCallNode} = require("./ExprNodes");
+import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "./ExprLexer";
+import {ExprBinaryOpNode, ExprConditionNode, ExprStringModeNode, ExprNegationNode,
+    ExprNumberNode, ExprStringNode, ExprBoolNode, ExprNumberExpressionNode, ExprLookupNode, ExprCallNode} from "./ExprNodes";
 
-class ExprInterpreter {
+export class ExprInterpreter {
     ast;
     lookup;
     execFunc;

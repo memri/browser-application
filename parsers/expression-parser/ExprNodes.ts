@@ -7,56 +7,66 @@
 //
 
 
-exports.ExprNumberNode = class ExprNumberNode {
+export class ExprNumberNode {
+    value
+
     constructor(value) {this.value = value};
     toString() {
         var value = this.value.toString()
         if (!/\./.test(value)) value = this.value.toFixed(1);
         return `NumberNode(${value})`
     }
-};
+}
 
-exports.ExprNumberExpressionNode = class ExprNumberExpressionNode {
+export class ExprNumberExpressionNode {
+    exp
+
     constructor(exp) {this.exp = exp};
     toString() {
         return `NumberExpressionNode(${this.exp})`
     }
-};
+}
 
-exports.ExprBoolNode = class ExprBoolNode {
+export class ExprBoolNode {
+    value
+
     constructor(value) {this.value = value};
     toString() {
         return `BoolNode(${ this.value })`
     }
-};
+}
 
-exports.ExprStringNode = class ExprStringNode {
+export class ExprStringNode {
+    value
+
     constructor(value) {this.value = value};
     toString() {
         return `StringNode(${this.value})`
     }
-};
+}
 
-exports.ExprNegationNode = class ExprNegationNode {
+export class ExprNegationNode {
+    exp
+
     constructor(exp) {this.exp = exp};
     toString() {
         return `NegationNode(${this.exp})`
     }
-};
-
-enum ExprVariableType {
-    reverseEdge = "_~",
-    reverseEdgeItem = "~",
-    edge = "_",
-    propertyOrItem = ""
 }
 
-enum ExprVariableList {
-    list,
-    single
+export enum ExprVariableType {
+    reverseEdge = /*"reverseEdge"*/"_~",
+    reverseEdgeItem = /*"reverseEdgeItem"*/"~",
+    edge = /*"edge"*/"_",
+    propertyOrItem = /*"propertyOrItem"*/""
 }
 
-exports.ExprVariableNode = class ExprVariableNode {
+export enum ExprVariableList {
+    list = "list",
+    single = "single"
+}
+
+export class ExprVariableNode {
     name
     type = ExprVariableType.propertyOrItem
     list = ExprVariableList.single
@@ -66,9 +76,9 @@ exports.ExprVariableNode = class ExprVariableNode {
 
         // TODO: This could be optimized by moving it into the expression parser
         for (var i in ExprVariableType) {
-            var varType = ExprVariableType[i]
+            var varType = ExprVariableType[i];
             if (this.name.indexOf(varType) === 0) {//TODO starts?
-                this.type = varType
+                this.type = i
                 this.name = this.name.substring(varType.length)//TODO suffix?
                 break
             }
@@ -77,18 +87,23 @@ exports.ExprVariableNode = class ExprVariableNode {
     toString() {
         return `VariableNode(${this.name}, type:${this.type}, list:${this.list})`
     }
-};
+}
 
-exports.ExprLookupNode = class ExprLookupNode {
+export class ExprLookupNode {
+    sequence
+
     constructor(sequence) {
         this.sequence = sequence;
     }
     toString() {
         return `LookupNode(${formatArray(this.sequence)})`
     }
-};
+}
 
-exports.ExprBinaryOpNode = class ExprBinaryOpNode {
+export class ExprBinaryOpNode {
+    op
+    lhs
+    rhs
     constructor(op, lhs, rhs) {
         this.op = op;
         this.lhs = lhs;
@@ -97,9 +112,13 @@ exports.ExprBinaryOpNode = class ExprBinaryOpNode {
     toString() {
         return `BinaryOpNode(${this.op}, lhs: ${this.lhs}, rhs: ${this.rhs})`
     }
-};
+}
 
-exports.ExprConditionNode = class ExprConditionNode {
+export class ExprConditionNode {
+    condition
+    trueExp
+    falseExp
+
     constructor(condition, trueExp, falseExp) {
         this.condition = condition;
         this.trueExp = trueExp;
@@ -108,18 +127,23 @@ exports.ExprConditionNode = class ExprConditionNode {
     toString() {
         return `ConditionNode(condition: ${this.condition}, trueExp: ${this.trueExp}, falseExp: ${this.falseExp})`
     }
-};
+}
 
-exports.ExprStringModeNode = class ExprStringModeNode {
+export class ExprStringModeNode {
+    expressions
+
     constructor(expressions) {
         this.expressions = expressions;
     }
     toString() {
     return `StringModeNode(expressions: ${formatArray(this.expressions)})`
     }
-};
+}
 
-exports.ExprCallNode = class ExprCallNode {
+export class ExprCallNode {
+    lookup
+    argumentsJs
+
     constructor(lookup, argumentsJs) {
         this.lookup = lookup;
         this.argumentsJs = argumentsJs;
@@ -127,9 +151,25 @@ exports.ExprCallNode = class ExprCallNode {
     toString() {
         return `CallNode(lookup: ${this.lookup}, argument: ${formatArray(this.argumentsJs)})`
     }
-};
+}
 
 
 function formatArray(array) {
     return `[${array.join(", ")}]`
 }
+
+export var ExprNodes = {
+    ExprBinaryOpNode,
+    ExprBoolNode,
+    ExprCallNode,
+    ExprConditionNode,
+    ExprLookupNode,
+    ExprNegationNode,
+    ExprNumberExpressionNode,
+    ExprNumberNode,
+    ExprStringModeNode,
+    ExprStringNode,
+    ExprVariableList,
+    ExprVariableNode,
+    ExprVariableType
+};

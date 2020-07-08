@@ -5,7 +5,7 @@
 //  Created by Ruben Daniels on 5/16/20.
 //  Copyright © 2020 Memri. All rights reserved.
 //
-const {ExprLookupNode, ExprVariableNode} = require("./ExprNodes");
+import {ExprLookupNode, ExprVariableNode} from "./ExprNodes";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {UserState, ViewArguments} from "../../cvu/views/UserState";

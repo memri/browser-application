@@ -1118,7 +1118,7 @@ export class ActionOpenSessionByName extends Action {
 
             // See if this is a session, if so take the last view
             let def = fromDB;
-            if (def !instanceof CVUParsedSessionDefinition) {
+            if (!(def instanceof CVUParsedSessionDefinition)) {
                 // TODO Error handling
                 throw `Exception: Cannot open session with name ${name} " +
                 "cannot be cast as CVUParsedSessionDefinition`
@@ -1254,7 +1254,7 @@ export class ActionRunIndexerRun extends Action {
     exec(argumentsJs) {
         // TODO: parse options
         let run = argumentsJs["indexerRun"]
-        if (run !instanceof IndexerRun) {
+        if (!(run instanceof IndexerRun)) {
             throw "Exception: no indexer run passed"
         }
         if (run.indexer?.runDestination == "ios") {
@@ -1361,7 +1361,7 @@ export class ActionSetProperty extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (subject !instanceof Item) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set"
         }
 
@@ -1399,7 +1399,7 @@ export class ActionLink extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (subject !instanceof Item) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set";
         }
 
@@ -1409,7 +1409,7 @@ export class ActionLink extends Action {
         }
 
         let selected = argumentsJs["dataItem"];
-        if (selected !instanceof Item) {
+        if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1450,7 +1450,7 @@ export class ActionUnlink extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (subject !instanceof Item) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set";
         }
 
@@ -1460,7 +1460,7 @@ export class ActionUnlink extends Action {
         }
 
         let selected = argumentsJs["dataItem"];
-        if (selected !instanceof Item) {
+        if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
 
