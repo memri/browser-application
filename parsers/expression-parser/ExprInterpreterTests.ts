@@ -25,7 +25,27 @@ const ExprInterpreterTests = {
         snippet: "true or false",
         result: true,
     },
-    
+
+    testEqualsTrue: {
+        snippet: "1 = '1'",
+        result: true,
+    },
+
+    testEqualsFalse: {
+        snippet: "1 = 2",
+        result: false,
+    },
+
+    testAndValue: {
+        snippet: "true and 10",
+        result: 10,
+    },
+
+    testOrValue: {
+        snippet: "10 or 0",
+        result: 10,
+    },
+
     testSimpleCondition: {
         snippet: "true ? 'yes' : 'no'",
         result: "yes",
@@ -50,11 +70,11 @@ const ExprInterpreterTests = {
             return true
         },
         callBack: function (result) {
-            try {assert.equal(this.results.length, 3)} catch (e) {console.log(e)}
+            assert.equal(this.results.length, 3)
 
-            try {assert.equal(this.results[0].toString(), "LookupNode([VariableNode(__DEFAULT__), VariableNode(bar)])")} catch (e) {console.log(e)}
-            try {assert.equal(this.results[1].toString(), "LookupNode([VariableNode(bar), VariableNode(foo)])")} catch (e) {console.log(e)}
-            try {assert.equal(this.results[2].toString(), "LookupNode([VariableNode(bar), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(foo)]), rhs: NumberNode(10.0))])])")} catch (e) {console.log(e)}
+            assert.equal(this.results[0].toString(), "LookupNode([VariableNode(@@DEFAULT@@), VariableNode(bar)])")//TODO type,list
+            assert.equal(this.results[1].toString(), "LookupNode([VariableNode(bar), VariableNode(foo)])")//TODO type,list
+            assert.equal(this.results[2].toString(), "LookupNode([VariableNode(bar), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(foo)]), rhs: NumberNode(10.0))])])")//TODO type,list
         }
     },
 
@@ -166,7 +186,7 @@ describe("ExprInterpreter", function() {
                 if (test.lookup) test.lookup = test.lookup.bind(test)
                 if (test.execFunc) test.execFunc = test.execFunc.bind(test)
 
-                let result = exec(test.snippet, test.startMode, test.lookup, test.execFunc)
+                result = exec(test.snippet, test.startMode, test.lookup, test.execFunc)
                 if (test.callBack) test.callBack(result)
                 if (!test.result) {
                     if (test.error) {

@@ -49,7 +49,7 @@ export class Expression {
             let lastProperty = sequence.pop()
             if (lastProperty instanceof ExprVariableNode) {
                 let lookupNode = new ExprLookupNode(sequence);
-                let lookupValue =  this.lookup(lookupNode, new ViewArguments())//TODO
+                let lookupValue =  this.lookup(lookupNode, null)
 
 
                 let context = this.context;
@@ -90,7 +90,7 @@ export class Expression {
         throw "Exception: Unable to toggle expression. Perhaps expression is not a pure lookup?"
     }
 
-    getTypeOfDataItem(viewArguments) {
+    getTypeOfItem(viewArguments) {
         if (!this.parsed) this.parse()
 
         let node = this.ast
@@ -105,6 +105,14 @@ export class Expression {
                     if (propType) {
                         let propType = property.type
                         return (propType, dataItem, lastProperty.name)//TODO
+                    } else  {
+                        let propType = PropertyType(7)
+                        if (propType) {
+                            //warning("This requires a local version a browsable schema that describes the types of edges")
+                            //                        if let item = dataItem.edge(lastProperty.name)?.item() {
+                            return (propType, dataItem, lastProperty.name)
+                            //
+                        }
                     }
                 }
             }
@@ -134,7 +142,7 @@ export class Expression {
 
     execForReturnType(args = null) {
         if (!this.parsed) this.parse()
-        let value = this.interpreter?.execute(args ?? ViewArguments())
+        let value = this.interpreter?.execute(args)
 
         if (value == null) { return null}
         if (typeof value == "object") { return value }

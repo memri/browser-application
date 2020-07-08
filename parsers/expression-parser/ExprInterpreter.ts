@@ -27,7 +27,11 @@ class ExprInterpreter {
     }
     
     evaluateBoolean(x) {
-        return Boolean(x)
+        if (Array.isArray(x)) {
+            return x.length > 0
+        } else {
+            return Boolean(x)
+        }
     }
     
     evaluateNumber(x) {
@@ -43,6 +47,7 @@ class ExprInterpreter {
         if (type === "boolean") { return a == this.evaluateBoolean(b) }
         else if (type === "number") { return a == this.evaluateNumber(b) }
         else if (type === "string") { return a == `${b ?? ""}` }//TODO
+        else if (a instanceof Item && b instanceof Item) { return a == b }
         else if (a == null) { return b == null }
         else { return false }
     }
@@ -60,14 +65,14 @@ class ExprInterpreter {
                     if (!boolLHS) { return false }
                     else {
                         var otherResult = this.execSingle(expr.rhs, args)
-                        return this.evaluateBoolean(otherResult)
+                        return otherResult //this.evaluateBoolean(otherResult)
                     }
                 case ExprOperator.ConditionOR:
-                    var boolLHS = this.evaluateBoolean(result)
-                    if (boolLHS) { return true }
+                    var boolLHS = result //this.evaluateBoolean(result)
+                    if (this.evaluateBoolean(boolLHS)) { return boolLHS }
                     else {
                         var otherResult = this.execSingle(expr.rhs, args)
-                        return this.evaluateBoolean(otherResult)
+                        return otherResult //this.evaluateBoolean(otherResult)
                     }
                 case ExprOperator.Division:
                     var otherResult = this.execSingle(expr.rhs, args)

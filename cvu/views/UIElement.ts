@@ -103,7 +103,7 @@ export class UIElement /*extends CVUToString */{
 			// Execute expression to get the right value
 			let expr = propValue
 			if (expr instanceof Expression) {
-				try { return expr.getTypeOfDataItem(viewArguments) }
+				try { return expr.getTypeOfItem(viewArguments) }
 				catch (error) {
 					// TODO: Refactor: Error Handling
 					//debugHistory.error(`could not get type of ${item}`)

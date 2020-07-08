@@ -44,10 +44,38 @@ exports.ExprNegationNode = class ExprNegationNode {
     }
 };
 
+enum ExprVariableType {
+    reverseEdge = "_~",
+    reverseEdgeItem = "~",
+    edge = "_",
+    propertyOrItem = ""
+}
+
+enum ExprVariableList {
+    list,
+    single
+}
+
 exports.ExprVariableNode = class ExprVariableNode {
-    constructor(name) {this.name = name};
+    name
+    type = ExprVariableType.propertyOrItem
+    list = ExprVariableList.single
+
+    constructor(name) {
+        this.name = name
+
+        // TODO: This could be optimized by moving it into the expression parser
+        for (var i in ExprVariableType) {
+            var varType = ExprVariableType[i]
+            if (this.name.indexOf(varType) === 0) {//TODO starts?
+                this.type = varType
+                this.name = this.name.substring(varType.length)//TODO suffix?
+                break
+            }
+        }
+    };
     toString() {
-        return `VariableNode(${this.name})`
+        return `VariableNode(${this.name}, type:${this.type}, list:${this.list})`
     }
 };
 
