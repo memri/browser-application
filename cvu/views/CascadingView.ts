@@ -11,7 +11,7 @@ import {UserState, ViewArguments} from "./UserState";
 import {CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../../parsers/expression-parser/Expression";
 
-class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
+export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
     /// The name of the cascading view
     get name() { return this.sessionView.name ?? "" } // by copy??

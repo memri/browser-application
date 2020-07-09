@@ -25,10 +25,10 @@
  Display any errors in the console
  */
 
-/*enum InfoType: String {//TODO
-	case info, warn, error
+enum InfoType {//TODO
+	info, warn, error
 
-	var icon: String {
+	/*var icon: String {
 		switch self {
 		case .info: return "info.circle.fill"
 		case .warn: return "exclamationmark.triangle.fill"
@@ -42,11 +42,14 @@
 		case .warn: return Color.yellow
 		case .error: return Color.red
 		}
-	}
-}*/
+	}*/
+}
+
+import {UUID} from "../../model/DataItem";
+import {settings} from "../../model/Settings";
 
 class InfoState extends Hashable {
-	id = new UUID()//TODO
+	id = UUID()
 
 /*	static function == (lhs: InfoState, rhs: InfoState) -> Bool {//TODO
 		lhs.id == rhs.id
@@ -57,10 +60,10 @@ class InfoState extends Hashable {
 		hasher.combine(this.date)
 	}
 
-	date = new Date()//TODO
+	date = new Date() //TODO
 	displayMessage = ""
 	messageCount = 1
-	type = .info//TODO
+	type = InfoType.info //TODO
 	//    var cascadingView: ComputedView
 
 	constructor(m) {
@@ -75,7 +78,7 @@ class ErrorState extends InfoState {
 	constructor(m) {
 		super(m)
 
-		this.type = .error//TODO
+		this.type = InfoType.error//TODO
 	}
 }
 
@@ -83,30 +86,31 @@ class WarnState extends InfoState {
 	constructor(m) {
 		super(m)
 
-		this.type = .warn//TODO
+		this.type = InfoType.warn//TODO
 	}
 }
 
-class DebugHistory extends ObservableObject {
+class DebugHistory /*extends ObservableObject */{
 	showErrorConsole = false
 
 	log = []
 
 	time() {
-		let d = new Date()
+		let d = new Date().toISOString() //TODO
 
-		let dateFormatter = new DateFormatter()
+		/*let dateFormatter = new DateFormatter()
 
-		/*dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"//TODO
+		dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"//TODO
 		dateFormatter.locale = Locale(identifier: "en_US")
 		dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)*/
 
-		return `[${dateFormatter.string(d)}]`//TODO
+		//return `[${dateFormatter.string(d)}]`//TODO
+		return `[${d}]`
 	}
 
-	info(message, cascadingView?) {
+	info(message) {
 		// if (same view
-		if (this.log[this.log.length - 1]?.displayMessage == message) {//TODO
+		if (this.log[this.log.length - 1]?.displayMessage == message) {
 			this.log[this.log.length - 1].messageCount += 1
 		} else {
 			this.log.push(new InfoState(
@@ -115,10 +119,10 @@ class DebugHistory extends ObservableObject {
 			))
 		}
 
-		console.log(`${this.time()} INFO: ${message}`)
+		console.log(`${this.time()} INFO: ${message.replace("\n", "\n    ")}`)
 	}
 
-	warn(message, cascadingView?) {
+	warn(message) {
 		// if (same view
 		if (this.log[this.log.length - 1]?.displayMessage == message) {
 			this.log[this.log.length - 1].messageCount += 1
@@ -129,14 +133,14 @@ class DebugHistory extends ObservableObject {
 			))
 		}
 
-		if (Settings.get("device/debug/autoShowErrorConsole") ?? false) {//TODO
+		if (settings.get("device/debug/autoShowErrorConsole") ?? false) {//TODO
 			this.showErrorConsole = true
 		}
 
-		console.log(`${this.time()} WARNING: ${message}`)
+		console.log(`${this.time()} WARNING: ${message.replace("\n", "\n    ")}`)
 	}
 
-	error(message, cascadingView?) {
+	error(message) {
 		// if (same view
 		if (this.log[this.log.length - 1]?.displayMessage == message) {
 			this.log[this.log.length - 1].messageCount += 1
@@ -147,39 +151,39 @@ class DebugHistory extends ObservableObject {
 			))
 		}
 
-		if (Settings.get("device/debug/autoShowErrorConsole") ?? false) {
+		if (settings.get("device/debug/autoShowErrorConsole") ?? false) { //TODO
 			this.showErrorConsole = true
 		}
 
-		console.log(`${this.time()} WARNING: ${message}`)
+		console.log(`${this.time()} ERROR: ${message.replace("\n", "\n    ")}`)
 	}
 
 	clear() {
 		this.log = []
 
-		objectWillChange.send()//TODO
+		//objectWillChange.send()//TODO
 	}
 }
 
 // Intentionally global
-var debugHistory = new DebugHistory()
+export var debugHistory = new DebugHistory()
 
-class DebugConsole extends View {
-	context
+class DebugConsole /*extends View*/ {
+	context: MemriContext
 
-	history
+	history = debugHistory;
 
 	scrollPosition
 
 	get body() {//TODO
-		let dateFormatter = new DateFormatter()//TODO
+		/*let dateFormatter = new DateFormatter()//TODO
 
 		dateFormatter.dateFormat = "h:mm a"
-		dateFormatter.locale = Locale("en_US")
+		dateFormatter.locale = Locale("en_US")*/
 		//        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
 
-		return new Group {//TODO
-			/*if (debugHistory.showErrorConsole) {
+		/*return Group {//TODO
+			if (debugHistory.showErrorConsole) {
 				VStack(0) {
 					HStack {
 						Text("Console")
@@ -249,8 +253,8 @@ class DebugConsole extends View {
 				.background(Color.white.edgesIgnoringSafeArea(.all))
 				.border(width: [1, 0, 0, 0], color: Color(hex: "ddd"))
 				.frame(height: 200)
-			}*/
-		}
+			}
+		}*/
 	}
 }
 

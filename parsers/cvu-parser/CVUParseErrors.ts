@@ -3,7 +3,7 @@
 //
 //  Copyright © 2020 memri. All rights reserved.
 //
-class ParseErrors {
+export class ParseErrors {
     CVUToken: CVUToken;
     type: any;
     Character?: any;
