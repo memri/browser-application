@@ -3,20 +3,24 @@ import {settings} from "../model/Settings"
 export class PodAPI {
     key;
      
-    constructor(podkey) {
+    constructor(podkey, mockApi) {
         this.key = podkey
+        this.mockApi = mockApi
     }
     
     async http({method = "GET", path = "", body, data}, callback) {
 
         let podhost = settings.get("user/pod/host") || ""
+        if (podhost == "mock") {
+            return this.mockApi.http({method, path, body, data}, callback);
+        }
         
         if (podhost && !/^http/.test(podhost)) podhost = "http://" + podhost;
 
         var url = new URL(podhost)
         if (!url) {
             let message = `Invalid pod host set in settings: ${podhost}`
-            // debugHistory.error(message)
+            // console.error(message)
             callback(message, null)
             return
         }
@@ -119,7 +123,7 @@ export class PodAPI {
 				result["_target"] = edge.targetItemID
 			} else {
 				// Database is corrupt
-				debugHistory.warn("Database corruption; edge to nowhere")//TODO
+				console.warn("Database corruption; edge to nowhere")//TODO
 			}
 
 			switch (action) {
@@ -180,7 +184,7 @@ export class PodAPI {
 
 			return result
 		} catch {
-			debugHistory.error(`Exception while communicating with the pod: ${error}`)//TODO
+			console.error(`Exception while communicating with the pod: ${error}`)//TODO
 			return {}
 		}
 	}
@@ -201,7 +205,7 @@ export class PodAPI {
 				// Ignore
 			} else if (updatedFields == null || updatedFields?.includes(prop.name)) {
 				if (prop.type == ".object") {//TODO
-					debugHistory.warn("Unexpected object schema")//TODO
+					console.warn("Unexpected object schema")//TODO
 				} else {
 					result[prop.name] = item[prop.name]
 				}
@@ -230,7 +234,7 @@ export class PodAPI {
 			result["_target"] = edge.targetItemID
 		} else {
 			// Database is corrupt
-			debugHistory.warn("Database corruption; edge to nowhere")//TODO
+			console.warn("Database corruption; edge to nowhere")//TODO
 		}
 
 		return result
@@ -363,7 +367,7 @@ export class PodAPI {
 
         this.http({method: "POST", path: "search_by_fields", body: data}, function (error, items) {
             if (error) {
-                debugHistory.error(`Could not load data from pod: \n${error}`)
+                console.error(`Could not load data from pod: \n${error}`)
                 callback(error, null)
             } else {
                  callback(null, items)

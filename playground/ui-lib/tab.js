@@ -51,16 +51,15 @@ class Tab {
     }
 
     draw() {
-        this.element = dom.buildDom(["div", {
-            class: "tab" + (this.active ? " active" : ""),
-            title: this.tabTitle
-        }, ["span", {
-            class: "tabIcon"
-        }, this.tabIcon], ["span", {
-            class: "tabTitle"
-        }, this.tabTitle], ["span", {
-            class: "tabCloseButton"
-        }]]);
+        this.element = dom.buildDom(["div", 
+            {
+                class: "tab" + (this.active ? " active" : ""),
+                title: this.path
+            }, 
+            ["span", { class: "tabIcon" }, this.tabIcon], 
+            ["span", { class: "tabTitle", ref: "$title" }, this.tabTitle], 
+            ["span", { class: "tabCloseButton" }],
+        ], null, this);
         
         if (this.preview)
             this.element.style.fontStyle =  "italic"

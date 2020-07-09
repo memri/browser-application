@@ -138,9 +138,12 @@ class TabManager {
             var pane = this.activePane
             if (this.previewTab)
                 this.previewTab.close();
+            
+            var tabTitle = options.path.split("/").pop();
+            
             tab = pane.tabBar.addTab({
                 preview: options.preview,
-                tabTitle: options.path,
+                tabTitle: tabTitle,
                 path: options.path,
                 active: true,
             });

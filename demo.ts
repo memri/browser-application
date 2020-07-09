@@ -9,9 +9,6 @@ import "ace-builds/src-noconflict/ext-prompt";
 import {StatusBar} from "ace-builds/src-noconflict/ext-statusbar";
 import {Mode} from "./playground/cvu-mode";
 
-
-let example = require("text-loader!./playground/example.view")
-
 let DemoWorker = require("worker-loader!./demo-worker")
 
 let demoWorker = new DemoWorker();
@@ -20,42 +17,6 @@ let demoWorker = new DemoWorker();
 
 ace.Editor.prototype.__defineGetter__("$readOnly", function() { return this.session.$readOnly })
 
-var defaults = {
-    /*require("text-loader!./cvu/defaults/default_user_views.json"),*/
-    /*require("text-loader!./cvu/defaults/macro_views.json"),*/
-    "All-items-with-label.cvu": require("text-loader!./cvu/defaults/named/All-items-with-label.cvu"),
-    "Choose-item-by-query.cvu": require("text-loader!./cvu/defaults/named/Choose-item-by-query.cvu"),
-    "Filter-starred.cvu": require("text-loader!./cvu/defaults/named/Filter-starred.cvu"),
-    /*require("text-loader!./cvu/defaults/named_sessions.json"),*/
-    /*require("text-loader!./cvu/defaults/named_views.json",)*/
-    "generalEditor.cvu": require("text-loader!./cvu/defaults/renderer/generalEditor.cvu"),
-    "chart.cvu": require("text-loader!./cvu/defaults/renderer/chart.cvu"),
-    "list.cvu": require("text-loader!./cvu/defaults/renderer/list.cvu"),
-    "thumbnail.cvu": require("text-loader!./cvu/defaults/renderer/thumbnail.cvu"),
-    "map.cvu": require("text-loader!./cvu/defaults/renderer/map.cvu"),
-    "Sessions.cvu": require("text-loader!./cvu/defaults/Session/Sessions.cvu"),
-    "defaults.cvu": require("text-loader!./cvu/defaults/styles/defaults.cvu"),
-    /*require("text-loader!./cvu/defaults/template_views.json"),*/
-    "Address.cvu": require("text-loader!./cvu/defaults/type/Address.cvu"),
-    "Any.cvu": require("text-loader!./cvu/defaults/type/Any.cvu"),
-    "AuditItem.cvu": require("text-loader!./cvu/defaults/type/AuditItem.cvu"),
-    "Country.cvu": require("text-loader!./cvu/defaults/type/Country.cvu"),
-    "Importer.cvu": require("text-loader!./cvu/defaults/type/Importer.cvu"),
-    "ImporterInstance.cvu": require("text-loader!./cvu/defaults/type/ImporterInstance.cvu"),
-    "Indexer.cvu": require("text-loader!./cvu/defaults/type/Indexer.cvu"),
-    "IndexerInstance.cvu": require("text-loader!./cvu/defaults/type/IndexerInstance.cvu"),
-    "Label.cvu": require("text-loader!./cvu/defaults/type/Label.cvu"),
-    "Mixed.cvu": require("text-loader!./cvu/defaults/type/Mixed.cvu"),
-    "Note.cvu": require("text-loader!./cvu/defaults/type/Note.cvu"),
-    /*require("text-loader!./cvu/defaults/type/Person-markup.ml"),*/
-    "Person.cvu": require("text-loader!./cvu/defaults/type/Person.cvu"),
-    "Photo.cvu": require("text-loader!./cvu/defaults/type/Photo.cvu"),
-    "Session.cvu": require("text-loader!./cvu/defaults/type/Session.cvu"),
-    /*require("text-loader!./cvu/defaults/type/Session.json"),*/
-    "SessionView.cvu": require("text-loader!./cvu/defaults/type/SessionView.cvu"),
-    "UserNote.cvu": require("text-loader!./cvu/defaults/user/UserNote.cvu-disabled"),
-    /*require("text-loader!./cvu/defaults/views_from_server.json"),*/
-};
 
 var mode = "ast";
 var refs = {};
@@ -182,7 +143,15 @@ onResize()
 
 baseBox.toolBars.top.element.textContent = "";
 dom.buildDom([
-    ["input", { ref: "podAddress", value: "http://localhost:3030" }],
+    ["input", { 
+        ref: "podAddress", 
+        value: "http://localhost:3030", 
+        onkeypress: function(e) {
+            if (e.key == "Enter") {
+                updateTree()
+            }
+        }
+    }],
     ["button", {
         onmousedown: (e)=> {
             e.preventDefault()
@@ -225,8 +194,6 @@ tabManager.loadFile = function(tab) {
         return setSession(tab, tab.session)
     } else if (!tab.path) {
         return setSession(tab, "")
-    } else if (defaults[tab.path]) {
-        return setSession(tab, defaults[tab.path], true)
     } else if (tab.path) {
         tab.editor.container.style.display = "none";
         loadCVUDefinition(tab.path, function(err, value) {
@@ -252,7 +219,7 @@ function updateSaveButton(e, editor) {
         tabManager.clearPreviewStatus(tab);
     }
 }
-function setSession(tab, value, readOnly) {
+function setSession(tab, value) {
     var editor = tab.editor
     if (!editor) return;
     
@@ -266,8 +233,8 @@ function setSession(tab, value, readOnly) {
         tab.editor.on("input", updateSaveButton)
         loadMetadata(tab)
     }
-    if (readOnly != undefined)
-        tab.session.$readOnly = readOnly;
+    var readOnly = tab.path?.startsWith("defaults/");
+    tab.session.$readOnly = readOnly;
     editor.setSession(tab.session);
     editor.$options.readOnly.set.call(editor, editor.$readOnly);
     
@@ -297,8 +264,16 @@ function saveCurrentFile() {
     var tab = tabManager.activeTab;
     if (tab && !tab.session.$readOnly) {
         if (!tab.path)
-            tab.path = prompt(`save ${tab.title} as:`, tab.title);
+            tab.path = prompt(`save ${tab.tabTitle} as:`, tab.tabTitle);
         if (!tab.path) return
+        if (/^defaults\//.test(tab.path)) {
+            return
+        }
+        var name = tab.path.split("/").pop();
+        tab.path  = "user/" + name;
+        tab.tabTitle = name
+        tab.$title.textContent = tab.tabTitle;
+        
         var value = tab.editor.getValue();
             
         tab.session.getUndoManager().markClean();
@@ -426,32 +401,41 @@ refs.podAddress.addEventListener("input", function() {
 refs.podAddress.value = localStorage["user/pod/host"] || "http://localhost:3030/"
 settings.set("user/pod/host", refs.podAddress.value);
 
-var api = new PodAPI();
-updateTree() 
+import {mockApi} from "./playground/mockApi"
+var api = new PodAPI(null, mockApi);
  
-var defaultFilelist = Object.keys(defaults).sort().map(function(key) {
-    return key && {name: key, readonly: true}
-}).filter(Boolean);
+ window.api = api
 
-listBox.popup.setData(defaultFilelist);
+listBox.popup.setData([{value:  "Connect to pod to load data"}]);
  
+function sortFn(a, b) {
+    return a.name.localeCompare(b.name);
+}
 function updateTree() {
     listCVUDefinitions(function(err, files) {
-        listBox.popup.setData(
-            [].concat(
-                [{className: "header", name: "User"}],
-                files,
-                [{className: "header", name: "Default"}],
-                defaultFilelist
-            )
-        );
-        listBox.popup.resize(true)
+        var selected = listBox.popup.getData(listBox.popup.getRow());
+        var data = [{className: "header", name: "User"}].concat(
+            files.user.sort(sortFn),
+            [{className: "header", name: "Default"}],
+            files.defaults.sort(sortFn),
+        )
+        listBox.popup.setData(data);
+        listBox.popup.resize(true);
+        listBox.popup.session.setScrollTop(0)
+        if (selected) {
+            data.some(function(item, i) {
+                if (item.name == selected.name) {
+                    listBox.popup.setRow(i);
+                    return true
+                }
+            })
+        }
     })
 }
  
 function open(data, preview) {
     tabManager.open({
-        path: data.name,
+        path: data.path,
         preview,
     })
 }
@@ -466,7 +450,9 @@ listBox.on("choose", function(data) {
     open(data, false);
 });
 
-var cache = Object.create(null)
+
+var cache;
+var cacheListeners;
 function listCVUDefinitions(callback) {
     cache = Object.create(null)
     api.query({query: "CVUStoredDefinition"}, function(err, items) {
@@ -483,9 +469,12 @@ function listCVUDefinitions(callback) {
                 }
             );
             
-            if (!name)
-                name = item.selector;
+            if (!name) {
+                name = item.selector.replace(/[\[\]]/g, "").trim();
+            }
             if (!name) return console.error(item)
+                
+            name = item.domain + "/" + name
             
             if (!cache[name]) cache[name] = []
             
@@ -494,41 +483,51 @@ function listCVUDefinitions(callback) {
             if (!item.index) item.index = item.uid;
         });
         
-        var files = Object.keys(cache).map(function(name) {
-            return {
-                name, 
-                src: "pod",
-            };
+        var files = {defaults: [], user: []};
+        Object.keys(cache).map(function(path) {
+            var domain = path.split("/")[0]
+            if (!files[domain]) return;
+            var name = path.slice(domain.length + 1);
+            files[domain].push({
+                readOnly: domain == "dafaults",
+                path,
+                name,
+            });
         });
         callback(null, files)
+        
+        if (cacheListeners.length)
+            cacheListeners.forEach(x=>x())
+        cacheListeners.length = 0;
     });
 }
 
-function loadCVUDefinition(name, callback) {
-    setTimeout(function() {
-        if (cache[name]) {
-            var text = cache[name].map(item=>item.definition).join("\n")
-            return callback(null, text || "")
-        }
-            
-        if (name == "example.cvu")
-            return callback(null, example)
-        if (localStorage["file-" + name])
-            return callback(null, localStorage["file-" + name])
-    }, 100);
+function loadCVUDefinition(path, callback) {
+    if (!cacheListeners) cacheListeners = []
+    if (!cache)
+        return cacheListeners.push(loadCVUDefinition.bind(this, path, callback))
+    if (cache[path]) {
+        var text = cache[path].map(item=>
+            item.definition.replace(/\s+$|^\s+/g, "")
+        ).join("\n\n")
+        return callback(null, text || "")
+    }
+    if (localStorage["file-" + path])
+        return callback(null, localStorage["file-" + path]);
 }
 
-function saveCVUDefinition(name, value, parts, callback) {
-    localStorage["file-" + name] = value;
-    var saved = cache[name] || [];
+function saveCVUDefinition(path, value, parts, callback) {
+    localStorage["file-" + path] = value;
+    var saved = cache[path] || [];
     var promises = [];
     var newParts = [];
+    var name = path.split("/").pop();
     
     for (var i = 0; i < parts.length; i++) {
         var part = parts[i]
         var existing = saved[i];
         
-        var definition = `/*file:${i+1}:${name}*/` + part.definition;
+        var definition = `/*file:${i+1}:${name}*/\n` + part.definition;
         var data = {
             _type: "CVUStoredDefinition",
             domain: "user",
@@ -573,3 +572,4 @@ function saveCVUDefinition(name, value, parts, callback) {
 }
 
 
+updateTree() 
