@@ -18,6 +18,7 @@ import {
 import {Action} from "./Action";
 import {DataItem, Item} from "../../model/DataItem";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {debugHistory} from "./ViewDebugger";
 
 export class UIElement /*extends CVUToString */{
 	type: UIElementFamily
@@ -77,12 +78,12 @@ export class UIElement /*extends CVUToString */{
 					}*/
 				} catch (error) {
 					// TODO: Refactor error handling
-					/*debugHistory.error("Could note compute \(propName)\n"
-						+ "Arguments: [\(viewArguments.asDict().keys.description)]\n"
+					debugHistory.error(`Could note compute ${propName}\n`
+						+ `Arguments: [${viewArguments.asDict().keys.description}]\n`
 						+ (expr.startInStringMode
-							? "Expression: \"\(expr.code)\"\n"
-							: "Expression: \(expr.code)\n")
-						+ "Error: \(error)")*/
+							? `Expression: \"${expr.code}\"\n`
+							: `Expression: ${expr.code}\n`)
+						+ `Error: ${error}`)
 					return null
 				}
 			}
@@ -106,7 +107,7 @@ export class UIElement /*extends CVUToString */{
 				try { return expr.getTypeOfItem(viewArguments) }
 				catch (error) {
 					// TODO: Refactor: Error Handling
-					//debugHistory.error(`could not get type of ${item}`)
+					debugHistory.error(`could not get type of ${item}`)
 				}
 			}
 		}

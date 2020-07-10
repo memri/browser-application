@@ -9,6 +9,7 @@ import { ViewArguments } from "../../cvu/views/UserState";
 import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "./ExprLexer";
 import {ExprBinaryOpNode, ExprConditionNode, ExprStringModeNode, ExprNegationNode,
     ExprNumberNode, ExprStringNode, ExprBoolNode, ExprNumberExpressionNode, ExprLookupNode, ExprCallNode} from "./ExprNodes";
+import {Item} from "../../model/items/Item";
 
 export class ExprInterpreter {
     ast;
@@ -23,7 +24,7 @@ export class ExprInterpreter {
     }
     
     execute(args) {
-        return this.execSingle(this.ast, args ?? new ViewArguments())
+        return this.execSingle(this.ast, args)
     }
     
     evaluateBoolean(x) {

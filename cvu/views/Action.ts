@@ -206,6 +206,7 @@ import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {ViewArguments} from "./UserState";
 import {Item} from "../../model/DataItem";
 import {realmWriteIfAvailable} from "../../gui/util";
+import {debugHistory} from "./ViewDebugger";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -253,7 +254,7 @@ export class Action/* : HashableClass, CVUToString*/ {
                 return binding.isTrue()
             } catch {
                 // TODO error handling
-                //debugHistory.warn(`Could not read boolean value from binding ${binding}`);//TODO:?
+                debugHistory.warn(`Could not read boolean value from binding ${binding}`);
             }
         }
         return null;
@@ -321,7 +322,7 @@ export class Action/* : HashableClass, CVUToString*/ {
                 let value = expr.execForReturnType(viewArguments);
                 return value
             } catch (error) {
-                //debugHistory.error("Could not execute Action expression: \(error)")
+                debugHistory.error(`Could not execute Action expression: ${error}`)
                 // TODO Refactor: Error reporting
                 return null;
             }
@@ -392,7 +393,7 @@ export class Action/* : HashableClass, CVUToString*/ {
         try {
             exec()
         } catch (error) {
-            //debugHistory.error(`Could not execute action: ${error}`);
+            debugHistory.error(`Could not execute action: ${error}`);
         }
     }
 }
@@ -445,36 +446,6 @@ export enum ActionFamily {
     runIndexerRun = "runIndexerRun",
     runImporterRun = "runImporterRun",
     setProperty = "setProperty"
-
-    /*func getType() -> Action.Type {
-        switch self {
-            case .back: return ActionBack.self
-            case .addDataItem: return ActionAddDataItem.self
-            case .openView: return ActionOpenView.self
-            case .openViewByName: return ActionOpenViewByName.self
-            case .toggleEditMode: return ActionToggleEditMode.self
-            case .toggleFilterPanel: return ActionToggleFilterPanel.self
-            case .star: return ActionStar.self
-            case .showStarred: return ActionShowStarred.self
-            case .showContextPane: return ActionShowContextPane.self
-            case .showNavigation: return ActionShowNavigation.self
-            case .duplicate: return ActionDuplicate.self
-            case .schedule: return ActionSchedule.self
-            case .delete: return ActionDelete.self
-            case .showSessionSwitcher: return ActionShowSessionSwitcher.self
-            case .forward: return ActionForward.self
-            case .forwardToFront: return ActionForwardToFront.self
-            case .backAsSession: return ActionBackAsSession.self
-            case .openSession: return ActionOpenSession.self
-            case .openSessionByName: return ActionOpenSessionByName.self
-            case .closePopup: return ActionClosePopup.self
-            case .link: return ActionLink.self
-            case .unlink: return ActionUnlink.self
-            case .multiAction: return ActionMultiAction.self
-            case .noop: fallthrough
-            default: return ActionNoop.self
-        }
-    }*/
 }
 
 export var getActionType = function (name) {
@@ -584,7 +555,7 @@ export class ActionBack extends Action {
             } else {
                 realmWriteIfAvailable(this.context.realm, function () {
                     session.currentViewIndex -= 1
-                });//TODO;
+                });
                 this.context.scheduleCascadingViewUpdate();
             }
         } else {

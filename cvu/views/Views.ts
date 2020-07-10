@@ -165,7 +165,7 @@ export class Views {
 			case "setting":
 				let f = function (args?) { // (value:String) -> Any? in
 					//#warning("@Toby - how can we re-architect this?")
-					let value = args ? [0];
+					let value = args[0];
 					if (typeof value == "string") {
 						let x = settings.get(value/*, type: Double.self*/);
 						if (x) {

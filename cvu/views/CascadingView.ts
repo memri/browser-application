@@ -8,8 +8,9 @@
 
 import {Cascadable} from "./Cascadable";
 import {UserState, ViewArguments} from "./UserState";
-import {CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedDatasourceDefinition, CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../../parsers/expression-parser/Expression";
+import {debugHistory} from "./ViewDebugger";
 
 export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
@@ -36,8 +37,8 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         else {
             // Missing datasource on sessionview, that should never happen (I think)
             // TODO ERROR REPORTING
-            //debugHistory.error("Unexpected state")
-            return new CascadingDatasource([], new ViewArguments(), new Datasource())
+            debugHistory.error("Unexpected state")
+            return new CascadingDatasource([], null, new Datasource())
         }
     }
 
@@ -50,8 +51,8 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
             let args = new Cache.createItem(UserState.self, {});//TODO
             this.sessionView.set("userState", args)
             return args
-        } catch {
-            //debugHistory.error("Exception: Unable to create user state for session view: \(error)")
+        } catch (error) {
+            debugHistory.error(`Exception: Unable to create user state for session view: ${error}`)
             return null
         }
     }
@@ -66,8 +67,8 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
             let args = new Cache.createItem(ViewArguments.self, {});//TODO
             this.sessionView.set("viewArguments", args)
             return args
-        } catch {
-            //debugHistory.error("Exception: Unable to create arguments for session view: \(error)")
+        } catch (error) {
+            debugHistory.error(`Exception: Unable to create arguments for session view: ${error}`)
             return null
         }
         // cascadeProperty("viewArguments", )
@@ -101,7 +102,7 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         let s:string = this.cascadeProperty("defaultRenderer");
         if (s) { return s }
 
-        //debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
+        debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
         return ""
     }
 
@@ -161,7 +162,7 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
                     }
                 } else {
                     // TODO Error logging
-                    // debugHistory.error("Exception: Unable to cascade render config")
+                    debugHistory.error("Exception: Unable to cascade render config")
                 }
             }
 
@@ -410,13 +411,13 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
                 }
                 else {
-                    //debugHistory.error("Could not parse definition")
+                    debugHistory.error("Could not parse definition")
                 }
             } catch (error) {
-                if (error instanceof CVUParseErrors) {
-                    //debugHistory.error(`${error.toString(def?.definition ?? "")}`)
+                if (error instanceof CVUParseErrors) { //TODO
+                    debugHistory.error(`${error.toString(def?.definition ?? "")}`)
                 } else {
-                    //debugHistory.error(`${error}`)
+                    debugHistory.error(`${error}`)
                 }
             }
         }
@@ -439,7 +440,7 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
                 }
                 else if (domain != "user") {
                     // TODO Warn logging
-                    //debugHistory.warn(`Could not find definition for '${needle}' in domain '${key}'`)
+                    debugHistory.warn(`Could not find definition for '${needle}' in domain '${domain}'`) //TODO
                 }
             }
         }

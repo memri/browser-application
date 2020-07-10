@@ -48,7 +48,7 @@ enum InfoType {//TODO
 import {UUID} from "../../model/DataItem";
 import {settings} from "../../model/Settings";
 
-class InfoState extends Hashable {
+class InfoState /*extends Hashable*/ {
 	id = UUID()
 
 /*	static function == (lhs: InfoState, rhs: InfoState) -> Bool {//TODO
@@ -67,7 +67,7 @@ class InfoState extends Hashable {
 	//    var cascadingView: ComputedView
 
 	constructor(m) {
-		super()
+		//super()
 		this.displayMessage = m
 	}
 }
@@ -253,12 +253,12 @@ class DebugConsole /*extends View*/ {
 				.background(Color.white.edgesIgnoringSafeArea(.all))
 				.border(width: [1, 0, 0, 0], color: Color(hex: "ddd"))
 				.frame(height: 200)
-			}
+			}4
 		}*/
 	}
 }
 
-class ErrorConsole_Previews extends PreviewProvider {
+class ErrorConsole_Previews /*extends PreviewProvider*/ {
 	static previews () {//TODO
 		new DebugConsole().environmentObject(RootContext("", "").mockBoot())//TODO
 	}

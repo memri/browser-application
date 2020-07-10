@@ -9,6 +9,7 @@ import {ExprLookupNode, ExprVariableNode} from "./ExprNodes";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {UserState, ViewArguments} from "../../cvu/views/UserState";
+import {ExprInterpreter} from "./ExprInterpreter";
 
 export class Expression {
     code: string;

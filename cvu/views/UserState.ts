@@ -9,6 +9,7 @@ import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {DataItem, UUID} from "../../model/DataItem";
 import {InMemoryObjectCache} from "../../model/InMemoryObjectCache";
 import {realmWriteIfAvailable} from "../../gui/util";
+import {debugHistory} from "./ViewDebugger";
 class SchemaItem {
 
 }//TODO: replace with normal class
@@ -55,7 +56,7 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 			this.storeInCache(dict)
 		} catch {
 			/* TODO: ERROR HANDLIGNN */
-			//debugHistory.warn("Unable to store user state property \(propName)")
+			debugHistory.warn(`Unable to store user state property ${propName}`)
 			return
 		}
 
@@ -77,7 +78,7 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 				if (typeof itemType == "string" && typeof uid == "number") {
 					dict[key] = this.getItem(itemType, uid)
 				} else {
-					//debugHistory.warn("Could not expand item. View may not load as expected")
+					debugHistory.warn("Could not expand item. View may not load as expected")
 				}
 			} else {
 				dict[key] = wrapper.value
@@ -130,7 +131,7 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 					let data = new MemriJSONEncoder.encode(values) //TODO
 					this["state"] = String(data) ?? ""
 				} catch (error) {
-					//debugHistory.error(`Could not persist state object: ${error}`)
+					debugHistory.error(`Could not persist state object: ${error}`)
 				}
 			}.bind(this))
 		}
@@ -156,7 +157,7 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 			try {
 				return this.transformToDict()
 			} catch {
-				//debugHistory.error("Could not unserialize state object: \(error)")
+				debugHistory.error(`Could not unserialize state object: ${error}`)
 				return {}
 			} // TODO: refactor: handle error
 		}

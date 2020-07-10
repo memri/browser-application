@@ -8,6 +8,7 @@
 
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {Action, ActionMultiAction} from "./Action";
+import {debugHistory} from "./ViewDebugger";
 
 export class Cascadable {
     viewArguments?;
@@ -22,7 +23,7 @@ export class Cascadable {
             else { return value }
         }
         catch (error) {
-            // debugHistory.error(`${error}`)//TODO
+            debugHistory.error(`${error}`)
             return null
         }
     }

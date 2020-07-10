@@ -6,6 +6,8 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+import {debugHistory} from "./ViewDebugger";
+
 class Sessions extends DataItem {
 	genericType() { return "Sessions" }
 
