@@ -7,12 +7,15 @@
 
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {DataItem, UUID} from "../../model/DataItem";
-import {InMemoryObjectCache} from "../../model/InMemoryObjectCache";
+import {
+	setInMemoryObjectCache,
+	getInMemoryObjectCache
+} from "../../model/InMemoryObjectCache";
 import {realmWriteIfAvailable} from "../../gui/util";
 import {debugHistory} from "./ViewDebugger";
-class SchemaItem {
-
-}//TODO: replace with normal class
+import {SchemaItem} from "../../model/schema";
+import {Item} from "../../model/items/Item";
+import {Expression} from "../../parsers/expression-parser/Expression";
 
 export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 	state = ""
@@ -31,11 +34,13 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 	}
 
 	storeInCache(dict) {
-		new InMemoryObjectCache().set(`UserState:${this.uid && this.uid.value != undefined ? `${this.uid}` : this.cacheID}`, dict)
+		let id = this.uid != undefined ? `${this.uid ?? -99}` : this.cacheID
+		return setInMemoryObjectCache(`UserState:${id}`, dict)
 	}
 
 	getFromCache() {
-		return new InMemoryObjectCache().get(`UserState:${this.uid && this.uid.value != undefined ? `${this.uid}` : this.cacheID}`)
+		let id = this.uid != undefined ? `${this.uid ?? -99}` : this.cacheID
+		return getInMemoryObjectCache(`UserState:${id}`);
 	}
 
 	get(propName) {
@@ -67,7 +72,7 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 
 	transformToDict() {
 		if (this.state == "") { return {} }
-		let stored = this.unserialize(this.state) ?? {}
+		let stored = this.unserialize(this.state) ?? {} //TODO:
 		var dict = {}
 
 		for (let [key, wrapper] of Object.entries(stored)) {
@@ -121,14 +126,19 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 							values[key] = {"_type": value.genericType,
 										   "_uid": value.uid.value,
 										   "___": true}
-						} else if (value instanceof AnyCodable) {
+						} else if (Array.isArray(value) && value.length > 0 && value instanceof Item) {
+							/*values[key] = AnyCodable(value.map(item => {
+								{"_type": value.genericType,
+									"_uid": value.uid.value,
+									"___": true} }))*/ //TODO
+					} /*else if (value instanceof AnyCodable) {
 							values[key] = value
-						} else {
-							values[key] = AnyCodable(value)//TODO
+						}*/ else {
+							values[key] = /*AnyCodable(*/value//)//TODO
 						}
 					}
 
-					let data = new MemriJSONEncoder.encode(values) //TODO
+					let data = /*new MemriJSONEncoder.encode(values)*/JSON.stringify(values) //TODO
 					this["state"] = String(data) ?? ""
 				} catch (error) {
 					debugHistory.error(`Could not persist state object: ${error}`)
@@ -156,7 +166,7 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 		} else {
 			try {
 				return this.transformToDict()
-			} catch {
+			} catch (error) {
 				debugHistory.error(`Could not unserialize state object: ${error}`)
 				return {}
 			} // TODO: refactor: handle error
@@ -170,21 +180,36 @@ export class UserState extends SchemaItem/*extends Object, CVUToString*/ {
 	}
 
 	toCVUString(depth, tab) {
-		new CVUSerializer().dictToString(this.asDict(), depth, tab)
+		return new CVUSerializer().dictToString(this.asDict(), depth, tab)
 	}
 
-	clone(viewArguments?: ViewArguments, values?, managed: boolean = true) {
+	clone(viewArguments?: ViewArguments, values?, managed: boolean = true, item?: Item) {
 		var dict = viewArguments?.asDict() ?? {}
 		//let values = values;
 		if (values)  {
 			dict = Object.assign({}, values, dict);
 		}
 
-		if (managed) { return new UserState(dict).fromDict(dict) }
+		if (managed) { return new UserState(dict).fromDict(dict, item) }
 		else { return new UserState(dict) }
 	}
 
+	fromDict(dict, item?: Item) {
+		let userState = new Cache.createItem(UserState.self, {}) //TODO
 
+		// Resolve expressions
+		var dct = dict
+		for (let [key, value] of Object.entries(dct)) {
+			let expr = value;
+			if (expr instanceof Expression) {
+				dct[key] = expr.execute(new ViewArguments({".": item}))
+			}
+		}
+
+		userState.storeInCache(dct)
+		userState.persist()
+		return userState
+	}
 }
 
 export var ViewArguments = UserState

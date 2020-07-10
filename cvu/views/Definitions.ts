@@ -7,7 +7,7 @@
 
 
 class CVUStoredDefinition extends DataItem {
-    constructor() {
+    constructor() { //TODO
         super();
     }
     type

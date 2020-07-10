@@ -141,13 +141,13 @@
     "result": "Person {\n    VStack {\n        alignment: left\n\n        Text {\n            font: 12 light\n        }\n\n        Spacer\n\n\n        Text {\n            maxheight: 500\n        }\n    }\n}"
   },
   "testNestedViews": {
-    "snippet": "Person {\n    [renderer = generalEditor] {\n\n        picturesOfPerson: {\n            sectionTitle: \"Photos of {.computedTitle()}\"\n            foreach: false\n\n            SubView {\n                view: {\n                    defaultRenderer: \"thumbnail.grid\"\n\n                    [datasource = pod] {\n                        query: \"Photo AND ANY includes.memriID = '{.memriID}'\"\n                    }\n\n                    [renderer = thumbnail.grid] {\n                        columns: 5\n                        itemInset: 0\n                    }\n                }\n            }\n        }\n    }\n}"
+    "snippet": "Person {\n    [renderer = generalEditor] {\n\n        picturesOfPerson: {\n            title: \"Photos of {.computedTitle()}\"\n\n            SubView {\n                view: {\n                    defaultRenderer: \"thumbnail.grid\"\n\n                    [datasource = pod] {\n                        query: \"Photo AND ANY includes.memriID = '{.memriID}'\"\n                    }\n\n                    [renderer = thumbnail.grid] {\n                        columns: 5\n                        itemInset: 0\n                    }\n                }\n            }\n        }\n    }\n}"
   },
   "testActionStar": {
     "snippet": "Person {\n    [renderer = list] {\n        Action {\n            press: star\n        }\n    }\n}"
   },
   "testActionAddItem": {
-    "snippet": "Person {\n    [renderer = list] {\n        press: addItem {\n            arguments: {\n                template: {\n                    type: \"ImporterInstance\"\n                    name: {{.name}}\n                }\n            }\n        }\n    }\n}"
+    "snippet": "Person {\n    [renderer = list] {\n        press: addItem {\n            arguments: {\n                template: {\n                    _type: \"ImporterInstance\"\n                    name: {{.name}}\n                }\n            }\n        }\n    }\n}"
   },
   "testMultipleActions": {
     "snippet": "Person {\n    [renderer = list] {\n        press: [\n            link {\n                arguments: {\n                    property: {{property}}\n                    dataItem: {{dataItem}}\n                }\n            }\n            closePopup\n        ]\n    }\n}"

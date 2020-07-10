@@ -133,10 +133,6 @@ class DebugHistory /*extends ObservableObject */{
 			))
 		}
 
-		if (settings.get("device/debug/autoShowErrorConsole") ?? false) {//TODO
-			this.showErrorConsole = true
-		}
-
 		console.log(`${this.time()} WARNING: ${message.replace("\n", "\n    ")}`)
 	}
 

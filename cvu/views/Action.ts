@@ -207,6 +207,7 @@ import {ViewArguments} from "./UserState";
 import {Item} from "../../model/DataItem";
 import {realmWriteIfAvailable} from "../../gui/util";
 import {debugHistory} from "./ViewDebugger";
+import {SessionView} from "./SessionView";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -230,16 +231,16 @@ export class Action/* : HashableClass, CVUToString*/ {
     defaultValues = {};
 
     baseValues = {
-        "icon": "exclamationmark.triangle",
+        "icon": "",
         "renderAs": RenderType.button,
         "showTitle": false,
         "opensView": false,
-        "color": new Color("#999999"),//TODO
-        "backgroundColor": new Color("white"),//TODO
-        "activeColor": new Color("#ffdb00"),//TODO
-        "inactiveColor": new Color("#999999"),//TODO
-        "activeBackgroundColor": new Color("white"),//TODO
-        "inactiveBackgroundColor": new Color("white"),//TODO
+        "color": new Color("#999999"),
+        "backgroundColor": new Color("white"),
+        "activeColor": new Color("#ffdb00"),
+        "inactiveColor": new Color("#999999"),
+        "activeBackgroundColor": new Color("white"),
+        "inactiveBackgroundColor": new Color("white"),
         "withAnimation": true
     };
 
@@ -1104,7 +1105,7 @@ export class ActionOpenSessionByName extends Action {
             for (let parsed in parsedDefs) {
                 let view = new SessionView().fromCVUDefinition(
                     parsed, viewArguments)
-                session.link(view, "views"); //TODO
+                session.link(view, "view"); //TODO
             }
 
             // Open the view
@@ -1239,12 +1240,13 @@ export class ActionRunIndexerRun extends Action {
             // TODO: indexerInstance items should have been automatically created already by now
 
             function getAndRunIndexerRun(tries) {
-                if (tries > 20) {
+                if (tries > 5) {
                     return
                 }
                 let uid = run.get("uid");
-                if (uid == 0 || uid == null) {
-                   /* new DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if (run.syncState?.actionNeeded == "create") {
+                    this.context.cache.sync.syncToPod()
+                   /* new DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         getAndRunIndexerRun(tries + 1)
                     }*///TODO:
                 } else {
@@ -1258,22 +1260,28 @@ export class ActionRunIndexerRun extends Action {
     runIndexerRun(run: IndexerRun, uid: number) {
     let start = new Date();
 
+        this.context.podAPI.runIndexerRun(uid,  (error, data) => {
+        console.log(error);
+            console.log(data);
+        })
+
     /*Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
 			let timePassed = Int(Date().timeIntervalSince(start))
 			print("polling indexerInstance")
 			self.context.podAPI.get(uid) { error, data in
 				if let updatedInstance = data as? IndexerRun {
-					if let progress: Int = updatedInstance.get("progress") {
-						if timePassed > 5 || progress >= 100 {
-							timer.invalidate()
-						} else {
-							print("setting random progress")
-							let randomProgress = Int.random(in: 1 ... 20)
-							run.set("progress", randomProgress)
-							self.context.scheduleUIUpdate()
 
-							let p: Int? = run.get("progress")
-							p.map { print($0) }
+                    do{
+                        try self.context.cache.addToCache(updatedInstance)
+                    }
+                    catch {
+                        print("Could not add \(updatedInstance) to cache")
+                    }
+					if let progress: Int = updatedInstance.get("progress") {
+                        self.context.scheduleUIUpdate()
+                        print("progress \(progress)")
+						if timePassed > 20 || progress >= 100 {
+							timer.invalidate()
 						}
 					} else {
 						print("ERROR, could not get progress: \(String(describing: error))")
@@ -1313,7 +1321,7 @@ export class ActionClosePopup extends Action {
     }
 
     exec(argumentsJs) {
-        (this.context.closeStack.removeLast())()//TODO
+        this.context.closeLastInStack();
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
@@ -1341,13 +1349,6 @@ export class ActionSetProperty extends Action {
             throw "Exception: property is not set to a string"
         }
 
-        // Check that the property exists to avoid hard crash
-        if (!subject.objectSchema[propertyName]) {
-            throw `Exception: Invalid property access of ${propertyName} for ${subject}`
-        }
-
-        //#warning("Ask Toby for how to cast this")
-        //#warning("@Ruben not sure what you're asking here")
         subject.set(propertyName, argumentsJs["value"])//TODO
 
             // TODO: refactor
@@ -1361,7 +1362,7 @@ export class ActionSetProperty extends Action {
 
 export class ActionLink extends Action {
     defaultValues = {
-        //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO:
+        //"argumentTypes": {"subject": ItemFamily.constructor, "edgeType": String.constructor, "distinct": Bool.self}//TODO:
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1374,9 +1375,9 @@ export class ActionLink extends Action {
             throw "Exception: subject is not set";
         }
 
-        let propertyName = argumentsJs["property"]
-        if (typeof propertyName != "string") {
-            throw "Exception: property is not set to a string"
+        let edgeType = argumentsJs["edgeType"]
+        if (typeof edgeType != "string") {
+            throw "Exception: edgeType is not set to a string"
         }
 
         let selected = argumentsJs["dataItem"];
@@ -1384,22 +1385,9 @@ export class ActionLink extends Action {
             throw "Exception: selected data item is not passed"
         }
 
-        // Check that the property exists to avoid hard crash
-        let schema = subject.objectSchema[propertyName];
-        if (!schema) {
-            throw `Exception: Invalid property access of ${propertyName} for ${subject}`
-        }
-        if (Array.isArray(schema)) {
-            // Get list and append
-            var list = dataItemListToArray(subject[propertyName]); //TODO:?
+        let distinct = arguments["distinct"] ?? false;
 
-            list.push(selected);
-
-            subject.set(propertyName, list)//TODO
-        }
-        else {
-            subject.set(propertyName, selected)//TODO
-        }
+        subject.link(selected, edgeType, distinct)
 
         // TODO refactor
         ((this.context /*instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:?
@@ -1412,7 +1400,7 @@ export class ActionLink extends Action {
 
 export class ActionUnlink extends Action {
     defaultValues = {
-        //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor}//TODO
+        //"argumentTypes": ["subject": ItemFamily.self, "edgeType": String.self, "all": Bool.self],//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1425,9 +1413,9 @@ export class ActionUnlink extends Action {
             throw "Exception: subject is not set";
         }
 
-        let propertyName = argumentsJs["property"]
-        if (typeof propertyName != "string") {
-            throw "Exception: property is not set to a string"
+        let edgeType = argumentsJs["edgeType"]
+        if (typeof edgeType != "string") {
+            throw "Exception: edgeType is not set to a string"
         }
 
         let selected = argumentsJs["dataItem"];
@@ -1435,24 +1423,10 @@ export class ActionUnlink extends Action {
             throw "Exception: selected data item is not passed"
         }
 
-        // Check that the property exists to avoid hard crash
-        let schema = subject.objectSchema[propertyName];
-        if (!schema) {
-            throw `Exception: Invalid property access of ${propertyName} for ${subject}`
-        }
-        if (Array.isArray(schema)) {
-            // Get list and append
-            var list = dataItemListToArray(subject[propertyName]); //TODO:?
+        let all = arguments["all"] ?? false
 
-            //list.push(selected);
-            var index = list.indexOf(selected);
-            if (index !== -1) list.splice(index, 1);//TODO?
+        subject.unlink(selected, edgeType, all)
 
-            subject.set(propertyName, list)//TODO
-        }
-        else {
-            subject.set(propertyName, null)//TODO
-        }
 
         // TODO refactor
         ((this.context /*instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:?

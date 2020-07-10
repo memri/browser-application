@@ -20,7 +20,7 @@ import {
 import {UserState} from "./UserState";
 import {CascadingView} from "./CascadingView";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
-import {InMemoryObjectCache} from "../../model/InMemoryObjectCache";
+import {getInMemoryObjectCache, setInMemoryObjectCache} from "../../model/InMemoryObjectCache";
 import {realmWriteIfAvailable} from "../../gui/util";
 import {ActionFamily} from "./Action";
 
@@ -32,6 +32,8 @@ export class Views {
 
 	recursionCounter = 0
 	realm
+	CVUWatcher
+	settingWatcher
 
 	constructor(rlm?) {
 		this.realm = rlm
@@ -43,8 +45,27 @@ export class Views {
 
 		 this.setCurrentLanguage(this.context?.settings.get("user/language") ?? "English")
 
+		this.settingWatcher = this.context?.settings.subscribe("device/debug/autoReloadCVU").forEach(function (item) {
+			let value = item;
+			if (typeof item == "boolean") {
+				if (value && this.CVUWatcher == undefined) {
+					this.listenForChanges()
+				} else if (!value && this.CVUWatcher) {
+					this.CVUWatcher.cancel()
+					this.CVUWatcher = undefined;
+				}
+			}
+		}.bind(this)) //TODO: maybe i wrong;
+
 		// Done
 		 callback()
+	}
+
+	listenForChanges() {
+		// Subscribe to changes in CVUStoredDefinition
+		this.CVUWatcher = this.context?.cache.subscribe("CVUStoredDefinition").forEach(function (items) { // CVUStoredDefinition AND domain='user'
+		this.reloadViews(items)
+		}.bind(this))
 	}
 
 	// TODO: refactor when implementing settings UI call this when changing the language
@@ -154,9 +175,22 @@ export class Views {
 		}
 	}
 
-	resolveEdge() {
-		// TODO: REFACTOR: implement
-		throw "not implemented"
+	reloadViews(items) {
+//        guard let defs = items as? [CVUStoredDefinition] else {
+//            return
+//        }
+
+		// This may not be needed
+//        // Determine whether the current view needs reloading
+//        for def in defs {
+//            var selectors = [String]()
+//            if let stack = context?.cascadingView?.cascadeStack {
+//                for parsed in stack { selectors.append(parsed.selectors) }
+//                ...
+//            }
+//        }
+
+		this.context?.scheduleCascadingViewUpdate()
 	}
 
 	getGlobalReference(name, viewArguments) {
@@ -194,7 +228,8 @@ export class Views {
 			default:
 				let value = viewArguments.get(name)
 				if (value) { return value }
-				throw `Exception: Unknown object for property getter: ${name}`
+				return null
+				//throw `Exception: Unknown object for property getter: ${name}`
 		}
 	}
 
@@ -294,6 +329,7 @@ export class Views {
 							case "camelCaseToWords": value = v.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()); break//TODO
 							case "plural": value = v + "s"; break;
 							case "firstUppercased": value = v.charAt(0).toUpperCase() + v.slice(1); break
+							case "plainString": value = v/*.strippingHTMLtags()*/; //TODO: strip html tags
 							default:
 								// TODO: Warn
 								break
@@ -303,7 +339,7 @@ export class Views {
 							case "source": value = v.source(); break;
 							case "target": value = v.target(); break
 							case "item": value = v.item(); break
-							case "label": value = v.label; break
+							case "label": value = v.edgeLabel; break
 							case "type": value = v.type; break
 							case "sequence": value = v.sequence; break
 							default:
@@ -372,6 +408,10 @@ export class Views {
 					}
 				}
 			}
+
+			if (value == undefined) {
+				break
+			}
 		}
 
 		// Format a date
@@ -431,7 +471,7 @@ export class Views {
 			throw "Exception: Missing Context"
 		}
 
-		let cached = new InMemoryObjectCache().get(strDef);
+		let cached = getInMemoryObjectCache(strDef); //TODO
 		if (cached instanceof CVU) {
 			return cached.parse()[0]
 		} else if (viewDef.definition) {
@@ -439,7 +479,7 @@ export class Views {
 			let viewDefParser = new CVU(definition, context,
 									this.lookupValueOfVariables,
 									this.executeFunction)
-			new InMemoryObjectCache().set(strDef, viewDefParser);
+			setInMemoryObjectCache(strDef, viewDefParser); //TODO
 
 			let firstDefinition = viewDefParser.parse()[0]
 			if (firstDefinition) {

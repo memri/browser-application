@@ -9,8 +9,9 @@
 import {CVUParsedDatasourceDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {UserState, ViewArguments} from "./UserState";
 import {realmWriteIfAvailable} from "../../gui/util";
+import {DataItem} from "../../model/DataItem";
 
-class SessionView extends DataItem {
+export class SessionView extends DataItem {
  
     get genericType (){return "SessionView"}
  
@@ -80,7 +81,7 @@ class SessionView extends DataItem {
         var values = {//TODO
             selector: parsed?.selector ?? stored?.selector ?? "[view]",
             name: typeof parsed["name"] === 'string' ? parsed["name"] : stored?.name || "",
-            viewDefinition: stored ?? new CVUStoredDefinition({
+            viewDefinition: stored ?? new CVUStoredDefinition({ //TODO
                 type: "view",
                 selector: parsed?.selector,
                 domain: parsed?.domain,

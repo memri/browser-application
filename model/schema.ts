@@ -12,6 +12,8 @@ export enum ItemFamily {
     typeAudio = "Audio",
     typePhoto = "Photo",
     typeVideo = "Video",
+    typeDatasource = "Datasource",
+    typeDevice = "Device",
     typeDiet = "Diet",
     typeDownloader = "Downloader",
     typeEdge = "Edge",
@@ -35,10 +37,9 @@ export enum ItemFamily {
     typeSessions = "Sessions",
     typeSetting = "Setting",
     typeSyncState = "SyncState",
+    typeUserState = "UserState",
     typeViewArguments = "ViewArguments",
-    typeWebsite = "Website",
-    typeDatasource = "Datasource",
-    typeUserState = "UserState"
+    typeWebsite = "Website"
 }
 
 /*static var discriminator: Discriminator = ._type
@@ -149,6 +150,8 @@ export var getItemType = function (name) {
         case ItemFamily.typeAudio: return Audio
         case ItemFamily.typePhoto: return Photo
         case ItemFamily.typeVideo: return Video
+        case ItemFamily.typeDatasource: return Datasource
+        case ItemFamily.typeDevice: return Device
         case ItemFamily.typeDiet: return Diet
         case ItemFamily.typeDownloader: return Downloader
         case ItemFamily.typeEdge: return Edge
@@ -173,7 +176,6 @@ export var getItemType = function (name) {
         case ItemFamily.typeSetting: return Setting
         case ItemFamily.typeSyncState: return SyncState
         case ItemFamily.typeViewArguments: return ViewArguments
-        case ItemFamily.typeDatasource: return Datasource
         case ItemFamily.typeUserState: return UserState
         case ItemFamily.typeWebsite: return Website
     }
@@ -185,9 +187,9 @@ export class SchemaItem {
     uid;
     /// Object describing syncing information about this object like loading state, versioning,
     /// etc.
-    syncState = new SyncState();
+    syncState /*= new SyncState()*/; //TODO
     /// The last version loaded from the server.
-    version: number = 0
+    version: number = 1
     /// Boolean whether the Item has been deleted.
     deleted: boolean = false
     /// Last access date of the Item.

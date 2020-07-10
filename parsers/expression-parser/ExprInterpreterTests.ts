@@ -87,6 +87,17 @@ const ExprInterpreterTests = {
         snippet: "!true",
         result: false,
     },
+
+    testNegationWithLookup: {
+        snippet: "!.label",
+        result: false,
+        lookup: function (lookup, viewArgs) {
+            return null
+        },
+        execFunc: function (lookup, args, viewArgs) {
+            return true
+        }
+    },
     
     testStringEscaping: {
         snippet: "asdadsasd\\'asdasd",//TODO

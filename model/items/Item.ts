@@ -3,6 +3,7 @@ import {Views} from "../../cvu/views/Views";
 import {settings} from "../Settings";
 import {getItemType, ItemFamily, SchemaItem} from "../schema";
 import {realmWriteIfAvailable} from "../../gui/util";
+import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
@@ -50,12 +51,8 @@ export class Item extends SchemaItem {
         return this.edges("changelog")?.items(AuditItem.constructor); //TODO:
     }
 
-    get labels() {
-        return this.edges("labels")?.items(Label.constructor) //TODO:
-    }
-
     constructor() {
-        //super.init()
+        super();
 
         this.functions["describeChangelog"] = function () {
             let dateCreated = new Views().formatDate(this.dateCreated);
@@ -119,24 +116,6 @@ export class Item extends SchemaItem {
         super.init()
     }*/
 
-//
-//	/// @private
-//	public func superDecode(from decoder: Decoder) throws {
-//		uid = try decoder.decodeIfPresent("uid") ?? uid
-//		memriID = try decoder.decodeIfPresent("memriID") ?? memriID
-//		starred = try decoder.decodeIfPresent("starred") ?? starred
-//		deleted = try decoder.decodeIfPresent("deleted") ?? deleted
-//		version = try decoder.decodeIfPresent("version") ?? version
-//		syncState = try decoder.decodeIfPresent("syncState") ?? syncState
-//
-//		dateCreated = try decoder.decodeIfPresent("dateCreated") ?? dateCreated
-//		dateModified = try decoder.decodeIfPresent("dateModified") ?? dateModified
-//		dateAccessed = try decoder.decodeIfPresent("dateAccessed") ?? dateAccessed
-//
-//		decodeIntoList(decoder, "changelog", changelog)
-//		decodeIntoList(decoder, "labels", labels)
-//	}
-
     cast() {
         return this
     }
@@ -144,7 +123,7 @@ export class Item extends SchemaItem {
     /// Get string, or string representation (e.g. "true) from property name
     /// - Parameter name: property name
     /// - Returns: string representation
-getString(name: string) {
+    getString(name: string) {
         if (this.objectSchema[name] == undefined) {
             //#if DEBUG
             console.log(`Warning: getting property that this item doesnt have: ${name} for ${this.genericType}:${this.uid.value ?? -1000}`)
@@ -152,20 +131,7 @@ getString(name: string) {
 
             return ""
         } else {
-            let val = this[name]
-            if (typeof val == "string") {
-                return val
-            } else if (typeof val == "boolean") {
-                return String(val);
-            } else if (typeof val == "number") {
-                return String(val)
-            } else if (val instanceof Date) {
-                /*let formatter = DateFormatter()
-                formatter.dateFormat = settings.get("user/formatting/date") // "HH:mm    dd/MM/yyyy"*/
-                return val/*formatter.string(from: val)*/ //TODO:
-        } else {
-                return ""
-            }
+            return new ExprInterpreter().evaluateString(this[name]); //TODO
         }
     }
 
@@ -229,6 +195,11 @@ getString(name: string) {
                 this[name] = value
             } else if (value)/*let obj = value as? Object*/ {
                 this.link(value, name, true);
+            } else if (Array.isArray(value)) {
+                let list = value;
+                for (let obj of list) {
+                    this.link(obj, name)
+                }
             }
         }.bind(this))
     }
@@ -268,7 +239,7 @@ getString(name: string) {
 
         // Should this create a temporary edge for which item() is source() ?
         return this.realm?.objects(Edge.self) //TODO:
-            .filter(`targetItemID = ${this.uid} AND type = '${edgeType}`)[0]
+            .filter(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}`)[0]
     }
 
     edges(edgeType: string|string[]) {
@@ -297,7 +268,7 @@ getString(name: string) {
                 return this.edges(collection)
             }
 
-            return this.allEdges.filter(`type = '${edgeType}'`)
+            return this.allEdges.filter(`deleted = false AND type = '${edgeType}'`)
         }
 
     }
@@ -349,7 +320,7 @@ getString(name: string) {
                 }
 
                 let beforeBeforeEdge = edges
-                    .filter(`sequence < ${beforeNumber}`)
+                    .filter(`deleted = false AND sequence < ${beforeNumber}`)
                     .sort("sequence", true)[0];
 
                 let previousNumber = (beforeBeforeEdge?.sequence.value ?? 0)
@@ -373,7 +344,7 @@ getString(name: string) {
                 }
 
                 let afterAfterEdge = edges
-                    .filter(`sequence < ${afterNumber}`)
+                    .filter(`deleted = false AND sequence < ${afterNumber}`)
                     .sort("sequence", true)[0] //TODO:
 
                 let nextNumber = (afterAfterEdge?.sequence.value ?? 0)
@@ -406,6 +377,10 @@ getString(name: string) {
             throw "Exception: Missing uid on target"
         }
 
+        if (edgeType == "") {
+            throw "Exception: Edge type is not set"
+        }
+
         let query = `deleted = false and type = '${edgeType}'`
             + (distinct ? "" : ` and targetItemID = ${targetID}`)
         var edge = this.allEdges.filter(query)[0] //TODO
@@ -432,7 +407,7 @@ getString(name: string) {
                 edge.targetItemID.value = targetID
                 edge.targetItemType = item.genericType
                 edge.sequence.value = sequenceNumber
-                edge.label = label
+                edge.edgeLabel = label
 
                 if (edge.syncState?.actionNeeded == undefined) {
                     edge.syncState.actionNeeded = "update"
@@ -476,8 +451,12 @@ getString(name: string) {
             return
         }
 
+        guard edgeType != "" else {
+            throw "Exception: Edge type is not set"
+        }
+
         let edgeQuery = edgeType != nil ? "type = '\(edgeType!)' and " : ""
-        let query = "deleted = false and \(edgeQuery) targetItemID = '\(targetID)'"
+		let query = "deleted = false and \(edgeQuery) targetItemID = \(targetID)"
         let results = allEdges.filter(query)
 
         if results.count > 0 {
@@ -601,7 +580,7 @@ safeMerge(item: Item) {
         let properties = this.objectSchema.properties
         for (let prop of properties) {
             // Exclude SyncState
-            if (prop.name == "SyncState") {
+            if (prop.name == "SyncState" || prop.name == "uid") {
                 continue
             }
 
