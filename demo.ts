@@ -456,7 +456,7 @@ var cacheListeners;
 function listCVUDefinitions(callback) {
     cache = Object.create(null)
     api.query({query: "CVUStoredDefinition"}, function(err, items) {
-        if (err) return callback(error);
+        if (err) return callback(err);
         items.forEach(function(item) {
             if (!item.definition || item.deleted) return;
             var name = "";

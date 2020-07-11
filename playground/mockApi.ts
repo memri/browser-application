@@ -77,7 +77,7 @@ var mockdata = [{"_type":"CVUStoredDefinition","dateCreated":1594303346473.996,"
 export var mockApi = {
     mockdata,
     async http({method = "GET", path = "", body, data}, callback) {
-        if (path == "search_by_fields" && method == "POST") {
+        if (path == "search_by_fields" || path == "items_with_edges" && method == "POST") {
             return callback(null, JSON.parse(JSON.stringify(mockdata)));
         }
         if (path == "items" && method == "POST") {
