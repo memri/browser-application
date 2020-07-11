@@ -413,6 +413,10 @@ function sortFn(a, b) {
 }
 function updateTree() {
     listCVUDefinitions(function(err, files) {
+        if (err) {
+            console.error(err)
+            return alert("Could not connect to pod: " + err.message)
+        }
         var selected = listBox.popup.getData(listBox.popup.getRow());
         var data = [{className: "header", name: "User"}].concat(
             files.user.sort(sortFn),

@@ -352,7 +352,7 @@ export class PodAPI {
         let query = queryOptions.query || ""
         let matches = query.match(/^(\w+) AND uid = '(.+)'$/)
 
-        if (matches && matches.length === 3) {
+        if (matches) {
             let type = matches[1]
             let uid = matches[2]
 
@@ -377,50 +377,40 @@ export class PodAPI {
             }
         }
 
-        this.http({method: "POST", path: "search_by_fields", body: data}, (error, data) => {
+        this.http({method: "POST", path: "search_by_fields", body: data}, function (error, items) {
             if (error) {
-                debugHistory.error(`Could not load data from pod: \n${error}`)
+                console.error(`Could not load data from pod: \n${error}`)
                 callback(error, null)
-            } else if (data) {
-                try {
-                    var items;
-                    //try JSONErrorReporter {
-                    items = /*JSON.stringify(*/data//);
-                    //}
-
-                    if (items) {
-                        let uids = items.filter(function (item) {
-                            return item.uid;
-                        })
-                        let data2 = uids/*.description.data(using: .utf8)*/ //TODO:
-                        this.http({method: "POST", path: "items_with_edges", body: data2}, function (error, data) {
-                            try {
-                                if (error) {
-                                    debugHistory.error(`Could not connect to pod: \n${error}`)
-                                    callback(error, null);
-                                } else if (data) {
-                                    var items2;
-                                    //try JSONErrorReporter {
-                                    items2 = /*JSON.stringify(*/data//);
-                                    //}
-
-                                    callback(null, items2)
-                                }
-                            } catch (error) {
-                                debugHistory.error(`Could not connect to pod: \n${error}`)
-                                callback(error, null)
-                            }
-                        })
-                    } else {
-                        callback(null, null)
-                        return
-                    }
-                } catch (error) {
-                    debugHistory.error(`Could not connect to pod: \n${error}`)
-                    callback(error, null)
-                }
+            } else {
+                callback(null, items)
+                // todo handle edges
+                // if (items) {
+                //     let uids = items.filter(function (item) {
+                //         return item.uid;
+                //     })
+                //     let data2 = uids/*.description.data(using: .utf8)*/ //TODO:
+                //     this.http({method: "POST", path: "items_with_edges", body: data2}, function (error, data) {
+                //         try {
+                //             if (error) {
+                //                 debugHistory.error(`Could not connect to pod: \n${error}`)
+                //                 callback(error, null);
+                //             } else if (data) {
+                //                 var items2;
+                //                 //try JSONErrorReporter {
+                //                 items2 = /*JSON.stringify(*/data//);
+                //                 //}
+                // 
+                //                 callback(null, items2)
+                //             }
+                //         } catch (error) {
+                //             debugHistory.error(`Could not connect to pod: \n${error}`)
+                //             callback(error, null)
+                //         }
+                //     })
+                // }
             }
         })
+        
     }
 
     
@@ -548,25 +538,3 @@ export class PodAPI {
             }
 */
 
-
-// api = new PodAPI()
-// api.get("10011")
-// api.query({query: "CVUStoredDefinition AND memriID = '10001'"}, console.log)
-
-/*
-fetch("http://localhost:3030/v1/all", {method: "POST", body: `{
-    items(func: type(CVUStoredDefinition)) {
-    uid
-    type : dgraph.type
-    expand(all) {
-        uid
-        type : dgraph.type
-        expand(all) {
-        uid
-        memriID
-        type : dgraph.type
-        }
-    }
-  }
-}` }).then(x=>x.json()).then(console.log)
-*/
