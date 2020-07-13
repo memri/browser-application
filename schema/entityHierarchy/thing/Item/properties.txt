@@ -1,0 +1,14 @@
+allEdges
+changelog
+dateAccessed
+dateCreated
+dateModified
+deleted
+externalID
+genericType
+itemDescription
+label
+starred
+one_syncState
+version
+uid

@@ -1,0 +1,1 @@
+Boolean whether the Item has been deleted.

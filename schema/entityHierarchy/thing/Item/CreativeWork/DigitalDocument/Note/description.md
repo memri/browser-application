@@ -1,0 +1,1 @@
+A file containing a note.

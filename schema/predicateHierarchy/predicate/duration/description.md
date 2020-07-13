@@ -1,0 +1,1 @@
+The duration of the item (movie, audio recording, event, etc.) in ISO 8601 date format.

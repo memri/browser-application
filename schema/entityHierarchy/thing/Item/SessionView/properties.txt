@@ -1,0 +1,6 @@
+name
+one_datasource
+one_session
+one_userState
+one_viewDefinition
+one_viewArguments

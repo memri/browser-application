@@ -1,0 +1,6 @@
+definition
+domain
+name
+query
+selector
+type

@@ -1,0 +1,1 @@
+A collection of all edges this Item is connected to.

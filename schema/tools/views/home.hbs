@@ -1,0 +1,18 @@
+<h1>The Memri Schema</h1>
+<p>
+  This is the Schema used by Memri, dictating how information is stored in the Dgraph database.
+</p>
+
+<h4>Entity hierarchy</h4>
+<p>
+  The <a href="/thing">entity hierarchy</a> dictates how types of nodes are related. For instance, to find all
+  <i>imageObject</i>'s and <i>videoObject</i>'s related to some node, we can query them using their parent node type
+  <i>mediaObject</i>.
+</p>
+
+<h4>Predicate hierarchy</h4>
+<p>
+  The <a href="/predicate">predicate hierarchy</a> dictates how types of edges are related. For instance,
+  to find all family members of a <i>person</i> node, all edges that are of the <i>familyRelation</i> type can be queried,
+  retrieving all its children of the predicate hierarchy, including <i>father</i>'s, <i>mothers</i>'s etc.
+</p>

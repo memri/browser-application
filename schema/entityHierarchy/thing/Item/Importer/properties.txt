@@ -1,0 +1,5 @@
+name
+dataType
+icon
+bundleImage
+importerRun

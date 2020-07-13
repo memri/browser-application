@@ -1,0 +1,1 @@
+The bitrate of the media object.

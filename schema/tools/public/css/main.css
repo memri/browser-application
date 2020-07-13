@@ -1,0 +1,12 @@
+body {
+    margin: 30px;
+}
+
+.table th {
+    background-color: #e9ecef;
+}
+
+.breadcrumb {
+    background-color: white;
+    font-size: 22px;
+}

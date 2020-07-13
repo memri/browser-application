@@ -1,0 +1,1 @@
+An audio object.

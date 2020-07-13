@@ -1,0 +1,1 @@
+The sexual orientation of a person.

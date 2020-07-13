@@ -1,0 +1,15 @@
+{
+  "name": "schemaexplorer",
+  "version": "1.0.0",
+  "description": "Simple web interface to explore the schema.",
+  "main": "explorer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-handlebars": "^4.0.3"
+  }
+}

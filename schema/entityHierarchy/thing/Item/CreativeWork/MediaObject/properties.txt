@@ -1,0 +1,10 @@
+bitrate
+duration
+endTime
+one_file
+fileLocation
+fileSize
+height
+includes
+startTime
+width

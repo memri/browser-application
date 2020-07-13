@@ -1,0 +1,1 @@
+The place where the person died.

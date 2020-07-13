@@ -1,0 +1,1 @@
+RFC3339 time format with optional timezone eg: 2006-01-02T15:04:05.999999999+10:00 or 2006-01-02T15:04:05.999999999.

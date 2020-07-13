@@ -1,0 +1,10 @@
+type
+targetItemType
+targetItemID
+sourceItemType
+sourceItemID
+sequence
+one_syncState
+deleted
+version
+one_edgeLabel

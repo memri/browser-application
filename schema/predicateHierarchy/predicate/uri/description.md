@@ -1,0 +1,1 @@
+The uri property represents the Uniform Resource Identifier (URI) of a resource.

@@ -1,0 +1,3 @@
+one_flag
+one_location
+name

@@ -1,0 +1,7 @@
+currentViewIndex
+editMode
+name
+one_screenshot
+showContextPane
+showFilterPanel
+sequenced_views

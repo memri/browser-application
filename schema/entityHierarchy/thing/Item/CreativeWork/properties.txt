@@ -1,0 +1,15 @@
+abstract
+associatedMedia
+audio
+citation
+contentLocation
+dateCreated
+dateModified
+datePublished
+keyword
+license
+locationCreated
+text
+version
+video
+writtenBy

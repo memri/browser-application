@@ -1,0 +1,4 @@
+isPartiallyLoaded
+actionNeeded
+updatedFields
+changedInThisSession

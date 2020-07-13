@@ -1,0 +1,1 @@
+The location depicted or described in the content. For example, the location in a photograph or painting.

@@ -1,0 +1,1 @@
+All data is either an entity (node) or a primitive data type (node or property).

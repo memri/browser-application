@@ -1,0 +1,1 @@
+Identifiers stored as strings.

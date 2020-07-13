@@ -1,0 +1,4 @@
+date
+content
+action
+appliesTo

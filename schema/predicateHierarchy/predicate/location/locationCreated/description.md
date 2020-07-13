@@ -1,0 +1,1 @@
+The location where the CreativeWork was created, which may not be the same as the location depicted in the CreativeWork.

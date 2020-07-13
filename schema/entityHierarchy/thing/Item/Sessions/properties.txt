@@ -1,0 +1,2 @@
+currentSessionIndex
+sequenced_sessions

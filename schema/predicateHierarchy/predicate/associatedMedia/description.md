@@ -1,0 +1,1 @@
+A media object that encodes this CreativeWork. This property is a synonym for encoding.

@@ -1,0 +1,28 @@
+<h1>Predicate: {{name}}</h1>
+<p><i>{{lookup (lookup predicateHierarchy name) 'description'}}</i></p>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    {{#each pathLinks}}
+      <li class="breadcrumb-item"><a href="{{this}}">{{@key}}</a></li>
+    {{/each}}
+  </ol>
+</nav>
+
+<h4>Expected to be one of these types</h4>
+<ul class="list-group">
+  {{#each (lookup (lookup predicateHierarchy name) 'expectedTypes') as |type|}}
+    <li class="list-group-item">
+      <a href="{{lookup (lookup ../entityHierarchy type) 'path'}}">{{type}}</a>
+    </li>
+  {{/each}}
+</ul>
+<p></p>
+
+<h4>Child nodes</h4>
+<ul class="list-group">
+  {{#each (lookup (lookup predicateHierarchy path) 'children') as |child|}}
+    <li class="list-group-item">
+      <a href="{{../name}}/{{child}}">{{child}}</a>
+    </li>
+  {{/each}}
+</ul>

@@ -1,0 +1,7 @@
+deviceID
+make
+manufacturer
+model
+name
+dateAquired
+dateLost

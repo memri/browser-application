@@ -1,0 +1,1 @@
+Exif data for this object.

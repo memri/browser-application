@@ -1,0 +1,1 @@
+An abstract is a short description that summarizes a CreativeWork.
