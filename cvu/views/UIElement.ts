@@ -16,11 +16,14 @@ import {
 	VerticalAlignment
 } from "../../parsers/cvu-parser/CVUParser";
 import {Action} from "./Action";
-import {DataItem, Item} from "../../model/DataItem";
+import {UUID} from "../../model/DataItem";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "./ViewDebugger";
+import {Datasource} from "../../context/Datasource";
+import {Item} from "../../model/items/Item";
 
 export class UIElement /*extends CVUToString */{
+	id = UUID()
 	type: UIElementFamily
 	children = []
 	properties = {} // TODO: ViewParserDefinitionContext

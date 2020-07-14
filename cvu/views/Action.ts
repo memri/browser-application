@@ -208,6 +208,8 @@ import {Item} from "../../model/DataItem";
 import {realmWriteIfAvailable} from "../../gui/util";
 import {debugHistory} from "./ViewDebugger";
 import {SessionView} from "./SessionView";
+import {settings} from "../../model/Settings";
+import {Datasource} from "../../context/Datasource";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -446,7 +448,8 @@ export enum ActionFamily {
     noop = "noop",
     runIndexerRun = "runIndexerRun",
     runImporterRun = "runImporterRun",
-    setProperty = "setProperty"
+    setProperty = "setProperty",
+    setSetting = "setSetting"
 }
 
 export var getActionType = function (name) {
@@ -474,9 +477,10 @@ export var getActionType = function (name) {
         case ActionFamily.link: return ActionLink
         case ActionFamily.unlink: return ActionUnlink
         case ActionFamily.multiAction: return ActionMultiAction
-        case ActionFamily.runIndexerRun: return ActionRunIndexerInstance
-        case ActionFamily.runImporterRun: return ActionRunImporterInstance
+        case ActionFamily.runIndexerRun: return ActionRunIndexerRun
+        case ActionFamily.runImporterRun: return ActionRunImporterRun
         case ActionFamily.setProperty: return ActionSetProperty
+        case ActionFamily.setSetting: return ActionSetSetting
         case ActionFamily.noop:
         default: return ActionNoop
     }
@@ -1357,6 +1361,34 @@ export class ActionSetProperty extends Action {
 
     /*class func exec(_ context: MemriContext, _ arguments: [String: Any]) throws {
         execWithoutThrow { try ActionLink(context).exec(arguments) }
+    }*/
+}
+
+class ActionSetSetting extends Action{
+    defaultValues = {
+        //"argumentTypes": ["path": String.self, "value": Any.self]
+    }
+
+    constructor(context: MemriContext, argumentsJs = null, values = {}) {
+        super(context, "setSetting", argumentsJs, values)
+    }
+
+    exec(argumentsJs) {
+        let path = argumentsJs["path"];
+        if (typeof path != "string") {
+            throw "Exception: missing path to set setting"
+        }
+
+        let value = argumentsJs["value"]
+
+        settings.set(path, value);
+
+            // TODO: refactor
+            ((this.context/* instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
+    }
+
+    /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {
+        execWithoutThrow { try ActionSetSetting(context).exec(arguments) }
     }*/
 }
 

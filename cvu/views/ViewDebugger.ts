@@ -180,16 +180,19 @@ class DebugConsole /*extends View*/ {
 
 		/*return Group {//TODO
 			if (debugHistory.showErrorConsole) {
-				VStack(0) {
+				VStack(spacing: 0) {
 					HStack {
 						Text("Console")
 							.font(.system(size: 14, weight: .semibold))
 							.padding(EdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10))
 							.foregroundColor(Color(hex: "555"))
+                        Spacer()
 						Button(action: { self.scrollPosition = .top }) {
 							Text("scroll to top")
 						}
-						Spacer()
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(Color(hex: "#999"))
+                        .padding(10)
 						Button(action: { self.history.clear() }) {
 							Text("clear")
 						}
@@ -223,7 +226,7 @@ class DebugConsole /*extends View*/ {
 									.padding(.top, 1)
 									.foregroundColor(Color(hex: "#333"))
 
-								if (notice.messageCount > 1) {
+								if notice.messageCount > 1 {
 									Text("\(notice.messageCount)x")
 										.padding(3)
 										.background(Color.yellow)

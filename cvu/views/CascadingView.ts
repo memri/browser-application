@@ -11,6 +11,7 @@ import {UserState, ViewArguments} from "./UserState";
 import {CVUParsedDatasourceDefinition, CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {debugHistory} from "./ViewDebugger";
+import {CascadingDatasource, Datasource} from "../../context/Datasource";
 
 export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
@@ -27,7 +28,8 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         let ds = this.sessionView.datasource;
         if (ds) {
             let stack = this.cascadeStack.map (x => {//TODO
-                x && x["datasourceDefinition"] instanceof CVUParsedDatasourceDefinition
+                if (x && x["datasourceDefinition"] instanceof CVUParsedDatasourceDefinition)
+                    return x
             })
 
             let datasource = new CascadingDatasource(stack, this.viewArguments, ds)

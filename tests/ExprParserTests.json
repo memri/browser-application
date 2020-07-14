@@ -77,6 +77,11 @@
     "startMode": "string",
     "result": "StringModeNode(expressions: [StringNode(Hello ), LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(firstName, type:propertyOrItem, list:single)]), StringNode( ), LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(lastName, type:propertyOrItem, list:single)])])"
   },
+  "testStringModeUsingOr": {
+    "snippet": "{.title or \"test\"} — {.content.plainString}",
+    "startMode": "string",
+    "result": "StringModeNode(expressions: [CallNode(lookup: LookupNode([VariableNode(fetchName)]), argument: []), StringNode( Hello)])"
+  },
   "testStringModeStartWithExpression": {
     "snippet": "{fetchName()} Hello",
     "startMode": "string",

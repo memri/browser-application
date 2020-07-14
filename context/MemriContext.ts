@@ -13,7 +13,15 @@
  */
 
 // TODO: Remove this and find a solution for Edges
-var globalCache
+import {debugHistory} from "../cvu/views/ViewDebugger";
+import {CVUParsedDatasourceDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {realmWriteIfAvailable} from "../gui/util";
+import {settings} from "../model/Settings";
+import {Views} from "../cvu/views/Views";
+import {PodAPI} from "../api/api";
+import {Datasource} from "./Datasource";
+
+export var globalCache
 
 class Alias {
 	key: string
@@ -29,14 +37,14 @@ class Alias {
 	}
 }
 
-class MemriContext extends ObservableObject {
+class MemriContext {
 	name = ""
 	/// The current session that is active in the application
-	currentSession: Session?
+	currentSession?: Session
 
-	cascadingView: CascadingView?
+	cascadingView?: CascadingView
 
-	sessions: Sessions?
+	sessions?: Sessions
 
 	views: Views
 
@@ -78,14 +86,9 @@ class MemriContext extends ObservableObject {
 		this.closeStack.push(isPresentedBinding)
 	}
 	closeLastInStack() {
-		let lastVisibleIndex = null//TODO closeStack.lastIndex(where: { $0.wrappedValue.isPresented })
-		for (var i = this.closeStack.length - 1; i >= 0; i--) {
-			if (this.closeStack[i].wrappedValue.isPresented) {
-				lastVisibleIndex = i
-				break
-			}
-		}
-
+		let lastVisibleIndex = this.closeStack.findIndex(function (el) {
+			return el.wrappedValue.isPresented;
+		}) //TODO:
 		if (lastVisibleIndex >= 0) {
 			this.closeStack[lastVisibleIndex].wrappedValue.dismiss()
 			this.closeStack = this.closeStack.slice(0, lastVisibleIndex)
@@ -102,7 +105,7 @@ class MemriContext extends ObservableObject {
 
 			// Update UI
 			this.objectWillChange.send()
-		}
+		}.bind(this);
 		if (immediate) {
 			// Do this straight away, usually for the sake of correct animation
 			outcome()
@@ -133,9 +136,9 @@ class MemriContext extends ObservableObject {
 			catch (error) {
 				// TODO: User error handling
 				// TODO: Error Handling
-				debugHistory.error(`Could not update CascadingView: ${error}`)//TODO
+				debugHistory.error(`Could not update CascadingView: ${error}`)
 			}
-		}
+		}.bind(this)
 		if (immediate) {
 			// Do this straight away, usually for the sake of correct animation
 			outcome()
@@ -170,7 +173,7 @@ class MemriContext extends ObservableObject {
 				if (ds && ds instanceof CVUParsedDatasourceDefinition) {
 					// TODO: this is at the wrong moment. Should be done after cascading
 					currentView.set("datasource",
-						Datasource.fromCVUDefinition(ds, currentView.viewArguments))
+						new Datasource().fromCVUDefinition(ds, currentView.viewArguments))
 				} else {
 					throw new Error("Exception: Missing datasource in session view")
 				}
@@ -191,7 +194,7 @@ class MemriContext extends ObservableObject {
 		// If we can guess the type of the result based on the query, let's compute the view
 		if (resultSet.determinedType != undefined) {
 			if (this instanceof RootContext) { // if (type(of: self) == RootMain.self) {
-				debugHistory.info("Computing view "//TODO
+				debugHistory.info("Computing view "
 					+ (currentView.name ?? currentView.viewDefinition?.selector ?? ""))
 			}
 
@@ -216,11 +219,11 @@ class MemriContext extends ObservableObject {
 						// Update the UI
 						this.scheduleUIUpdate()
 					}
-				})
+				}.bind(this)) //TODO
 			} catch (error) {
 				// TODO: Error handling
 				// TODO: User Error handling
-				debugHistory.error(`${error}`)//TODO
+				debugHistory.error(`${error}`)
 			}
 
 			// Update the UI
@@ -238,7 +241,7 @@ class MemriContext extends ObservableObject {
 					// Update the current view based on the new info
 					this.scheduleUIUpdate() // TODO: shouldn't this be setCurrentView??
 				}
-			})
+			}.bind(this))
 		}
 	}
 
@@ -274,7 +277,7 @@ class MemriContext extends ObservableObject {
 	}
 
 	getPropertyValue(name) {
-		let type = new Mirror(this)
+		let type = new Mirror(this) //TODO:
 
 		for (var child of type.children) {
 			if (child.label == name || child.label == "_" + name) {
@@ -311,7 +314,7 @@ class MemriContext extends ObservableObject {
 	setSubscript(propName, newValue) {
 		let alias = this.aliases[propName]
 		if (alias) {
-			this.settings.set(alias.key, AnyCodable(newValue))//TODO
+			this.settings.set(alias.key, newValue)//TODO
 
 			let x = newValue
 			if (typeof x === "boolean") { x ? alias.on() : alias.off() }
@@ -348,7 +351,7 @@ class MemriContext extends ObservableObject {
 		this["showNavigation"] = value
 	}
 
-	constructor({
+	constructor(
 		name,
 		podAPI,
 		cache,
@@ -361,8 +364,7 @@ class MemriContext extends ObservableObject {
 		navigation,
 		renderers,
 		indexerAPI
-	}) {
-		super()
+	) {
 		this.name = name
 		this.podAPI = podAPI
 		this.cache = cache
@@ -387,20 +389,20 @@ class SubContext extends MemriContext {
 
 	constructor(name: string, context: MemriContext, session: Session)  {
 		let views = new Views(context.realm)
-		super({
-			name: name,
-			podAPI: context.podAPI,
-			cache: context.cache,
-			realm: context.realm,
-			settings: context.settings,
-			installer: context.installer,
-			sessions: Cache.createItem(Sessions.constructor),
-			views: views,
-			//            cascadingView: context.cascadingView,
-			navigation: context.navigation,
-			renderers: context.renderers,
-			indexerAPI: context.indexerAPI
-		})
+		super(
+			name,
+			context.podAPI,
+			context.cache,
+			context.realm,
+			context.settings,
+			context.installer,
+			Cache.createItem(Sessions.constructor),
+			views,
+			undefined, //            cascadingView: context.cascadingView,,
+			context.navigation,
+			context.renderers,
+			context.indexerAPI
+		)
 
 		this.parent = context
 
@@ -420,33 +422,29 @@ class RootContext extends MemriContext {
 	subContexts = []
 
 	// TODO: Refactor: Should installer be moved to rootmain?
+	podAPI = new PodAPI(key)
+	cache = new Cache(this.podAPI);
+	realm = this.cache.realm;
 
 	constructor(name: string, key: string)  {
-		super()//TODO
-		let podAPI = new PodAPI(key)
-		let cache = new Cache(podAPI)
-		let realm = cache.realm
-		super({
-			name: name,
-			podAPI: podAPI,
-			cache: cache,
-			realm: realm,
-			settings: new Settings(realm),
-			installer: new Installer(realm),
-			sessions: Cache.createItem(Sessions.constructor, {uid: Cache.getDeviceID()}),
-			views: new Views(realm),
-			navigation: new MainNavigation(realm),
-			renderers: new Renderers(),
-			indexerAPI: new IndexerAPI()
-		})
+		super(
+			name,
+			podAPI,
+			cache,
+			realm,
+			settings(realm),
+			new Installer(realm),
+			Cache.createItem(Sessions.constructor, {uid: Cache.getDeviceID()}),
+			new Views(realm),
+			undefined,
+			new MainNavigation(realm),
+			new Renderers(),
+			new IndexerAPI()
+		)
 
-		this.podAPI = podAPI
-		this.cache = cache
-		this.realm = realm
+		globalCache = this.cache // TODO: remove this and fix edges
 
-		globalCache = cache // TODO: remove this and fix edges
-
-		MapHelper.shared.realm = realm // TODO: How to access realm in a better way?
+		MapHelper.shared.realm = this.realm // TODO: How to access realm in a better way?
 
 		this.cascadingView?.context = this
 
@@ -461,11 +459,11 @@ class RootContext extends MemriContext {
 			showNavigation: new Alias("device/gui/showNavigation", "bool", takeScreenShot),
 		}
 
-		this.cache.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }//TODO
-		this.navigation.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }//TODO
+		//this.cache.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }//TODO
+		//this.navigation.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }//TODO
 
 		// Make settings global so it can be reached everywhere
-		globalSettings = this.settings//TODO
+		this.globalSettings = this.settings//TODO
 	}
 
 	createSubContext(session) {
@@ -476,7 +474,7 @@ class RootContext extends MemriContext {
 
 	boot() {
 		// Make sure memri is installed properly
-		this.installer.installIfNeeded(this) {
+		this.installer.installIfNeeded(this, function () {
 			/*#if (targetEnvironment(simulator)
 			// Reload for easy adjusting
 			self.views.context = self
@@ -495,8 +493,10 @@ class RootContext extends MemriContext {
 
 				// Load current view
 				this.updateCascadingView()
-			})
-		}
+
+				//callback?()
+			}.bind(this))
+		});
 	}
 
 	mockBoot() {

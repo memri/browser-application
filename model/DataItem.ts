@@ -455,5 +455,3 @@ class Edge/* extends Object*/ {
 	//        subjectUid = try decoder.decodeIfPresent("subjectUid") ?? subjectUid
 	//    }
 }
-
-export var Item = DataItem;
