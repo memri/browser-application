@@ -1,6 +1,6 @@
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {getItemType, ItemFamily} from "../model/schema";
-var fs = require("fs");
+//var fs = require("fs");
 
 export var MemriJSONEncoder = function (x) {
     return JSON.parse(x);
