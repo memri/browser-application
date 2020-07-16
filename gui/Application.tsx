@@ -30,15 +30,15 @@ import {NavigationWrapper} from "./navigation/NavigationView";
 		return UIDevice.current.userInterfaceIdiom == .pad
 	#endif
 }*/
+interface ApplicationProps { context: MemriContext; }
 
-class Application extends React.Component {
-	context: MemriContext
+class Application extends React.Component<ApplicationProps, {}> {
 	render() {
 		return (
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
 				<VStack spacing={0}>
-					<NavigationWrapper isVisible={this.context.showNavigationBinding}>
-						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser/>}
+					<NavigationWrapper isVisible={this.props.context.showNavigationBinding}>
+						{(this.props.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser/>}
 					</NavigationWrapper>
 					<DebugConsole/>
 				</VStack>

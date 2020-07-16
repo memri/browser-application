@@ -27,6 +27,7 @@ export class Color {
     value;
     constructor(value) {
         switch (value) {
+            case "systemBackground":
             case "white":
                 this.value = "#ffffff";
                 break;
