@@ -44,10 +44,10 @@ export class Application extends React.Component<ApplicationProps, {}> {
 		return (
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
 				<VStack spacing={0}>
-					<NavigationWrapper isVisible={this.context.showNavigationBinding}>
-						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser/>}
+					<NavigationWrapper isVisible={this.context.showNavigationBinding} context={this.context}>
+						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Hello/>}
 					</NavigationWrapper>
-					<Spacer/>
+					{/*<Spacer/>*/}
 				</VStack>
 			</ScreenSizer>
 			);
@@ -55,6 +55,17 @@ export class Application extends React.Component<ApplicationProps, {}> {
 }
 
 
+
+class Hello extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		return (
+			"HEllo!"
+		)
+	}
+}
 
 /*struct Application_Previews: PreviewProvider {
 	static var previews: some View {

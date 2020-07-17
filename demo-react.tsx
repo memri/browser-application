@@ -243,8 +243,8 @@ import {mockApi} from "./playground/mockApi"
 
 let context = getContext("Memri GUI", mockApi);
 
-function App() {
-  return <div>
+function App() {//TODO: don't ask, please, about link inside div =)
+  return <div><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       <Application context={context}/>
   </div>
 }

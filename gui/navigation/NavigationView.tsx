@@ -8,22 +8,17 @@
 import * as React from 'react';
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionOpenSessionByName} from "../../cvu/views/Action";
+import {frame, ZStack, offset, VStack, HStack, padding, ColorArea, Content} from "../swiftUI";
+import {Button, Icon, TextField} from "@material-ui/core";
 
-interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?}
+
+interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}
 
 export class NavigationWrapper extends React.Component<NavigationWrapperProps, {}> {
 	widthRatio;
 	isVisible;
 	offset;
 	content: Content;
-
-	constructor(props) {
-		super(props);
-		this.widthRatio = props.widthRatio ?? 0.8;
-		this.isVisible = props?.isVisible;
-		this.offset = props.offset ?? 0;
-		this.content = props?.content
-	}
 
 	/*
 	/*@GestureState(reset: { _, transaction in
@@ -48,25 +43,37 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 	}
 
 	render() {//Color.clear ??
+		this.widthRatio = this.props.widthRatio ?? 0.8;
+		this.isVisible = this.props?.isVisible;
+		this.offset = this.props.offset ?? 0;
+		this.content = this.props?.content
+		this.context = this.props.context;
+		let geom = /*this.props.geom;*/
+			{
+				size: {
+					width: 200,
+					height: 200
+				}//TODO: for testing
+			}
 		return (
 			<ZStack alignment={Alignment.leading}>
-				<this.content
-					frame={frame(geom.size.width, geom.size.height, Alignment.topLeading)}
-					offset={offset(this.isVisible ? this.navWidth(geom) + this.cappedOffset(geom) : this.cappedOffset(geom))}
-					disabled={this.isVisible}
-					zIndex={-1}
-				/>
-				<Color contentShape={Rectangle()} frame={frame(10, 10, infinity)}
-					   simultaneousGesture={this.navigationDragGesture}/>
-				{this.isVisible || this.offset > 0 &&
-				<Color opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
-					   simultaneousGesture={this.navigationDragGesture} zIndex={10}/> &&
+				<Content frame={frame({width: geom.size.width, height: geom.size.height, alignment: Alignment.topLeading})}
+					 offset={offset({x: this.isVisible ? this.navWidth(geom) + this.cappedOffset(geom) : this.cappedOffset(geom)})}
+					 disabled={this.isVisible}
+					 zIndex={-1}>
+				{this.props.children}
+				</Content>
+				<ColorArea value="clear" contentShape="Rectangle" frame={frame({minWidth:10, maxWidth:10, maxHeight:"Infinity"})}
+					   /*simultaneousGesture={this.navigationDragGesture}*//>
+				{(this.isVisible || this.offset > 0) &&
+				<ColorArea opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
+					   /*simultaneousGesture={this.navigationDragGesture}*/ zIndex={10}/> &&
 				<Navigation
 					frame={frame(geom.size.width * this.widthRatio)} edgesIgnoringSafeArea="all"
-					offset={offset(this.isVisible ? this.cappedOffset(geom) : (-this.navWidth(geom) + this.cappedOffset(geom)), 0)}
-					simultaneousGesture={this.navigationDragGesture}
-					transition={move(Alignment.leading)}
-					zIndex={15}
+					offset={offset({x:this.isVisible ? this.cappedOffset(geom) : (-this.navWidth(geom) + this.cappedOffset(geom)),y: 0})}
+					/*simultaneousGesture={this.navigationDragGesture}*/
+					/*transition={move(Alignment.leading)}*/
+					zIndex={15} context={this.context}
 				/>
 				}
 			</ZStack>
@@ -96,7 +103,7 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 		}
 	}*/
 
-	get navigationDragGesture() {
+	/*get navigationDragGesture() {
 		return (
 			<DragGesture updating={updating($offset, function (value, offset) {
 				offset = value.translation.width
@@ -111,51 +118,52 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 			>
 			</DragGesture>
 		)
-	}
+	}*/
 }
-interface NavigationProps { frame; edgesIgnoringSafeArea; offset; simultaneousGesture; transition; zIndex}
+interface NavigationProps { context?; keyboardResponder?; showSettings?; frame?; edgesIgnoringSafeArea?; offset?; simultaneousGesture?; transition?; zIndex?}
 
 class Navigation extends React.Component<NavigationProps, {}> {
 	context: MemriContext
 
-	keyboardResponder = KeyboardResponder.shared
+	keyboardResponder;
 
 	showSettings: boolean;
 
 	constructor(props) {
 		super(props);
-		this.context = props.context;
-		this.keyboardResponder = props.keyboardResponder;
-		this.showSettings = props.showSettings ?? false;
 	}
 
 	render() {
+		this.context = this.props.context;
+		this.keyboardResponder = this.props.keyboardResponder;
+		this.showSettings = this.props.showSettings ?? false;
+		/*this.context.navigation.filterText*/ //TODO: <- value
 		return (
-		<VStack frame={frame(infinity, Alignment.leading)} background = "#543184">
+		<VStack frame={frame({maxWidth: "Infinity", alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
 				<Button action={function () {
 					this.showSettings = true
-				}.bind(this)} sheet={sheet(this.$showSettings, function () {
+				}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
 					SettingsPane().environmentObject(this.context)
-				}.bind(this))}>
-					<Image systemName="gear" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>
+				}.bind(this))}*/ startIcon={<Icon>settings</Icon>}>
+					{/*<Image systemName="gear" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
 				</Button>
-				<MemriTextField value={this.$context.navigation.filterText} placeholder="Search"
-								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
+				<TextField defaultValue={"Test"} placeholder="Search"
+								/*textColor="#8a66bc" tintColor="white" clearButtonMode="always"
 								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
-								accentColor="white" background="#341e51" cornerRadius="5"/>
-				<Button>
-					<Image systemName="pencil" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>
+								accentColor="white" background="#341e51" cornerRadius="5"*//>
+				<Button startIcon={<Icon>create</Icon>}>
+					{/*<Image systemName="pencil" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
 				</Button>
-				<Button>
-					<Image systemName="plus" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>
+				<Button startIcon={<Icon>add</Icon>}>
+					{/*<Image systemName="plus" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
 				</Button>
 			</HStack>
-			<ASTableView separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}>
+			{/*<ASTableView separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}>
 				<ASSection id={0} data={this.context.navigation.getItems()} dataID={} >
 
 				</ASSection>
-			</ASTableView>
+			</ASTableView>*/}
 
 		</VStack>
 			) //TODO: logic in ASSection
