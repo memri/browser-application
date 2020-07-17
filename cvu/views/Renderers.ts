@@ -10,17 +10,17 @@ import {Action} from "./Action";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {UIElement, UIElementFamily} from "./UIElement";
 import {Cascadable} from "./Cascadable";
+import {registerListRenderer} from "../../gui/renderers/ListRendererView";
 
-var allRenderers = null
-
-class Renderers {
+export class Renderers {
     all = {}
     allViews = {}
     allConfigTypes = {}
 
     register(name, title, order, icon =  "", view, renderConfigType, canDisplayResults) {
-
-        this.all[name] = new FilterPanelRendererButton(context, name, order, title, icon, canDisplayResults) //TODO: confusing
+        this.all[name] = function (context)  {
+            return new FilterPanelRendererButton(context, name, order, title, icon, canDisplayResults)
+        }
         this.allViews[name] = view
         this.allConfigTypes[name] = renderConfigType
     }
@@ -33,24 +33,26 @@ class Renderers {
     }*/
     
     constructor() {
-        if (allRenderers == null) { allRenderers = this }
+        //if (allRenderers == null) { allRenderers = this }
         
-        registerCustomRenderer()//TODO
+        //registerCustomRenderer()//TODO
         registerListRenderer()
-        registerGeneralEditorRenderer()
-        registerThumbnailRenderer()
-        registerThumbGridRenderer()
-        registerThumbHorizontalGridRenderer()
-        registerThumbWaterfallRenderer()
-        registerMapRenderer()
-        registerChartRenderer()
-        registerRichTextEditorRenderer()
+        //registerGeneralEditorRenderer()
+        //registerThumbnailRenderer()
+        //registerThumbGridRenderer()
+        //registerThumbHorizontalGridRenderer()
+        //registerThumbWaterfallRenderer()
+        //registerMapRenderer()
+        //registerChartRenderer()
+        //registerRichTextEditorRenderer()
     }
     
     tuples() {
         return Object.fromEntries(Object.entries(this.all).sort())//TODO
     }
 }
+
+export var allRenderers = new Renderers();
 
 class FilterPanelRendererButton extends Action/*, ActionExec*/ {
     defaults = {

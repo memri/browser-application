@@ -37,7 +37,7 @@ class Alias {
 	}
 }
 
-class MemriContext {
+export class MemriContext {
 	name = ""
 	/// The current session that is active in the application
 	currentSession?: Session
@@ -327,7 +327,7 @@ class MemriContext {
 
 
 	get showSessionSwitcher() {
-		return this["showSessionSwitcher"] == true
+		return /*this["showSessionSwitcher"]*/false
 	}
 
 	set showSessionSwitcher(value) {
@@ -335,16 +335,17 @@ class MemriContext {
 	}
 
 	get showNavigationBinding() {
-		return //TODO
+		return this?.showNavigation ?? false //TODO
 		// [weak self] in self?.showNavigation ?? false
 	}
 
 	set showNavigationBinding(value) {
+		this.showNavigation = value;
 		// [weak self] in self?.showNavigation = $0//TODO
 	}
 
 	get showNavigation() {
-		return this["showNavigation"] == true
+		return true
 	}
 
 	set showNavigation(value) {
@@ -380,11 +381,11 @@ class MemriContext {
 
 		// TODO: FIX
 		this.cascadingView?.context = this
-		this.indexerAPI.context = this
+		this.indexerAPI?.context = this
 	}
 }
 
-class SubContext extends MemriContext {
+export class SubContext extends MemriContext {
 	parent: MemriContext
 
 	constructor(name: string, context: MemriContext, session: Session)  {
@@ -416,13 +417,13 @@ class SubContext extends MemriContext {
 
 /// Represents the entire application user interface. One can imagine in the future there being multiple applications, each aimed at a
 ///  different way to represent the data. For instance an application that is focussed on voice-first instead of gui-first.
-class RootContext extends MemriContext {
+export class RootContext extends MemriContext {
 	cancellable?: AnyCancellable
 
 	subContexts = []
 
 	// TODO: Refactor: Should installer be moved to rootmain?
-	podAPI = new PodAPI(key)
+	podAPI = new PodAPI(this.key)
 	cache = new Cache(this.podAPI);
 	realm = this.cache.realm;
 

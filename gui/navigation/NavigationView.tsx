@@ -5,11 +5,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import React from "react";
+import * as React from 'react';
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionOpenSessionByName} from "../../cvu/views/Action";
 
-interface NavigationWrapperProps { isVisible: boolean; widthRatio: number; content}
+interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?}
 
 export class NavigationWrapper extends React.Component<NavigationWrapperProps, {}> {
 	widthRatio;
@@ -20,9 +20,9 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 	constructor(props) {
 		super(props);
 		this.widthRatio = props.widthRatio ?? 0.8;
-		this.isVisible = props.isVisible;
+		this.isVisible = props?.isVisible;
 		this.offset = props.offset ?? 0;
-		this.content = props.content()
+		this.content = props?.content
 	}
 
 	/*
@@ -131,7 +131,7 @@ class Navigation extends React.Component<NavigationProps, {}> {
 
 	render() {
 		return (
-		<VStack frame ={frame(infinity, Alignment.leading)} background = "#543184">
+		<VStack frame={frame(infinity, Alignment.leading)} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
 				<Button action={function () {
 					this.showSettings = true
@@ -215,7 +215,9 @@ class NavigationItemView extends React.Component {
 		}.bind(this)
 		return(
 			<Button buttonStyle={NavigationButtonStyle()} action={action()}>
-				<Text value={this.item.title?.firstUppercased ?? ""} font={Font.system({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: infinity, alignment: Alignment.leading})} contentShape={Rectangle()}/>
+				<Text font={Font.system({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: infinity, alignment: Alignment.leading})} contentShape={Rectangle()}>
+					{this.item.title?.firstUppercased ?? ""}
+				</Text>
 			</Button>
 		)
 	}
@@ -239,7 +241,9 @@ class NavigationHeadingView extends React.Component {
 	render() {
 		return (
 			<HStack>
-				<Text value={(this.title ?? "").toUpperCase()} font={Font.system({size: 18, weight: Font.Weight.bold})} padding={padding({vertical: 8, horizontal: 20})} foregroundColor="#8c73af"/>
+				<Text font={Font.system({size: 18, weight: Font.Weight.bold})} padding={padding({vertical: 8, horizontal: 20})} foregroundColor="#8c73af">
+					{(this.title ?? "").toUpperCase()}
+				</Text>
 				<Spacer/>
 			</HStack>
 		)

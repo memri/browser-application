@@ -5,7 +5,7 @@
 //
 
 
-class Languages {
+export class Languages {
     currentLanguage = "English"
     keywords = {}
     

@@ -23,10 +23,11 @@ import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {getInMemoryObjectCache, setInMemoryObjectCache} from "../../model/InMemoryObjectCache";
 import {realmWriteIfAvailable} from "../../gui/util";
 import {ActionFamily} from "./Action";
+import {Languages} from "./Languages";
 
 export class Views {
 	///
-	languages = new Languages()//TODO
+	languages = new Languages()
 	///
 	context
 

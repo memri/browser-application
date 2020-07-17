@@ -196,6 +196,11 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import InboxIcon from '@material-ui/icons/Inbox';
 import DraftsIcon from '@material-ui/icons/Drafts';
+import {Application} from "./gui/Application";
+import {MemriContext, RootContext} from "./context/MemriContext";
+import {PodAPI} from "./api/api";
+import {Views} from "./cvu/views/Views";
+import {Renderers} from "./cvu/views/Renderers";
 
 
 function SimpleList() {
@@ -224,10 +229,23 @@ function SimpleList() {
     );
 }
 
+function getContext(name, key) {
+    let podAPI = new PodAPI(undefined, key);
+    let cache = podAPI;
+    let realm = undefined;
+
+    return new MemriContext(name, podAPI, cache, undefined,
+        undefined, undefined, undefined,
+        new Views(),undefined, undefined, new Renderers(), undefined)
+}
+
+import {mockApi} from "./playground/mockApi"
+
+let context = getContext("Memri GUI", mockApi);
+
 function App() {
   return <div>
-    <SearchAppBar/>
-      <SimpleList/>
+      <Application context={context}/>
   </div>
 }
 
