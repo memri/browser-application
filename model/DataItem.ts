@@ -48,7 +48,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	/// Labels assigned to / associated with this DataItem
 	labels = []//TODO
 	/// Object descirbing syncing information about this object like loading state, versioning, etc.
-	syncState = new SyncState()//TODO
+	// syncState = new SyncState()//TODO
 
 	functions = {}
 
@@ -90,6 +90,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 
 	/// @private
 	superDecode(decoder) {//TODO
+		return;
 		this.uid = decoder.decodeIfPresent("uid") || this.uid
 		this.memriID = decoder.decodeIfPresent("memriID") || this.memriID
 		this.starred = decoder.decodeIfPresent("starred") || this.starred

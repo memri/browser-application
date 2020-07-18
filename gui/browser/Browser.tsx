@@ -11,6 +11,8 @@ import {MemriContext} from "../../context/MemriContext";
 import {VStack, ZStack} from "../swiftUI";
 import {TopNavigation} from "./TopNavigation";
 import {Hello} from "../Application";
+import {Search} from "./Search";
+import {FilterPanel} from "./FilterPanel";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends React.Component<BrowserProps, {}> {
@@ -31,8 +33,8 @@ export class Browser extends React.Component<BrowserProps, {}> {
 				<VStack alignment={Alignment.center} spacing={0}>
 					{/*<TopNavigation background={new Color("systemBackground").toLowerCase()}/>*/}
 					<this.activeRenderer fullHeight layoutPriority={1} text={"Browser"}/>
-					{/*<Search/>*/}
-					{/*{this.context.currentSession?.showFilterPanel && <FilterPanel/>}*/}
+					<Search context={this.context}/>
+					{this.context.currentSession?.showFilterPanel && <FilterPanel/>}
 				</VStack>
 				{/*<ContextPane/>*/}
 			</ZStack>

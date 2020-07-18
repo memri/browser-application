@@ -234,14 +234,17 @@ function getContext(name, key) {
     let cache = podAPI;
     let realm = undefined;
     let navigation = new MainNavigation();
+    let cascadingView = new CascadingView(new SessionView(), []);
 
     return new MemriContext(name, podAPI, cache, undefined,
         undefined, undefined, undefined,
-        new Views(),undefined, navigation, new Renderers(), undefined)
+        new Views(),cascadingView, navigation, new Renderers(), undefined)
 }
 
 import {mockApi} from "./playground/mockApi"
 import {MainNavigation} from "./gui/navigation/MainNavigation";
+import {CascadingView} from "./cvu/views/CascadingView";
+import {SessionView} from "./cvu/views/SessionView";
 
 let context = getContext("Memri GUI", mockApi);
 

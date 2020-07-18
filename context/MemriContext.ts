@@ -20,6 +20,7 @@ import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/api";
 import {Datasource} from "./Datasource";
+import {CascadingView} from "../cvu/views/CascadingView";
 
 export var globalCache
 

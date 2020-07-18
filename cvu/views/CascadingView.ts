@@ -12,6 +12,7 @@ import {CVUParsedDatasourceDefinition, CVUParsedRendererDefinition} from "../../
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {debugHistory} from "./ViewDebugger";
 import {CascadingDatasource, Datasource} from "../../context/Datasource";
+import {SessionView} from "./SessionView";
 
 export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
@@ -19,7 +20,7 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
     get name() { return this.sessionView.name ?? "" } // by copy??
 
     /// The session view that is being cascaded
-    sessionView;
+    sessionView: SessionView
 
     get datasource() {
         let x = this.localCache["datasource"];
@@ -75,6 +76,8 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
         }
         // cascadeProperty("viewArguments", )
     }
+
+    set viewArguments(viewArguments) {}
 
     get resultSet() {
         let x = this.localCache["resultSet"]
