@@ -1,15 +1,14 @@
 import * as React from "react";
+import {BaseTextFieldProps, Button, ButtonProps, TextField} from "@material-ui/core";
 
 export class VStack extends React.Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
+        var {zIndex, ...other} = this.props;
         let styles = {
             spacing: this.props.spacing
         }
         return (
-            <div style={styles} className="VStack">
+            <div style={styles} className="VStack" {...other}>
                 {this.props.children}
             </div>
         )
@@ -17,16 +16,14 @@ export class VStack extends React.Component {
 }
 
 export class ZStack extends React.Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
+        var {zIndex, ...other} = this.props;
         let styles = {
             spacing: this.props.spacing,
             alignment: this.props.alignment
         }
         return (
-            <div style={styles} className="ZStack">
+            <div style={styles} className="ZStack" {...other}>
                 {this.props.children}
             </div>
         )
@@ -34,16 +31,14 @@ export class ZStack extends React.Component {
 }
 
 export class HStack extends React.Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
+        var {zIndex, ...other} = this.props;
         let styles = {
             spacing: this.props.spacing,
             alignment: this.props.alignment
         }
         return (
-            <div style={styles} className="HStack">
+            <div style={styles} className="HStack" {...other}>
                 {this.props.children}
             </div>
         )
@@ -51,16 +46,10 @@ export class HStack extends React.Component {
 }
 
 export class ColorArea extends React.Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
-        let styles = {
-            spacing: this.props.spacing,
-            alignment: this.props.alignment
-        }
+        var {contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
         return (
-            <div style={styles} className="ColorArea">
+            <div className="ColorArea" {...other}>
                 {this.props.children}
             </div>
         )
@@ -68,18 +57,48 @@ export class ColorArea extends React.Component {
 }
 
 export class Content extends React.Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
-        let styles = {
-            spacing: this.props.spacing,
-            alignment: this.props.alignment
-        }
+        var {zIndex, ...other} = this.props;
         return (
-            <div style={styles} className="Content">
+            <div className="Content" {...other}>
                 {this.props.children}
             </div>
+        )
+    }
+}
+
+export class MemriButton extends React.Component<MemriButtonProps, ButtonProps> {
+    render() {
+        var {sheet, ...other} = this.props;
+        return (
+            <Button {...other}>
+                {this.props.children}
+            </Button>
+        )
+    }
+}
+
+interface MemriTextFieldProps extends BaseTextFieldProps {
+    textColor?,
+    tintColor?,
+    clearButtonMode?,
+    showPrevNextButtons?,
+    layoutPriority?,
+    padding?,
+    accentColor?,
+    background?,
+    cornerRadius?
+}
+
+export class MemriTextField extends React.Component<MemriTextFieldProps, {}> {
+    render() {
+        var {
+            value, textColor, tintColor, clearButtonMode,
+            showPrevNextButtons, layoutPriority, padding,
+            accentColor, background, cornerRadius, ...other
+        } = this.props;
+        return (
+            <TextField defaultValue={value} {...other}/>
         )
     }
 }

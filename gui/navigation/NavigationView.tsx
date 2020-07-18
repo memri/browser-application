@@ -8,7 +8,18 @@
 import * as React from 'react';
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionOpenSessionByName} from "../../cvu/views/Action";
-import {frame, ZStack, offset, VStack, HStack, padding, ColorArea, Content} from "../swiftUI";
+import {
+	frame,
+	ZStack,
+	offset,
+	VStack,
+	HStack,
+	padding,
+	ColorArea,
+	Content,
+	MemriButton,
+	MemriTextField
+} from "../swiftUI";
 import {Button, Icon, TextField} from "@material-ui/core";
 
 
@@ -134,30 +145,29 @@ class Navigation extends React.Component<NavigationProps, {}> {
 	}
 
 	render() {
-		this.context = this.props.context;
 		this.keyboardResponder = this.props.keyboardResponder;
 		this.showSettings = this.props.showSettings ?? false;
 		/*this.context.navigation.filterText*/ //TODO: <- value
 		return (
 		<VStack frame={frame({maxWidth: "Infinity", alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
-				<Button action={function () {
+				<MemriButton action={function () {
 					this.showSettings = true
 				}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
 					SettingsPane().environmentObject(this.context)
 				}.bind(this))}*/ startIcon={<Icon>settings</Icon>}>
 					{/*<Image systemName="gear" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
-				</Button>
-				<TextField defaultValue={"Test"} placeholder="Search"
-								/*textColor="#8a66bc" tintColor="white" clearButtonMode="always"
+				</MemriButton>
+				<MemriTextField value={"Test"} placeholder="Search"
+								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
 								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
-								accentColor="white" background="#341e51" cornerRadius="5"*//>
-				<Button startIcon={<Icon>create</Icon>}>
+								accentColor="white" background="#341e51" cornerRadius="5"/>
+				<MemriButton startIcon={<Icon>create</Icon>}>
 					{/*<Image systemName="pencil" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
-				</Button>
-				<Button startIcon={<Icon>add</Icon>}>
+				</MemriButton>
+				<MemriButton startIcon={<Icon>add</Icon>}>
 					{/*<Image systemName="plus" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
-				</Button>
+				</MemriButton>
 			</HStack>
 			{/*<ASTableView separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}>
 				<ASSection id={0} data={this.context.navigation.getItems()} dataID={} >
@@ -222,11 +232,11 @@ class NavigationItemView extends React.Component {
 			}
 		}.bind(this)
 		return(
-			<Button buttonStyle={NavigationButtonStyle()} action={action()}>
+			<MemriButton buttonStyle={NavigationButtonStyle()} action={action()}>
 				<Text font={Font.system({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: infinity, alignment: Alignment.leading})} contentShape={Rectangle()}>
 					{this.item.title?.firstUppercased ?? ""}
 				</Text>
-			</Button>
+			</MemriButton>
 		)
 	}
 }
