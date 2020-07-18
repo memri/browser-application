@@ -147,7 +147,7 @@ class Navigation extends React.Component<NavigationProps, {}> {
 	render() {
 		this.keyboardResponder = this.props.keyboardResponder;
 		this.showSettings = this.props.showSettings ?? false;
-		/*this.context.navigation.filterText*/ //TODO: <- value
+		this.context = this.props.context
 		return (
 		<VStack frame={frame({maxWidth: "Infinity", alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
@@ -158,7 +158,7 @@ class Navigation extends React.Component<NavigationProps, {}> {
 				}.bind(this))}*/ startIcon={<Icon>settings</Icon>}>
 					{/*<Image systemName="gear" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
 				</MemriButton>
-				<MemriTextField value={"Test"} placeholder="Search"
+				<MemriTextField value={this.context.navigation.filterText} placeholder="Search"
 								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
 								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
 								accentColor="white" background="#341e51" cornerRadius="5"/>

@@ -3,13 +3,13 @@ import {getItemType, ItemFamily} from "../model/schema";
 //var fs = require("fs");
 
 export var MemriJSONEncoder = function (x) {
-    return JSON.parse(x);
+    return JSON.stringify(x);
 }
 export var serialize = MemriJSONEncoder;
 export var serializeJSON = serialize;
 
 export var MemriJSONDecoder =  function (x) {
-    return JSON.stringify(x);
+    return JSON.parse(x);
 }
 export var unserialize = MemriJSONDecoder;
 

@@ -233,13 +233,15 @@ function getContext(name, key) {
     let podAPI = new PodAPI(undefined, key);
     let cache = podAPI;
     let realm = undefined;
+    let navigation = new MainNavigation();
 
     return new MemriContext(name, podAPI, cache, undefined,
         undefined, undefined, undefined,
-        new Views(),undefined, undefined, new Renderers(), undefined)
+        new Views(),undefined, navigation, new Renderers(), undefined)
 }
 
 import {mockApi} from "./playground/mockApi"
+import {MainNavigation} from "./gui/navigation/MainNavigation";
 
 let context = getContext("Memri GUI", mockApi);
 
