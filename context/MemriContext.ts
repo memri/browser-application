@@ -14,13 +14,19 @@
 
 // TODO: Remove this and find a solution for Edges
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedDatasourceDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedDatasourceDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {realmWriteIfAvailable} from "../gui/util";
 import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/api";
 import {Datasource} from "./Datasource";
 import {CascadingView} from "../cvu/views/CascadingView";
+import {Expression} from "../parsers/expression-parser/Expression";
+import {Item} from "../model/items/Item";
+import {SessionView} from "../cvu/views/SessionView";
+import {getItemType, ItemFamily} from "../model/schema";
+import {ViewArguments} from "../cvu/views/UserState";
+import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
 
 export var globalCache
 
@@ -383,6 +389,194 @@ export class MemriContext {
 		// TODO: FIX
 		this.cascadingView?.context = this
 		this.indexerAPI?.context = this
+	}
+
+	executeAction(actions: Action[] | Action, dataItem?, viewArguments?) {
+		if (Array.isArray(actions)) {
+			for (let action of actions) {
+				this.executeAction(action, dataItem, viewArguments);
+			}
+		} else {
+			try {
+				if (actions.getBool("withAnimation")) {
+					//try withAnimation {
+					this.executeActionThrows(actions, dataItem, viewArguments)
+					//}
+				} else {
+					//try withAnimation(nil) {
+					this.executeActionThrows(actions, dataItem, viewArguments)
+					//}
+				}
+			} catch {
+				// TODO: Log error to the user
+				debugHistory.error("\(error)")
+			}
+		}
+	}
+
+	executeActionThrows(action: Action, dataItem?, viewArguments?) {
+		// Build arguments dict
+		let args = this.buildArguments(action, dataItem, viewArguments);
+
+		// TODO: security implications down the line. How can we prevent leakage? Caching needs to be
+		//      per context
+		action.context = this;
+
+		if (action.getBool("opensView")) {
+			let binding = action.binding
+			if (typeof action.exec === "function") {
+				action.exec(args)
+
+				// Toggle a state value, for instance the starred button in the view (via dataItem.starred)
+				if (binding) {
+					binding.toggleBool()
+				}
+			} else {
+				console.log(`Missing exec for action ${action.name}, NOT EXECUTING`)
+			}
+		} else {
+			// Track state of the action and toggle the state variable
+			let binding = action.binding;
+			if (binding) {
+				binding.toggleBool()
+
+				// TODO: this should be removed and fixed more generally
+				//scheduleUIUpdate(true)
+			}
+
+			if (typeof action.exec === "function") {
+				action.exec(args)
+			} else {
+				console.log(`Missing exec for action ${action.name}, NOT EXECUTING`)
+			}
+		}
+	}
+
+	buildArguments(action: Action, dataItem?: Item, viewArguments?) {
+
+		let viewArgs = new ViewArguments().clone(viewArguments ?? this.cascadingView?.viewArguments,
+			{".": dataItem}, false, dataItem);
+
+		var args = {}
+		for (let [argName, inputValue] of Object.entries(action.arguments)) {
+			var argValue;
+			// preprocess arg
+			let expr = inputValue;
+			if (expr instanceof Expression) {
+				argValue = expr.execute(viewArgs)
+			} else {
+				argValue = inputValue
+			}
+
+			var finalValue = ""
+
+// TODO: add cases for argValue = Item, ViewArgument
+			let dataItem = argValue;
+			if (dataItem instanceof Item) {
+				finalValue = dataItem
+			} else if (typeof argValue.isCVUObject === "function") {
+				let dict = argValue;
+				for (let [key, value] of Object.entries(dict)) {
+					let expr = value;
+					if (expr instanceof Expression) {
+						dict[key] = expr.execute(viewArgs)
+					} else if (Array.isArray(value)) {
+						for (let i = 0; i < value.length; i++) {
+							let expr = value[i];
+							if (expr instanceof Expression) {
+								value[i] = expr.execute(viewArgs)
+							}
+						}
+					}
+				}
+
+				if (action.argumentTypes[argName] == ViewArguments.constructor) {
+					finalValue = new ViewArguments().fromDict(dict)
+				} else if (action.argumentTypes[argName] == ItemFamily.constructor) {
+					finalValue = this.getItem(dict, dataItem, viewArguments)
+				} else if (action.argumentTypes[argName] == SessionView.constructor) {
+					let viewDef = new CVUParsedViewDefinition(UUID())
+					viewDef.parsed = dict
+
+					finalValue = Cache.createItem(SessionView.constructor,
+						{"viewDefinition": viewDef})
+				} else {
+					throw `Exception: Unknown argument type specified in action definition ${argName}`
+				}
+			} else if (action.argumentTypes[argName] == ViewArguments.constructor) {
+				let viewArgs = argValue;
+				if (viewArgs instanceof ViewArguments) {
+					var dict = viewArgs.asDict()
+					for (let [key, value] of Object.entries(dict)) {
+						let expr = value;
+						if (expr instanceof Expression) {
+							dict[key] = expr.execute(viewArgs)
+						}
+					}
+
+					finalValue = new ViewArguments().fromDict(dict)
+				} else {
+					throw `Exception: Could not parse ${argName}`
+				}
+			} else if (typeof action.argumentTypes[argName] == "boolean") {
+				finalValue = new ExprInterpreter().evaluateBoolean(argValue)
+			} else if (typeof action.argumentTypes[argName] == "string") {
+				finalValue = new ExprInterpreter().evaluateString(argValue)
+			} else if (typeof action.argumentTypes[argName] == "number") {
+				finalValue = new ExprInterpreter().evaluateNumber(argValue)
+			} else if (action.argumentTypes[argName] == [Action].constructor) {
+				finalValue = argValue ?? []
+			} else if (action.argumentTypes[argName] == AnyObject.self) {
+				finalValue = argValue ?? undefined
+				// TODO: are nil values allowed?
+			} else if (argValue == undefined) {
+				finalValue = undefined;
+			} else {
+				throw `Exception: Unknown argument type specified in action definition ${argName}:${action.argumentTypes[argName] ?? ""}`
+			}
+
+			args[argName] = finalValue
+		}
+
+// Last element of arguments array is the context data item
+		args["dataItem"] = dataItem ?? this.cascadingView?.resultSet.singletonItem
+
+		return args
+	}
+
+	getItem(dict, dataItem?: Item, viewArguments?) {
+		// TODO: refactor: move to function
+		let stringType = dict["_type"];
+		if (typeof stringType != "string") {
+			throw "Missing type attribute to indicate the type of the data item"
+		}
+		let family = ItemFamily[stringType];
+		if (!family) {
+			throw `Cannot find find family ${stringType}`
+		}
+		let ItemType = new (getItemType(family))();
+		if (ItemType) {
+			throw `Cannot find family ${stringType}`
+		}
+		var values = {}
+		let uid = dict["uid"];
+		if (typeof uid == "number") {
+			values["uid"] = uid
+		}
+
+		var initArgs = dict
+		delete initArgs["_type"];
+		delete initArgs["uid"]
+
+// swiftformat:disable:next redundantInit
+		let item = Cache.createItem(ItemType, values)
+
+// TODO: fill item
+		for (let [propName, propValue] of Object.entries(initArgs)) {
+			item.set(propName, propValue)
+		}
+
+		return item
 	}
 }
 

@@ -3,7 +3,7 @@ import {BaseTextFieldProps, Button, ButtonProps, TextField} from "@material-ui/c
 
 export class VStack extends React.Component {
     render() {
-        var {zIndex, ...other} = this.props;
+        var {centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         let styles = {
             spacing: this.props.spacing
         }
@@ -78,6 +78,17 @@ export class MemriButton extends React.Component<MemriButtonProps, ButtonProps> 
     }
 }
 
+export class ActionButton extends React.Component<MemriButtonProps, ButtonProps> {
+    render() {
+        var {sheet, ...other} = this.props;
+        return (
+            <Button {...other}>
+                {this.props.children}
+            </Button>
+        )
+    }
+}
+
 interface MemriTextFieldProps extends BaseTextFieldProps {
     textColor?,
     tintColor?,
@@ -99,6 +110,17 @@ export class MemriTextField extends React.Component<MemriTextFieldProps, {}> {
         } = this.props;
         return (
             <TextField defaultValue={value} {...other}/>
+        )
+    }
+}
+
+export class MemriText extends React.Component {
+    render() {
+        var {sheet, ...other} = this.props;
+        return (
+            <span {...other}>
+                {this.props.children}
+            </span>
         )
     }
 }

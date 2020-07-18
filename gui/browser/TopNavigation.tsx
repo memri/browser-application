@@ -6,8 +6,18 @@
 //
 
 import * as React from 'react';
-import {Alignment} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {MemriContext} from "../../context/MemriContext";
+import {
+	ActionBack,
+	ActionBackAsSession, ActionClosePopup,
+	ActionForward,
+	ActionForwardToFront,
+	ActionOpenViewByName, ActionShowNavigation
+} from "../../cvu/views/Action";
+import {ActionButton, frame, HStack, MemriButton, MemriText, padding, VStack} from "../swiftUI";
+import {Divider} from "@material-ui/core";
+import {debugHistory} from "../../cvu/views/ViewDebugger";
 
 export class TopNavigation extends React.Component {
 	context: MemriContext
@@ -20,9 +30,10 @@ export class TopNavigation extends React.Component {
 	inSubView: boolean
 	showCloseButton: boolean
 
-	init(inSubView = false, showCloseButton = false) {
-		this.inSubView = inSubView
-		this.showCloseButton = showCloseButton
+	init() {
+		this.context = this.props.context;
+		this.inSubView = this.props.inSubView ?? false;
+		this.showCloseButton = this.props.showCloseButton ?? false;
 	}
 
 	forward() {
@@ -39,7 +50,7 @@ export class TopNavigation extends React.Component {
 
 	openAllViewsOfSession() {
 		try {
-			ActionOpenViewByName.exec(this.context, {name: "views-in-current-session"})
+			new ActionOpenViewByName(this.context).exec({name: "views-in-current-session"})
 		} catch (error) {
 			debugHistory.error(`Unable to open views for session: ${error}`)
 		}
@@ -50,17 +61,17 @@ export class TopNavigation extends React.Component {
 		let isNamed = this.context.currentSession?.currentView?.name != undefined
 
 		// TODO: or copyFromView
-		// buttons.push(isNamed//TODO
-		// 	? .default(Text("Update view")) { this.toFront() }
-		// 	: .default(Text("Save view")) { this.toFront() }
-		// )
+		/*buttons.push(isNamed
+			? .default(Text("Update view")) { this.toFront() }
+			: .default(Text("Save view")) { this.toFront() }
+		)
 
-		// buttons.push(.default(Text("Add to Navigation")) { this.toFront() })
-		// buttons.push(.default(Text("Duplicate view")) { this.toFront() })
+		buttons.push(.default(Text("Add to Navigation")) { this.toFront() })
+		buttons.push(.default(Text("Duplicate view")) { this.toFront() })
 
 		if (isNamed) {
 			// buttons.push(.default(Text("Reset to saved view")) { this.backAsSession() })
-		}
+		}*/
 
 		// buttons.push(.default(Text("Copy a link to this view")) { this.toFront() })
 		// buttons.push(.cancel())
@@ -80,8 +91,17 @@ export class TopNavigation extends React.Component {
 	}
 
 	render() {
+		this.init()
 		let backButton = this.context.currentSession?.hasHistory ?? false ? new ActionBack(this.context) : null
 		let context = this.context
+		let inside;
+		if (!this.inSubView /*&& !memri_shouldUseLargeScreenLayout*/) {
+			inside = <ActionButton action={new ActionShowNavigation(this.context)} /*font={Font.system({size: 20, weight: Font.Weight.semibold})}*//>
+		} else if (this.showCloseButton) {
+			inside = <MemriButton action={function () {
+				context.executeAction(new ActionClosePopup(context))
+			}} /*font={Font.system({size: 19, weight: Font.Weight.semibold})}*/><MemriText /*font={Font.system({size: 16, weight: Font.Weight.regular})}*/ padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close</MemriText></MemriButton>
+		}
 
 		return (
 			<VStack alignment={"leading"}
@@ -92,7 +112,7 @@ export class TopNavigation extends React.Component {
 						padding={padding({top: 15, bottom: 10, leading: 15, trailing: 15})}
 						frame={frame({height: 50, alignment: Alignment.top})}
 				>
-
+					{inside}
 				</HStack>
 				<Divider/>
 			</VStack>
@@ -101,7 +121,7 @@ export class TopNavigation extends React.Component {
 	}
 }
 
-class BoundsPreferenceKey extends PreferenceKey {
+/*class BoundsPreferenceKey extends PreferenceKey {
 	typealias Value = Anchor<CGRect>?
 
 	static var defaultValue: Value = nil
@@ -112,7 +132,7 @@ class BoundsPreferenceKey extends PreferenceKey {
 	) {
 		value = nextValue() ?? value
 	}
-}
+}*/
 
 /*private extension View {
 	func centeredOverlayWithinBoundsPreferenceKey<Content: View>(content: @escaping () -> Content) -> some View {

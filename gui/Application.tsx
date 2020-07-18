@@ -47,8 +47,7 @@ export class Application extends React.Component<ApplicationProps, {}> {
 				<VStack spacing={0}>
 					<NavigationWrapper isVisible={this.context.showNavigationBinding} context={this.context}>
 						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser
-							context={this.context}
-							allRenderers={this.context.renderers}/>
+							context={this.context}/>
 						}
 					</NavigationWrapper>
 					{/*<Spacer/>*/}
