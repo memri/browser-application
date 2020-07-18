@@ -180,15 +180,10 @@ export class CVUSerializer {
 
 }
 
-export function orderKeys(obj, sortFunc) {
+export function orderKeys(obj, sortFunc?) {
     if (!sortFunc)
         sortFunc = function keyOrder(k1, k2) {
-            if (k1 < k2)
-                return 1;
-            else if (k1 > k2)
-                return -1;
-            else
-                return 0;
+            return k1 - k2;
         };
     var keys = Object.keys(obj).sort(sortFunc);
     var i, after = {};
