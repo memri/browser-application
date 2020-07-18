@@ -10,6 +10,7 @@ import {Color} from "../parsers/cvu-parser/CVUParser";
 import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./navigation/NavigationView";
 import {VStack} from "./swiftUI";
+import {Browser} from "./browser/Browser";
 
 /*class View {
 	fullHeight(): View {
@@ -45,7 +46,10 @@ export class Application extends React.Component<ApplicationProps, {}> {
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
 				<VStack spacing={0}>
 					<NavigationWrapper isVisible={this.context.showNavigationBinding} context={this.context}>
-						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Hello/>}
+						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser
+							context={this.context}
+							allRenderers={this.context.renderers}/>
+						}
 					</NavigationWrapper>
 					{/*<Spacer/>*/}
 				</VStack>
@@ -56,13 +60,10 @@ export class Application extends React.Component<ApplicationProps, {}> {
 
 
 
-class Hello extends React.Component {
-	constructor(props) {
-		super(props);
-	}
+export class Hello extends React.Component {
 	render() {
 		return (
-			"HEllo!"
+			"Hello " + (this.props.text ?? "World") + "!"
 		)
 	}
 }
