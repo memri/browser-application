@@ -11,6 +11,7 @@ import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {UIElement, UIElementFamily} from "./UIElement";
 import {Cascadable} from "./Cascadable";
 import {registerListRenderer} from "../../gui/renderers/ListRendererView";
+import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
 
 export class Renderers {
     all = {}
@@ -47,14 +48,14 @@ export class Renderers {
         //registerRichTextEditorRenderer()
     }
     
-    tuples() {
-        return Object.fromEntries(Object.entries(this.all).sort())//TODO
+    get tuples() {
+        return orderKeys(this.all)
     }
 }
 
 export var allRenderers = new Renderers();
 
-class FilterPanelRendererButton extends Action/*, ActionExec*/ {
+export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
     defaults = {
         activeColor: new Color("#6aa84f"),
         activeBackgroundColor: new Color("#eee"),
@@ -66,7 +67,7 @@ class FilterPanelRendererButton extends Action/*, ActionExec*/ {
     rendererName
     
     constructor(context, name, order, title, icon, canDisplayResults){
-        super(context, "setRenderer", {icon:icon, title:title})
+        super(context, "setRenderer", null,{icon: icon, title: title})
 
         this.rendererName = name
         this.order = order

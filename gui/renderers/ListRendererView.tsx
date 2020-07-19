@@ -16,10 +16,10 @@ export var registerListRenderer = function () {
 			"list",
 			"Default",
 			0,
-			"line.horizontal.3",
+			"dehaze",
 			new ListRendererView(),
 			CascadingListConfig,
-			true)
+			function(items){return true})
 		allRenderers.register(
 			"list.alphabet",
 			"Alphabet",
@@ -27,7 +27,7 @@ export var registerListRenderer = function () {
 			undefined,
 			new ListRendererView(),
 			CascadingListConfig,
-			true
+			function(items){return true}
 		)
 	}
 }

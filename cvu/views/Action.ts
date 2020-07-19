@@ -16,6 +16,7 @@ import {debugHistory} from "./ViewDebugger";
 import {SessionView} from "./SessionView";
 import {settings} from "../../model/Settings";
 import {Datasource} from "../../context/Datasource";
+import {MemriContext} from "../../context/MemriContext";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;

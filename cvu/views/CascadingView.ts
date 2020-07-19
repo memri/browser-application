@@ -13,6 +13,7 @@ import {Expression} from "../../parsers/expression-parser/Expression";
 import {debugHistory} from "./ViewDebugger";
 import {CascadingDatasource, Datasource} from "../../context/Datasource";
 import {SessionView} from "./SessionView";
+import {ResultSet} from "../../model/ResultSet";
 
 export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
@@ -85,14 +86,14 @@ export class CascadingView extends Cascadable/*, ObservableObject*/ {//TODO
 
         // Update search result to match the query
         // NOTE: allowed force unwrap
-        let resultSet = this.context!.cache.getResultSet(this.datasource.flattened());//TODO
-        this.localCache["resultSet"] = resultSet;
+        let resultSet = {}//this.context!.cache.getResultSet(this.datasource.flattened());//TODO
+        /*this.localCache["resultSet"] = resultSet;//TODO
 
         // Filter the results
         let ft = this.userState?.get("filterText") ?? "";
         if (resultSet.filterText != ft) {
             this.filterText = ft;
-        }
+        }*/
 
         return resultSet
 
