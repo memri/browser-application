@@ -15,11 +15,22 @@ import {
 	ActionForwardToFront,
 	ActionOpenViewByName, ActionShowNavigation
 } from "../../cvu/views/Action";
-import {ActionButton, frame, HStack, MemriButton, MemriText, padding, VStack} from "../swiftUI";
-import {Divider} from "@material-ui/core";
+import {
+	ActionButton,
+	font,
+	frame,
+	HStack,
+	MainUI,
+	MemriButton,
+	MemriImage,
+	MemriText,
+	padding,
+	VStack
+} from "../swiftUI";
+import {Divider, Icon} from "@material-ui/core";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 
-export class TopNavigation extends React.Component {
+export class TopNavigation extends MainUI {
 	context: MemriContext
 
 	showingBackActions = false
@@ -94,14 +105,35 @@ export class TopNavigation extends React.Component {
 		this.init()
 		let backButton = this.context.currentSession?.hasHistory ?? false ? new ActionBack(this.context) : null
 		let context = this.context
-		let inside;
+		let inside, buttonToShow;
 		if (!this.inSubView /*&& !memri_shouldUseLargeScreenLayout*/) {
-			inside = <ActionButton action={new ActionShowNavigation(this.context)} /*font={Font.system({size: 20, weight: Font.Weight.semibold})}*//>
+			inside = <ActionButton action={new ActionShowNavigation(this.context)} font={font({size: 20, weight: Font.Weight.semibold})}/>
 		} else if (this.showCloseButton) {
 			inside = <MemriButton action={function () {
 				context.executeAction(new ActionClosePopup(context))
-			}} /*font={Font.system({size: 19, weight: Font.Weight.semibold})}*/><MemriText /*font={Font.system({size: 16, weight: Font.Weight.regular})}*/ padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close</MemriText></MemriButton>
+			}} font={font({size: 19, weight: Font.Weight.semibold})}><MemriText font={font({size: 16, weight: Font.Weight.regular})} padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close</MemriText></MemriButton>
 		}
+		if (backButton) {
+			let backButtonAction = function () {
+				if (!this.showingBackActions && backButton) {
+					context.executeAction(backButton)
+				}
+			}.bind(this)
+			buttonToShow = <MemriButton action={backButtonAction}
+										font={font({size: 19, weight: Font.Weight.semibold})}
+				/*onLongPressGesture*/ /*actionSheet={}*/>
+				{<MemriImage padding={padding({horizontal: 5, vertical: 5})} foregroundColor={backButton?.color ?? "white"}>{backButton?.getString("icon") ?? ""}</MemriImage>}
+			</MemriButton>
+		} else {
+			let backButtonAction = function () {
+				this.showingBackActions = true
+			}.bind(this)
+			buttonToShow = <MemriButton action={backButtonAction}
+										font={font({size: 19, weight: Font.Weight.semibold})}
+				/*actionSheet={}*/
+			><MemriImage foregroundColor="#434343" padding={padding({horizontal: 5, vertical: 8})} font={font({size: 10, weight: Font.Weight.bold})}>adjust</MemriImage></MemriButton>
+		}
+
 
 		return (
 			<VStack alignment={"leading"}
@@ -113,6 +145,7 @@ export class TopNavigation extends React.Component {
 						frame={frame({height: 50, alignment: Alignment.top})}
 				>
 					{inside}
+					{buttonToShow}
 				</HStack>
 				<Divider/>
 			</VStack>

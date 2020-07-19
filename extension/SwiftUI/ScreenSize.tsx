@@ -18,9 +18,10 @@
 }*/
 
 import * as React from 'react';
+import {MainUI} from "../../gui/swiftUI";
 interface ScreenSizerProps { background?: string; colorScheme?: string; content? }
 
-export class ScreenSizer extends React.Component<ScreenSizerProps, {}> {
+export class ScreenSizer extends MainUI {
 	content;
 
 	constructor(props) {

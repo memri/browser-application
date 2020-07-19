@@ -9,7 +9,7 @@ import * as React from 'react';
 import {Color} from "../parsers/cvu-parser/CVUParser";
 import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./navigation/NavigationView";
-import {VStack} from "./swiftUI";
+import {Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
 
 /*class View {
@@ -50,7 +50,7 @@ export class Application extends React.Component<ApplicationProps, {}> {
 							context={this.context}/>
 						}
 					</NavigationWrapper>
-					{/*<Spacer/>*/}
+					<Spacer/>
 				</VStack>
 			</ScreenSizer>
 			);

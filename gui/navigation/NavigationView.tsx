@@ -18,7 +18,7 @@ import {
 	ColorArea,
 	Content,
 	MemriButton,
-	MemriTextField
+	MemriTextField, MemriImage, font
 } from "../swiftUI";
 import {Button, Icon, TextField} from "@material-ui/core";
 
@@ -80,7 +80,7 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 				<ColorArea opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
 					   /*simultaneousGesture={this.navigationDragGesture}*/ zIndex={10}/> &&
 				<Navigation
-					frame={frame(geom.size.width * this.widthRatio)} edgesIgnoringSafeArea="all"
+					frame={frame({width: geom.size.width * this.widthRatio})} edgesIgnoringSafeArea="all"
 					offset={offset({x:this.isVisible ? this.cappedOffset(geom) : (-this.navWidth(geom) + this.cappedOffset(geom)),y: 0})}
 					/*simultaneousGesture={this.navigationDragGesture}*/
 					/*transition={move(Alignment.leading)}*/
@@ -155,18 +155,18 @@ class Navigation extends React.Component<NavigationProps, {}> {
 					this.showSettings = true
 				}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
 					SettingsPane().environmentObject(this.context)
-				}.bind(this))}*/ startIcon={<Icon>settings</Icon>}>
-					{/*<Image systemName="gear" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
+				}.bind(this))}*/>
+					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>settings</MemriImage>}
 				</MemriButton>
 				<MemriTextField value={this.context.navigation.filterText} placeholder="Search"
 								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
 								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
-								accentColor="white" background="#341e51" cornerRadius="5"/>
-				<MemriButton startIcon={<Icon>create</Icon>}>
-					{/*<Image systemName="pencil" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
+								accentColor="white" background="#341e51" cornerRadius={5}/>
+				<MemriButton>
+					{<MemriImage font={font({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9">create</MemriImage>}
 				</MemriButton>
-				<MemriButton startIcon={<Icon>add</Icon>}>
-					{/*<Image systemName="plus" font={Font.system({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9"/>*/}
+				<MemriButton>
+					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>add</MemriImage>}
 				</MemriButton>
 			</HStack>
 			{/*<ASTableView separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}>

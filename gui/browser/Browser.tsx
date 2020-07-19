@@ -8,7 +8,7 @@
 import * as React from 'react';
 import {Alignment, Color} from "../../parsers/cvu-parser/CVUParser";
 import {MemriContext} from "../../context/MemriContext";
-import {VStack, ZStack} from "../swiftUI";
+import {MainUI, Spacer, VStack, ZStack} from "../swiftUI";
 import {TopNavigation} from "./TopNavigation";
 import {Hello} from "../Application";
 import {allRenderers} from "../../cvu/views/Renderers";
@@ -17,7 +17,7 @@ import {FilterPanel} from "./FilterPanel";
 import {ContextPane} from "../contextpane/ContextPane";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
-export class Browser extends React.Component<BrowserProps, {}> {
+export class Browser extends MainUI {
 	context: MemriContext
 
 	init() {
@@ -25,7 +25,7 @@ export class Browser extends React.Component<BrowserProps, {}> {
 	}
 
 	get activeRenderer() {
-		return allRenderers?.allViews[this.context.cascadingView?.activeRenderer ?? ""] ?? Hello//Spacer
+		return allRenderers?.allViews[this.context.cascadingView?.activeRenderer ?? ""] ?? Spacer
 	}
 
 	render() {
