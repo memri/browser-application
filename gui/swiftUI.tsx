@@ -125,6 +125,21 @@ export class MemriText extends React.Component {
     }
 }
 
+export class ScrollView extends React.Component {
+    render() {
+        var {zIndex, ...other} = this.props;
+        let styles = {
+            spacing: this.props.spacing,
+            alignment: this.props.alignment
+        }
+        return (
+            <div style={styles} className="ScrollView" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
 export function frame(attrs) { //TODO:
     return "frame:";
 }

@@ -14,6 +14,7 @@ import {Hello} from "../Application";
 import {allRenderers} from "../../cvu/views/Renderers";
 import {Search} from "./Search";
 import {FilterPanel} from "./FilterPanel";
+import {ContextPane} from "../contextpane/ContextPane";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends React.Component<BrowserProps, {}> {
@@ -37,7 +38,7 @@ export class Browser extends React.Component<BrowserProps, {}> {
 					<Search context={this.context}/>
 					{this.context.currentSession?.showFilterPanel && <FilterPanel context={this.context}/>}
 				</VStack>
-				{/*<ContextPane/>*/}
+				<ContextPane context={this.context}/>
 			</ZStack>
 		);
 	}
