@@ -8,14 +8,10 @@
 
 import * as React from "react";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
-import {MemriContext} from "../../context/MemriContext";
-import {HStack, MemriTextField, padding, VStack} from "../swiftUI";
+import {ActionButton, font, HStack, MainUI, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
 import {Divider} from "@material-ui/core";
 
-interface SearchProps { context?: MemriContext;}
-export class Search extends React.Component<SearchProps, {}>{
-	context: MemriContext
-
+export class Search extends MainUI{
 	init() {
 		this.context = this.props.context;
 	}
@@ -36,7 +32,12 @@ export class Search extends React.Component<SearchProps, {}>{
 					>
 					</MemriTextField>
 
-					{/*<Text></Text>*/}
+					<MemriText>{this.context.cascadingView?.searchMatchText ?? ""}</MemriText>
+
+					{(this.context.cascadingView?.filterButtons ?? []).map((filterButton) =>
+						<ActionButton action={filterButton}
+							font={font({size: 20, weight: "medium"})}/>
+					)}
 
 				</HStack>
 			</VStack>

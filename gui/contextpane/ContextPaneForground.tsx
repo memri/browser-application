@@ -7,10 +7,20 @@
 //
 
 import * as React from "react";
-import {ActionButton, ColorArea, HStack, MemriButton, MemriText, padding, ScrollView, VStack} from "../swiftUI";
+import {
+	ActionButton,
+	font,
+	frame,
+	HStack,
+	MemriButton,
+	MemriText,
+	padding,
+	ScrollView,
+	VStack
+} from "../swiftUI";
 import {MemriContext} from "../../context/MemriContext";
 import {ActionNoop} from "../../cvu/views/Action";
-import {Alignment} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {Divider} from "@material-ui/core";
 
 export class ContextPaneForeground extends React.Component {
@@ -28,16 +38,18 @@ export class ContextPaneForeground extends React.Component {
 				<VStack alignment={Alignment.leading} padding={padding({top: 60})}>
 					<VStack alignment={Alignment.leading}>
 						<MemriText
-							// font ={.system(size: 23, weight: .regular, design: .default)}
-							// fontWeight={"bold"}
-							// opacity={0.75}
-							// padding={padding({horizontal: this.paddingLeft, vertical: 5})}
+							font={font({
+								size: 23, weight: Font.Weight.bold/*TODO regular???*/, design: "default"
+							})}
+							opacity={0.75}
+							padding={padding({horizontal: this.paddingLeft, vertical: 5})}
 						>
 							{context.cascadingView?.title ?? "title"}{/*TODO: make this generic*/}
 						</MemriText>
-						<MemriText // font ={".body"}
-								   opacity={0.75}
-								   padding={padding({horizontal: this.paddingLeft})}
+						<MemriText
+							font={font({family: "body"})}
+							opacity={0.75}
+							padding={padding({horizontal: this.paddingLeft, bottom: 15})}
 						>{context.cascadingView?.subtitle ?? "subtitle"}</MemriText>
 
 						<HStack padding={padding({horizontal: this.paddingLeft, bottom: 15})}>
@@ -46,11 +58,11 @@ export class ContextPaneForeground extends React.Component {
 
 						<Divider/>
 						<MemriText
-							// font ={".body"}
-								   padding={padding({horizontal: this.paddingLeft, vertical: 10})}
-								   // multilineTextAlignment={Alignment.center}
-								   // font={(system({size: 14, weight: .regular, design: .default}))}
-								   opacity={0.6}
+							font={font({
+								family: "body"/*TODO system???*/, size: 14, weight: Font.Weight.regular, design: "default"
+							})}
+							padding={padding({horizontal: this.paddingLeft, vertical: 10})}
+							multilineTextAlignment={Alignment.center}
 						>
 							{"You created this note in August 2017 and viewed it 12 times and edited it 3 times over the past 1.5 years."}
 						</MemriText>
@@ -59,10 +71,11 @@ export class ContextPaneForeground extends React.Component {
 
 					<HStack padding={padding({top: 15, bottom: 10})}>
 						<MemriText
-							// fontWeight ={".bold"}
-								   opacity={0.4}
-							// font={(system({size: 16, weight: .regular, design: .default}))}
-								   padding={padding({horizontal: this.paddingLeft})}
+							opacity={0.4}
+							font={font({
+								size: 16, weight: Font.Weight.bold/*TODO regular???*/, design: "default"
+							})}
+							padding={padding({horizontal: this.paddingLeft})}
 						>{"actionLabel"}</MemriText>{/*NSLocalizedString("actionLabel", comment: "")*/}
 						{/*<Spacer/>*/}
 					</HStack>
@@ -70,10 +83,10 @@ export class ContextPaneForeground extends React.Component {
 						{(context.cascadingView?.actionItems ?? []).map((actionItem) =>
 							<MemriButton action={context.executeAction(actionItem)}>
 								<MemriText
-										   foregroundColor={"black"}
-										   opacity={0.6}
-									// font={(system({size: 20, weight: .regular, design: .default}))}
-										   padding={padding({vertical: 10})}
+									foregroundColor={"black"}
+									opacity={0.6}
+									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
+									padding={padding({vertical: 10})}
 								>{actionItem.getString("title")}</MemriText>{/*TODO*/}
 							</MemriButton>
 						)}
@@ -81,10 +94,9 @@ export class ContextPaneForeground extends React.Component {
 					<Divider/>
 					<HStack padding={padding({top: 15, bottom: 10})}>
 						<MemriText
-							// fontWeight ={".bold"}
-								   opacity={0.4}
-							// font={(system({size: 16, weight: .regular, design: .default}))}
-								   padding={padding({horizontal: this.paddingLeft})}
+							opacity={0.4}
+							font={font({size: 16, weight: Font.Weight.bold/*TODO regular???*/, design: "default"})}
+							padding={padding({horizontal: this.paddingLeft})}
 						>{"navigateLabel"}</MemriText>{/*NSLocalizedString("navigateLabel", comment: "")*/}
 					</HStack>
 					<VStack alignment={Alignment.leading} spacintg={0}>
@@ -93,7 +105,7 @@ export class ContextPaneForeground extends React.Component {
 								<MemriText
 									foregroundColor={"black"}
 									opacity={0.6}
-									// font={(system({size: 20, weight: .regular, design: .default}))}
+									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 									padding={padding({vertical: 10, horizontal: this.paddingLeft})}
 								>{navigateItem.getString("title")}</MemriText>{/*TODO*/}{/*LocalizedStringKey(navigateItem.getString("title"))*/}
 							</MemriButton>
@@ -102,9 +114,8 @@ export class ContextPaneForeground extends React.Component {
 					<Divider/>
 					<HStack padding={padding({top: 15, bottom: 15})}>
 						<MemriText
-							// fontWeight ={".bold"}
 							opacity={0.4}
-							// font={(system({size: 16, weight: .regular, design: .default}))}
+							font={font({size: 16, weight: Font.Weight.bold/*TODO regular???*/, design: "default"})}
 							padding={padding({horizontal: this.paddingLeft})}
 						>{"labelsLabel"}</MemriText>{/*NSLocalizedString("labelsLabel", comment: "")*/}
 						{/*<Spacer/>*/}
@@ -119,9 +130,9 @@ export class ContextPaneForeground extends React.Component {
 								<MemriText
 									foregroundColor={"black"}
 									opacity={0.6}
-									// font={(system({size: 20, weight: .regular, design: .default}))}
+									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 									padding={padding({vertical: 5, horizontal: 15})}
-									// frame={frame({minWidth: 150, alignment: Alignment.leading})}
+									frame={frame({minWidth: 150, alignment: Alignment.leading})}
 								>{labelItem.name ?? ""}</MemriText>
 							</MemriButton>
 						)}
@@ -131,7 +142,7 @@ export class ContextPaneForeground extends React.Component {
 							<MemriText
 								foregroundColor={"black"}
 								opacity={0.6}
-								// font={(system({size: 20, weight: .regular, design: .default}))}
+								font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 								padding={padding({vertical: 10})}
 							>{addLabelAction.getString("title")}</MemriText>
 						</MemriButton>}

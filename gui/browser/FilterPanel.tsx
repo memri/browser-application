@@ -10,9 +10,8 @@ import * as React from "react";
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
 import {UUID} from "../../model/DataItem";
 import {realmWriteIfAvailable} from "../util";
-import {MemriContext} from "../../context/MemriContext";
 import {allRenderers, FilterPanelRendererButton} from "../../cvu/views/Renderers";
-import {frame, HStack, MemriButton, padding, VStack} from "../swiftUI";
+import {frame, HStack, MainUI, MemriButton, padding, VStack} from "../swiftUI";
 import {Icon} from "@material-ui/core";
 
 class BrowseSetting/* extends Identifiable*/ {
@@ -30,10 +29,7 @@ class BrowseSetting/* extends Identifiable*/ {
 	}
 }
 
-interface FilterPanelProps { context?: MemriContext}
-export class FilterPanel extends React.Component<FilterPanelProps, {}> {
-	context: MemriContext
-
+export class FilterPanel extends MainUI {
 	browseSettings = [new BrowseSetting("Default", true),
 		new BrowseSetting("Year-Month-Day view", false)]
 

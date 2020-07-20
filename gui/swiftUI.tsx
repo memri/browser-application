@@ -1,5 +1,7 @@
 import * as React from "react";
 import {BaseTextFieldProps, Button, ButtonProps, Icon, TextField} from "@material-ui/core";
+import {MemriContext} from "../context/MemriContext";
+import {Font} from "../parsers/cvu-parser/CVUParser";
 
 interface MemriUIProps {
     foregroundColor?
@@ -11,11 +13,13 @@ interface MemriUIProps {
     zIndex?,
     background?,
     textColor?,
-    cornerRadius?
+    cornerRadius?,
+    context?
 }
 
 export class MainUI extends React.Component<MemriUIProps, {}> {
     styles;
+    context: MemriContext;
 
     setStyles() {
         let styles = {
@@ -211,22 +215,22 @@ export function font(attrs:{family?: string, size?:number; weight?: string}) {
         fontObj["fontSize"] = attrs.size;
     if (attrs.weight) {
         switch (attrs.weight) {
-            case "regular":
+            case Font.Weight.regular:
                 fontObj["fontWeight"] = "normal";
                 break;
-            case "semibold":
+            case Font.Weight.semibold:
                 fontObj["fontWeight"] = 500;
                 break;
-            case "heavy":
+            case Font.Weight.heavy:
                 fontObj["fontWeight"] = "bolder";
                 break;
-            case "light":
+            case Font.Weight.light:
                 fontObj["fontWeight"] = "lighter";
                 break;
-            case "ultraLight":
+            case Font.Weight.ultraLight:
                 fontObj["fontWeight"] = 100;
                 break;
-            case "black":
+            case Font.Weight.black:
                 fontObj["fontWeight"] = 900;
                 break;
             default:
