@@ -9,6 +9,7 @@ import {allRenderers, Renderers} from "../../cvu/views/Renderers";
 import * as React from "react";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionDelete} from "../../cvu/views/Action";
+import {font, HStack, MainUI, MemriText, padding, Spacer} from "../swiftUI";
 
 export var registerListRenderer = function () {
 	if (allRenderers) {
@@ -48,7 +49,7 @@ class CascadingListConfig/*: CascadingRenderConfig, CascadingRendererDefaults */
 	}
 }
 
-class ListRendererView extends React.Component {
+class ListRendererView extends MainUI {
 	constructor(props) {
 		super(props);
 		this.context = props?.context;
@@ -83,11 +84,11 @@ class ListRendererView extends React.Component {
 			innerContent = (
 				<HStack alignment={Alignment.top} padding={padding({"all": 30, "top": 40})}>
 					<Spacer/>
-					<Text multilineTextAlignment={Alignment.center}
-						  font={Font.system({size: 16, weight: Font.Weight.regular, design: "default"})}
+					<MemriText multilineTextAlignment={Alignment.center}
+						  font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
 						  opacity={0.7}>
 						{context.cascadingView?.emptyResultText ?? ""}
-					</Text>
+					</MemriText>
 					<Spacer/>
 				</HStack>
 				);

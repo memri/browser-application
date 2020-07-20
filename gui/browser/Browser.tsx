@@ -10,7 +10,6 @@ import {Alignment, Color} from "../../parsers/cvu-parser/CVUParser";
 import {MemriContext} from "../../context/MemriContext";
 import {MainUI, Spacer, VStack, ZStack} from "../swiftUI";
 import {TopNavigation} from "./TopNavigation";
-import {Hello} from "../Application";
 import {allRenderers} from "../../cvu/views/Renderers";
 import {Search} from "./Search";
 import {FilterPanel} from "./FilterPanel";
@@ -29,12 +28,12 @@ export class Browser extends MainUI {
 	}
 
 	render() {
-		this.init()
+		this.init() //fullHeight layoutPriority={1}
 		return (
 			<ZStack>
 				<VStack alignment={Alignment.center} spacing={0}>
 					<TopNavigation background={new Color("systemBackground").toLowerCase()} context={this.context}/>
-					<this.activeRenderer fullHeight layoutPriority={1} text={"Browser"}/>
+					<this.activeRenderer text={"Browser"}/>
 					<Search context={this.context}/>
 					{this.context.currentSession?.showFilterPanel && <FilterPanel context={this.context}/>}
 				</VStack>

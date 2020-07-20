@@ -254,6 +254,13 @@ function App() {//TODO: don't ask, please, about link inside div =)
   </div>
 }
 
+export var geom = {
+    size: {
+        width: 414,
+        height: 736
+    }//TODO: for testing
+}
+
 var div = document.body.appendChild(document.createElement("div"))
 
 ReactDOM.render(App(), div)

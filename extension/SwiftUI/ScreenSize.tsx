@@ -18,19 +18,17 @@
 }*/
 
 import * as React from 'react';
-import {MainUI} from "../../gui/swiftUI";
+import {frame, MainUI} from "../../gui/swiftUI";
+import {geom} from "../../demo-react";
 interface ScreenSizerProps { background?: string; colorScheme?: string; content? }
 
 export class ScreenSizer extends MainUI {
-	content;
 
-	constructor(props) {
-		super(props);
-		this.content = props?.content;
-	}
 	render() {
+		let styles = {}
+		Object.assign(styles, this.setStyles(), {width: geom.size.width, height: geom.size.height})
 		return (
-			<div className="ScreenSizer">
+			<div className="ScreenSizer" style={styles}>
 				{this.props.children}
 			</div>
 		)

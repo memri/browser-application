@@ -9,7 +9,6 @@
 import * as React from "react";
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
 import {UUID} from "../../model/DataItem";
-import {realmWriteIfAvailable} from "../util";
 import {allRenderers, FilterPanelRendererButton} from "../../cvu/views/Renderers";
 import {frame, HStack, MainUI, MemriButton, padding, VStack} from "../swiftUI";
 import {Icon} from "@material-ui/core";
@@ -111,6 +110,7 @@ export class FilterPanel extends MainUI {
 		let cascadingView = this.context.cascadingView
 
 		return (
+			<div className="FilterPanel">
 			<HStack alignment={Alignment.top} spacing={0}
 					frame={frame({maxWidth: ".infinity", alignment: Alignment.topLeading, height: 240})}
 					background={"#eee"}
@@ -140,6 +140,7 @@ export class FilterPanel extends MainUI {
 					</ASSection>
 				</ASTableView>*/}
 			</HStack>
+			</div>
 		);
 	}
 }

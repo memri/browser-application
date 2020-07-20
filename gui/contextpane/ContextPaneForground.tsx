@@ -12,16 +12,15 @@ import {
 	font,
 	frame,
 	HStack,
-	MemriButton,
+	MemriButton, MemriDivider,
 	MemriText,
 	padding,
-	ScrollView,
+	ScrollView, Spacer,
 	VStack
 } from "../swiftUI";
 import {MemriContext} from "../../context/MemriContext";
 import {ActionNoop} from "../../cvu/views/Action";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
-import {Divider} from "@material-ui/core";
 
 export class ContextPaneForeground extends React.Component {
 	context: MemriContext
@@ -34,7 +33,8 @@ export class ContextPaneForeground extends React.Component {
 			.singletonItem?.edges("label")?.itemsArray("Label") ?? []
 		let addLabelAction = new ActionNoop(context)
 		return (
-			<ScrollView background={"white"}>
+			<div className="ContextPaneForeground">
+			<ScrollView background="white">
 				<VStack alignment={Alignment.leading} padding={padding({top: 60})}>
 					<VStack alignment={Alignment.leading}>
 						<MemriText
@@ -56,7 +56,7 @@ export class ContextPaneForeground extends React.Component {
 							{(context.cascadingView?.contextButtons ?? []).map((actionItem) => <ActionButton action={actionItem}/>)}
 						</HStack>
 
-						<Divider/>
+						<MemriDivider/>
 						<MemriText
 							font={font({
 								family: "body"/*TODO system???*/, size: 14, weight: Font.Weight.regular, design: "default"
@@ -66,7 +66,7 @@ export class ContextPaneForeground extends React.Component {
 						>
 							{"You created this note in August 2017 and viewed it 12 times and edited it 3 times over the past 1.5 years."}
 						</MemriText>
-						<Divider/>
+						<MemriDivider/>
 					</VStack>
 
 					<HStack padding={padding({top: 15, bottom: 10})}>
@@ -77,7 +77,7 @@ export class ContextPaneForeground extends React.Component {
 							})}
 							padding={padding({horizontal: this.paddingLeft})}
 						>{"actionLabel"}</MemriText>{/*NSLocalizedString("actionLabel", comment: "")*/}
-						{/*<Spacer/>*/}
+						<Spacer/>
 					</HStack>
 					<VStack alignment={Alignment.leading} spacing={0} padding={padding({horizontal: this.paddingLeft})}>
 						{(context.cascadingView?.actionItems ?? []).map((actionItem) =>
@@ -91,7 +91,7 @@ export class ContextPaneForeground extends React.Component {
 							</MemriButton>
 						)}
 					</VStack>
-					<Divider/>
+					<MemriDivider/>
 					<HStack padding={padding({top: 15, bottom: 10})}>
 						<MemriText
 							opacity={0.4}
@@ -99,7 +99,7 @@ export class ContextPaneForeground extends React.Component {
 							padding={padding({horizontal: this.paddingLeft})}
 						>{"navigateLabel"}</MemriText>{/*NSLocalizedString("navigateLabel", comment: "")*/}
 					</HStack>
-					<VStack alignment={Alignment.leading} spacintg={0}>
+					<VStack alignment={Alignment.leading} spacing={0}>
 						{(context.cascadingView?.navigateItems ?? []).map((navigateItem) =>
 							<MemriButton action={context.executeAction(navigateItem)}>
 								<MemriText
@@ -111,16 +111,16 @@ export class ContextPaneForeground extends React.Component {
 							</MemriButton>
 						)}
 					</VStack>
-					<Divider/>
+					<MemriDivider/>
 					<HStack padding={padding({top: 15, bottom: 15})}>
 						<MemriText
 							opacity={0.4}
 							font={font({size: 16, weight: Font.Weight.bold/*TODO regular???*/, design: "default"})}
 							padding={padding({horizontal: this.paddingLeft})}
 						>{"labelsLabel"}</MemriText>{/*NSLocalizedString("labelsLabel", comment: "")*/}
-						{/*<Spacer/>*/}
+						<Spacer/>
 					</HStack>
-					<VStack alignment={Alignment.leading} spacintg={10}>
+					<VStack alignment={Alignment.leading} spacing={10}>
 						{(labels).map((labelItem) =>
 							<MemriButton action={context.executeAction(addLabelAction, labelItem)}
 										 background={labelItem.color ?? "#ffd966ff"}
@@ -146,12 +146,13 @@ export class ContextPaneForeground extends React.Component {
 								padding={padding({vertical: 10})}
 							>{addLabelAction.getString("title")}</MemriText>
 						</MemriButton>}
-						{/*<Spacer/>*/}
+						<Spacer/>
 					</VStack>
 
 				</VStack>
 
 			</ScrollView>
+			</div>
 		)
 	}
 }

@@ -21,13 +21,12 @@ import {
 	frame,
 	HStack,
 	MainUI,
-	MemriButton,
+	MemriButton, MemriDivider,
 	MemriImage,
 	MemriText,
 	padding,
 	VStack
 } from "../swiftUI";
-import {Divider, Icon} from "@material-ui/core";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 
 export class TopNavigation extends MainUI {
@@ -136,6 +135,7 @@ export class TopNavigation extends MainUI {
 
 
 		return (
+			<div className="TopNavigation">
 			<VStack alignment={"leading"}
 					spacing={0}
 					padding={padding({bottom: 0})}
@@ -147,8 +147,9 @@ export class TopNavigation extends MainUI {
 					{inside}
 					{buttonToShow}
 				</HStack>
-				<Divider/>
+				<MemriDivider/>
 			</VStack>
+			</div>
 		);
 
 	}

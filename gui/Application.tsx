@@ -9,7 +9,7 @@ import * as React from 'react';
 import {Color} from "../parsers/cvu-parser/CVUParser";
 import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./navigation/NavigationView";
-import {Spacer, VStack} from "./swiftUI";
+import {MainUI, Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
 
 /*class View {
@@ -34,7 +34,7 @@ import {Browser} from "./browser/Browser";
 }*/
 interface ApplicationProps { context?: MemriContext; }
 
-export class Application extends React.Component<ApplicationProps, {}> {
+export class Application extends MainUI {
 	constructor(props) {
 		super(props);
 	}
@@ -43,6 +43,7 @@ export class Application extends React.Component<ApplicationProps, {}> {
 		this.context = this.props.context;
 
 		return (
+			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
 				<VStack spacing={0}>
 					<NavigationWrapper isVisible={this.context.showNavigationBinding} context={this.context}>
@@ -53,6 +54,7 @@ export class Application extends React.Component<ApplicationProps, {}> {
 					<Spacer/>
 				</VStack>
 			</ScreenSizer>
+			</div>
 			);
 	}
 }

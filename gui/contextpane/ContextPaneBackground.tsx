@@ -8,13 +8,13 @@
 
 import * as React from "react";
 import {MemriContext} from "../../context/MemriContext";
-import {ColorArea} from "../swiftUI";
+import {ColorArea, MainUI} from "../swiftUI";
 
-export class ContextPaneBackground extends React.Component {
+export class ContextPaneBackground extends MainUI {
 	context: MemriContext
 
 	render() {
-		return (<ColorArea color={"gray"}></ColorArea>)
+		return (<div className="ContextPaneBackground"><ColorArea color="gray"></ColorArea></div>)
 	}
 }
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BaseTextFieldProps, Button, ButtonProps, Icon, TextField} from "@material-ui/core";
+import {BaseTextFieldProps, Button, ButtonProps, Divider, Icon, TextField} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Font} from "../parsers/cvu-parser/CVUParser";
 
@@ -14,7 +14,8 @@ interface MemriUIProps {
     background?,
     textColor?,
     cornerRadius?,
-    context?
+    context?,
+    opacity?
 }
 
 export class MainUI extends React.Component<MemriUIProps, {}> {
@@ -28,7 +29,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             offset: this.props.offset,
             zIndex: this.props.zIndex,
             backgroundColor: this.props.background,
-            borderRadius: this.props.cornerRadius
+            borderRadius: this.props.cornerRadius,
+            opacity: this.props.opacity
         }
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame);
         return styles;
@@ -150,13 +152,9 @@ export class MemriText extends MainUI {
 
 export class ScrollView extends MainUI {
     render() {
-        var {zIndex, ...other} = this.props;
-        let styles = {
-            spacing: this.props.spacing,
-            alignment: this.props.alignment
-        }
+        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <div style={styles} className="ScrollView" {...other}>
+            <div style={this.setStyles()} className="ScrollView" {...other}>
                 {this.props.children}
             </div>
         )
@@ -184,13 +182,22 @@ export class Spacer extends MainUI {
     }
 }
 
+export class MemriDivider extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <Divider style={this.setStyles()} className="Spacer" {...other}/>
+        )
+    }
+}
+
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
     let frameObj = attrs;
 
     return frameObj;
 }
 
-export function padding(attrs:{horizontal?,vertical?}|any) {
+export function padding(attrs:{horizontal?,vertical?,top?,bottom?,leading?,trailing?}|any) {
     let paddingObj = {};
     if (typeof attrs == "number" || typeof attrs == "string") {
         paddingObj["padding"] = attrs;
@@ -200,6 +207,18 @@ export function padding(attrs:{horizontal?,vertical?}|any) {
         }
         if (attrs.vertical) {
             paddingObj["paddingTop"] = paddingObj["paddingBottom"] = attrs.vertical;
+        }
+        if (attrs.leading) {
+            paddingObj["paddingLeft"] = attrs.leading;
+        }
+        if (attrs.trailing) {
+            paddingObj["paddingRight"] = attrs.trailing;
+        }
+        if (attrs.top) {
+            paddingObj["paddingTop"] = attrs.top;
+        }
+        if (attrs.bottom) {
+            paddingObj["paddingBottom"] = attrs.bottom;
         }
     }
     return paddingObj;

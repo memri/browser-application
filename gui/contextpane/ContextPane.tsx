@@ -13,6 +13,7 @@ import {ZStack} from "../swiftUI";
 import {Alignment} from "../../parsers/cvu-parser/CVUParser";
 import {ContextPaneBackground} from "./ContextPaneBackground";
 import {ContextPaneForeground} from "./ContextPaneForground";
+import {geom} from "../../demo-react";
 
 interface ContextPaneProps { context?: MemriContext; allRenderers?}
 export class ContextPane extends React.Component<ContextPaneProps, {}> {
@@ -58,14 +59,8 @@ export class ContextPane extends React.Component<ContextPaneProps, {}> {
 	render() {
 		this.context = this.props.context
 
-		let geom = /*this.props.geom;*/
-			{
-				size: {
-					width: 200,
-					height: 200
-				}//TODO: for testing
-			}
 		return (
+			<div className="ContextPane">
 			<ZStack alignment={Alignment.trailing}>
 				{this.isVisible && <ContextPaneBackground
 					opacity={this.fractionVisible(geom) * 0.5}
@@ -82,7 +77,7 @@ export class ContextPane extends React.Component<ContextPaneProps, {}> {
 					// transition={move("trailing")}
 				/>}
 			</ZStack>
-
+			</div>
 		)
 	}
 

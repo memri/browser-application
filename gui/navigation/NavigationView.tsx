@@ -20,7 +20,7 @@ import {
 	MemriButton,
 	MemriTextField, MemriImage, font
 } from "../swiftUI";
-import {Button, Icon, TextField} from "@material-ui/core";
+import {geom} from "../../demo-react";
 
 
 interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}
@@ -59,14 +59,8 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 		this.offset = this.props.offset ?? 0;
 		this.content = this.props?.content
 		this.context = this.props.context;
-		let geom = /*this.props.geom;*/
-			{
-				size: {
-					width: 200,
-					height: 200
-				}//TODO: for testing
-			}
 		return (
+			<div className="NavigationWrapper">
 			<ZStack alignment={Alignment.leading}>
 				<Content frame={frame({width: geom.size.width, height: geom.size.height, alignment: Alignment.topLeading})}
 					 offset={offset({x: this.isVisible ? this.navWidth(geom) + this.cappedOffset(geom) : this.cappedOffset(geom)})}
@@ -88,6 +82,7 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 				/>
 				}
 			</ZStack>
+			</div>
 		)
 	}
 
@@ -149,7 +144,7 @@ class Navigation extends React.Component<NavigationProps, {}> {
 		this.showSettings = this.props.showSettings ?? false;
 		this.context = this.props.context
 		return (
-		<VStack frame={frame({maxWidth: "Infinity", alignment: Alignment.leading})} background = "#543184">
+		<VStack frame={frame({alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
 				<MemriButton action={function () {
 					this.showSettings = true

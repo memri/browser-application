@@ -8,8 +8,7 @@
 
 import * as React from "react";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
-import {ActionButton, font, HStack, MainUI, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
-import {Divider} from "@material-ui/core";
+import {ActionButton, font, HStack, MainUI, MemriDivider, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
 
 export class Search extends MainUI{
 	init() {
@@ -19,11 +18,12 @@ export class Search extends MainUI{
 	render() {
 		this.init()
 		return (
+			<div className="Search">
 			<VStack spacing={0}
 					background={new Color("white").toLowerCase()}
 					// modifier={new KeyboardModifier(null)}
 			>
-				<Divider background={"#efefef"}/>
+				<MemriDivider background="#efefef"/>
 				<HStack padding={padding({horizontal: 15, vertical: 6})}>
 					<MemriTextField value={this.context.cascadingView?.filterText ?? "" }
 									placeholder={this.context.cascadingView?.searchHint ?? ""}
@@ -41,6 +41,7 @@ export class Search extends MainUI{
 
 				</HStack>
 			</VStack>
+			</div>
 		);
 	}
 }
