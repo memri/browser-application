@@ -39,15 +39,17 @@
 /// background, items are updated automatically.
 import {PodAPI} from "../api/api";
 import {Datasource} from "../context/Datasource";
-import {ItemFamily} from "./schema";
-import {Item} from "./items/Item";
+import {getItemType, ItemFamily} from "./schema";
+import {Item, Edge} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
+import {CacheMemri} from "./Cache";
+import {DatabaseController} from "./DatabaseController";
 
-class Sync {
+export class Sync {
 	/// PodAPI Object to use for executing queries
 	podAPI: PodAPI
 	/// Cache Object used to fetch resultsets
-	cache?: Cache
+	cache?: CacheMemri
     
 
 	scheduled = 0
@@ -85,12 +87,12 @@ class Sync {
             })
             
             // Add to realm
-			DatabaseController.writeAsync(function(realm) {
+			DatabaseController.writeAsync((realm) => {
 
                 // Store query in a log item
                 let audititem = new AuditItem()
 
-                audititem.uid.value = Cache.incrementUID()
+                audititem.uid.value = CacheMemri.incrementUID()
                 audititem.content = String(data) ?? ""
                 audititem.action = "query"
                 audititem.date = new Date()
@@ -244,9 +246,9 @@ class Sync {
             for (var itemType in ItemFamily) {
                 if (itemType == ItemFamily.typeUserState) { continue }
 
-                let type = itemType.getType()
+                let type = getItemType(itemType);
                 if (type) {
-                    let items = realm.objects(type).filter((_action) => _action != undefined)
+                    let items = realm.objects(type).filtered((_action) => _action != undefined)
                     for (var item of items) {
                         let action = item._action
                         if (action && itemQueue[action] != undefined) {
@@ -258,7 +260,7 @@ class Sync {
             }
 
             // Edges
-            let edges = realm.objects(Edge).filter((_action) => _action != undefined)
+            let edges = realm.objects(Edge).filtered((_action) => _action != undefined)
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {

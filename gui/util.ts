@@ -1,5 +1,6 @@
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {getItemType, ItemFamily} from "../model/schema";
+import {DatabaseController} from "../model/DatabaseController";
 //var fs = require("fs");
 
 export var MemriJSONEncoder = function (x) {
@@ -13,8 +14,18 @@ export var MemriJSONDecoder =  function (x) {
 }
 export var unserialize = MemriJSONDecoder;
 
-export function realmWriteIfAvailable(realm, doWrite) {
-    doWrite();
+export function realmWriteIfAvailable(realm: Realm, doWrite) {
+    if (realm) {
+        if (!realm.isInTransaction) {
+            // TODO: Error handling (this can happen for instance if you pass a
+            // non existing property string to dataItem.set())
+            realm.write(doWrite());
+        } else {
+            doWrite()
+        }
+    } else {
+        doWrite()
+    }
 }
 
 export function stringFromFile(file: string, ext: string = "json") {
@@ -93,11 +104,13 @@ func withRealm(_ doThis: (_ realm: Realm) -> Any?) -> Any? {
     return nil
 }*/
 
-export function getItem(type: string, uid) { //TODO:
+export function getItem(type: string, uid) {
     type = ItemFamily[type];
     if (type) {
         let item = getItemType(type);
-        return item;
+        return DatabaseController.read((realm)=> {
+        realm.objectForPrimaryKey(item(), uid)
+        })
     }
     return
 }

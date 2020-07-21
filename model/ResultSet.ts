@@ -9,8 +9,8 @@
 
 /// This class wraps a query and its results, and is responsible for loading a the result and possibly applying clienside filtering
 import {Datasource} from "../context/Datasource";
-import {cache} from "./InMemoryObjectCache";
 import {ItemFamily} from "./schema";
+import {CacheMemri} from "./Cache";
 
 export class ResultSet {
 	/// Object describing the query and postprocessing instructions
@@ -24,7 +24,7 @@ export class ResultSet {
 
 	/// Unused, Experimental
 	pages = []
-	// cache: Cache//TODO
+	cache: CacheMemri
 	_filterText: String = ""
 	_unfilteredItems?
 
@@ -48,7 +48,7 @@ export class ResultSet {
 		// TODO: change this to be a proper query parser
 		// TODO: this is called very often, needs caching
 
-		let [typeName, filter] = cache.parseQuery(this.datasource.query ?? "")
+		let [typeName, filter] = this.cache.parseQuery(this.datasource.query ?? "")
 		let type = ItemFamily[typeName]
 
 		if (type) {

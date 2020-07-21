@@ -9,8 +9,10 @@ import {getItem, jsonDataFromFile, MemriJSONDecoder, realmWriteIfAvailable, seri
 import * as Realm from 'realm';
 import {getItemType, ItemFamily} from "./schema";
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Item} from "./items/Item";
+import {Item, Edge} from "./items/Item";
 import {ResultSet} from "./ResultSet";
+import {DatabaseController} from "./DatabaseController";
+export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
 	/// PodAPI object
@@ -41,7 +43,7 @@ export class CacheMemri {
 
 	/// gets default item from database, and adds them to realm
 	install() {
-		let realm = new DatabaseController().getRealm();
+		let realm = DatabaseController.getRealm();
 		// Load default database from disk
 		try {
 			let jsonData = jsonDataFromFile("default_database")
@@ -61,10 +63,10 @@ export class CacheMemri {
 					if (key == "uid") {
 						let uid = value;
 						if (typeof uid === "number") {
-							lut[uid] = new CacheMemri().incrementUID();
+							lut[uid] = CacheMemri.incrementUID();
 							values["uid"] = lut[uid]
 						} else if (dict["uid"] == undefined) {
-							values["uid"] = new CacheMemri().incrementUID()
+							values["uid"] = CacheMemri.incrementUID()
 						}
 					} else if (key != "allEdges" && key != "_type") {
 						// Special case for installing default settings
@@ -82,7 +84,7 @@ export class CacheMemri {
 					}
 				}
 
-				let obj = new CacheMemri().createItem(itemType, values);
+				let obj = CacheMemri.createItem(itemType, values);
 				let item = obj, allEdges = dict["allEdges"]
 				if (item instanceof Item && allEdges) {//TODO: isCvuObject?
 					items[item] = allEdges
@@ -110,7 +112,7 @@ export class CacheMemri {
 					let targetDict = edgeDict["target"];
 					if (typeof targetDict == "string") {
 						let target = recur(targetDict);
-						edge = new CacheMemri().createEdge(
+						edge = CacheMemri.createEdge(
 							item,
 							target,
 							edgeType,
@@ -125,7 +127,7 @@ export class CacheMemri {
 							throw `Exception: Ill defined edge: ${edgeDict}`
 						}
 
-						edge = new CacheMemri().createEdge(
+						edge = CacheMemri.createEdge(
 							item,
 							[itemType, itemUID],
 							edgeType,
@@ -134,7 +136,7 @@ export class CacheMemri {
 						)
 					}
 
-					new DatabaseController().writeSync(() => {
+					DatabaseController.writeSync(() => {
 						item.allEdges.append(edge)
 					})
 				}
@@ -166,7 +168,7 @@ export class CacheMemri {
 	///   - datasource: datasource for the query, containing datatype(s), filters, sortInstructions etc.
 	///   - callback: action exectued on the result
 	query(datasource, syncWithRemote =true, callback?) {
-		let realm = new DatabaseController().getRealm()
+		let realm = DatabaseController.getRealm()
 		// Do nothing when the query is empty. Should not happen.
 		let q = datasource.query ?? ""
 
@@ -297,7 +299,7 @@ export class CacheMemri {
 			}
 
 			// Add item to realm
-			new DatabaseController.tryWriteSync((el) => { el.add(item, "modified") }) //TODO
+			DatabaseController.tryWriteSync((el) => { el.add(item, "modified") }) //TODO
 		} catch (error) {
 			console.log(`Could not add to cache: ${error}`)
 		}
@@ -354,7 +356,7 @@ export class CacheMemri {
 					}
 
 					this.sync.schedule();
-					new DatabaseController().writeSync(() => { doAction() })
+					DatabaseController.writeSync(() => { doAction() })
 				}
 				this.scheduleUIUpdate(null);
 			}
@@ -369,22 +371,22 @@ export class CacheMemri {
 	delete(item: Item|Item[]) {
 		if (!Array.isArray(item)) {
 			if (!item.deleted) {
-				new DatabaseController().writeSync(() => {//TODO
+				DatabaseController.writeSync(() => {//TODO
 					item.deleted = true
 					item["_action"] = "delete";
-					let auditItem = new CacheMemri().createItem(AuditItem.constructor, {"action": "delete"})
+					let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "delete"})
 					item.link(auditItem, "changelog");
 
 					this.sync.schedule()
 				})
 			}
 		} else {
-			new DatabaseController().writeSync(() => {//TODO
+			DatabaseController.writeSync(() => {//TODO
 				for (let el of item) {
 					if (!el.deleted) {
 						el.deleted = true
 						el["_action"] = "delete";
-						let auditItem = new CacheMemri().createItem(AuditItem.constructor, {"action": "delete"})
+						let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "delete"})
 						el.link(auditItem, "changelog");
 					}
 				}
@@ -413,7 +415,7 @@ export class CacheMemri {
 				}
 			}
 
-			return new CacheMemri.createItem(itemType, dict);
+			return CacheMemri.createItem(itemType, dict);
 		}
 
 		throw `Exception: Could not copy ${item.genericType}`
@@ -423,32 +425,32 @@ export class CacheMemri {
 		return 1_000_000_000
 	}
 
-	incrementUID() {
-		new DatabaseController().writeSync((realm: Realm) => {
-			if (this.cacheUIDCounter == -1) {
+	static incrementUID() {
+		DatabaseController.writeSync((realm: Realm) => {
+			if (cacheUIDCounter == -1) {
 				let setting = realm.objectForPrimaryKey(Setting.constructor, -1); //TODO:
 				if (setting && setting.json) {
-					this.cacheUIDCounter = Number(setting.json);
+					cacheUIDCounter = Number(setting.json);
 				} else {
-					this.cacheUIDCounter = this.getDeviceID() + 1
+					cacheUIDCounter = this.getDeviceID() + 1
 
 					// As an exception we are not using Cache.createItem here because it should
 					// not be synced to the backend
 					realm.create(Setting.constructor, {
 						"uid": -1,
-						"json": String(this.cacheUIDCounter),
+						"json": String(cacheUIDCounter),
 					})
 					return
 				}
 			}
 
-			this.cacheUIDCounter += 1
+			cacheUIDCounter += 1
 			let setting = realm.objectForPrimaryKey(Setting.constructor, -1);
 			if (setting) {
-				setting.json = String(this.cacheUIDCounter)
+				setting.json = String(cacheUIDCounter)
 			}
 		});
-		return this.cacheUIDCounter
+		return cacheUIDCounter
 	}
 
 	mergeFromCache(cachedItem: Item, newerItem: Item) {
@@ -475,9 +477,9 @@ export class CacheMemri {
 		return newerItem
 	}
 
-	createItem(type, values, unique?: string) {
+	static createItem(type, values, unique?: string) {
 		var item
-		new DatabaseController().tryWriteSync((realm: Realm) => {
+		DatabaseController.tryWriteSync((realm: Realm) => {
 			var dict = values
 
 			// TODO:
@@ -518,7 +520,7 @@ export class CacheMemri {
 				}
 
 				if (item instanceof Item && type != AuditItem.constructor) {
-					let auditItem = new CacheMemri().createItem(AuditItem.constructor, {"action": "update"})
+					let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "update"})
 					item.link(auditItem, "changelog")
 				}
 
@@ -530,7 +532,7 @@ export class CacheMemri {
 				dict["dateCreated"] = new Date()
 			}
 			if (dict["uid"] == undefined) {
-				dict["uid"] = new CacheMemri().incrementUID();
+				dict["uid"] = CacheMemri.incrementUID();
 			}
 
 //            print("\(type) - \(dict["uid"])")
@@ -542,7 +544,7 @@ export class CacheMemri {
 			}
 
 			if (item instanceof Item && type != AuditItem.constructor) {
-				let auditItem = new CacheMemri.createItem(AuditItem.constructor, {"action": "create"})
+				let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "create"})
 				item.link(auditItem, "changelog");
 			}
 		})
@@ -550,7 +552,7 @@ export class CacheMemri {
 		return item ?? new Item()
 	}
 
-	createEdge(source: Item, target: Object, edgeType: String,
+	createEdge(source: Item, target: Object, edgeType: string,
 			   label?: string, sequence?: number) {
 		let targetUID = target["uid"];
 		if (target.objectSchema["uid"] != undefined && typeof targetUID == "number") {
@@ -559,7 +561,35 @@ export class CacheMemri {
 			throw "Cannot link target, no .uid set"
 		}
 
-		return this.createEdge(source, [target.genericType, targetUID],
+		return CacheMemri.createEdge(source, [target.genericType, targetUID],
 			edgeType, label, sequence)
+	}
+
+	static createEdge(source: Item, target, edgeType: string,
+					  label?, sequence?) {
+		var edge: Edge;
+		DatabaseController.tryWriteSync((realm) => {
+			// TODO:
+			// Always overwrite (see also link())
+
+			// TODO: find item in DB & merge
+			// Uniqueness based on also not primary key
+
+			let values = {
+				"targetItemType": target[0],
+				"targetItemID": target[1],
+				"sourceItemType": source.genericType,
+				"sourceItemID": source.uid.value,
+				"type": edgeType,
+				"edgeLabel": label,
+				"sequence": sequence,
+				"dateCreated": new Date(),
+				"_action": "create"
+			}
+
+			edge = realm.create(Edge.constructor, values)
+		});
+
+		return edge ?? new Edge()
 	}
 }

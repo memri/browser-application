@@ -6,6 +6,7 @@ import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, realmWriteIfAvaila
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
+import {DatabaseController} from "../DatabaseController";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
@@ -58,14 +59,14 @@ export class Item extends SchemaItem {
         super();
 
         this.functions["describeChangelog"] = function () {
-            let dateCreated = new Views().formatDate(this.dateCreated);
+            let dateCreated = Views.formatDate(this.dateCreated);
             let views = this.changelog?.filter(item => {
                 return item.action == "read"
             }).length ?? 0;
             let edits = this.changelog?.filter(item => {
                 return item.action == "update"
             }).length ?? 0
-            let timeSinceCreated = new Views().formatDateSinceCreated(this.dateCreated);
+            let timeSinceCreated = Views.formatDateSinceCreated(this.dateCreated);
             return `You created this ${this.genericType} ${dateCreated} and viewed it ${views} times and edited it ${edits} times over the past ${timeSinceCreated}`
         }.bind(this)
 
@@ -269,7 +270,7 @@ export class Item extends SchemaItem {
             }
             let filter = `deleted = false and (type = '${flattened.join("' or type = '")}')`;
 
-            return this.allEdges.filter(filter)
+            return this.allEdges.filtered(filter)
         } else {
             if (edgeType == "" && this.realm == undefined) {
                 return null;
@@ -279,7 +280,7 @@ export class Item extends SchemaItem {
                 return this.edges(collection)
             }
 
-            return this.allEdges.filter(`deleted = false AND type = '${edgeType}'`)
+            return this.allEdges.filtered(`deleted = false AND type = '${edgeType}'`)
         }
 
     }
@@ -295,14 +296,14 @@ export class Item extends SchemaItem {
 
         var orderNumber = 1000 // Default 1st order number
 
-        let edges = this.allEdges.filter(`deleted = false and type = '${edgeType}'`);
+        let edges = this.allEdges.filtered(`deleted = false and type = '${edgeType}'`);
 
         switch (sequence) {
             case EdgeSequencePosition.numberOne:
                 orderNumber = sequence.value; //TODO
                 break;
             case EdgeSequencePosition.first:
-                var sorted = edges.sort("sequence", false) //TODO:
+                var sorted = edges.sorted("sequence", false) //TODO:
                 let firstOrderNumber = sorted[0]?.sequence.value;
                 if (firstOrderNumber) {
                     orderNumber = Math.round(firstOrderNumber / 2) //TODO:
@@ -331,8 +332,8 @@ export class Item extends SchemaItem {
                 }
 
                 let beforeBeforeEdge = edges
-                    .filter(`deleted = false AND sequence < ${beforeNumber}`)
-                    .sort("sequence", true)[0];
+                    .filtered(`deleted = false AND sequence < ${beforeNumber}`)
+                    .sorted("sequence", true)[0];
 
                 let previousNumber = (beforeBeforeEdge?.sequence.value ?? 0)
                 if (beforeNumber - previousNumber > 1000) {
@@ -355,8 +356,8 @@ export class Item extends SchemaItem {
                 }
 
                 let afterAfterEdge = edges
-                    .filter(`deleted = false AND sequence < ${afterNumber}`)
-                    .sort("sequence", true)[0] //TODO:
+                    .filtered(`deleted = false AND sequence < ${afterNumber}`)
+                    .sorted("sequence", true)[0] //TODO:
 
                 let nextNumber = (afterAfterEdge?.sequence.value ?? 0)
                 if (afterNumber - nextNumber > 1000) {
@@ -397,7 +398,7 @@ export class Item extends SchemaItem {
         var edge = this.allEdges.filtered(query)[0] //TODO
         let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
-        new DatabaseController().writeSync(function () {
+        DatabaseController.writeSync(function () {
             if (item.realm == undefined && item instanceof Item) {
                 item["_action"] = "create"
                 this.realm?.add(item, ".modified") //TODO
@@ -448,7 +449,7 @@ export class Item extends SchemaItem {
     unlink(edge: Edge | Item, edgeType?: string, all: boolean = true) {
         if (edge instanceof Edge) {
             if (edge.sourceItemID.value == this.uid.value && edge.sourceItemType == this.genericType) {
-                new DatabaseController.writeSync(function () {
+                DatabaseController.writeSync(function () {
                     edge.deleted = true;
                     edge["_action"] = "delete"
                     this.realm?.delete(edge)//TODO
@@ -470,7 +471,7 @@ export class Item extends SchemaItem {
             let results = this.allEdges.filtered(query); //TODO:
 
             if (results.length > 0) {
-                new DatabaseController().writeSync(() => {
+                DatabaseController.writeSync(() => {
                     if (all) {
                         for (let edge of results) {
                             edge.deleted = true
@@ -620,14 +621,14 @@ export class Item extends SchemaItem {
     /// update the dateAccessed property to the current date
     accessed() {
         let safeSelf = ItemReference(this) //TODO:
-        new DatabaseController().writeAsync((realm) => {
+        DatabaseController.writeAsync((realm) => {
             let item = safeSelf.resolve();
             if (!item) {
                 return
             }
             item.dateAccessed = new Date()
 
-            let auditItem = new CacheMemri().createItem(AuditItem.constructor, {"action": "read"});
+            let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "read"});
             item.link(auditItem, "changelog");
         });
     }
@@ -635,7 +636,7 @@ export class Item extends SchemaItem {
     /// update the dateAccessed property to the current date
     modified(updatedFields: string[]) {
         let safeSelf = ItemReference(this) //TODO:
-        new DatabaseController().writeAsync((realm: Realm) => {
+        DatabaseController.writeAsync((realm: Realm) => {
             let item = safeSelf.resolve();
             if (!item) {
                 return
@@ -676,7 +677,7 @@ export class Item extends SchemaItem {
             }
 
             let content = String(MemriJSONEncoder(dict)) ?? ""
-            let auditItem = new CacheMemri.createItem(
+            let auditItem = CacheMemri.createItem(
                 AuditItem.constructor, {
                     "action": "update",
                     "content": content
@@ -847,67 +848,104 @@ export const EdgeSequencePosition = {
 }
 
 
-/*extension memri.Edge {
-    override public var description: String {
-        "Edge (\(type ?? "")\(label != nil ? ":\(label ?? "")" : "")): \(sourceItemType ?? ""):\(sourceItemID.value ?? 0) -> \(targetItemType ?? ""):\(targetItemID.value ?? 0)"
+export class Edge {
+    type: string;
+    sourceItemType: any;
+    sourceItemID: any;
+    targetItemType: any;
+    targetItemID: any;
+    sequence: any;
+    edgeLabel: string;
+    _action: string;
+    get toString(): string {
+        return `Edge (${this.type ?? ""}${this.edgeLabel != undefined ? `:${this.edgeLabel ?? ""}` : ""}): ${this.sourceItemType ?? ""}:${this.sourceItemID.value ?? 0} -> ${this.targetItemType ?? ""}:${this.targetItemID.value ?? 0}`
     }
 
-    var targetType: Object.Type? {
-        ItemFamily(rawValue: targetItemType ?? "")?.getType() as? Object.Type
-}
+    get targetType() {
+        return getItemType(ItemFamily[this.targetItemType ?? ""]);
+    }
 
-    var sourceType: Item.Type? {
-        ItemFamily(rawValue: sourceItemType ?? "")?.getType() as? Item.Type
-}
+    get sourceType() {
+        return getItemType(ItemFamily[this.sourceItemType ?? ""]);
+    }
 
-    func item<T: Item>(type: T.Type? = T.self) -> T? {
-            target(type: type)
+    item(type) {
+        this.target(type)
+    }
+
+    target() {
+        try {
+            return DatabaseController.tryRead((item) => {
+                let itemType = this.targetType;
+                if (itemType) {
+                    return item.objectForPrimaryKey(itemType, this.targetItemID);
+                } else {
+                    throw `Could not resolve edge target: ${this}`
+                }
+            })
+        } catch (error) {
+            debugHistory.error(`${error}`)
         }
 
-        func target<T: Object>(type _: T.Type? = T.self) -> T? {
-        do {
-            let realm = try Realm()
-            if let itemType = targetType {
-        return realm.object(ofType: itemType, forPrimaryKey: targetItemID) as? T
-} else {
-        throw "Could not resolve edge target: \(self)"
-    }
-} catch {
-        debugHistory.error("\(error)")
+        return;
     }
 
-    return nil
-}
+    source() {
+        try {
+            return DatabaseController.tryRead((item) => {
+                let itemType = this.sourceType;
+                if (itemType) {
+                    return item.objectForPrimaryKey(itemType, this.sourceItemID);
+                } else {
+                    throw `Could not resolve edge source: ${this}`
+                }
+            })
+        } catch (error) {
+            debugHistory.error(`${error}`)
+        }
 
-    func source<T: Item>(type _: T.Type? = T.self) -> T? {
-        do {
-            let realm = try Realm()
-            if let itemType = sourceType {
-        return realm.object(ofType: itemType, forPrimaryKey: sourceItemID) as? T
-} else {
-        throw "Could not resolve edge source: \(self)"
+        return;
     }
-} catch {
-        debugHistory.error("\(error)")
-    }
 
-    return nil
-}
+    parseTargetDict(dict) {
+        if (!dict)
+            return;
 
-    convenience init(type: String = "edge", source: (String, Int), target: (String, Int),
-        sequence: Int? = nil, label: String? = nil, action: String? = nil) {
-        self.init()
+        let itemType = dict["_type"]?.value;
+        if (typeof itemType != "string") {
+            throw `Invalid JSON, no _type specified for target: ${dict}`
+        }
 
-        self.type = type
-        sourceItemType = source.0
-        sourceItemID.value = source.1
-        targetItemType = target.0
-        targetItemID.value = target.1
-        self.sequence.value = sequence
-        self.label = label
+        let type = getItemType(ItemFamily[itemType]);
+        if (!type) {//TODO as? Object.Type
+            throw `Invalid target item type specificed: ${itemType}`
+        }
 
-        if let action = action {
-            syncState?.actionNeeded = action
+        var values = {}
+        for (let [key, value] of dict) {
+            values[key] = value.value
+        }
+
+        let item = CacheMemri.createItem(type, values);
+        let uid = item["uid"];
+        if (typeof uid == "number") {
+            this.targetItemType = itemType
+            this.targetItemID.value = uid
+        } else {
+            throw "Unable to create target item in edge"
         }
     }
-}*/
+
+    constructor(type: string = "edge", source, target,
+        sequence?: number, label?: string, action?: string) {
+
+        this.type = type
+        this.sourceItemType = source[0]
+        this.sourceItemID.value = source[1]
+        this.targetItemType = target[0]
+        this.targetItemID.value = target[1]
+        this.sequence.value = sequence
+        this.edgeLabel = label
+        this._action = action
+    }
+}

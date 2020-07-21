@@ -146,7 +146,7 @@ export class Views {
 		}
 	}
 
-	formatDate(date) {
+	static formatDate(date) {
 		let showAgoDate = settings.get("user/general/gui/showDateAgo")
 
 		if (date) {
@@ -168,7 +168,7 @@ export class Views {
 		}
 	}
 
-	formatDateSinceCreated(date) {
+	static formatDateSinceCreated(date) {
 		if (date) {
 			return date/*.timeDelta*/ ?? ""//TODO:
 		} else {

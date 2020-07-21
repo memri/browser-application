@@ -1,5 +1,8 @@
 
 /// DataItem is the baseclass for all of the data clases, all functions
+//import {Views} from "../cvu/views/Views";
+import {jsonDataFromFile, MemriJSONDecoder, realmWriteIfAvailable} from "../gui/util";
+
 enum CodingKeys {
 	uid, memriID, deleted, starred, dateCreated, dateModified, dateAccessed, changelog,
 	labels, syncState
@@ -48,7 +51,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	/// Labels assigned to / associated with this DataItem
 	labels = []//TODO
 	/// Object descirbing syncing information about this object like loading state, versioning, etc.
-	// syncState = new SyncState()//TODO
+	//syncState = new SyncState()//TODO
 
 	functions = {}
 
@@ -69,8 +72,8 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 
 		this.functions["describeChangelog"] = function() {
 			let dateCreated = Views.formatDate(this.dateCreated)
-			let views = this.changelog.filter ( function (item) {item.action == "read"} ).length
-			let edits = this.changelog.filter ( function (item) {item.action == "update"} ).length
+			let views = this.changelog.filter ( function (item) {return item.action == "read"} ).length
+			let edits = this.changelog.filter ( function (item) {return item.action == "update"} ).length
 			let timeSinceCreated = Views.formatDateSinceCreated(this.dateCreated)
 			return `You created this ${this.genericType} ${dateCreated} and viewed it ${views} times and edited it ${edits} times over the past ${timeSinceCreated}`
 		}.bind(this)//TODO
@@ -90,7 +93,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 
 	/// @private
 	superDecode(decoder) {//TODO
-		return;
+		//return;
 		this.uid = decoder.decodeIfPresent("uid") || this.uid
 		this.memriID = decoder.decodeIfPresent("memriID") || this.memriID
 		this.starred = decoder.decodeIfPresent("starred") || this.starred
@@ -141,7 +144,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	/// Get the type of DataItem
 	/// - Returns: type of the DataItem
 	getType() {
-		let type = new DataItemFamily(this.genericType)
+		/*let type = DataItemFamily[this.genericType]
 		if (type) {
 			let T = DataItemFamily.getType(type)//TODO
 			// NOTE: allowed forced downcast
@@ -149,7 +152,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 		} else {
 			console.log(`Cannot find type ${genericType} in DataItemFamily`)
 			return null
-		}
+		}*/ //TODO:
 	}
 
 	/// Determines whether item has property
@@ -175,7 +178,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	/// Get property value
 	/// - Parameters:
 	///   - name: property name
-	get(name, type?) {
+	get(name) {
 		if (name == "self") {
 			return this
 		}
@@ -187,9 +190,9 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	///   - name: property name
 	///   - value: value
 	set(name, value) {
-		/*realmWriteIfAvailable(realm) {//TODO
+		realmWriteIfAvailable(this.realm, () => {//TODO
 			this[name] = value
-		}*/
+		})
 	}
 
 	addEdge(propertyName, item) {
@@ -199,7 +202,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 		if (!objectID) return
 
 		let edges = this.get(propertyName) ?? []
-		if (!edges.map(function(item) { item.objectMemriID }).includes(objectID)) {
+		if (!edges.map(function(item) { return item.objectMemriID }).includes(objectID)) {
 			let newEdge = new Edge(subjectID, objectID, "Label", "Note")
 			let newEdges = edges.concat([newEdge])
 			this.set("appliesTo", newEdges)
@@ -238,7 +241,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	toggle(name) {
 		let val = this[name]
 		if (typeof val === "boolean") {
-			this.set(name, val)
+			this.set(name, !val)
 		} else {
 			console.log(`tried to toggle property ${name}, but ${name} is not a boolean`)
 		}
@@ -249,7 +252,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	///   - propName: name of the compared property
 	///   - item: item to compare against
 	/// - Returns: boolean indicating whether the property values are the same
-	isEqualProperty(propName, item) {
+	isEqualProperty(propName, item: DataItem) {
 		let prop = this.objectSchema[propName]
 		if (prop) {
 			// List
@@ -260,10 +263,10 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 				let value2 = item[propName]
 
 				let item1 = value1
-				if (typeof item1 === "string" && typeof value2 === "string") {
+				if (typeof item1 == "string" && typeof value2 == "string") {
 					return item1 == value2
 				}
-				if (typeof item1 === "number" && typeof value2 === "number") {
+				if (typeof item1 == "number" && typeof value2 == "number") {
 					return item1 == value2
 				}
 				// if let item1 = value1 as? Double, let value2 = value2 as? Double {
@@ -290,7 +293,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	/// requested changes for the same properties with different values, merging is not performed.
 	/// - Parameter item: item to be merged with the current DataItem
 	/// - Returns: boolean indicating the succes of the merge
-	safeMerge(item) {
+	safeMerge(item: DataItem) {
 		let syncState = this.syncState
 		if (syncState) {
 			// Ignore when marked for deletion
@@ -329,7 +332,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 		let realm = this.realm
 		if (realm) {
 			try {
-				//realm.write { this.doMerge(item, mergeDefaults) }//TODO
+				realm.write(()=> { this.doMerge(item, mergeDefaults) }) //TODO
 			} catch(error) {
 				console.log(`Could not write merge of ${item} and ${this} to realm`)
 			}
@@ -338,7 +341,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 		}
 	}
 
-	doMerge(item, mergeDefaults = false) {
+	doMerge(item: DataItem, mergeDefaults = false) {
 		let properties = this.objectSchema.properties
 		for (var prop of properties) {
 			// Exclude SyncState
@@ -352,14 +355,14 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 
 			// Overwrite only the property values that are not already set
 			if (mergeDefaults) {
-				if (this[prop.name] == null) {
+				if (this[prop.name] == undefined) {
 					this[prop.name] = item[prop.name]
 				}
 			}
 			// Overwrite all property values with the values from the passed item, with the
 			// exception, that values cannot be set ot null
 			else {
-				if (item[prop.name] != null) {
+				if (item[prop.name] != undefined) {
 					this[prop.name] = item[prop.name]
 				}
 			}
@@ -368,9 +371,9 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 
 	/// update the dateAccessed property to the current date
 	access() {
-		/*realmWriteIfAvailable(realm) {//TODO
-			this.dateAccessed = Date()
-		}*/
+		realmWriteIfAvailable(this.realm, ()=>{//TODO
+			this.dateAccessed = new Date()
+		})
 	}
 
 	/// compare two dataItems
@@ -397,7 +400,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	fromJSONFile(file, ext = "json") {
 		let jsonData = jsonDataFromFile(file, ext)//TODO
 
-		let items = MemriJSONDecoder.decode(DataItemFamily.constructor, jsonData)//TODO
+		let items = MemriJSONDecoder(jsonData)//TODO
 		return items
 	}
 
@@ -409,7 +412,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 		if (syncState) {
 			syncState.actionNeeded = action
 		} else {
-			console.log(`No syncState available for item ${self}`)
+			console.log(`No syncState available for item ${this}`)
 		}
 	}
 
@@ -418,13 +421,12 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 	/// - Throws: Decoding error
 	/// - Returns: Array of deserialized DataItems
 	fromJSONString(json) {
-		let items = MemriJSONDecoder
-			.decode(DataItemFamily.constructor, new Data(json.utf8))//TODO
+		let items = MemriJSONDecoder(json) //TODO
 		return items
 	}
 }
 
-class Edge/* extends Object*/ {
+/*class Edge {
 	objectMemriID = DataItem.generateUUID()//TODO
 	subjectMemriID = DataItem.generateUUID()//TODO
 
@@ -433,8 +435,7 @@ class Edge/* extends Object*/ {
 
 	// required init() {}//TODO
 
-	constructor(subjectMemriID, objectMemriID, subjectType = "unknown", objectType = "unknown") {
-		//super()
+	constructor(subjectMemriID?, objectMemriID?, subjectType = "unknown", objectType = "unknown") {
 		subjectMemriID = subjectMemriID || DataItem.generateUUID()
 		objectMemriID = objectMemriID || DataItem.generateUUID()
 		this.objectMemriID = objectMemriID
@@ -455,4 +456,4 @@ class Edge/* extends Object*/ {
 	//        objectUid = try decoder.decodeIfPresent("objectUid") ?? objectUid
 	//        subjectUid = try decoder.decodeIfPresent("subjectUid") ?? subjectUid
 	//    }
-}
+}*/
