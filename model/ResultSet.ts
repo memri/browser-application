@@ -82,8 +82,8 @@ export class ResultSet {
 	}
 
 
-	constructur(ch: Cache) {
-		// this.cache = ch//TODO cache
+	constructor(ch: CacheMemri) {
+		this.cache = ch
 	}
 
 	/// Executes a query given the current QueryOptions, filters the result client side and executes the callback on the resulting

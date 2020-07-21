@@ -2,8 +2,10 @@ import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {Views} from "../../cvu/views/Views";
 import {settings} from "../Settings";
 import {getItemType, ItemFamily, SchemaItem} from "../schema";
-import {realmWriteIfAvailable} from "../../gui/util";
+import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, realmWriteIfAvailable, unserialize} from "../../gui/util";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
+import {CacheMemri} from "../Cache";
+import {debugHistory} from "../../cvu/views/ViewDebugger";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
@@ -25,16 +27,17 @@ export class Item extends SchemaItem {
     get toString() {
         var str = `${this.genericType} ${this.realm == undefined ? "[UNMANAGED] " : ""}{\n`
             + `    uid: ${this.uid.value == undefined ? "null" : String(this.uid.value ?? 0)}\n`
+            + `    _updated: ${this["_updated"].length == 0 ? "[]" : `[${this["_updated"].join(", ")}]`}\n`
             + "    " + this.objectSchema.properties
                 .filter(item => {
                     return this[item.name] != undefined && item.name != "allEdges"
-                        && item.name != "uid" && item.name != "syncState"
+                        && item.name != "uid" && item.name != "_updated"
                 })
                 .map(item => {
                     `${item.name}: ${new CVUSerializer().valueToString(this[item.name])}`
                 })
-                .join("\n    ")
-            + `\n    syncState: ${this.syncState?.toString() ?? ""}`;
+                .join("\n    ");
+
 
         str += (this.allEdges.length > 0 ? "\n\n    " : "")
             + this.allEdges
@@ -153,9 +156,6 @@ export class Item extends SchemaItem {
     /// - Parameter propName: name of the property
     /// - Returns: boolean indicating whether Item has the property
     hasProperty(propName: string) {
-        if (propName == "self") {
-            return true
-        }
         for (let prop of this.objectSchema.properties) {
             if (prop.name == propName) {
                 return true
@@ -175,9 +175,7 @@ export class Item extends SchemaItem {
     /// - Parameters:
     ///   - name: property name
     get(name: string) {
-        if (name == "self") {
-            return this
-        } else if (this.objectSchema[name] != undefined) {
+        if (this.objectSchema[name] != undefined) {
             return this[name]
         } else if (this.edge(name)) {
             return this.edge(name).target();
@@ -190,17 +188,30 @@ export class Item extends SchemaItem {
     ///   - name: property name
     ///   - value: value
     set(name: string, value) {
-        realmWriteIfAvailable(realm, function () {
-            if (this.objectSchema[name] != undefined) {
-                this[name] = value
-            } else if (value)/*let obj = value as? Object*/ {
-                this.link(value, name, true);
+        DatabaseController.writeSync(function () {
+            let schema = this.objectSchema[name];
+            if (schema) {
+                if (this.isEqualValue(this[name], value))
+                    return;
+                switch (schema.type) {
+                    case "number":
+                        this[name] = Number(value)
+                        break;
+                    default:
+                        this[name] = value
+                }
+
+                this.modified([name])
+            } else if (value) {
+                let obj = value;
+                this.link(obj, name, true)
             } else if (Array.isArray(value)) {
                 let list = value;
                 for (let obj of list) {
-                    this.link(obj, name)
+                    this.link(obj, name);
                 }
             }
+            this.dateModified = new Date() // Update DateModified
         }.bind(this))
     }
 
@@ -225,8 +236,8 @@ export class Item extends SchemaItem {
         //#warning("Not implemented fully yet")
 
         // Should this create a temporary edge for which item() is source() ?
-        return this.realm?.objects(Edge.self) //TODO:
-            .filter(`targetItemID = ${this.uid} AND type = '${edgeType}`)
+        return this.realm?.objects(Edge.constructor) //TODO:
+            .filtered(`targetItemID = ${this.uid} AND type = '${edgeType}`)
     }
 
     reverseEdge(edgeType: string) {
@@ -238,8 +249,8 @@ export class Item extends SchemaItem {
         //#warning("Not implemented fully yet")
 
         // Should this create a temporary edge for which item() is source() ?
-        return this.realm?.objects(Edge.self) //TODO:
-            .filter(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}`)[0]
+        return this.realm?.objects(Edge.constructor) //TODO:
+            .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}`)[0]
     }
 
     edges(edgeType: string|string[]) {
@@ -363,7 +374,7 @@ export class Item extends SchemaItem {
 
     /// When distinct is set to false multiple of the same relationship type are allowed
     link(item, edgeType: string = "edge",
-         order?, label?,
+         sequence?, label?,
          distinct: boolean = false, overwrite: boolean = true) {
         if (!this.get("uid")) {
             throw "Exception: Missing uid on source"
@@ -383,23 +394,23 @@ export class Item extends SchemaItem {
 
         let query = `deleted = false and type = '${edgeType}'`
             + (distinct ? "" : ` and targetItemID = ${targetID}`)
-        var edge = this.allEdges.filter(query)[0] //TODO
-        let sequenceNumber = this.determineSequenceNumber(edgeType, order);
+        var edge = this.allEdges.filtered(query)[0] //TODO
+        let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
-        realmWriteIfAvailable(this.realm, function () {
+        new DatabaseController().writeSync(function () {
             if (item.realm == undefined && item instanceof Item) {
-                item.syncState?.actionNeeded = "create"
-                //this.realm?.add(item, .modified) TODO
+                item["_action"] = "create"
+                this.realm?.add(item, ".modified") //TODO
             }
 
             if (edge == undefined) {
-                /*edge = new Cache.createEdge(
+                edge = new CacheMemri().createEdge(
                     this,
                     item,
                     edgeType,
                     label,
                     sequenceNumber
-                )*/ //TODO
+                )
                 if (edge) {
                     this.allEdges.push(edge);
                 }
@@ -409,8 +420,8 @@ export class Item extends SchemaItem {
                 edge.sequence.value = sequenceNumber
                 edge.edgeLabel = label
 
-                if (edge.syncState?.actionNeeded == undefined) {
-                    edge.syncState.actionNeeded = "update"
+                if (edge["_action"] == undefined) {
+                    edge["_action"] = "update"
                 }
             } else if (edge == undefined) {
                 throw "Exception: Could not create link"
@@ -434,55 +445,56 @@ export class Item extends SchemaItem {
     //        return nil
     //    }
 
-    unlink(edge: Edge) {
-        if (edge.sourceItemID.value == this.uid.value && edge.sourceItemType == this.genericType) {
-            realmWriteIfAvailable(this.realm, function () {
-                edge.deleted = true;
-                edge.syncState?.actionNeeded = "delete"
-                this.realm?.delete(edge)//TODO
-            })
+    unlink(edge: Edge | Item, edgeType?: string, all: boolean = true) {
+        if (edge instanceof Edge) {
+            if (edge.sourceItemID.value == this.uid.value && edge.sourceItemType == this.genericType) {
+                new DatabaseController.writeSync(function () {
+                    edge.deleted = true;
+                    edge["_action"] = "delete"
+                    this.realm?.delete(edge)//TODO
+                })
+            } else {
+                throw "Exception: Edge does not link from this item"
+            }
         } else {
-            throw "Exception: Edge does not link from this item"
-        }
-    }
+            let targetID = edge.get("uid");
+            if (!targetID) {
+                return;
+            }
+            if (edgeType == "") {
+                throw "Exception: Edge type is not set"
+            }
 
-/*public func unlink(_ item: Item, type edgeType: String? = nil, all: Bool = true) throws {
-        guard let targetID: Int = item.get("uid") else {
-            return
-        }
+            let edgeQuery = edgeType != undefined ? `type = '${edgeType!}' and ` : "";
+            let query = `deleted = false and ${edgeQuery} targetItemID = ${targetID}`
+            let results = this.allEdges.filtered(query); //TODO:
 
-        guard edgeType != "" else {
-            throw "Exception: Edge type is not set"
-        }
-
-        let edgeQuery = edgeType != nil ? "type = '\(edgeType!)' and " : ""
-		let query = "deleted = false and \(edgeQuery) targetItemID = \(targetID)"
-        let results = allEdges.filter(query)
-
-        if results.count > 0 {
-            realmWriteIfAvailable(realm) {
-                if all {
-                    for edge in results {
+            if (results.length > 0) {
+                new DatabaseController().writeSync(() => {
+                    if (all) {
+                        for (let edge of results) {
+                            edge.deleted = true
+                            edge._action = "delete"
+                        }
+                    } else if (results[0]) {
+                        let edge = results[0];
                         edge.deleted = true
-                        edge.syncState?.actionNeeded = "delete"
+                        edge._action = "delete"
                     }
-                } else if let edge = results.first {
-                    edge.deleted = true
-                    edge.syncState?.actionNeeded = "delete"
-                }
+                });
             }
         }
-    }*/ //TODO:
+    }
 
     /// Toggle boolean property
     /// - Parameter name: property name
     toggle(name: string) {
-        let val = this[name]
-        if (typeof val == "boolean") {
-            val ? this.set(name, false) : this.set(name, true)
-        } else {
-            console.log(`tried to toggle property ${name}, but ${name} is not a boolean`)
+        if (this.objectSchema[name]?.type != "boolean") {
+            throw `'${name}' is not a boolean property`
         }
+
+        let val = Boolean(this[name]) ?? false
+        this.set(name, !val);
     }
 
     /// Compares value of this Items property with the corresponding property of the passed items property
@@ -494,32 +506,30 @@ export class Item extends SchemaItem {
         let prop = this.objectSchema[propName];
         if (prop) {
             // List
-            if (prop.objectClassName != undefined) {
+            if (Array.isArray(prop)) {
                 return false // TODO: implement a list compare and a way to add to updatedFields
             } else {
-                let value1 = this[propName]
-                let value2 = item[propName]
-                let item1 = value1;
-
-                if (typeof item1 == "string" && typeof value2 == "string") {
-                    return item1 == value2
-                }
-                if (typeof item1 == "number" && typeof value2 == "number") {
-                    return item1 == value2
-                }
-                if (typeof item1 == "object" && typeof value2 == "object") {
-                    return item1 == value2//TODO
-                } else {
-                    // TODO: Error handling
-                    console.log(`Trying to compare property ${propName} of item ${item} and ${this} " +
-                        "but types do not mach`)
-                }
+                return this.isEqualValue(this[propName], item[propName])
             }
-
-            return true
         } else {
             // TODO: Error handling
-            console.log(`Tried to compare property ${propName}, but ${this} does not have that property`)
+            console.log(`Unable to compare property ${propName}, but ${this} does not have that property`)
+            return false
+        }
+    }
+
+    isEqualValue(a, b) {
+        if (a == undefined) {
+            return b == undefined
+        } else if (a) {
+            return a == b
+        }
+        /*else if let a = a as? String { return a == b as? String }
+        else if let a = a as? Int { return a == b as? Int }
+        else if let a = a as? Double { return a == b as? Double }
+        else if let a = a as? Object { return a == b as? Object }*/
+        else {
+            debugHistory.warn("Unable to compare value: types do not mach")
             return false
         }
     }
@@ -528,32 +538,32 @@ export class Item extends SchemaItem {
     /// requested changes for the same properties with different values, merging is not performed.
     /// - Parameter item: item to be merged with the current Item
     /// - Returns: boolean indicating the succes of the merge
-safeMerge(item: Item) {
-    let syncState = this.syncState;
-        if (syncState) {
-            // Ignore when marked for deletion
-            if (syncState.actionNeeded == "delete") { return true }
-
-            // Do not update when the version is not higher then what we already have
-            if (item.version <= this.version) { return false }
-
-            // Make sure to not overwrite properties that have been changed
-            let updatedFields = syncState.updatedFields
-
-            // Compare all updated properties and make sure they are the same
-            for (let fieldName of updatedFields) {
-                if (!this.isEqualProperty(fieldName, item)) { return false }
-            }
-
-            // Merge with item
-            this.merge(item) //TODO:
-
+    safeMerge(item: Item) {
+        // Ignore when marked for deletion
+        if (this["_action"] == "delete") {
             return true
-        } else {
-            // TODO: Error handling
-            console.log("trying to merge, but syncState is nil")
+        }
+
+        // Do not update when the version is not higher then what we already have
+        if (item.version <= this.version) {
             return false
         }
+
+        // Make sure to not overwrite properties that have been changed
+        let updatedFields = this["_updated"]
+
+        // Compare all updated properties and make sure they are the same
+        //#warning("properly implement this for edges")
+        for (let fieldName of updatedFields) {
+            if (!this.isEqualProperty(fieldName, item)) {
+                return false
+            }
+        }
+
+        // Merge with item
+        this.merge(item)
+
+        return true
     }
 
     /// merges the the passed Item in the current item
@@ -564,10 +574,12 @@ safeMerge(item: Item) {
     ///    that values cannot be set from a non-nil value to nil.
     merge(item: Item, mergeDefaults: boolean = false) {
         // Store these changes in realm
-        let realm = this.realm;
+        let realm: Realm = this.realm;
         if (realm) {
             try {
-                //realm.write{ this.doMerge(item, mergeDefaults) } TODO
+                realm.write(() => {
+                    this.doMerge(item, mergeDefaults)
+                })
             } catch {
                 console.log(`Could not write merge of ${item} and ${this} to realm`)
             }
@@ -580,7 +592,8 @@ safeMerge(item: Item) {
         let properties = this.objectSchema.properties
         for (let prop of properties) {
             // Exclude SyncState
-            if (prop.name == "SyncState" || prop.name == "uid") {
+            if (prop.name == "_updated" || prop.name == "_action" || prop.name == "_partial"
+                || prop.name == "deleted" || prop.name == "_changedInSession" || prop.name == "uid") {
                 continue
             }
 
@@ -605,9 +618,71 @@ safeMerge(item: Item) {
     }
 
     /// update the dateAccessed property to the current date
-    access() {
-        realmWriteIfAvailable(this.realm, function () {
-            this.dateAccessed = Date()
+    accessed() {
+        let safeSelf = ItemReference(this) //TODO:
+        new DatabaseController().writeAsync((realm) => {
+            let item = safeSelf.resolve();
+            if (!item) {
+                return
+            }
+            item.dateAccessed = new Date()
+
+            let auditItem = new CacheMemri().createItem(AuditItem.constructor, {"action": "read"});
+            item.link(auditItem, "changelog");
+        });
+    }
+
+    /// update the dateAccessed property to the current date
+    modified(updatedFields: string[]) {
+        let safeSelf = ItemReference(this) //TODO:
+        new DatabaseController().writeAsync((realm: Realm) => {
+            let item = safeSelf.resolve();
+            if (!item) {
+                return
+            }
+
+            let previousModified = item.dateModified
+            item.dateModified = new Date()
+
+            for (let field of updatedFields) {
+                if (!item["_updated"].includes(field)) {
+                    item["_updated"].push(field)
+                }
+            }
+
+            if (previousModified?.distance(new Date()) ?? 0 < 300) /* 5 minutes */ {
+                //#warning("Test that .last gives the last added audit item")
+                let auditItem = item.edges("changelog")?.last?.item(AuditItem.constructor);
+                let content = auditItem.content;
+                var dict = unserialize(content);
+                if (auditItem && content && dict) {
+                    for (let field of updatedFields) {
+                        if (item.objectSchema[field] == undefined) {
+                            throw "Invalid update call"
+                        }
+                        dict[field] = item[field];
+                    }
+                    auditItem.content = String(MemriJSONEncoder(dict)) ?? ""
+                    return;
+                }
+            }
+
+            var dict = {}
+            for (let field of updatedFields) {
+                if (item.objectSchema[field] == undefined) {
+                    throw "Invalid update call"
+                }
+                dict[field] = item[field]
+            }
+
+            let content = String(MemriJSONEncoder(dict)) ?? ""
+            let auditItem = new CacheMemri.createItem(
+                AuditItem.constructor, {
+                    "action": "update",
+                    "content": content
+                }
+            )
+            item.link(auditItem, "changelog")
         })
     }
 
@@ -629,29 +704,17 @@ safeMerge(item: Item) {
     fromJSONFile(file: string, ext: string = "json") {
         let jsonData = jsonDataFromFile(file, ext) //TODO
 
-        let items = new MemriJSONDecoder.decode(ItemFamily, jsonData) //TODO
+        let items = MemriJSONDecoder(jsonData) //TODO
         return items
     }
 
-    /// Sets syncState .actionNeeded property
-    /// - Parameters:
-    ///   - action: action name
-    setSyncStateActionNeeded(action: string) {
-        let syncState = this.syncState
-        if (syncState) {
-            syncState.actionNeeded = action
-        } else {
-            console.log(`No syncState available for item ${this}`)
-        }
-    }
 
     /// Read Item from string
     /// - Parameter json: string to parse
     /// - Throws: Decoding error
     /// - Returns: Array of deserialized Items
     fromJSONString(json: string) {
-        let items: [Item] = new MemriJSONDecoder
-            .decode(ItemFamily, Data(json.utf8)) //TODO
+        let items: [Item] = MemriJSONDecoder(json) //TODO
         return items
     }
 }
