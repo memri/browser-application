@@ -16,12 +16,10 @@ interface UniqueString {
 	uniqueString
 }
 
-export class Datasource extends SchemaItem implements UniqueString {
-	/// Primary key used in the realm database of this Item
-	get primaryKey() {
-		return "uid"
-	}
-
+export class Datasource implements UniqueString {
+	/*public static func == (lhs: Datasource, rhs: Datasource) -> Bool {//TODO
+		lhs.uniqueString == rhs.uniqueString
+	}*/
 	/// Retrieves the query which is used to load data from the pod
 	query?: string
 
@@ -31,11 +29,11 @@ export class Datasource extends SchemaItem implements UniqueString {
 	/// Retrieves whether the sort direction
 	/// - false sort descending
 	/// - true sort ascending
-	sortAscending = {};
+	sortAscending: boolean;
 	/// Retrieves the number of items per page
-	pageCount = [] // Todo move to ResultSet
+	pageCount: number
 
-	pageIndex = [] // Todo move to ResultSet
+	pageIndex: number
 	/// Returns a string representation of the data in QueryOptions that is unique for that data
 	/// Each QueryOptions object with the same data will return the same uniqueString
 	get uniqueString() {
@@ -44,15 +42,16 @@ export class Datasource extends SchemaItem implements UniqueString {
 		result.push((this.query ?? "")) //TODO: .sha256()
 		result.push(this.sortProperty ?? "")
 
-		let sortAsc = this.sortAscending.value ?? true
+		let sortAsc = this.sortAscending ?? true
 		result.push(String(sortAsc))
 
 		return result.join(":")
 	}
 
-	constructor(query?: string) {
-		super();
+	constructor(query?: string, sortProperty?: string, sortAscending?: boolean) {
 		this.query = query
+		this.sortProperty = sortProperty
+		this.sortAscending = sortAscending
 	}
 
 	fromCVUDefinition(def: CVUParsedDatasourceDefinition,
@@ -80,22 +79,34 @@ export class Datasource extends SchemaItem implements UniqueString {
 	}
 }
 
-export class CascadingDatasource extends Cascadable implements UniqueString {
+export class CascadingDatasource extends Cascadable implements UniqueString, Subscriptable {
 	/// Retrieves the query which is used to load data from the pod
 	get query() {
-		return this.datasource.query ?? this.cascadeProperty("query")
+		return this.cascadeProperty("query")
+	}
+
+	set query(value) {
+		this.setState("query", value)
 	}
 
 	/// Retrieves the property that is used to sort on
 	get sortProperty() {
-		return this.datasource.sortProperty ?? this.cascadeProperty("sortProperty")
+		return this.cascadeProperty("sortProperty")
+	}
+
+	set sortProperty(value) {
+		this.setState("sortProperty", value)
 	}
 
 	/// Retrieves whether the sort direction
 	/// false sort descending
 	/// true sort ascending
 	get sortAscending() {
-		return this.datasource.sortAscending.value ?? this.cascadeProperty("sortAscending")
+		return this.cascadeProperty("sortAscending")
+	}
+
+	set sortAscending(value) {
+		this.setState("sortAscending", value)
 	}
 
 	datasource: Datasource
@@ -115,19 +126,19 @@ export class CascadingDatasource extends Cascadable implements UniqueString {
 	}
 
 	flattened(): Datasource {
-		return new Datasource({
-			"query": this.query,
-			"sortProperty": this.sortProperty,
-			"sortAscending": this.sortAscending,
-		}) //TODO:
+		return new Datasource(
+			this.query,
+			this.sortProperty,
+			this.sortAscending,
+		) //TODO:
 	}
 
-	constructor(cascadeStack: CVUParsedDatasourceDefinition[],
+	/*constructor(cascadeStack: CVUParsedDatasourceDefinition[],
 				viewArguments?: ViewArguments,
 				datasource: Datasource) {
 		super(cascadeStack, viewArguments)
 		this.datasource = datasource
-	}
+	}*/
 
 	getSubscript(propName: string) {
 		switch (propName) {
@@ -145,11 +156,11 @@ export class CascadingDatasource extends Cascadable implements UniqueString {
 	setSubscript(propName: string, value) {
 		switch (propName) {
 			case "query":
-				return this.datasource.query = value ?? ""
+				return this.query = value ?? ""
 			case "sortProperty":
-				return this.datasource.sortProperty = String(value) ?? ""
+				return this.sortProperty = String(value)
 			case "sortAscending":
-				return this.datasource.sortAscending.value = Boolean(value) ?? true
+				return this.sortAscending = Boolean(value)
 			default:
 				return
 		}
