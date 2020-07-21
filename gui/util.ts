@@ -101,3 +101,5 @@ export function getItem(type: string, uid) { //TODO:
     }
     return
 }
+
+export function autoreleasepool(callback){callback()}//TODO
