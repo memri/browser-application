@@ -5,7 +5,7 @@ import {debugHistory} from "../cvu/views/ViewDebugger";
 export class PodAPI {
     key;
      
-    constructor(podkey, mockApi) {
+    constructor(podkey, mockApi?) {
         this.key = podkey
         this.mockApi = mockApi
     }

@@ -10,7 +10,7 @@ import {CVUParsedDatasourceDefinition} from "../../parsers/cvu-parser/CVUParsedD
 import {UserState, ViewArguments} from "./UserState";
 import {realmWriteIfAvailable} from "../../gui/util";
 import {DataItem} from "../../model/DataItem";
-import {Datasource} from "../../context/Datasource";
+import {Datasource} from "../../api/Datasource";
 
 export class SessionView extends DataItem {
  

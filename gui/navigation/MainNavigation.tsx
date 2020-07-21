@@ -29,7 +29,7 @@ export class MainNavigation {
 
 	realm: Realm
 
-	constructor(rlm: Realm) {
+	constructor(rlm?: Realm) {
 		this.realm = rlm
 	}
 

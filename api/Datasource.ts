@@ -11,6 +11,7 @@ import {CVUParsedDatasourceDefinition} from "../parsers/cvu-parser/CVUParsedDefi
 import {Expression} from "../parsers/expression-parser/Expression";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Cascadable} from "../cvu/views/Cascadable";
+import {Subscriptable} from "../context/MemriContext";
 
 interface UniqueString {
 	uniqueString

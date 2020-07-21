@@ -15,7 +15,7 @@ import {realmWriteIfAvailable} from "../../gui/util";
 import {debugHistory} from "./ViewDebugger";
 import {SessionView} from "./SessionView";
 import {settings} from "../../model/Settings";
-import {Datasource} from "../../context/Datasource";
+import {Datasource} from "../../api/Datasource";
 import {MemriContext} from "../../context/MemriContext";
 
 export class Action/* : HashableClass, CVUToString*/ {

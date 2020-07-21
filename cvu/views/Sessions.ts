@@ -8,7 +8,7 @@
 
 import {debugHistory} from "./ViewDebugger";
 
-class Sessions extends DataItem {
+export class Sessions extends DataItem {
 	genericType() { return "Sessions" }
 
 	currentSessionIndex = 0

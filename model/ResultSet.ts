@@ -8,7 +8,7 @@
 
 
 /// This class wraps a query and its results, and is responsible for loading a the result and possibly applying clienside filtering
-import {Datasource} from "../context/Datasource";
+import {Datasource} from "../api/Datasource";
 import {ItemFamily} from "./schema";
 import {CacheMemri} from "./Cache";
 

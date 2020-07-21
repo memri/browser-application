@@ -19,7 +19,7 @@ import {Action} from "./Action";
 import {UUID} from "../../model/DataItem";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "./ViewDebugger";
-import {Datasource} from "../../context/Datasource";
+import {Datasource} from "../../api/Datasource";
 import {Item} from "../../model/items/Item";
 
 export class UIElement /*extends CVUToString */{

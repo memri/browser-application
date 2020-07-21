@@ -11,7 +11,7 @@ import {UserState, ViewArguments} from "./UserState";
 import {CVUParsedDatasourceDefinition, CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {debugHistory} from "./ViewDebugger";
-import {CascadingDatasource, Datasource} from "../../context/Datasource";
+import {CascadingDatasource, Datasource} from "../../api/Datasource";
 import {SessionView} from "./SessionView";
 import {ResultSet} from "../../model/ResultSet";
 

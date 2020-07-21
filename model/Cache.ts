@@ -421,7 +421,7 @@ export class CacheMemri {
 		throw `Exception: Could not copy ${item.genericType}`
 	}
 
-	getDeviceID() {
+	static getDeviceID() {
 		return 1_000_000_000
 	}
 

@@ -38,7 +38,7 @@
 /// Based on a query, Sync checks whether it still has the latest version of the resulting Items. It does this asynchronous and in the
 /// background, items are updated automatically.
 import {PodAPI} from "../api/api";
-import {Datasource} from "../context/Datasource";
+import {Datasource} from "../api/Datasource";
 import {getItemType, ItemFamily} from "./schema";
 import {Item, Edge} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";

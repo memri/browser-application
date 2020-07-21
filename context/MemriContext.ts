@@ -19,7 +19,7 @@ import {realmWriteIfAvailable} from "../gui/util";
 import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/api";
-import {Datasource} from "./Datasource";
+import {Datasource} from "../api/Datasource";
 import {CascadingView} from "../cvu/views/CascadingView";
 import {Expression} from "../parsers/expression-parser/Expression";
 import {Item} from "../model/items/Item";
@@ -27,8 +27,18 @@ import {SessionView} from "../cvu/views/SessionView";
 import {getItemType, ItemFamily} from "../model/schema";
 import {ViewArguments} from "../cvu/views/UserState";
 import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
+import {Sessions} from "../cvu/views/Sessions";
+import {Installer} from "../install/Installer";
+import {IndexerAPI} from "../api/IndexerAPI";
+import {MainNavigation} from "../gui/navigation/MainNavigation";
+import {Renderers} from "../cvu/views/Renderers";
+import {CacheMemri} from "../model/Cache";
 
 export var globalCache
+
+export interface Subscriptable {
+	// subscript(propName: String) -> Any? { get set }//TODO
+}
 
 class Alias {
 	key: string
@@ -46,12 +56,17 @@ class Alias {
 
 export class MemriContext {
 	name = ""
-	/// The current session that is active in the application
-	currentSession?: Session
-
-	cascadingView?: CascadingView
 
 	sessions?: Sessions
+
+	/// The current session that is active in the application
+	get currentSession(): Session {
+		return this.sessions.currentSession
+	}
+
+	get currentView(): CascadingView {
+		return this.sessions.currentSession?.currentView
+	}
 
 	views: Views
 
@@ -63,16 +78,14 @@ export class MemriContext {
 
 	indexerAPI: IndexerAPI
 
-	cache: Cache
-
-	realm: Realm
+	cache: CacheMemri
 
 	navigation: MainNavigation
 
 	renderers: Renderers
 
 	get items(){
-		return this.cascadingView?.resultSet.items ?? []
+		return this.currentView?.resultSet.items ?? []
 	}
 	set items(items) {
 		// Do nothing
@@ -80,7 +93,7 @@ export class MemriContext {
 	}
 
 	get item() {
-		return this.cascadingView?.resultSet.singletonItem
+		return this.currentView?.resultSet.singletonItem
 	}
 
 	set item(item) {
@@ -102,64 +115,45 @@ export class MemriContext {
 		}
 	}
 
-	scheduled = false
-	scheduledComputeView = false
+	uiUpdateSubject = PassthroughSubject
+	uiUpdateCancellable?: AnyCancellable
+
+	cascadableViewUpdateSubject = PassthroughSubject
+	cascadableViewUpdateCancellable?: AnyCancellable
+
+
 
 	scheduleUIUpdate(immediate =  false, check?) { // Update UI
-		let outcome = function() {
-			// Reset scheduled
-			this.scheduled = false
-
-			// Update UI
-			this.objectWillChange.send()
-		}.bind(this);
 		if (immediate) {
+			// #warning("@Toby how can we prevent the uiUpdateSubject from firing immediate after this?")
+
 			// Do this straight away, usually for the sake of correct animation
-			outcome()
+			DispatchQueue.main.async(() => {
+				// Update UI
+				this.objectWillChange.send()
+			})
 			return
 		}
 
 		if (check) {
 			if (!check(this)) { return }
 		}
-		// Don't schedule when we are already scheduled
-		if (this.scheduled) { return }
-		// Prevent multiple calls to the dispatch queue
-		this.scheduled = true
 
-		// Schedule update
-		/*DispatchQueue.main.async {//TODO
-			outcome()
-		}*/
+		this.uiUpdateSubject.send()
 	}
 
 	scheduleCascadingViewUpdate(immediate =  false) {
-		let outcome = function() {
-			// Reset scheduled
-			this.scheduledComputeView = false
-
-			// Update UI
-			try { this.updateCascadingView() }
+		if (immediate) {
+			// Do this straight away, usually for the sake of correct animation
+			try { this.currentSession?.setCurrentView() }
 			catch (error) {
 				// TODO: User error handling
 				// TODO: Error Handling
-				debugHistory.error(`Could not update CascadingView: ${error}`)
+				debugHistory.error(`Could not update CascadableView: ${error}`)
 			}
-		}.bind(this)
-		if (immediate) {
-			// Do this straight away, usually for the sake of correct animation
-			outcome()
 			return
-		}
-		// Don't schedule when we are already scheduled
-		if (!this.scheduledComputeView) {
-			// Prevent multiple calls to the dispatch queue
-			this.scheduledComputeView = true
-
-			// Schedule update
-			/*DispatchQueue.main.async {//TODO
-				outcome()
-			}*/
+		} else {
+			this.cascadableViewUpdateSubject.send()
 		}
 	}
 
@@ -255,7 +249,7 @@ export class MemriContext {
 	maybeLogRead() {
 		let item = this.cascadingView?.resultSet.singletonItem
 		if (item) {
-			let auditItem = Cache.createItem(AuditItem.constructor, {action: "read"})//TODO
+			let auditItem = CacheMemri.createItem(AuditItem.constructor, {action: "read"})//TODO
 			item.link(auditItem, "changelog")
 		}
 	}
@@ -269,7 +263,7 @@ export class MemriContext {
 			// TODO: serialize
 			let item = this.cascadingView?.resultSet.singletonItem
 			if (item) {
-				let auditItem = Cache.createItem(AuditItem.constructor, {//TODO
+				let auditItem = CacheMemri.createItem(AuditItem.constructor, {//TODO
 					contents: JSON.stringify(AnyCodable(fields)),//TODO
 					action: "update",
 				})
@@ -359,36 +353,55 @@ export class MemriContext {
 		this["showNavigation"] = value
 	}
 
+	setSelection(selection: [Item]) {
+		this.currentView?.userState.set("selection", selection)
+		this.scheduleUIUpdate()
+	}
+
 	constructor(
 		name,
 		podAPI,
 		cache,
-		realm,
 		settings,
-		installer,
-		sessions = null,//TODO
-		views,
-		cascadingView = null,//TODO
-		navigation,
-		renderers,
-		indexerAPI
+		installer: Installer,
+		sessions: Sessions,
+		views: Views,
+		navigation: MainNavigation,
+		renderers: Renderers,
+		indexerAPI: IndexerAPI
 	) {
 		this.name = name
 		this.podAPI = podAPI
 		this.cache = cache
-		this.realm = realm
 		this.settings = settings
 		this.installer = installer
 		this.sessions = sessions
 		this.views = views
-		this.cascadingView = cascadingView
 		this.navigation = navigation
 		this.renderers = renderers
 		this.indexerAPI = indexerAPI
 
 		// TODO: FIX
-		this.cascadingView?.context = this
+		this.currentView?.context = this
 		this.indexerAPI?.context = this
+
+        // Setup update publishers //TODO
+		/*this.uiUpdateCancellable = uiUpdateSubject
+            .throttle(.milliseconds(300), scheduler: RunLoop.main, latest: true)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }*/
+
+        // Setup update publishers
+        /*this.cascadableViewUpdateCancellable = cascadableViewUpdateSubject
+            .throttle(for: .milliseconds(500), scheduler: RunLoop.main, latest: true)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                try? self?.currentSession?.setCurrentView()
+            }*/
+
+
 	}
 
 	executeAction(actions: Action[] | Action, dataItem?, viewArguments?) {
@@ -498,7 +511,7 @@ export class MemriContext {
 					let viewDef = new CVUParsedViewDefinition(UUID())
 					viewDef.parsed = dict
 
-					finalValue = Cache.createItem(SessionView.constructor,
+					finalValue = CacheMemri.createItem(SessionView.constructor,
 						{"viewDefinition": viewDef})
 				} else {
 					throw `Exception: Unknown argument type specified in action definition ${argName}`
@@ -569,7 +582,7 @@ export class MemriContext {
 		delete initArgs["uid"]
 
 // swiftformat:disable:next redundantInit
-		let item = Cache.createItem(ItemType, values)
+		let item = CacheMemri.createItem(ItemType, values)
 
 // TODO: fill item
 		for (let [propName, propValue] of Object.entries(initArgs)) {
@@ -583,30 +596,26 @@ export class MemriContext {
 export class SubContext extends MemriContext {
 	parent: MemriContext
 
-	constructor(name: string, context: MemriContext, session: Session)  {
-		let views = new Views(context.realm)
+	constructor(name: string, context: MemriContext, state?: CVUStateDefinition)  {
+		let views = new Views()
 		super(
 			name,
 			context.podAPI,
 			context.cache,
-			context.realm,
 			context.settings,
 			context.installer,
-			Cache.createItem(Sessions.constructor),
+			new Sessions(state),
 			views,
-			undefined, //            cascadingView: context.cascadingView,,
 			context.navigation,
 			context.renderers,
 			context.indexerAPI
 		)
 
-		this.parent = context
-
 		this.closeStack = context.closeStack
 
 		views.context = this
 
-		this.sessions?.setCurrentSession(session)
+		this.sessions?.load(this)
 	}
 }
 
@@ -615,60 +624,57 @@ export class SubContext extends MemriContext {
 export class RootContext extends MemriContext {
 	cancellable?: AnyCancellable
 
-	subContexts = []
+	subContexts
 
 	// TODO: Refactor: Should installer be moved to rootmain?
-	podAPI = new PodAPI(this.key)
-	cache = new Cache(this.podAPI);
-	realm = this.cache.realm;
 
 	constructor(name: string, key: string)  {
+		let podAPI = new PodAPI(key)
+		let cache = new CacheMemri(podAPI)
+		let views = new Views()
+
+		globalCache = cache // TODO: remove this and fix edges
+
+		let sessionState = CacheMemri.createItem(
+			CVUStateDefinition,
+			{uid: CacheMemri.getDeviceID()}
+		)
 		super(
 			name,
 			podAPI,
 			cache,
-			realm,
-			settings(realm),
-			new Installer(realm),
-			Cache.createItem(Sessions.constructor, {uid: Cache.getDeviceID()}),
-			new Views(realm),
-			undefined,
-			new MainNavigation(realm),
+			settings,
+			new Installer(),
+			new Sessions(sessionState),
+			views,
+			new MainNavigation(),
 			new Renderers(),
 			new IndexerAPI()
 		)
 
-		globalCache = this.cache // TODO: remove this and fix edges
+		this.subContexts = []
 
-		MapHelper.shared.realm = this.realm // TODO: How to access realm in a better way?
-
-		this.cascadingView?.context = this
-
-		let takeScreenShot = function(){
-			// Make sure to record a screenshot prior to session switching
-			this.currentSession?.takeScreenShot() // Optimize by only doing this when a property in session/view/dataitem has changed
-		}
+		this.currentView?.context = this
 
 		// TODO: Refactor: This is a mess. Create a nice API, possible using property wrappers
+		// Optimize by only doing this when a property in session/view/dataitem has changed
 		this.aliases = {
-			showSessionSwitcher: new Alias("device/gui/showSessionSwitcher", "bool", takeScreenShot),
-			showNavigation: new Alias("device/gui/showNavigation", "bool", takeScreenShot),
+			showSessionSwitcher: new Alias("device/gui/showSessionSwitcher", "bool", () => this.currentSession?.takeScreenShot(true)),
+			showNavigation: new Alias("device/gui/showNavigation", "bool", () => this.currentSession?.takeScreenShot()),
 		}
 
-		//this.cache.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }//TODO
-		//this.navigation.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }//TODO
-
-		// Make settings global so it can be reached everywhere
-		this.globalSettings = this.settings//TODO
+		//TODO what is weak?
+		// cache.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }
+		// navigation.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }
 	}
 
-	createSubContext(session) {
-		let subContext = new SubContext("Proxy", this, session)
+	createSubContext(state?: CVUStateDefinition) {
+		let subContext = new SubContext("Proxy", this, state)
 		this.subContexts.push(subContext)
 		return subContext
 	}
 
-	boot() {
+	boot(callback?) {
 		// Make sure memri is installed properly
 		this.installer.installIfNeeded(this, function () {
 			/*#if (targetEnvironment(simulator)
@@ -679,18 +685,19 @@ export class RootContext extends MemriContext {
 
 			// Load views configuration
 			this.views.load(this, function() {
+
+				// Load session
+				this.sessions.load(this)
+
 				// Update view when sessions changes
-				this.cancellable = this.sessions?.objectWillChange.sink(function () {
+				this.cancellable = this.sessions.objectWillChange.sink(function () {
 					this.scheduleUIUpdate()
 				})
 
-				this.currentSession?.access()
-				this.currentSession?.currentView?.access()
-
 				// Load current view
-				this.updateCascadingView()
+				this.currentSession?.setCurrentView()
 
-				//callback?()
+				callback && callback()
 			}.bind(this))
 		});
 	}
