@@ -17,6 +17,7 @@ import {SessionView} from "./SessionView";
 import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {MemriContext} from "../../context/MemriContext";
+import {CacheMemri} from "../../model/Cache";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -160,6 +161,14 @@ export class Action/* : HashableClass, CVUToString*/ {
         return x;
     }
 
+    getArguments(item?: Item) {
+        try { return this.context.buildArguments(this, item) }
+        catch (error) {
+            debugHistory.warn(`Could not parse arguments for popup: ${error}`)
+            return {}
+        }
+    }
+
     toCVUString(depth:number, tab:string):string {
         let tabs = tab.repeat(depth);
         let tabsEnd = depth > 0 ? tab.repeat(depth - 1) : "";
@@ -218,6 +227,7 @@ export enum ActionFamily {
     openView = "openView",
     openDynamicView = "openDynamicView",
     openViewByName = "openViewByName",
+    openGroup = "openGroup",
     toggleEditMode = "toggleEditMode",
     toggleFilterPanel = "toggleFilterPanel",
     star = "star",
@@ -253,8 +263,8 @@ export enum ActionFamily {
     unlink = "unlink",
     multiAction = "multiAction",
     noop = "noop",
-    runIndexerRun = "runIndexerRun",
-    runImporterRun = "runImporterRun",
+    runIndexer = "runIndexer",
+    runImporter = "runImporter",
     setProperty = "setProperty",
     setSetting = "setSetting"
 }
@@ -265,6 +275,7 @@ export var getActionType = function (name) {
         case ActionFamily.addItem: return ActionAddItem
         case ActionFamily.openView: return ActionOpenView
         case ActionFamily.openViewByName: return ActionOpenViewByName
+        case ActionFamily.openGroup: return ActionOpenViewWithUIDs
         case ActionFamily.toggleEditMode: return ActionToggleEditMode
         case ActionFamily.toggleFilterPanel: return ActionToggleFilterPanel
         case ActionFamily.star: return ActionStar
@@ -284,8 +295,8 @@ export var getActionType = function (name) {
         case ActionFamily.link: return ActionLink
         case ActionFamily.unlink: return ActionUnlink
         case ActionFamily.multiAction: return ActionMultiAction
-        case ActionFamily.runIndexerRun: return ActionRunIndexerRun
-        case ActionFamily.runImporterRun: return ActionRunImporterRun
+        case ActionFamily.runIndexer: return ActionRunIndexer
+        case ActionFamily.runImporter: return ActionRunImporter
         case ActionFamily.setProperty: return ActionSetProperty
         case ActionFamily.setSetting: return ActionSetSetting
         case ActionFamily.noop:
@@ -365,10 +376,8 @@ export class ActionBack extends Action {
             if (session.currentViewIndex == 0) {
                 console.log("Warn: Can't go back. Already at earliest view in session");
             } else {
-                realmWriteIfAvailable(this.context.realm, function () {
-                    session.currentViewIndex -= 1
-                });
-                this.context.scheduleCascadingViewUpdate();
+                session.currentViewIndex -= 1
+                this.context.scheduleCascadableViewUpdate()
             }
         } else {
             // TODO: Error Handling?
@@ -401,7 +410,7 @@ export class ActionAddItem extends Action {
             //#warning("Test that this creates a unique node")
 
             // Open view with the now managed copy
-            new ActionOpenView(this.context).exec({"dataItem": dataItem});//TODO:
+            new ActionOpenView(this.context).exec({"item": dataItem});
         } else {
             // TODO Error handling
             // TODO User handling
@@ -417,7 +426,7 @@ export class ActionAddItem extends Action {
 
 export class ActionOpenView extends Action {
     defaultValues = {
-        //"argumentTypes": {"view": SessionView.constructor, "viewArguments": ViewArguments.constructor},//TODO
+        "argumentTypes": {"view": CVUStateDefinition, "viewArguments": ViewArguments},
         "withAnimation": false,
         "opensView": true
     };
@@ -426,28 +435,14 @@ export class ActionOpenView extends Action {
         super(context, "openView", argumentsJs, values);
     }
 
-    openView(context: MemriContext, view: SessionView, argumentsJs = null) {
+    openView(context: MemriContext, view: CVUStateDefinition, argumentsJs = null) {
         let session = context.currentSession;
         if (session) {
-            // Merge arguments into view
-            let dict = argumentsJs?.asDict();
-            if (dict) {
-                let viewArguments = view.viewArguments;
-                if (viewArguments) {
-                    view.set("viewArguments", new ViewArguments.fromDict(Object.assign(viewArguments.asDict(), dict))) //TODO:
-                }
-            }
-
             // Add view to session
-            session.setCurrentView(view)
-
-            // Set accessed date to now
-            view.access();//TODO?
-
-            // Recompute view
-            context.updateCascadingView() // scheduleCascadingViewUpdate()
+            session.setCurrentView(view, argumentsJs)
         } else {
             // TODO: Error Handling
+            debugHistory.error("No session is active on context")
         }
     }
 
@@ -465,26 +460,22 @@ export class ActionOpenView extends Action {
     }*/ //TODO: totally need to check
 
     exec(argumentsJs) {
-//        let selection = context.cascadingView.userState.get("selection") as? [DataItem]
-        let dataItem = argumentsJs["dataItem"] /*instanceof Item;*/
+        //        let selection = context.cascadingView.userState.get("selection") as? [DataItem]
+        let item = argumentsJs["item"] /*instanceof Item;*/
         let viewArguments = argumentsJs["viewArguments"] /*instanceof ViewArguments*/;
 
 
         // if let selection = selection, selection.count > 0 { self.openView(context, selection) }
         let sessionView = argumentsJs["view"];
-        if (sessionView instanceof SessionView) {
+        if (sessionView instanceof CVUStateDefinition) {
             this.openView(this.context, sessionView, viewArguments);
+        } else if (item instanceof CVUStateDefinition) {
+            this.openView(this.context, item, viewArguments);
+        } else if (item) {
+            this.openView(this.context, item, viewArguments)
         } else {
-            let item = dataItem;
-            if (item instanceof SessionView) {
-                this.openView(this.context, item, viewArguments);
-            } else if (item) {
-                this.openView(this.context, item,
-                    viewArguments)
-            } else {
-                // TODO Error handling
-                throw `Cannot execute ActionOpenView, arguments require a SessionView. passed arguments:\n ${argumentsJs}, `;
-            }
+            // TODO Error handling
+            throw `Cannot execute ActionOpenView, arguments require a SessionView. passed arguments:\n ${argumentsJs}, `;
         }
     }
 
@@ -510,14 +501,16 @@ export class ActionOpenViewByName extends Action {
         if (typeof name == "string") {
             // Fetch a dynamic view based on its name
             let stored = this.context.views.fetchDefinitions(name, "view")[0];//TODO?
-            let parsed = this.context.views.parseDefinition(stored);
-
-            let view = new SessionView().fromCVUDefinition(
-                parsed /*instanceof CVUParsedViewDefinition*/,
-                stored,
-                viewArguments)
-
-            new ActionOpenView(this.context).openView(this.context, view);
+            if (!stored) {
+                throw "No view found with the name \(name)"
+            }
+            try {
+                let view = this.context.views.getViewStateDefinition(stored)
+                new ActionOpenView(this.context).openView(this.context, view, viewArguments)
+            }
+            catch (error) {
+                throw `${error} for ${name}`
+            }
         } else {
             // TODO Error Handling
             throw "Cannot execute ActionOpenViewByName, no name found in arguments."
@@ -526,6 +519,68 @@ export class ActionOpenViewByName extends Action {
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
         execWithoutThrow { try ActionOpenViewByName(context).exec(arguments) }
+    }*/
+}
+
+export class ActionOpenViewWithUIDs extends Action {
+    defaultValues = {
+        "argumentTypes": {"view": CVUStateDefinition, "viewArguments": ViewArguments},
+        "withAnimation": false,
+        "opensView": true,
+    }
+
+    constructor(context: MemriContext, argumentsJs = null, values = {}) {
+        super(context, "openView", argumentsJs, values)
+    }
+
+    /*openView(context: MemriContext, view: CVUStateDefinition, argumentsJs = null) {
+        let session = context.currentSession
+        if (session) {
+            // Add view to session
+            session.setCurrentView(view, argumentsJs)
+        } else {
+            // TODO: Error Handling
+            debugHistory.error("No session is active on context")
+        }
+    }*/
+
+    openView(context: MemriContext, itemType: string, uids: [], argumentsJs = null) {
+        if (!uids.length) { throw "No UIDs specified" }
+
+        let arrayString = `{${uids.map((item) => String(item)).join(",")}`
+
+        // Create a new view
+        let view = CacheMemri.createItem(CVUStateDefinition, {
+            "type": "view",
+            "selector": "[view]",
+            "definition":
+`[view] {
+    [datasource = pod] {
+        query: "${itemType} AND uid IN ${arrayString}"
+    }
+}`
+
+        })
+
+        // Open the view
+        this.openView(context, view, argumentsJs)
+    }
+
+    exec(argumentsJs: {}) {
+    //        let selection = context.cascadingView.userState.get("selection") as? [Item]
+        let uids = argumentsJs["uids"]
+        let itemType = argumentsJs["itemType"]
+        if (!uids || !itemType) {
+            return
+        }
+
+        let viewArguments = argumentsJs["viewArguments"]
+
+        this.openView(this.context, itemType, uids, viewArguments)
+    }
+
+    /*exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {
+        execWithoutThrow { try ActionOpenView(context).exec(arguments) }
     }*/
 }
 
@@ -583,15 +638,15 @@ export class ActionStar extends Action {
 
     // TODO selection handling for binding
     exec(argumentsJs) {
-//        if let item = argumentsJs["dataItem"] as? DataItem {
-//            var selection:[DataItem] = context.cascadingView.userState.get("selection") ?? []
+//        if let item = argumentsJs["item"] as? Item {
+//            var selection:[DataItem] = context.cascadableView.userState.get("selection") ?? []
 //            let toValue = !item.starred
 //
 //            if !selection.contains(item) {
 //                selection.append(item)
 //            }
 //
-//            realmWriteIfAvailable(context.cache.realm, {
+//            realmWrite(context.cache.realm, {
 //                for item in selection { item.starred = toValue }
 //            })
 //
@@ -627,11 +682,10 @@ export class ActionShowStarred extends Action {
             let binding = this.binding;
             if (binding && !binding.isTrue()) {
                 new ActionOpenViewByName(this.context).exec({"name": "filter-starred"});
-                // Open named view 'showStarred'
-                // openView("filter-starred", ["stateName": starButton.actionStateName as Any])
+                binding.toggleBool()
             } else {
                 // Go back to the previous view
-                new ActionBack(this.context).exec({});
+                new ActionBack.exec(this.context, {});
             }
         } catch (error) {
             // TODO Error Handling
@@ -733,11 +787,11 @@ export class ActionForward extends Action {
     exec() {
         let session = this.context.currentSession;
         if (session) {
-            if (session.currentViewIndex == (session.views?.length ?? 0) - 1) {
+            if (session.currentViewIndex == session.views.length - 1) {
                 console.log("Warn: Can't go forward. Already at last view in session")
             } else {
-                realmWriteIfAvailable(this.context.cache.realm, function () {session.currentViewIndex += 1 });
-                this.context.scheduleCascadingViewUpdate()
+                session.currentViewIndex += 1
+                this.context.scheduleCascadableViewUpdate()
             }
         } else {
             // TODO: Error handling?
@@ -761,10 +815,8 @@ export class ActionForwardToFront extends Action {
     exec(argumentsJs) {
         let session = this.context.currentSession;
         if (session) {
-            realmWriteIfAvailable(this.context.cache.realm, function () {
-            session.currentViewIndex = (session.views?.length ?? 0) - 1
-        });
-            this.context.scheduleCascadingViewUpdate()
+            session.currentViewIndex = session.views.length - 1
+            this.context.scheduleCascadableViewUpdate()
         } else {
             // TODO: Error handling
         }
@@ -792,12 +844,19 @@ export class ActionBackAsSession extends Action {
             if (session.currentViewIndex == 0) {
                 throw "Warn: Can't go back. Already at earliest view in session"
             } else {
-                let duplicateSession = this.context.cache.duplicate(session);//TODO:
-                if (duplicateSession instanceof Session) {
-                    realmWriteIfAvailable(this.context.cache.realm, function (){
-                    duplicateSession.currentViewIndex -= 1
-                });
-                    new ActionOpenSession(this.context).exec({"session": duplicateSession});
+                let state = session.state
+                let copy = this.context.cache.duplicate(state)
+                if (state && copy instanceof CVUStateDefinition) {
+                    for (var view of session.views) {
+                        let state = view.state
+                        let viewCopy = this.context.cache.duplicate(state)
+                        if (state && viewCopy instanceof CVUStateDefinition) {
+                            copy.link(viewCopy, "view", ".last")
+                        }
+                    }
+
+                    new ActionOpenSession(this.context).exec({"session": copy});
+                    new ActionBack(this.context).exec({})
                 } else {
                     // TODO Error handling
                     throw new ActionError.Warning("Cannot execute ActionBackAsSession, duplicating currentSession resulted in a different type")
@@ -815,25 +874,20 @@ export class ActionBackAsSession extends Action {
 
 export class ActionOpenSession extends Action {
     defaultValues = {
-        //"argumentTypes": {"session": Session.constructor, "viewArguments": ViewArguments.constructor},//TODO:
+        "argumentTypes": {"session": CVUStateDefinition, "viewArguments": ViewArguments},
         "opensView": true,
-            "withAnimation": false
+        "withAnimation": false
     };
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
         super(context, "openSession", argumentsJs, values)
     }
 
-    openSession(context: MemriContext, session: Session) {
-        let sessions = context.sessions // TODO generalize
-        if (sessions) {
-            // Add view to session and set it as current
-            sessions.setCurrentSession(session)
-        } else {
-            // TODO: Error handling
-        }
-        // Recompute view
-        context.scheduleCascadingViewUpdate()
+    openSession(session: CVUStateDefinition, args = null) {
+        let sessions = this.context.sessions
+
+        sessions.setCurrentSession(session)
+        sessions.currentSession?.setCurrentView(null, args)
     }
 
 //    func openSession(_ context: MemriContext, _ name:String, _ variables:[String:Any]? = nil) throws {
@@ -849,20 +903,22 @@ export class ActionOpenSession extends Action {
     /// Adds a view to the history of the currentSession and displays it. If the view was already part of the currentSession.views it
     /// reorders it on top
     exec(argumentsJs) {
+        let args = argumentsJs["viewArguments"]
+
         let item = argumentsJs["session"]
         if (item) {
             let session = item;
-            if (session instanceof Session) {
-                this.openSession(this.context, session)
+            if (session instanceof CVUStateDefinition) {
+                this.openSession(this.context, args)
             } else {
                 // TODO Error handling
                 throw "Cannot execute openSession 'session' argmument cannot be casted to Session"
             }
         }
-    else {
-            let session = argumentsJs["dataItem"];
-            if (session instanceof Session) {
-                this.openSession(this.context, session);
+        else {
+            let session = argumentsJs["item"];
+            if (session instanceof CVUStateDefinition) {
+                this.openSession(this.context, args);
             }
 
             // TODO Error handling
@@ -895,34 +951,17 @@ export class ActionOpenSessionByName extends Action {
         }
 
         try {
-            // Fetch and parse view from the database
-            let fromDB = this.context.views
-                .parseDefinition(this.context.views.fetchDefinitions(name, "session")[0]);
+            let stored = this.context.views.fetchDefinitions(name, "session")[0]
 
-            // See if this is a session, if so take the last view
-            let def = fromDB;
-            if (!(def instanceof CVUParsedSessionDefinition)) {
-                // TODO Error handling
-                throw `Exception: Cannot open session with name ${name} " +
-                "cannot be cast as CVUParsedSessionDefinition`
+            if (!stored) {
+                throw `Exception: Cannot open session with name ${name}. Unable to find view.`
             }
 
-            let session = new Session();/*new Cache.createItem(Session.self)*/ //TODO:
-            let parsedDefs = def["viewDefinitions"];
-            if (!(Array.isArray(parsedDefs) && parsedDefs.length > 0 && parsedDefs[0] instanceof CVUParsedViewDefinition)) {
-                throw `Exception: Session ${name} has no views.`
-            }
-
-            for (let parsed in parsedDefs) {
-                let view = new SessionView().fromCVUDefinition(
-                    parsed, viewArguments)
-                session.link(view, "view"); //TODO
-            }
+            let session = CVUStateDefinition.fromCVUStoredDefinition(stored)
 
             // Open the view
-            new ActionOpenSession(this.context).openSession(this.context, session);
-        }
-    catch (error) {
+            new ActionOpenSession(this.context).openSession(session, viewArguments)
+        } catch (error) {
             // TODO: Log error, Error handling
             throw `Exception: Cannot open session by name ${name}: ${error}`
         }
@@ -950,15 +989,15 @@ export class ActionDelete extends Action {
 //                items.append(item)
 //            }
 //        }
-        let selection: Item[] = this.context.cascadingView?.userState?.get("selection");
+        let selection = this.context.currentView?.userState?.get("selection", Item);
         if (selection && selection.length > 0) {
             this.context.cache.delete(selection);
-            this.context.scheduleCascadingViewUpdate(true);
+            this.context.scheduleCascadableViewUpdate(true);
         } else {
-            let dataItem = argumentsJs["dataItem"];
+            let dataItem = argumentsJs["item"];
             if (dataItem instanceof Item) {
                 this.context.cache.delete(dataItem);
-                this.context.scheduleCascadingViewUpdate(true);
+                this.context.scheduleCascadableViewUpdate(true);
             } else {
                 // TODO Erorr handling
             }
@@ -976,15 +1015,15 @@ export class ActionDuplicate extends Action {
     }
 
     exec(argumentsJs) {
-        let selection: Item[] = this.context.cascadingView?.userState?.get("selection");
+        let selection: Item[] = this.context.currentView?.userState?.get("selection");
         if (selection && selection.length > 0) {
             selection.forEach(function (item) {
-                new ActionAddItem(this.context).exec({"dataItem": item})
+                new ActionAddItem(this.context).exec({"item": item})
             });//TODO:
         } else {
-            let item = argumentsJs["dataItem"];
+            let item = argumentsJs["item"];
             if (item instanceof Item) {
-                new ActionAddItem(this.context).exec({"dataItem": item});
+                new ActionAddItem(this.context).exec({"item": item});
             } else {
                 // TODO Error handling
                 throw "Cannot execute ActionDupliate. The user either needs to make a selection, or a dataItem needs to be passed to this call."
@@ -997,13 +1036,13 @@ export class ActionDuplicate extends Action {
     }*/
 }
 
-export class ActionRunImporterRun extends Action {
+export class ActionRunImporter extends Action {
     defaultValues = {
         "argumentTypes": ["importerRun"],
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "runImporterRun", argumentsJs, values)
+        super(context, "runImporter", argumentsJs, values)
     }
 
     exec(argumentsJs) {
@@ -1015,7 +1054,7 @@ export class ActionRunImporterRun extends Action {
                 throw "Uninitialized import run"
             }
 
-            this.context.podAPI.runImporterRun(uid, function (error) {
+            this.context.podAPI.runImporter(uid, function (error) {
                 if (error) {
                     console.log(`Cannot execute actionImport: ${error}`);
                 }
@@ -1024,14 +1063,14 @@ export class ActionRunImporterRun extends Action {
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-        execWithoutThrow { try ActionImport.exec(context, arguments) }
+        execWithoutThrow { try ActionRunImporter.exec(context, arguments) }
     }*/
 }
 
 
-export class ActionRunIndexerRun extends Action {
+export class ActionRunIndexer extends Action {
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "runIndexerRun", argumentsJs, values)
+        super(context, "runIndexer", argumentsJs, values)
     }
 
     exec(argumentsJs) {
@@ -1050,62 +1089,50 @@ export class ActionRunIndexerRun extends Action {
             this.context.scheduleUIUpdate()
             // TODO: indexerInstance items should have been automatically created already by now
 
-            function getAndRunIndexerRun(tries) {
-                if (tries > 5) {
+            this.context.cache.isOnRemote(run, (error) => {
+                if (error != undefined) {
+                    // How to handle??
+                    // #warning("Look at this when implementing syncing")
+                    debugHistory.error("Polling timeout. All polling services disabled")
                     return
                 }
-                let uid = run.get("uid");
-                if (run.syncState?.actionNeeded == "create") {
-                    this.context.cache.sync.syncToPod()
-                   /* new DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        getAndRunIndexerRun(tries + 1)
-                    }*///TODO:
-                } else {
-                    this.runIndexerRun(run, uid!) //TODO:
+
+                let uid = run.uid.value
+                if (!uid) {
+                    debugHistory.error("Item does not have a uid")
+                    return
                 }
-            }
-            getAndRunIndexerRun(0)
+
+                this.context.podAPI.runIndexer(uid, (error, data) => {
+                    if (error == undefined) {
+                        var watcher: AnyCancellable
+                        watcher = this.context.cache.subscribe(run).sink((item) => {
+                            let progress = item.get("progress")
+                            if (!progress) {
+                                this.context.scheduleUIUpdate()
+
+                                console.log(`progress ${progress}`)
+
+                                if (progress >= 100) {
+                                    watcher?.cancel()
+                                    watcher = null
+                                }
+                            } else {
+                                debugHistory.error(`ERROR, could not get progress: ${String(error)}`)
+                                watcher?.cancel()
+                                watcher = null
+                            }
+                        })
+
+                    }
+                    else {
+                        // TODO User Error handling
+                        debugHistory.error(`Could not start indexer: ${error ?? ""}`)
+                    }
+                })
+            })
         }
     }
-
-    runIndexerRun(run: IndexerRun, uid: number) {
-    let start = new Date();
-
-        this.context.podAPI.runIndexerRun(uid,  (error, data) => {
-        console.log(error);
-            console.log(data);
-        })
-
-    /*Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-			let timePassed = Int(Date().timeIntervalSince(start))
-			print("polling indexerInstance")
-			self.context.podAPI.get(uid) { error, data in
-				if let updatedInstance = data as? IndexerRun {
-
-                    do{
-                        try self.context.cache.addToCache(updatedInstance)
-                    }
-                    catch {
-                        print("Could not add \(updatedInstance) to cache")
-                    }
-					if let progress: Int = updatedInstance.get("progress") {
-                        self.context.scheduleUIUpdate()
-                        print("progress \(progress)")
-						if timePassed > 20 || progress >= 100 {
-							timer.invalidate()
-						}
-					} else {
-						print("ERROR, could not get progress: \(String(describing: error))")
-						timer.invalidate()
-					}
-				} else {
-					print("Error, no instance")
-					timer.invalidate()
-				}
-			}
-		}
-	}*/ //TODO:
-}
 
     runLocal(indexerInstance: IndexerRun) {
         let query: string = indexerInstance.indexer?.get("query");
@@ -1122,7 +1149,7 @@ export class ActionRunIndexerRun extends Action {
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
-        execWithoutThrow { try ActionImport.exec(context, arguments) }
+        execWithoutThrow { try ActionRunIndexer.exec(context, arguments) }
     }*/
 }
 
@@ -1141,8 +1168,8 @@ export class ActionClosePopup extends Action {
 }
 
 export class ActionSetProperty extends Action {
-    defaultValues: {
-        //"argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor, "value": AnyObject.constructor},//TODO
+    defaultValues = {
+        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor, "value": AnyObject.constructor},//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1162,8 +1189,8 @@ export class ActionSetProperty extends Action {
 
         subject.set(propertyName, argumentsJs["value"])//TODO
 
-            // TODO: refactor
-            ((this.context /*instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate()//TODO
+        // TODO: refactor
+        ((this.context /*instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate()//TODO
     }
 
     /*class func exec(_ context: MemriContext, _ arguments: [String: Any]) throws {
@@ -1188,7 +1215,7 @@ class ActionSetSetting extends Action{
 
         let value = argumentsJs["value"]
 
-        settings.set(path, value);
+        settings./*shared. TODO*/set(path, value);
 
             // TODO: refactor
             ((this.context/* instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
@@ -1219,7 +1246,7 @@ export class ActionLink extends Action {
             throw "Exception: edgeType is not set to a string"
         }
 
-        let selected = argumentsJs["dataItem"];
+        let selected = argumentsJs["item"];
         if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
@@ -1239,7 +1266,7 @@ export class ActionLink extends Action {
 
 export class ActionUnlink extends Action {
     defaultValues = {
-        //"argumentTypes": ["subject": ItemFamily.self, "edgeType": String.self, "all": Bool.self],//TODO
+        "argumentTypes": {"subject": ItemFamily.constructor, "edgeType": String.constructor, "all": Boolean.constructor},//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1257,7 +1284,7 @@ export class ActionUnlink extends Action {
             throw "Exception: edgeType is not set to a string"
         }
 
-        let selected = argumentsJs["dataItem"];
+        let selected = argumentsJs["item"];
         if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
@@ -1293,7 +1320,7 @@ export class ActionMultiAction extends Action {
         }
 
         for (let action of actions) {
-            this.context.executeAction(action, argumentsJs["dataItem"]);
+            this.context.executeAction(action, argumentsJs["item"]);
         }
     }
 

@@ -8,7 +8,7 @@ export class CVUParsedDefinition extends CVUToString {
     selector: string
     domain: string
 
-    constructor(selector, name, domain = "user", parsed?) {
+    constructor(selector, name?, domain = "user", parsed?) {
         super(selector, name, domain, parsed)
         this.selector = selector
         this.name = name

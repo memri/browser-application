@@ -20,7 +20,7 @@ import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/api";
 import {Datasource} from "../api/Datasource";
-import {CascadingView} from "../cvu/views/CascadingView";
+import {CascadableView} from "../cvu/views/CascadingView";
 import {Expression} from "../parsers/expression-parser/Expression";
 import {Item} from "../model/items/Item";
 import {SessionView} from "../cvu/views/SessionView";
@@ -33,6 +33,7 @@ import {IndexerAPI} from "../api/IndexerAPI";
 import {MainNavigation} from "../gui/navigation/MainNavigation";
 import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
+import {Action} from "../cvu/views/Action";
 
 export var globalCache
 
@@ -64,7 +65,7 @@ export class MemriContext {
 		return this.sessions.currentSession
 	}
 
-	get currentView(): CascadingView {
+	get currentView(): CascadableView {
 		return this.sessions.currentSession?.currentView
 	}
 
@@ -404,6 +405,7 @@ export class MemriContext {
 
 	}
 
+	//this part is from action
 	executeAction(actions: Action[] | Action, dataItem?, viewArguments?) {
 		if (Array.isArray(actions)) {
 			for (let action of actions) {
@@ -436,14 +438,8 @@ export class MemriContext {
 		action.context = this;
 
 		if (action.getBool("opensView")) {
-			let binding = action.binding
 			if (typeof action.exec === "function") {
 				action.exec(args)
-
-				// Toggle a state value, for instance the starred button in the view (via dataItem.starred)
-				if (binding) {
-					binding.toggleBool()
-				}
 			} else {
 				console.log(`Missing exec for action ${action.name}, NOT EXECUTING`)
 			}
@@ -454,7 +450,7 @@ export class MemriContext {
 				binding.toggleBool()
 
 				// TODO: this should be removed and fixed more generally
-				//scheduleUIUpdate(true)
+				this.scheduleUIUpdate(true)
 			}
 
 			if (typeof action.exec === "function") {
@@ -465,15 +461,14 @@ export class MemriContext {
 		}
 	}
 
-	buildArguments(action: Action, dataItem?: Item, viewArguments?) {
-
-		let viewArgs = new ViewArguments().clone(viewArguments ?? this.cascadingView?.viewArguments,
-			{".": dataItem}, false, dataItem);
+	buildArguments(action: Action, item?: Item, viewArguments?) {
+		let viewArgs = new ViewArguments(this.currentView?.viewArguments)
+			.merge(viewArguments)
+			.resolve(item)
 
 		var args = {}
 		for (let [argName, inputValue] of Object.entries(action.arguments)) {
 			var argValue;
-			// preprocess arg
 			let expr = inputValue;
 			if (expr instanceof Expression) {
 				argValue = expr.execute(viewArgs)
@@ -481,9 +476,8 @@ export class MemriContext {
 				argValue = inputValue
 			}
 
-			var finalValue = ""
+			var finalValue
 
-// TODO: add cases for argValue = Item, ViewArgument
 			let dataItem = argValue;
 			if (dataItem instanceof Item) {
 				finalValue = dataItem
@@ -504,30 +498,25 @@ export class MemriContext {
 				}
 
 				if (action.argumentTypes[argName] == ViewArguments.constructor) {
-					finalValue = new ViewArguments().fromDict(dict)
+					finalValue = new ViewArguments(dict)
 				} else if (action.argumentTypes[argName] == ItemFamily.constructor) {
-					finalValue = this.getItem(dict, dataItem, viewArguments)
-				} else if (action.argumentTypes[argName] == SessionView.constructor) {
+					finalValue = this.getItem(dict, item, viewArguments)
+				} else if (action.argumentTypes[argName] == CVUStateDefinition.constructor) {
 					let viewDef = new CVUParsedViewDefinition(UUID())
 					viewDef.parsed = dict
-
-					finalValue = CacheMemri.createItem(SessionView.constructor,
-						{"viewDefinition": viewDef})
+					finalValue = CVUStateDefinition.fromCVUParsedDefinition(viewDef)
 				} else {
 					throw `Exception: Unknown argument type specified in action definition ${argName}`
 				}
 			} else if (action.argumentTypes[argName] == ViewArguments.constructor) {
-				let viewArgs = argValue;
-				if (viewArgs instanceof ViewArguments) {
-					var dict = viewArgs.asDict()
-					for (let [key, value] of Object.entries(dict)) {
-						let expr = value;
-						if (expr instanceof Expression) {
-							dict[key] = expr.execute(viewArgs)
-						}
-					}
-
-					finalValue = new ViewArguments().fromDict(dict)
+				if (argValue instanceof ViewArguments) {
+					let viewArgs = argValue;
+					// We explicitly don't copy here. The caller is responsible for uniqueness
+					finalValue = viewArgs.resolve(item)
+				} else if (argValue instanceof CVUParsedDefinition) {
+					// #warning("This seems to not set the head properly")
+					let parsedDef = argValue
+					finalValue = new ViewArguments(parsedDef).resolve(item)
 				} else {
 					throw `Exception: Could not parse ${argName}`
 				}
@@ -541,7 +530,6 @@ export class MemriContext {
 				finalValue = argValue ?? []
 			} else if (action.argumentTypes[argName] == AnyObject.self) {
 				finalValue = argValue ?? undefined
-				// TODO: are nil values allowed?
 			} else if (argValue == undefined) {
 				finalValue = undefined;
 			} else {
@@ -552,7 +540,7 @@ export class MemriContext {
 		}
 
 // Last element of arguments array is the context data item
-		args["dataItem"] = dataItem ?? this.cascadingView?.resultSet.singletonItem
+		args["item"] = item ?? this.currentView?.resultSet.singletonItem
 
 		return args
 	}

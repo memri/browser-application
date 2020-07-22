@@ -11,9 +11,30 @@ import {Action, ActionMultiAction} from "./Action";
 import {debugHistory} from "./ViewDebugger";
 
 export class Cascadable {
-    viewArguments?;
-    cascadeStack;
-    localCache = [];
+    host?: Cascadable
+    cascadeStack: []
+    tail: CVUParsedDefinition[]
+    head: CVUParsedDefinition
+    localCache = {}
+
+    get viewArguments() { return this.host?.viewArguments }
+    set viewArguments(value) { this.host?.viewArguments = value }
+
+    get description() {
+        var merged = {}
+
+        function recur(dict: {}) {
+            if (!dict) { return }
+
+            for (let [key, value] of Object.entries(dict)) {
+                merged[key] = value
+            }
+        }
+        recur(this.head.parsed)
+        for (var item of this.tail) { recur(item.parsed) }
+
+        return CVUSerializer.dictToString(merged, 0, "    ")
+    }
     
     execExpression(expr) {
         try {
@@ -50,6 +71,11 @@ export class Cascadable {
             return result
         }
         else { return value }
+    }
+
+    setState(propName: string, value?) {
+        this.head[propName] = value
+        delete this.localCache[propName]
     }
     
     cascadePropertyAsCGFloat(name) { //Renamed to avoid mistaken calls when comparing to nil
@@ -160,9 +186,36 @@ export class Cascadable {
         this.localCache[name] = result
         return result
     }
+
+    cascadeContext(
+        propName: string,
+        lookupName: string,
+        parsedType,
+        type = T.constructor
+    ) {
+        let x = this.localCache[propName]
+        if (x instanceof T) { return x }
+
+        let head = this.head[lookupName] ?? P.init()
+        this.head[lookupName] = head
+
+        let tail = this.tail/*.map((item) => { item[lookupName] as? P })*/
+
+        let cascadable = T.init(head, tail, this)
+        this.localCache[propName] = cascadable
+        return cascadable
+    }
     
-    constructor(cascadeStack, viewArguments?) {
-        this.viewArguments = viewArguments
-        this.cascadeStack = cascadeStack
+    constructor(
+        head?: CVUParsedDefinition,
+        tail?: CVUParsedDefinition,
+        host?: Cascadable
+    ) {
+        this.host = host
+        this.tail = tail
+        this.head = head
+
+        this.cascadeStack = [this.head]
+        this.cascadeStack.push(this.tail)
     }
 }

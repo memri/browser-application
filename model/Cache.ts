@@ -478,7 +478,7 @@ export class CacheMemri {
 		return newerItem
 	}
 
-	static createItem(type, values, unique?: string) {
+	static createItem(type, values?, unique?: string) {
 		var item
 		DatabaseController.tryWriteSync((realm: Realm) => {
 			var dict = values

@@ -45,7 +45,8 @@ export class Renderers {
         //registerThumbWaterfallRenderer()
         //registerMapRenderer()
         //registerChartRenderer()
-        //registerRichTextEditorRenderer()
+        // registerCalendarRenderer()
+        // registerMessageRenderer()
     }
     
     get tuples() {
@@ -79,12 +80,12 @@ export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
     }*/
     
     isActive() {
-        return this.context.cascadingView?.activeRenderer == this.rendererName
+        return this.context.currentView?.activeRenderer == this.rendererName
     }
     
     exec(argumentsJs) {
-        this.context.cascadingView.activeRenderer = this.rendererName
-        this.context.scheduleUIUpdate()/*{ _ in true }*///TODO // scheduleCascadingViewUpdate() // TODO why are userState not kept?
+        this.context.currentView.activeRenderer = this.rendererName
+        this.context.scheduleUIUpdate()/*{ _ in true }*///TODO // scheduleCascadableViewUpdate() // TODO why are userState not kept?
     }
 }
 
@@ -120,8 +121,12 @@ interface CascadingRendererDefaults {
 
 class CascadingRenderConfig extends Cascadable {
     
-    constructor(cascadeStack = [], viewArguments) {
-        super(cascadeStack, viewArguments)
+    constructor(
+        head?: CVUParsedDefinition,
+        tail?: [CVUParsedDefinition],
+        host?: Cascadable
+    ) {
+        super(head, tail, host)
     }
     
     hasGroup(group) {
