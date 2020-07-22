@@ -7,6 +7,16 @@
 //
 
 import {debugHistory} from "./ViewDebugger";
+import {DataItem} from "../../model/DataItem";
+import {
+	jsonDataFromFile,
+	jsonErrorHandling,
+	MemriJSONDecoder,
+	realmWriteIfAvailable,
+	unserialize
+} from "../../gui/util";
+import {Session} from "./Session";
+import {CVUParsedSessionDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
 export class Sessions extends DataItem {
 	genericType() { return "Sessions" }
@@ -29,13 +39,13 @@ export class Sessions extends DataItem {
 	constructor(decoder)  {
 		super()
 
-		/*jsonErrorHandling(decoder) {//TODO
-			currentSessionIndex = decoder.decodeIfPresent("currentSessionIndex") ?? currentSessionIndex
+		jsonErrorHandling(()=> {//TODO
+			this.currentSessionIndex = decoder.decodeIfPresent("currentSessionIndex") ?? this.currentSessionIndex
 
-			decodeIntoList(decoder, "sessions", this.sessions)
+			this.decodeIntoList(decoder, "sessions", this.sessions)
 
 			this.superDecode(decoder)
-		}*/
+		})
 
 		this.postInit()
 	}
@@ -69,7 +79,7 @@ export class Sessions extends DataItem {
 		// When the memriID is not yet set
 		if (this.memriID.indexOf("Memri")) {
 			// Fetch device name
-			let setting = realm.objects(Setting.constructor).filter("key = 'device/name'")[0]//TODO
+			let setting = realm.objects("Setting").filtered("key = 'device/name'")[0]//TODO
 			if (setting) {
 				// Set it as the memriID
 				try {
@@ -84,7 +94,7 @@ export class Sessions extends DataItem {
 	}
 
 	setCurrentSession(session) {
-		realmWriteIfAvailable(realm) {//TODO
+		realmWriteIfAvailable(this.realm,()=>{//TODO
 			let index = this.sessions.indexOf(session)
 			if (index > -1) {
 				this.sessions.splice(index)
@@ -95,7 +105,7 @@ export class Sessions extends DataItem {
 
 			// Update the index pointer
 			this.currentSessionIndex = this.sessions.length - 1
-		}
+		});
 
 		this.decorate(session)
 	}
@@ -109,13 +119,13 @@ export class Sessions extends DataItem {
 		}
 
 		// Activate this session to make sure its stored in realm
-		let fromCache = realm.object(Sessions.constructor, this.memriID)//TODO
+		let fromCache = realm.objectForPrimaryKey("Sessions", this.memriID)//TODO
 		if (fromCache) {
 			// Sync with the cached version
 			 this.merge(fromCache)
 
 			// Turn myself in a managed object by realm
-			 realm.write { realm.add(self, update: .modified) }//TODO
+			 realm.write (() => { realm.add(this, ".modified") }) //TODO
 
 			// Add listeners to all session objects
 			this.postInit()
@@ -137,13 +147,13 @@ export class Sessions extends DataItem {
 	install(context) {
 		this.fetchMemriID(context.realm)
 
-		let storedDef = context.realm.objects(CVUStoredDefinition.constructor)//TODO
-			.filter("selector = '[sessions = defaultSessions]'")[0]
+		let storedDef = context.realm.objects("CVUStoredDefinition")//TODO
+			.filtered("selector = '[sessions = defaultSessions]'")[0]
 
 		if (storedDef) {
 			let parsed = context.views.parseDefinition(storedDef)
 			if (parsed) {
-				 context.realm.write {
+				 context.realm.write (() =>{
 					// Load default sessions from the package and store in the database
 					context.realm.create(Sessions.constructor, {
 						memriID: this.memriID,
@@ -153,7 +163,7 @@ export class Sessions extends DataItem {
 						sessions: (Array.isArray(parsed["sessionDefinitions"]) && parsed["sessionDefinitions"][0] instanceof CVUParsedSessionDefinition ? parsed["sessionDefinitions"] : [])
 							.map (function(item){ Session.fromCVUDefinition(item) }),//TODO
 					})
-				}
+				})
 				return
 			}
 		}
@@ -173,9 +183,9 @@ export class Sessions extends DataItem {
 			}
 		}
 
-		realmWriteIfAvailable(realm) {//TODO
+		realmWriteIfAvailable(this.realm,() => {//TODO
 			doMerge()
-		}
+		})
 	}
 
 	/// Find a session using text
@@ -186,12 +196,12 @@ export class Sessions extends DataItem {
 
 	fromJSONFile(file, ext = "json") {
 		let jsonData = jsonDataFromFile(file, ext)//TODO
-		let sessions = MemriJSONDecoder.decode(Sessions.constructor, jsonData)//TODO
+		let sessions = MemriJSONDecoder(jsonData)//TODO
 		return sessions
 	}
 
 	fromJSONString(json) {
-		let sessions = MemriJSONDecoder.decode(Sessions.constructor, Data(json.utf8))//TODO
+		let sessions = MemriJSONDecoder(json)//TODO
 		return sessions
 	}
 }

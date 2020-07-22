@@ -8,6 +8,7 @@
 
 import {MemriContext} from "../context/MemriContext";
 import {debugHistory} from "../cvu/views/ViewDebugger";
+import {DatabaseController} from "../model/DatabaseController";
 
 export class Installer {
 
@@ -18,7 +19,7 @@ export class Installer {
 
 	installIfNeeded(context: MemriContext, callback: () => void) {
 		let realm = DatabaseController.getRealm()
-		let installLogs = realm.objects(AuditItem).filtered("action = 'install'")
+		let installLogs = realm.objects("AuditItem").filtered("action = 'install'")
 
 		// TODO: Refactor: check version??
 		if (installLogs.length == 0) {

@@ -21,6 +21,7 @@ import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition"
 import {debugHistory} from "./ViewDebugger";
 import {Datasource} from "../../api/Datasource";
 import {Item} from "../../model/items/Item";
+import {dataItemListToArray} from "../../model/schema";
 
 export class UIElement /*extends CVUToString */{
 	id = UUID()
@@ -72,7 +73,7 @@ export class UIElement /*extends CVUToString */{
 								}
 							}
 						} else {
-							result = this.dataItemListToArray(x)
+							result = dataItemListToArray(x)
 						}
 
 						return (result)
@@ -82,7 +83,7 @@ export class UIElement /*extends CVUToString */{
 				} catch (error) {
 					// TODO: Refactor error handling
 					debugHistory.error(`Could note compute ${propName}\n`
-						+ `Arguments: [${viewArguments.asDict().keys.description}]\n`
+						+ `Arguments: [${viewArguments.toString()}]\n`
 						+ (expr.startInStringMode
 							? `Expression: \"${expr.code}\"\n`
 							: `Expression: ${expr.code}\n`)
@@ -195,7 +196,9 @@ export enum UIElementFamily {
 	Spacer = "Spacer",
 	Divider = "Divider",
 	RichTextfield = "RichTextfield",
-	Empty = "Empty"
+	Empty = "Empty",
+	TimelineItem = "TimelineItem",
+	MessageBubble = "MessageBubble"
 }
 
 export enum UIElementProperties {

@@ -12,7 +12,7 @@ import {realmWriteIfAvailable} from "../../gui/util";
 import {DataItem} from "../../model/DataItem";
 import {Datasource} from "../../api/Datasource";
 
-export class SessionView extends DataItem {
+export class SessionView /*extends DataItem */{
  
     get genericType (){return "SessionView"}
  
@@ -35,7 +35,7 @@ export class SessionView extends DataItem {
     }
     
     constructor(){
-        super();
+        //super();
         
         this.computedDescription = function () {//TODO
             console.log("MAKE THIS DISSAPEAR")

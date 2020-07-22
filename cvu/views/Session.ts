@@ -5,7 +5,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-class Session extends DataItem {
+import {jsonDataFromFile, MemriJSONDecoder, realmWriteIfAvailable} from "../../gui/util";
+import {SessionView} from "./SessionView";
+import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+
+export class Session extends DataItem {
  
     genericType() { return "Session" }
  
@@ -27,19 +31,19 @@ class Session extends DataItem {
         return this.editMode
     }
     set isEditMode(newValue){//TODO
-        realmWriteIfAvailable(this.realm) {
+        realmWriteIfAvailable(this.realm, ()=> {
             this.editMode = newValue
-        }
+        })
     }
     get swiftUIEditMode() {
         if (this.editMode) { return this.active }
         else { return this.inactive }
     }
     set swiftUIEditMode(value) {//TODO
-        realmWriteIfAvailable(this.realm) {
+        realmWriteIfAvailable(this.realm,()=>{
             if (value == this.active) { this.editMode = true }
             else { this.editMode = false }
-        }
+        })
     }
     
     rlmTokens = []
@@ -78,21 +82,21 @@ class Session extends DataItem {
     
     postInit() {
         if (this.realm != null) {
-            for (var view of views){
+            for (var view of this.views){
                 this.decorate(view)
             }
             
-            this.rlmTokens.push(this.observe(function (objectChange) {//TODO
-                /*if (.change = objectChange) {
+            /*this.rlmTokens.push(this.observe(function (objectChange) {//TODO
+                /!*if (.change = objectChange) {
                     this.objectWillChange.send()
-                }*/
-            }.bind(this)))
+                }*!/
+            }.bind(this)))*/
         }
     }
     
     decorate(view) {
         // Set the .session property on views for easy querying
-        if (view.session == null) { realmWriteIfAvailable(this.realm, function (){ view.session = this }) }//TODO
+        if (view.session == null) { realmWriteIfAvailable(this.realm, () => { view.session = this }) }//TODO
         
         // Observe and process changes for UI updates
         if (this.realm != null) {
@@ -102,11 +106,11 @@ class Session extends DataItem {
             //                our own pub/sub structure. More thought is needed.
 
 
-            this.rlmTokens.push(view.observe(function (objectChange) {//TODO
-                /*if (.change = objectChange) {
+           /* this.rlmTokens.push(view.observe(function (objectChange) {//TODO
+                /!*if (.change = objectChange) {
                     this.objectWillChange.send()
-                }*/
-            }.bind(this)))
+                }*!/
+            }.bind(this)))*/
         }
     }
     
@@ -122,12 +126,12 @@ class Session extends DataItem {
     setCurrentView(view) {
         let index = this.views.indexOf(view)
         if (index > 0) {
-            realmWriteIfAvailable(realm, function () {
+            realmWriteIfAvailable(this.realm, function () {
                 this.currentViewIndex = index
             }.bind(this))//TODO
         }
         else {
-            realmWriteIfAvailable(realm, function () {
+            realmWriteIfAvailable(this.realm, function () {
                 // Remove all items after the current index
                 this.views.removeSubrange(...(this.currentViewIndex + 1))//TODO
                 
@@ -142,7 +146,7 @@ class Session extends DataItem {
         }
     }
     
-    takeScreenShot() {
+    /*takeScreenShot() {
         let view = UIApplication.shared.windows[0].rootViewController?.view//TODO
         if (view) {
             let uiImage = view.takeScreenShot()
@@ -165,9 +169,9 @@ class Session extends DataItem {
         else {
             console.log("No view available")
         }
-    }
+    }*/
     
-    fromCVUDefinition(def) {
+    static fromCVUDefinition(def) {
         let views = def["viewDefinitions"] instanceof Array && def["viewDefinitions"][0] instanceof CVUParsedViewDefinition ? def["viewDefinitions"] : []
             .map(function (item){ return new SessionView().fromCVUDefinition(item) })
         
@@ -185,12 +189,12 @@ class Session extends DataItem {
     
     fromJSONFile(file, ext =  "json") {
         let jsonData = jsonDataFromFile(file, ext)
-        let session = new MemriJSONDecoder().decode(Session.constructor, jsonData)//TODO
+        let session = MemriJSONDecoder(jsonData)//TODO
         return session
     }
     
     fromJSONString(json) {
-        let session = new MemriJSONDecoder().decode(Session.constructor, Data(json.utf8))//TODO
+        let session = MemriJSONDecoder(json)//TODO
         return session
     }
 

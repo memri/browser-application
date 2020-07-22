@@ -9,7 +9,7 @@ import {
 	CVUParsedRendererDefinition, CVUParsedSessionDefinition, CVUParsedSessionsDefinition, CVUParsedStyleDefinition,
 	CVUParsedViewDefinition
 } from "../../parsers/cvu-parser/CVUParsedDefinition";
-import {CVUParseErrors, ParseErrors} from "../../parsers/cvu-parser/CVUParseErrors";
+import {ParseErrors} from "../../parsers/cvu-parser/CVUParseErrors";
 import {settings} from "../../model/Settings";
 import {
 	ExprLookupNode,
@@ -17,13 +17,15 @@ import {
 	ExprVariableNode,
 	ExprVariableType
 } from "../../parsers/expression-parser/ExprNodes";
-import {UserState} from "./UserState";
-import {CascadingView} from "./CascadingView";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
-import {getInMemoryObjectCache, setInMemoryObjectCache} from "../../model/InMemoryObjectCache";
-import {realmWriteIfAvailable} from "../../gui/util";
-import {ActionFamily} from "./Action";
+import {setInMemoryObjectCache} from "../../model/InMemoryObjectCache";
+import {getItem} from "../../gui/util";
 import {Languages} from "./Languages";
+import {DatabaseController} from "../../model/DatabaseController";
+import {CacheMemri} from "../../model/Cache";
+import {dataItemListToArray} from "../../model/schema";
+import {CVUStateDefinition, Person} from "../../model/items/Other";
+import {RealmObjects} from "../../model/RealmLocal";
 
 export class Views {
 	///
@@ -32,28 +34,26 @@ export class Views {
 	context
 
 	recursionCounter = 0
-	realm
-	CVUWatcher
+	cvuWatcher
 	settingWatcher
 
-	constructor(rlm?) {
-		this.realm = rlm
+	constructor() {
 	}
 
-	load(mn, callback) {
+	load(context: MemriContext, callback) {
 		// Store context for use within createCascadingView)
-		this.context = mn
+		this.context = context
 
-		 this.setCurrentLanguage(this.context?.settings.get("user/language") ?? "English")
+		 this.setCurrentLanguage(this.context.settings.get("user/language") ?? "English")
 
-		this.settingWatcher = this.context?.settings.subscribe("device/debug/autoReloadCVU").forEach(function (item) {
+		this.settingWatcher = this.context.settings.subscribe("device/debug/autoReloadCVU").forEach(function (item) {
 			let value = item;
 			if (typeof item == "boolean") {
-				if (value && this.CVUWatcher == undefined) {
+				if (value && this.cvuWatcher == undefined) {
 					this.listenForChanges()
-				} else if (!value && this.CVUWatcher) {
-					this.CVUWatcher.cancel()
-					this.CVUWatcher = undefined;
+				} else if (!value && this.cvuWatcher) {
+					this.cvuWatcher.cancel()
+					this.cvuWatcher = undefined;
 				}
 			}
 		}.bind(this)) //TODO: maybe i wrong;
@@ -64,7 +64,7 @@ export class Views {
 
 	listenForChanges() {
 		// Subscribe to changes in CVUStoredDefinition
-		this.CVUWatcher = this.context?.cache.subscribe("CVUStoredDefinition").forEach(function (items) { // CVUStoredDefinition AND domain='user'
+		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition").forEach(function (items) { // CVUStoredDefinition AND domain='user'
 		this.reloadViews(items)
 		}.bind(this))
 	}
@@ -106,36 +106,37 @@ export class Views {
 					throw `Exception: Errors in default view set:    \n${validator.errors.join("\n    ")}`
 				}
 			}
+			DatabaseController.tryWriteSync(() => { // Start write transaction outside loop for performance reasons
+				// Loop over lookup table with named views
+				for (let def of parsedDefinitions) {
+					var values = {
+						"selector": def.selector,
+						"name": def.name,
+						"domain": "defaults",
+						"definition": def.toString(),//TODO
+					}
+					let selector = def.selector
+					if (!selector) {
+						throw "Exception: selector on parsed CVU is not defined"
+					}
 
-			// Loop over lookup table with named views
-			for (let def in parsedDefinitions) {
-				var values = {
-					"selector": parsedDefinitions[def].selector,
-					"name": parsedDefinitions[def].name,
-					"domain": "defaults",
-					"definition": parsedDefinitions[def].toString(),//TODO
+					if (def instanceof CVUParsedViewDefinition) {
+						values["type"] = "view"
+						//                    values["query"] = (def as! CVUParsedViewDefinition)?.query ?? ""
+					} else if (def instanceof CVUParsedRendererDefinition) { values["type"] = "renderer" }
+					else if (def instanceof CVUParsedDatasourceDefinition) { values["type"] = "datasource" }
+					else if (def instanceof CVUParsedStyleDefinition) { values["type"] = "style" }
+					else if (def instanceof CVUParsedColorDefinition) { values["type"] = "color" }
+					else if (def instanceof CVUParsedLanguageDefinition) { values["type"] = "language" }
+					else if (def instanceof CVUParsedSessionsDefinition) { values["type"] = "sessions" }
+					else if (def instanceof CVUParsedSessionDefinition) { values["type"] = "session" }
+					else { throw "Exception: unknown definition" }
+
+					// Store definition
+					CacheMemri.createItem("CVUStoredDefinition", values,
+                        `selector = '${selector}' and domain = 'defaults'`);
 				}
-				let selector = parsedDefinitions[def].selector
-				if (!selector) {
-					throw "Exception: selector on parsed CVU is not defined"
-				}
-
-				if (def instanceof CVUParsedViewDefinition) {
-					values["type"] = "view"
-					//                    values["query"] = (def as! CVUParsedViewDefinition)?.query ?? ""
-				} else if (def instanceof CVUParsedRendererDefinition) { values["type"] = "renderer" }
-			else if (def instanceof CVUParsedDatasourceDefinition) { values["type"] = "datasource" }
-			else if (def instanceof CVUParsedStyleDefinition) { values["type"] = "style" }
-			else if (def instanceof CVUParsedColorDefinition) { values["type"] = "color" }
-			else if (def instanceof CVUParsedLanguageDefinition) { values["type"] = "language" }
-			else if (def instanceof CVUParsedSessionsDefinition) { values["type"] = "sessions" }
-			else if (def instanceof CVUParsedSessionDefinition) { values["type"] = "session" }
-			else { throw "Exception: unknown definition" }
-
-				// Store definition
-				/*Cache.createItem(CVUStoredDefinition.self, values: values,
-					unique: "selector = '\(selector)' and domain = 'defaults'")*/ //TODO
-			}
+			})
 		} catch (error) {
 			if (error instanceof ParseErrors) {
 				// TODO: Fatal error handling
@@ -146,7 +147,7 @@ export class Views {
 		}
 	}
 
-	static formatDate(date) {
+	static formatDate(date) {//TODO:
 		let showAgoDate = settings.get("user/general/gui/showDateAgo")
 
 		if (date) {
@@ -195,6 +196,7 @@ export class Views {
 	}
 
 	getGlobalReference(name, viewArguments) {
+		let realm = DatabaseController.getRealm()
 		// Fetch the value of the right property on the right object
 		switch (name) {
 			case "setting":
@@ -210,15 +212,28 @@ export class Views {
 					return ""
 				}
 				return f;
-			case "me": return this.realm.objects(Person.constructor).filter("ANY allEdges.type = 'me'")[0] //TODO:
+			case "item":
+				return (args) => {   // (value:String) -> Any? in
+					let typeName = args[0];
+					let uid = args[1];
+					if (typeof typeName != "string" || typeof uid != "number") {
+						if (args?.length == 0) {
+							return this.context?.currentView?.resultSet.singletonItem
+						}
+						return
+					}
+					return getItem(typeName, uid)
+				}
+			case "me": return realm.objects("Person").filtered("ANY allEdges.type = 'me'")[0]
 			case "context": return this.context
 			case "sessions": return this.context?.sessions
 			case "currentSession":
 			case "session": return this.context?.currentSession
+			case "currentView":
 			case "view": return this.context?.cascadingView
-			case "dataItem":
+			case "singletonItem":
 				let itemRef = viewArguments?.get(".");
-				let item = this.context?.cascadingView.resultSet.singletonItem
+				let item = this.context?.currentView?.resultSet.singletonItem
 				if (itemRef) {
 					return itemRef
 				} else if (item) {
@@ -268,7 +283,7 @@ export class Views {
 					}
 
 
-				let name = node.name == "@@DEFAULT@@" ? "dataItem" : node.name;
+				let name = node.name == "@@DEFAULT@@" ? "singletonItem" : node.name;
 				try {
 					value = this.getGlobalReference(name, viewArguments)
 					first = false
@@ -348,7 +363,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on edge`)
 								break
 						}
-					} else if (v instanceof RealmSwift.Results) {//TODO
+					} else if (v instanceof RealmObjects) {//TODO
 						switch (node.name) {
 							case "count": value = v.length; break
 							case "first": value = v[0]; break
@@ -361,7 +376,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on list of edge`)
 								break
 						}
-					} else if (v instanceof RealmSwift.ListBase) {//TODO
+					} else if (v instanceof Realm.List) {//TODO
 						switch (node.name) {
 							case "count": value = v.length; break//TODO
 							default:
@@ -369,13 +384,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on list`)
 								break
 						}
-					} else if (v instanceof MemriContext) {
-						value = v[node.name]
-					} else if (v instanceof UserState) {
-						value = v.get(node.name)
-					} else if (v instanceof CascadingView) {
-						value = v[node.name]
-					} else if (v instanceof CascadingDatasource) {
+					} else if (typeof v.subscript == "function") {//Subscriptable
 						value = v[node.name]
 					}
 					// CascadingRenderer??
@@ -395,8 +404,8 @@ export class Views {
 				// TODO: This is implemented very slowly first. Let's think about an optimization
 
 				let interpret = new ExprInterpreter(node, this.lookupValueOfVariables, this.executeFunction)
-				let list =/* dataItemListToArray(value as Any)*/ value; //TODO:
-				let args = new ViewArguments().clone(viewArguments, false)
+				let list = dataItemListToArray(value) //value; //TODO:
+				let args = new ViewArguments(viewArguments);
 				let expr = node.sequence[0]
 
 				for (let item in list) {
@@ -416,10 +425,10 @@ export class Views {
 		}
 
 		// Format a date
-		let date = value
+		/*let date = value
 		if (date instanceof Date) {
 			value = this.formatDate(date)
-		}
+		}*/
 
 		this.recursionCounter -= 1
 
@@ -455,9 +464,8 @@ export class Views {
 
 		if (domain) { filter.push(`domain = '${domain}'`) }
 
-		return this.realm.objects(CVUStoredDefinition.constructor)
-			.filter(filter.join(" AND "))//TODO
-			/*.map (function (def){  CVUStoredDefinition in def })*///TODO
+		return DatabaseController.read((item) => item.objects("CVUStoredDefinition")
+			.filtered(filter.join(" AND ")).map ( (def) => {  return def instanceof CVUStoredDefinition}) )  ?? []//TODO
 	}
 
 	// TODO: REfactor return list of definitions
@@ -471,9 +479,9 @@ export class Views {
 		if (!context) {
 			throw "Exception: Missing Context"
 		}
-
-		let cached = getInMemoryObjectCache(strDef); //TODO
-		if (cached instanceof CVU) {
+		//#warning("Turned off caching temporarily due to issue with UserState being cached wrongly (and then changed in cache)")
+		let cached = -1; //InMemoryObjectCache.get(strDef)
+		if (cached instanceof CVU) {//TODO:?????
 			return cached.parse()[0]
 		} else if (viewDef.definition) {
 			let definition = viewDef.definition
@@ -506,43 +514,33 @@ export class Views {
 		return null
 	}
 
-	createCascadingView(sessionView?) {
-		let context = this.context
-		if (!context) {
-			throw "Exception: MemriContext is not defined in views"
-		}
-		var cascadingView;
-		let viewFromSession = sessionView ?? context.sessions.currentSession.currentView
-		if (viewFromSession) {
-			cascadingView = new CascadingView().fromSessionView(viewFromSession, context);
-		} else {
-			throw "Unable to find currentView"
-		}
-
-
-		// TODO: REFACTOR: move these to a better place (context??)
-
-		// turn off editMode when navigating
-		if (context.sessions?.currentSession?.isEditMode == true) {
-			realmWriteIfAvailable(this.realm, function () {
-				context.sessions.currentSession.isEditMode = false
-			})
-		}
-
-		// hide filterpanel if (view doesnt have a button to open it
-		if (context.sessions?.currentSession?.showFilterPanel ?? false) {
-			if (cascadingView.filterButtons.filter(function(item){ return item.name == ActionFamily.toggleFilterPanel }).length == 0) {
-				realmWriteIfAvailable(this.realm, function () {
-					context.sessions.currentSession.showFilterPanel = false
-				})
+	/// Takes a stored definition and fetches the view definition or when its a session definition, the currentView of that session
+	getViewStateDefinition(stored: CVUStoredDefinition) {
+		var view: CVUStateDefinition
+		if (stored.type == "view") {
+			view = CVUStateDefinition.fromCVUStoredDefinition(stored)
+		} else if (stored.type == "session") {
+			let parsed = this.parseDefinition(stored);
+			if (!parsed) {
+				throw "Unable to parse state definition"
 			}
+			let list = parsed["views"];
+			let p = list[parsed["currentViewIndex"] ?? 0];
+			if
+			(Array.isArray(list) && list[0] instanceof CVUParsedViewDefinition && p && typeof p == "number") {
+				view = CVUStateDefinition.fromCVUParsedDefinition(p)
+			} else {
+				throw "Invalid definition type"
+			}
+		} else {
+			throw "Invalid definition type"
 		}
 
-		return cascadingView
+		return view
 	}
 
 	// TODO: Refactor: Consider caching cascadingView based on the type of the item
-	renderItemCell(dataItem?,
+	renderItemCell(item?: Item,
 							   rendererNames = [],
 							   viewOverride?,
 							   viewArguments?) {
@@ -552,13 +550,13 @@ export class Views {
 				throw "Exception: MemriContext is not defined in views"
 			}
 
-			if (!dataItem) {
+			if (!item) {
 				throw "Exception: No item is passed to render cell"
 			}
 
 			function searchForRenderer(viewDefinition) {
 				let parsed = context.views.parseDefinition(viewDefinition)
-				for (var def of parsed["renderDefinitions"]) {//TODO
+				for (var def of parsed["rendererDefinitions"]) {//TODO
 					for (var name of rendererNames) {
 						// TODO: Should this first search for the first renderer everywhere
 						//       before trying the second renderer?
@@ -599,7 +597,7 @@ export class Views {
 				}
 			} else {
 				// Find views based on datatype
-				outerloop: for (var needle of [`${dataItem.genericType}[]`, "*[]"]) {
+				outerloop: for (var needle of [`${item.genericType}[]`, "*[]"]) {
 					for (var key in ["user", "defaults"]) {
 						let viewDefinition = context.views.fetchDefinitions(needle, key)[0]
 						if (viewDefinition) {
@@ -626,20 +624,20 @@ export class Views {
 			}
 
 			if (cascadeStack.length == 0) {
-				throw `Exception: Unable to find a way to render this element: ${dataItem.genericType}`
+				throw `Exception: Unable to find a way to render this element: ${item.genericType}`
 			}
 
 			// Create a new view
-			let cascadingRenderConfig = new CascadingRenderConfig(cascadeStack, viewArguments)
+			let cascadingRenderConfig = new CascadingRenderConfig(undefined, cascadeStack, context.currentView) //TODO:
 
 			// Return the rendered UIElements in a UIElementView
-			return cascadingRenderConfig.render(dataItem)
+			return cascadingRenderConfig.render(item, viewArguments)
 		} catch (error) {
 			debugHistory.error(`Unable to render ItemCell: ${error}`)
 
 			// TODO: Refactor: Log error to the user
 			/*return new UIElementView(new UIElement(.Text,
-										   {text: "Could not render this view"}), dataItem)*/ //TODO:
+										   {text: "Could not render this view"}), item)*/ //TODO:
 		}
 	}
 }

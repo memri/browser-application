@@ -6,12 +6,13 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import {getItem, jsonDataFromFile, MemriJSONDecoder, realmWriteIfAvailable, serialize} from "../gui/util";
-import * as Realm from 'realm';
+
 import {getItemType, ItemFamily} from "./schema";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Item, Edge} from "./items/Item";
 import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "./DatabaseController";
+import {Realm} from "./RealmLocal";
 export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
@@ -189,8 +190,8 @@ export class CacheMemri {
 
 				for (var dtype in ItemFamily) {
 					// NOTE: Allowed forced cast
-					let objects = this.realm.objects(getItemType(dtype))
-						.filtered("deleted = false " + (filter ?? ""))//TODO
+					let objects = realm.objects(getItemType(dtype))
+						.filtered("deleted = false " + (filter ?? "")) //TODO
 					for (var item of objects) { returnValue.push(item) }
 				}
 
@@ -206,7 +207,7 @@ export class CacheMemri {
 				let queryType = getItemType(type)
 				//                let t = queryType() as! Object.Type
 
-				var result = this.realm.objects(queryType())
+				var result = realm.objects(queryType)
 					.filtered("deleted = false " + (filter ?? ""))
 
 				let sortProperty = datasource.sortProperty
@@ -428,7 +429,7 @@ export class CacheMemri {
 	static incrementUID() {
 		DatabaseController.writeSync((realm: Realm) => {
 			if (cacheUIDCounter == -1) {
-				let setting = realm.objectForPrimaryKey(Setting.constructor, -1); //TODO:
+				let setting = realm.objectForPrimaryKey("Setting", -1); //TODO:
 				if (setting && setting.json) {
 					cacheUIDCounter = Number(setting.json);
 				} else {
@@ -436,7 +437,7 @@ export class CacheMemri {
 
 					// As an exception we are not using Cache.createItem here because it should
 					// not be synced to the backend
-					realm.create(Setting.constructor, {
+					realm.create("Setting", {
 						"uid": -1,
 						"json": String(cacheUIDCounter),
 					})
@@ -445,7 +446,7 @@ export class CacheMemri {
 			}
 
 			cacheUIDCounter += 1
-			let setting = realm.objectForPrimaryKey(Setting.constructor, -1);
+			let setting = realm.objectForPrimaryKey("Setting", -1);
 			if (setting) {
 				setting.json = String(cacheUIDCounter)
 			}
@@ -587,7 +588,7 @@ export class CacheMemri {
 				"_action": "create"
 			}
 
-			edge = realm.create(Edge.constructor, values)
+			edge = realm.create("Edge", values)
 		});
 
 		return edge ?? new Edge()

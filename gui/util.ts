@@ -109,7 +109,7 @@ export function getItem(type: string, uid) {
     if (type) {
         let item = getItemType(type);
         return DatabaseController.read((realm)=> {
-        realm.objectForPrimaryKey(item(), uid)
+        realm.objectForPrimaryKey(item, uid)
         })
     }
     return

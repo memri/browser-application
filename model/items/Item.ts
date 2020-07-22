@@ -237,7 +237,7 @@ export class Item extends SchemaItem {
         //#warning("Not implemented fully yet")
 
         // Should this create a temporary edge for which item() is source() ?
-        return this.realm?.objects(Edge.constructor) //TODO:
+        return this.realm?.objects("Edge") //TODO:
             .filtered(`targetItemID = ${this.uid} AND type = '${edgeType}`)
     }
 
@@ -250,8 +250,8 @@ export class Item extends SchemaItem {
         //#warning("Not implemented fully yet")
 
         // Should this create a temporary edge for which item() is source() ?
-        return this.realm?.objects(Edge.constructor) //TODO:
-            .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}`)[0]
+        return this.realm?.objects("Edge") //TODO:
+            .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}'`)[0]
     }
 
     edges(edgeType: string|string[]) {

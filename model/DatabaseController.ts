@@ -8,11 +8,10 @@
 
 
 import {Edge, Item} from "./items/Item";
-import * as Realm from "realm";
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {autoreleasepool} from "../gui/util";
 
 import * as path from "path";
+import {Realm} from "./RealmLocal";
 
 class ItemReference {
     uid: number
@@ -41,7 +40,7 @@ class EdgeReference {
     
     resolve() {
         DatabaseController.read ((realm: Realm) => {
-			return realm.objects(Edge.constructor)
+			return realm.objects("Edge")
                 .filtered(`type = '${this.type}' AND sourceItemID = ${this.sourceItemID} AND targetItemID = ${this.targetItemID}`)[0]//TODO
         })
     }
@@ -220,8 +219,8 @@ export class DatabaseController {
 	//static writeAsync(doWrite)
 	static writeAsync(doWrite, objectReference?: ThreadSafeReference) {
 		if (arguments.length == 1) {
-			this.realmQueue.async(() => {
-				autoreleasepool(() => {//TODO
+			//this.realmQueue.async(() => {
+				//autoreleasepool(() => {//TODO
 					try {
 						let realm = this.getRealm()
 						if (realm.isInTransaction) {
@@ -235,11 +234,11 @@ export class DatabaseController {
 					catch(error) {
 						debugHistory.error(`Realm Error: ${error}`)
 					}
-				})
-			})
+				//})
+			//})
 		} else {
-			this.realmQueue.async(() => {
-				autoreleasepool(() => {
+			//this.realmQueue.async(() => {
+				//autoreleasepool(() => {
 					try {
 						let realm = this.getRealm()
 						let threadSafeObject = realm.resolve(objectReference)
@@ -256,8 +255,8 @@ export class DatabaseController {
 					} catch(error) {
 						debugHistory.error(`Realm Error: ${error}`)
 					}
-				})
-			})
+				//})
+			//})
 		}
 	}
 }

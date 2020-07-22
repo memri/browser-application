@@ -248,7 +248,7 @@ export class Sync {
 
                 let type = getItemType(itemType);
                 if (type) {
-                    let items = realm.objects(type).filtered((_action) => _action != undefined)
+                    let items = realm.objects(type).filtered((_action) => _action != undefined) //TODO:
                     for (var item of items) {
                         let action = item._action
                         if (action && itemQueue[action] != undefined) {
@@ -260,7 +260,7 @@ export class Sync {
             }
 
             // Edges
-            let edges = realm.objects(Edge).filtered((_action) => _action != undefined)
+            let edges = realm.objects(Edge).filtered((_action) => _action != undefined) //TODO
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {
