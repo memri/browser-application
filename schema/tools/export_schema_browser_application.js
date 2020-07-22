@@ -102,7 +102,7 @@ function getDataItemClasses() {
       case 'UserState':
         continue;
       default:
-        output += `public class ${entity} extends Item {\n`;
+        output += `export class ${entity} extends Item {\n`;
     }
 
     // Properties.
