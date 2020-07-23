@@ -5,14 +5,15 @@
 //  Created by Ruben Daniels on 3/12/20.
 //  Copyright © 2020 memri. All rights reserved.
 //
-import {getItem, jsonDataFromFile, MemriJSONDecoder, realmWriteIfAvailable, serialize} from "../gui/util";
+import * as DB from "./defaults/default_database.json";
+import {getItem, jsonDataFromFile, MemriJSONDecoder, serialize} from "../gui/util";
 
-import {getItemType, ItemFamily} from "./schema";
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Item, Edge} from "./items/Item";
+import {Item, Edge, getItemType, ItemFamily} from "./items/Item";
 import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "./DatabaseController";
 import {Realm} from "./RealmLocal";
+import {Sync} from "./Sync";
 export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
@@ -47,8 +48,8 @@ export class CacheMemri {
 		let realm = DatabaseController.getRealm();
 		// Load default database from disk
 		try {
-			let jsonData = jsonDataFromFile("default_database")
-			let dicts = MemriJSONDecoder(jsonData)
+			//let jsonData = jsonDataFromFile("default_database")
+			let dicts = DB;//require("text-loader!./defaults/default_database.json"); //MemriJSONDecoder(jsonData)
 			let items = {}
 			var lut = {}
 
@@ -76,12 +77,12 @@ export class CacheMemri {
 							continue
 						}
 
-						if (realm.schema[type][key]?.type == "date") {//TODO
+						/*if (realm.schema[type][key]?.type == "date") {//TODO
 							values[key] = new Date(
 								Number((value ?? 0) / 1000))
-						} else {
+						} else {*/
 							values[key] = value
-						}
+						//}
 					}
 				}
 
@@ -96,9 +97,9 @@ export class CacheMemri {
 
 			// First create all items
 			for (let dict of dicts) {
-				if (typeof dict.value.isCVUObject =="function") {
+				//if (typeof dict.value.isCVUObject =="function") {
 					recur(dict)
-				}
+				//}
 			}
 
 			// Then create all edges
@@ -138,7 +139,7 @@ export class CacheMemri {
 					}
 
 					DatabaseController.writeSync(() => {
-						item.allEdges.append(edge)
+						item.allEdges.push(edge)
 					})
 				}
 			}
@@ -498,20 +499,20 @@ export class CacheMemri {
 
 			if (fromCache) {
 				// mergeFromCache(fromCache, ....)
-				let properties = fromCache.objectSchema.properties
+				let properties = fromCache/*.objectSchema.properties*/;
 				let excluded = ["uid", "dateCreated", "dateAccessed", "dateModified"]
-				for (let prop of properties) {
-					if (!excluded.includes(prop.name) && values[prop.name] != undefined) {
-						if (prop.type == "date") {//TODO:
+				for (let prop in properties) {
+					if (!excluded.includes(properties[prop]) && values[prop] != undefined) {
+						/*if (prop.type == "date") {//TODO:
 							let date = values[prop.name];
 							if (typeof date == "number") {
 								fromCache[prop.name] = new Date(date / 1000);
 							} else {
 								throw `Invalid date received for ${prop.name} got ${String(values[prop.name] ?? "")}`
 							}
-						} else {
-							fromCache[prop.name] = values[prop.name]
-						}
+						} else {*/
+							fromCache[prop] = values[prop]
+						//}
 					}
 				}
 				fromCache["dateModified"] = new Date();
@@ -520,8 +521,8 @@ export class CacheMemri {
 					item["_action"] = "update"
 				}
 
-				if (item instanceof Item && type != AuditItem.constructor) {
-					let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "update"})
+				if (item instanceof Item && type != "AuditItem") {
+					let auditItem = CacheMemri.createItem("AuditItem", {"action": "update"})
 					item.link(auditItem, "changelog")
 				}
 
@@ -544,8 +545,8 @@ export class CacheMemri {
 				item["_action"] = "create"
 			}
 
-			if (item instanceof Item && type != AuditItem.constructor) {
-				let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "create"})
+			if (item instanceof Item && type != "AuditItem") {
+				let auditItem = CacheMemri.createItem("AuditItem", {"action": "create"})
 				item.link(auditItem, "changelog");
 			}
 		})

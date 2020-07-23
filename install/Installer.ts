@@ -9,6 +9,7 @@
 import {MemriContext} from "../context/MemriContext";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {DatabaseController} from "../model/DatabaseController";
+import {CacheMemri} from "../model/Cache";
 
 export class Installer {
 
@@ -33,10 +34,10 @@ export class Installer {
 			context.views.install()
 
 			// Load default sessions in database
-			context.sessions.install(context)
+			//context.sessions.install(context)
 
 			// Installation complete
-			Cache.createItem(AuditItem, {
+			CacheMemri.createItem("AuditItem", {
 				action: "install",
 				date: new Date(),
 				contents: JSON.stringify({version: "1.0"})

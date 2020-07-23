@@ -7,12 +7,9 @@
 //
 
 import {Cascadable} from "./Cascadable";
-import {UserState, ViewArguments} from "./UserState";
-import {CVUParsedDatasourceDefinition, CVUParsedRendererDefinition, CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedDatasourceDefinition, CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {debugHistory} from "./ViewDebugger";
-import {CascadingDatasource, Datasource} from "../../api/Datasource";
-import {SessionView} from "./SessionView";
 import {ResultSet} from "../../model/ResultSet";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
@@ -27,7 +24,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     get state() {
         return DatabaseController.read((realm) => {
-            return realm.object(CVUStateDefinition.constructor, this.uid)
+            return realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
         })
     }
 

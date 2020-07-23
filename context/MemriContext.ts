@@ -20,12 +20,10 @@ import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/api";
 import {Datasource} from "../api/Datasource";
-import {CascadableView} from "../cvu/views/CascadingView";
+import {CascadableView} from "../cvu/views/CascadableView";
 import {Expression} from "../parsers/expression-parser/Expression";
 import {Item} from "../model/items/Item";
-import {SessionView} from "../cvu/views/SessionView";
-import {getItemType, ItemFamily} from "../model/schema";
-import {ViewArguments} from "../cvu/views/UserState";
+import {getItemType, ItemFamily} from "../model/items/Item";
 import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
 import {Sessions} from "../cvu/views/Sessions";
 import {Installer} from "../install/Installer";
@@ -34,6 +32,7 @@ import {MainNavigation} from "../gui/navigation/MainNavigation";
 import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
 import {Action} from "../cvu/views/Action";
+import {Realm} from "../model/RealmLocal";
 
 export var globalCache
 
@@ -56,17 +55,18 @@ class Alias {
 }
 
 export class MemriContext {
+	realm = new Realm();
 	name = ""
 
 	sessions?: Sessions
 
 	/// The current session that is active in the application
 	get currentSession(): Session {
-		return this.sessions.currentSession
+		return this.sessions?.currentSession
 	}
 
 	get currentView(): CascadableView {
-		return this.sessions.currentSession?.currentView
+		return this.sessions?.currentSession?.currentView
 	}
 
 	views: Views
@@ -116,10 +116,10 @@ export class MemriContext {
 		}
 	}
 
-	uiUpdateSubject = PassthroughSubject
+	uiUpdateSubject /*= PassthroughSubject*/
 	uiUpdateCancellable?: AnyCancellable
 
-	cascadableViewUpdateSubject = PassthroughSubject
+	cascadableViewUpdateSubject /*= PassthroughSubject*/
 	cascadableViewUpdateCancellable?: AnyCancellable
 
 
@@ -617,14 +617,14 @@ export class RootContext extends MemriContext {
 	// TODO: Refactor: Should installer be moved to rootmain?
 
 	constructor(name: string, key: string)  {
-		let podAPI = new PodAPI(key)
+		let podAPI = new PodAPI(undefined, key) //TODO: for now
 		let cache = new CacheMemri(podAPI)
 		let views = new Views()
 
 		globalCache = cache // TODO: remove this and fix edges
 
 		let sessionState = CacheMemri.createItem(
-			CVUStateDefinition,
+			"CVUStateDefinition",
 			{uid: CacheMemri.getDeviceID()}
 		)
 		super(
@@ -664,29 +664,29 @@ export class RootContext extends MemriContext {
 
 	boot(callback?) {
 		// Make sure memri is installed properly
-		this.installer.installIfNeeded(this, function () {
-			/*#if (targetEnvironment(simulator)
+		this.installer.installIfNeeded(this,() => {
+			//#if (targetEnvironment(simulator)
 			// Reload for easy adjusting
-			self.views.context = self
-			self.views.install()
-			#endif*/
+			this.views.context = this
+			this.views.install()
+		//	#endif*/
 
 			// Load views configuration
-			this.views.load(this, function() {
+			this.views.load(this, () => {
 
 				// Load session
-				this.sessions.load(this)
+				//this.sessions.load(this)
 
 				// Update view when sessions changes
-				this.cancellable = this.sessions.objectWillChange.sink(function () {
+				/*this.cancellable = this.sessions.objectWillChange.sink(function () {
 					this.scheduleUIUpdate()
-				})
+				})*/
 
 				// Load current view
-				this.currentSession?.setCurrentView()
+				//this.currentSession?.setCurrentView()
 
 				callback && callback()
-			}.bind(this))
+			})
 		});
 	}
 

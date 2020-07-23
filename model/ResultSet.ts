@@ -9,7 +9,7 @@
 
 /// This class wraps a query and its results, and is responsible for loading a the result and possibly applying clienside filtering
 import {Datasource} from "../api/Datasource";
-import {ItemFamily} from "./schema";
+import {ItemFamily} from "./items/Item";
 import {CacheMemri} from "./Cache";
 
 export class ResultSet {

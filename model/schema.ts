@@ -194,54 +194,8 @@ export var getItemType = function(name) {
     }
 }
 
-/// Item is the baseclass for all of the data classes.
-export class SchemaItem {
-    /// A collection of all edges this Item is connected to.
-    allEdges: RealmObjects = []
-    /// Last access date of the Item.
-    dateAccessed: Date
-    /// Creation date of the Item.
-    dateCreated: Date
-    /// Last modification date of the Item.
-    dateModified: Date
-    /// Boolean whether the Item has been deleted.
-    deleted: boolean = false
-    /// The identifier of an external source.
-    externalID
-    /// A description of the item.
-    itemDescription
-    /// Boolean whether the Item has been starred.
-    starred: boolean = false
-    /// Object describing syncing information about this object like loading state, versioning,
-    /// etc.
-    syncState
-    /// The last version loaded from the server.
-    version: number = 0
-    /// The unique identifier of the Item set by the pod.
-    uid
-
-    superDecode(decoder: Decoder) {
-        /*decodeEdges(decoder, "allEdges", this)
-        this.dateAccessed = decoder.decodeIfPresent("dateAccessed") ?? this.dateAccessed
-        this.dateCreated = decoder.decodeIfPresent("dateCreated") ?? this.dateCreated
-        this.dateModified = decoder.decodeIfPresent("dateModified") ?? this.dateModified
-        this.deleted = decoder.decodeIfPresent("deleted") ?? this.deleted
-        this.externalID = decoder.decodeIfPresent("externalID") ?? this.externalID
-        this.itemDescription = decoder.decodeIfPresent("itemDescription") ?? this.itemDescription
-        this.starred = decoder.decodeIfPresent("starred") ?? this.starred
-        this.syncState = decoder.decodeIfPresent("syncState") ?? this.syncState
-        this.version = decoder.decodeIfPresent("version") ?? this.version
-        this.uid.value = decoder.decodeIfPresent("uid") ?? this.uid.value*/
-    }
-
-    /*enum CodingKeys {
-        allEdges, dateAccessed, dateCreated, dateModified, deleted, externalID, itemDescription,
-            starred, syncState, version, uid
-        }*/
-}
-
 /// TBD
-export class AuditItem extends Item {
+export class AuditItem  {
     /// Date of death.
     date: Date
     /// TBD
@@ -255,7 +209,7 @@ export class AuditItem extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.date = decoder.decodeIfPresent("date") ?? this.date
@@ -268,14 +222,14 @@ export class AuditItem extends Item {
 }
 
 /// A business corporation.
-export class Company extends Item {
+export class Company  {
     /// TBD
     type
     /// The name of the item.
     name
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.type = decoder.decodeIfPresent("type") ?? this.type
@@ -288,7 +242,7 @@ export class Company extends Item {
 
 /// The most generic kind of creative work, including books, movies, photographs, software
 /// programs, etc.
-export class CreativeWork extends Item {
+export class CreativeWork  {
     /// An abstract is a short description that summarizes a CreativeWork.
     abstract
     /// Date of first broadcast/publication.
@@ -340,7 +294,7 @@ export class CreativeWork extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.abstract = decoder.decodeIfPresent("abstract") ?? this.abstract
@@ -355,9 +309,9 @@ export class CreativeWork extends Item {
 }
 
 /// An electronic file or document.
-export class DigitalDocument extends Item {
+export class DigitalDocument  {
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
 
@@ -367,14 +321,14 @@ export class DigitalDocument extends Item {
 }
 
 /// A comment.
-export class Comment extends Item {
+export class Comment  {
     /// TBD
     content
     /// TBD
     textContent
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.content = decoder.decodeIfPresent("content") ?? this.content
@@ -386,7 +340,7 @@ export class Comment extends Item {
 }
 
 /// A file containing a note.
-export class Note extends Item {
+export class Note  {
     /// TBD
     title
     /// TBD
@@ -400,7 +354,7 @@ export class Note extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.title = decoder.decodeIfPresent("title") ?? this.title
@@ -416,7 +370,7 @@ export class Note extends Item {
 /// downloadable dataset i.e. DataDownload. Note that a creative work may have many media objects
 /// associated with it on the same web page. For example, a page about a single song (MusicRecording)
 /// may have a music video (VideoObject), and a high and low bandwidth audio stream (2 AudioObject's).
-export class MediaObject extends Item {
+export class MediaObject  {
     /// The endTime of something. For a reserved event or service, the time that it is expected
     /// to end. For actions that span a period of time, when the action was performed. e.g. John wrote a
     /// book from January to December. For media, including audio and video, it's the time offset of the
@@ -453,7 +407,7 @@ export class MediaObject extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.endTime = decoder.decodeIfPresent("endTime") ?? this.endTime
@@ -471,7 +425,7 @@ export class MediaObject extends Item {
 }
 
 /// An audio file.
-export class Audio extends Item {
+export class Audio  {
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -495,7 +449,7 @@ export class Audio extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.caption = decoder.decodeIfPresent("caption") ?? this.caption
@@ -510,7 +464,7 @@ export class Audio extends Item {
 }
 
 /// An image file.
-export class Photo extends Item {
+export class Photo  {
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -539,7 +493,7 @@ export class Photo extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.caption = decoder.decodeIfPresent("caption") ?? this.caption
@@ -554,7 +508,7 @@ export class Photo extends Item {
 }
 
 /// A video file.
-export class Video extends Item {
+export class Video  {
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -585,7 +539,7 @@ export class Video extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.caption = decoder.decodeIfPresent("caption") ?? this.caption
@@ -601,7 +555,7 @@ export class Video extends Item {
 }
 
 /// TBD
-export class CVUStoredDefinition extends Item {
+export class CVUStoredDefinition  {
     /// TBD
     definition
     /// TBD
@@ -616,7 +570,7 @@ export class CVUStoredDefinition extends Item {
     type
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.definition = decoder.decodeIfPresent("definition") ?? this.definition
@@ -632,7 +586,7 @@ export class CVUStoredDefinition extends Item {
 }
 
 /// A business corporation.
-export class Device extends Item {
+export class Device  {
     /// TBD
     deviceID
     /// TBD
@@ -649,7 +603,7 @@ export class Device extends Item {
     dateLost: Date
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.deviceID = decoder.decodeIfPresent("deviceID") ?? this.deviceID
@@ -666,7 +620,7 @@ export class Device extends Item {
 }
 
 /// TBD
-export class Diet extends Item {
+export class Diet  {
     /// TBD
     type
     /// TBD
@@ -675,7 +629,7 @@ export class Diet extends Item {
     name
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.type = decoder.decodeIfPresent("type") ?? this.type
@@ -688,9 +642,9 @@ export class Diet extends Item {
 }
 
 /// TBD
-export class Downloader extends Item {
+export class Downloader  {
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
 
@@ -724,7 +678,7 @@ export class Edge {
     sequence
 
     constructor(decoder) {
-        //super()
+        //
 
         jsonErrorHandling(function () {
             this.type = decoder.decodeIfPresent("type") ?? this.type
@@ -742,7 +696,7 @@ export class Edge {
 }
 
 /// TBD
-export class File extends Item {
+export class File  {
     /// The uri property represents the Uniform Resource Identifier (URI) of a resource.
     uri
 
@@ -752,7 +706,7 @@ export class File extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.uri = decoder.decodeIfPresent("uri") ?? this.uri
@@ -763,7 +717,7 @@ export class File extends Item {
 }
 
 /// TBD
-export class Importer extends Item {
+export class Importer  {
     /// The name of the item.
     name
     /// TBD
@@ -779,7 +733,7 @@ export class Importer extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.name = decoder.decodeIfPresent("name") ?? this.name
@@ -793,7 +747,7 @@ export class Importer extends Item {
 }
 
 /// TBD
-export class ImporterRun extends Item {
+export class ImporterRun  {
     /// The name of the item.
     name
     /// TBD
@@ -805,7 +759,7 @@ export class ImporterRun extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.name = decoder.decodeIfPresent("name") ?? this.name
@@ -818,7 +772,7 @@ export class ImporterRun extends Item {
 
 /// An indexer enhances your personal data by inferring facts over existing data and adding those
 /// to the database.
-export class Indexer extends Item {
+export class Indexer  {
     /// The name of the item.
     name
     /// TBD
@@ -836,7 +790,7 @@ export class Indexer extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.name = decoder.decodeIfPresent("name") ?? this.name
@@ -851,7 +805,7 @@ export class Indexer extends Item {
 }
 
 /// A run of a certain Indexer.
-export class IndexerRun extends Item {
+export class IndexerRun  {
     /// The name of the item.
     name
     /// TBD
@@ -865,7 +819,7 @@ export class IndexerRun extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.name = decoder.decodeIfPresent("name") ?? this.name
@@ -878,7 +832,7 @@ export class IndexerRun extends Item {
 }
 
 /// TBD
-export class Label extends Item {
+export class Label  {
     /// The color of this thing.
     color
     /// The name of the item.
@@ -895,7 +849,7 @@ export class Label extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.color = decoder.decodeIfPresent("color") ?? this.color
@@ -907,14 +861,14 @@ export class Label extends Item {
 }
 
 /// The location of something.
-export class Location extends Item {
+export class Location  {
     /// TBD
     latitude
     /// TBD
     longitude
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.latitude.value = decoder.decodeIfPresent("latitude") ?? this.latitude.value
@@ -926,7 +880,7 @@ export class Location extends Item {
 }
 
 /// A postal address.
-export class Address extends Item {
+export class Address  {
     /// A city or town.
     city
     /// The postal code. For example, 94043.
@@ -950,7 +904,7 @@ export class Address extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.city = decoder.decodeIfPresent("city") ?? this.city
@@ -965,7 +919,7 @@ export class Address extends Item {
 }
 
 /// TBD
-export class Country extends Item {
+export class Country  {
     /// The name of the item.
     name
 
@@ -981,7 +935,7 @@ export class Country extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.name = decoder.decodeIfPresent("name") ?? this.name
@@ -992,14 +946,14 @@ export class Country extends Item {
 }
 
 /// TBD
-export class MedicalCondition extends Item {
+export class MedicalCondition  {
     /// TBD
     type
     /// The name of the item.
     name
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.type = decoder.decodeIfPresent("type") ?? this.type
@@ -1011,7 +965,7 @@ export class MedicalCondition extends Item {
 }
 
 /// TBD
-export class NavigationItem extends Item {
+export class NavigationItem  {
     /// TBD
     title
     /// TBD
@@ -1022,7 +976,7 @@ export class NavigationItem extends Item {
     sequence
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.title = decoder.decodeIfPresent("title") ?? this.title
@@ -1036,14 +990,14 @@ export class NavigationItem extends Item {
 }
 
 /// TBD
-export class OnlineProfile extends Item {
+export class OnlineProfile  {
     /// TBD
     type
     /// TBD
     handle
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.type = decoder.decodeIfPresent("type") ?? this.type
@@ -1055,7 +1009,7 @@ export class OnlineProfile extends Item {
 }
 
 /// A person (alive, dead, undead, or fictional).
-export class SchemaPerson extends Item {
+export class SchemaPerson  {
     /// Date of birth.
     birthDate: Date
     /// Email address.
@@ -1140,7 +1094,7 @@ export class SchemaPerson extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         /*jsonErrorHandling(function () {
             this.birthDate = decoder.decodeIfPresent("birthDate") ?? this.birthDate
@@ -1160,14 +1114,14 @@ export class SchemaPerson extends Item {
 }
 
 /// TBD
-export class PhoneNumber extends Item {
+export class PhoneNumber  {
     /// A phone number with an area code.
     phoneNumber
     /// TBD
     type
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.phoneNumber = decoder.decodeIfPresent("phoneNumber") ?? this.phoneNumber
@@ -1179,7 +1133,7 @@ export class PhoneNumber extends Item {
 }
 
 /// TBD
-export class PublicKey extends Item {
+export class PublicKey  {
     /// TBD
     type
     /// TBD
@@ -1188,7 +1142,7 @@ export class PublicKey extends Item {
     name
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.type = decoder.decodeIfPresent("type") ?? this.type
@@ -1201,7 +1155,7 @@ export class PublicKey extends Item {
 }
 
 /// TBD
-export class SchemaSession extends Item {
+export class SchemaSession  {
     /// TBD
     currentViewIndex: number = 0
     /// TBD
@@ -1224,7 +1178,7 @@ export class SchemaSession extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.currentViewIndex = decoder.decodeIfPresent("currentViewIndex") ?? this.currentViewIndex
@@ -1239,7 +1193,7 @@ export class SchemaSession extends Item {
 }
 
 /// TBD
-export class SchemaSessions extends Item {
+export class SchemaSessions  {
     /// TBD
     currentSessionIndex: number = 0
 
@@ -1249,7 +1203,7 @@ export class SchemaSessions extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.currentSessionIndex = decoder.decodeIfPresent("currentSessionIndex") ?? this.currentSessionIndex
@@ -1260,7 +1214,7 @@ export class SchemaSessions extends Item {
 }
 
 /// TBD
-export class SessionView extends Item {
+export class SessionView  {
     /// The name of the item.
     name
 
@@ -1290,7 +1244,7 @@ export class SessionView extends Item {
     }
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.name = decoder.decodeIfPresent("name") ?? this.name
@@ -1301,14 +1255,14 @@ export class SessionView extends Item {
 }
 
 /// TBD
-export class Setting extends Item {
+export class Setting  {
     /// TBD
     key
     /// TBD
     json
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.key = decoder.decodeIfPresent("key") ?? this.key
@@ -1330,7 +1284,7 @@ export class SyncState {
     changedInThisSession: boolean = false
 
     constructor(decoder) {
-        //super()
+        //
 
         jsonErrorHandling(function () {
             this.isPartiallyLoaded = decoder.decodeIfPresent("isPartiallyLoaded") ?? this.isPartiallyLoaded
@@ -1341,14 +1295,14 @@ export class SyncState {
 }
 
 /// TBD
-export class Website extends Item {
+export class Website  {
     /// TBD
     type
     /// URL of the item.
     url
 
     constructor(decoder) {
-        super()
+        
 
         jsonErrorHandling(function () {
             this.type = decoder.decodeIfPresent("type") ?? this.type

@@ -3,9 +3,9 @@
         "name": "filter-starred",
         "fromTemplate": "{view}",
         "datasource": {
-            "query": "{cascadingView.datasource.query} AND starred = true"
+            "query": "{cascadableView.datasource.query} AND starred = true"
         },
-        "title": "Starred {cascadingView.title}"
+        "title": "Starred {cascadableView.title}"
     },
 
     {

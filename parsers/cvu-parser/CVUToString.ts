@@ -11,6 +11,8 @@ import {
 } from "./CVUParsedDefinition";
 import {UIElement} from "../../cvu/views/UIElement";
 import {Expression} from "../expression-parser/Expression";
+import {Item} from "../../model/items/Item";
+import {ItemReference} from "../../model/DatabaseController";
 
 //function UIElement() {}
 
@@ -57,6 +59,12 @@ export class CVUSerializer {
                 return this.dictToString(p, depth + 1, tab)
             } else if (typeof p.toCVUString === "function") {//TODO:
                 return p.toCVUString(depth + 1, tab)
+            } else if (p instanceof Item && p.uid.value) {
+                return `{{ item(${p.genericType}, ${p.uid.value}) }}`
+            } else if (p instanceof ItemReference) {
+                let p1 = p?.resolve();
+                if (p1 && p1.uid.value)
+                    return `{{ item(${p1.genericType}, ${p1.uid.value}) }}`
             } else if (p instanceof Color) {
                 return String(p.toLowerCase().substr(0, 7));
             } else if (typeof p == "number") {//TODO: Double;
@@ -91,7 +99,7 @@ export class CVUSerializer {
             }
         }
 
-        return withDef
+        return str.length == 0 ? "[]": withDef
             ? isMultiline
                 ? `[\n${tabs}${str.join(`\n${tabs}`)}\n${tabsEnd}]`
                 : str.join(" ")
@@ -113,8 +121,8 @@ export class CVUSerializer {
 
         var str = [];
         for (let key in keys) {
-            if (key == "children" || key == "renderDefinitions" || key == "datasourceDefinition"
-                || key == "sessionDefinitions" || key == "viewDefinitions" || key == "isCVUObject") {
+            if (key == "children" || key == "rendererDefinitions" || key == "datasourceDefinition"
+                || key == "sessionDefinitions" || key == "viewDefinitions" || key == "isCVUObject" || key == ".") {
                 continue;
             } else if (key == "cornerborder") {
                 var value = dict[key];
@@ -135,12 +143,18 @@ export class CVUSerializer {
                     }
                 }
             } else {
-                let p = dict[key];
-                if (p && typeof p.isCVUObject === "function") {
-                    str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
-                        + `${key}: ${this.valueToString(p, depth, tab)}`);
-                } else {
-                    str.push(`${key}: ${this.valueToString(p, depth, tab)}`);
+                let value = dict[key];
+                let isDef = value instanceof CVUParsedDefinition
+                let dict1 = (value)?.parsed
+
+                if (!isDef || dict1 != undefined && dict1?.length > 0) {
+                    let p = value;
+                    if (p && typeof p.isCVUObject === "function") {
+                        str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
+                            + `${key}: ${this.valueToString(p, depth, tab)}`);
+                    } else if (value) {
+                        str.push(`${key}: ${this.valueToString(value, depth, tab)}`);
+                    }
                 }
             }
         }
@@ -148,29 +162,35 @@ export class CVUSerializer {
         var children: string = "";
         var definitions: string[] = [];
         let p = dict["children"];
+        var hasPriorContent = str.length > 0;
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof UIElement) {
             let body = this.arrayToString(p, depth, tab, false, true);
-            children = `${str.length > 0 ? `\n\n${tabs}` : ``}${body}`;
+            children = `${hasPriorContent ? `\n\n${tabs}` : ``}${body}`;
+            hasPriorContent = true
         }
         p = dict["datasourceDefinition"];
-        if (p instanceof CVUParsedDatasourceDefinition) {
+        if (p instanceof CVUParsedDatasourceDefinition && p.parsed != undefined) {
             let body = p.toCVUString(depth, tab);
-            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
+            definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
+            hasPriorContent = true
         }
         p = dict["sessionDefinitions"];//TODO normal check
-        if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedSessionDefinition) {
+        if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedSessionDefinition && p[0].parsed != undefined) {
             let body = this.arrayToString(p, depth - 1, tab, false, true);
-            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
+            definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
+            hasPriorContent = true
         }
         p = dict["viewDefinitions"];//TODO normal check
-        if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedViewDefinition) {
+        if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedViewDefinition && p[0].parsed != undefined) {
             let body = this.arrayToString(p, depth - 1, tab, false, true);
-            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
+            definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
+            hasPriorContent = true
         }
         p = dict["renderDefinitions"];//TODO normal check
-        if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedRendererDefinition) {
+        if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedRendererDefinition && p[0].parsed != undefined) {
             let body = this.arrayToString(p, depth - 1, tab, false, true);
-            definitions.push(`${str.length > 0 ? `\n\n${tabs}` : ``}${body}`);
+            definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
+            hasPriorContent = true
         }
 
         return withDef

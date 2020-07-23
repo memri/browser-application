@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BaseTextFieldProps, Button, ButtonProps, Divider, Icon, TextField} from "@material-ui/core";
+import {BaseTextFieldProps, Button, Divider, Icon, TextField} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Font} from "../parsers/cvu-parser/CVUParser";
 

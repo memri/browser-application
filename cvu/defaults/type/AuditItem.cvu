@@ -37,13 +37,13 @@ AuditItem[] {
                 }
                 Spacer
                 Text {
-                    text: "{.date}"
+                    text: "{.dateCreated}"
                     font: 11 regular
                     color: #888
                 }
             }
             Text {
-                text: "{.contents}"
+                text: "{.content}"
                 font: 14 light
                 removeWhiteSpace: true
                 maxChar: 100

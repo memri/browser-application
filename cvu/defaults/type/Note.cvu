@@ -35,47 +35,51 @@ Note {
         showContextPane
     ]
     
-    contextButtons: star schedule
-    
-    actionItems: [
-        showOverlay { title: "Share with..." }
-        addToPanel { title: "Add to list..." }
-        duplicate { title: "Duplicate Note" }
-    ]
-    
-    navigateItems: [
-        openView {
-            title: "Timeline of this note"
-            arguments {
-                view: {
-                    defaultRenderer: timeline
-                    
-                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "Timeline of this note"
+                arguments {
+                    view: {
+                        defaultRenderer: timeline
+                        
+                        [datasource = pod] {
+                            query: "AuditItem appliesTo:{.id}"
+                            sortProperty: dateCreated
+                            sortAscending: true
+                        }
+                        
+                        [renderer = timeline] {
+                            timeProperty: dateCreated
+                        }
                     }
                 }
             }
-        }
-        openViewByName {
-            title: "Starred notes"
-            arguments: {
-                name: "filter-starred"
-                viewArguments: {
-                    include: "all-notes"
+            openViewByName {
+                title: "Starred notes"
+                arguments: {
+                    name: "filter-starred"
+                    viewArguments: {
+                        include: "all-notes"
+                    }
                 }
             }
-        }
-        openViewByName {
-            title: "All notes"
-            name: "all-notes"
-        }
-    ]
+            openSessionByName {
+                title: "All notes"
+                arguments: {
+                    name: "all-notes"
+                }
+            }
+        ]
+    }
     
     [renderer = custom] {
         RichTextfield {
@@ -105,7 +109,7 @@ Note[] {
         addItem {
             arguments {
                 template {
-                    type: Note
+                    _type: Note
                 }
             }
         }
@@ -134,7 +138,7 @@ Note[] {
                 }
             }
             Text {
-                text: "{.content}"
+                text: "{.content.plainString}"
                 removeWhiteSpace: true
                 maxChar: 100
                 color: #555
@@ -159,7 +163,7 @@ Note[] {
             alignment: center
             
             Text {
-                text: "{.content}"
+                text: "{.content.plainString}"
                 allowNil: true
                 maxChar: 100
                 color: #333
@@ -196,4 +200,25 @@ Note[] {
             }
         }
     }
+	
+	[renderer = calendar.timeline] {
+		dateTime: {{.dateModified}}
+
+		TimelineItem {
+			icon: "square.and.pencil"
+			title: {{.title or "Untitled Note"}}
+			text: {{.content.plainString}}
+		}
+	}
+	
+	[renderer = messages] {
+		sort: dateModified
+		
+		MessageBubble {
+			sender: {{.title}}
+			content: {{.content.plainString}}
+			dateTime: {{.dateModified}}
+			isOutgoing: {{.title = "To read list"}} /* This is just a demo until we have a Message type in the schema... */
+		}
+	}
 }

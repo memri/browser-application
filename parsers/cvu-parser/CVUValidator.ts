@@ -40,7 +40,6 @@ import {
     CVUParsedSessionsDefinition,
     CVUParsedViewDefinition
 } from "./CVUParsedDefinition";
-import {UserState, ViewArguments} from "../../cvu/views/UserState";
 
 export class CVUValidator {
     // Based on keyword when its added to the dict

@@ -93,7 +93,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 
 	/// @private
 	superDecode(decoder) {//TODO
-		//return;
+		return;
 		this.uid = decoder.decodeIfPresent("uid") || this.uid
 		this.memriID = decoder.decodeIfPresent("memriID") || this.memriID
 		this.starred = decoder.decodeIfPresent("starred") || this.starred

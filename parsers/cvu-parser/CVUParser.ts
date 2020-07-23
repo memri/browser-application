@@ -21,7 +21,6 @@ import {
 } from "./CVUParsedDefinition"
 import {ActionFamily, getActionType} from "../../cvu/views/Action";
 import {UIElement, UIElementFamily} from "../../cvu/views/UIElement";
-import {UserState} from "../../cvu/views/UserState";
 
 export class Color {
     value;

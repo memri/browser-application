@@ -1,0 +1,3 @@
+[renderer = messages] {
+    press: openView /* open the message when pressing it */
+}

@@ -21,7 +21,8 @@ export class Realm {
     }
 
     objectForPrimaryKey(type, key) {
-        return this.db.filter((item) => item["_type"] == type && item["uid"] && item["uid"] == key);
+        let obj = this.db.filter((item) => item["_type"] == type && item["uid"] && item["uid"] == key);
+        return (obj.length > 0) ? obj[0] : undefined;
     }
 
     create(type, properties) {
@@ -39,6 +40,9 @@ export class Realm {
     delete(obj) {
        //TODO:
     }
+    objectSchema() {
+
+    }
 }
 
 export class RealmObjects extends Array {
@@ -50,8 +54,8 @@ export class RealmObjects extends Array {
     }*/
 
     filtered(query: string) {
-        //TODO: we need parse query, not eval it...
-        let newquery = query.replace(/(\w+)\s*=\s*('?\w+'?)/g,"item['$1'] == $2").replace("AND","&&").replace("OR","||")
+        //TODO: we need parse query, not eval it... "selector = '[sessions = defaultSessions]'"
+        let newquery = query.replace(/(?<=^|\s)(\w+)\s*=\s*(\w+|('[^']*'))/g,"item['$1'] == $2").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
         return this.filter((item)=>{
             return eval(newquery);
         });
@@ -64,4 +68,9 @@ export class RealmObjects extends Array {
 
         })     */
     }
+}
+
+export class RealmObject {
+    name: string;
+    properties;
 }

@@ -20,14 +20,14 @@ export class IndexerAPI {
 			if (!Array.isArray(notes) || !(notes[0] instanceof Note)) {
 				throw `Could not execute IndexerRun ${indexerInstance} non note objects passed`
 			}
-			executeNoteLabelIndexer(indexerInstance, notes)
+			this.executeNoteLabelIndexer(indexerInstance, notes)
 		} else {
 			throw `\n***COULD NOT FIND LOCAL INDEXER IN INDEXERAPI***\n`
 		}
 	}
-}
+/*}
 
-class IndexerAPI {
+class IndexerAPI {*/
 	executeNoteLabelIndexer(indexerInstance: IndexerRun, items: [Note]) {
 		this.context?.cache.query(new Datasource("Label"), (error, labels) => {
 			if (!labels) {

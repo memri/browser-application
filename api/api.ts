@@ -1,5 +1,5 @@
 import {settings} from "../model/Settings"
-import {SchemaItem} from "../model/schema";
+import {SchemaItem} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
 export class PodAPI {

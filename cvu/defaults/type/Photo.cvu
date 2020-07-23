@@ -56,4 +56,13 @@ Photo[]: {
             background: #AAA
         }
     }
+	
+	[renderer = calendar] {
+		dateTime: {{.dateCreated}}
+		
+		TimelineItem {
+			icon: "camera"
+			title: "Photo"
+		}
+	}
 }

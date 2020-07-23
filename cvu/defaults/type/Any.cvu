@@ -19,8 +19,9 @@
     
     [renderer = generalEditor] {
         EditorRow {
-            spacing: 5
-            padding: 10 0 10 0
+            nopadding: true
+            padding: 5 36 5 36
+/*            spacing: 5*/
             
             HStack {
                 alignment: center
@@ -31,7 +32,7 @@
                     press: unlink {
                         arguments: {
                             subject: {{subject}}
-                            property: {{name}}
+                            edgeType: {{name}}
                         }
                     }
                     show: {{!readOnly}}
@@ -45,3 +46,4 @@
         }
     }
 }
+

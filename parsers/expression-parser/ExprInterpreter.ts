@@ -4,7 +4,6 @@
 //  Copyright © 2020 Memri. All rights reserved.
 //
 
-import { ViewArguments } from "../../cvu/views/UserState";
 
 import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "./ExprLexer";
 import {ExprBinaryOpNode, ExprConditionNode, ExprStringModeNode, ExprNegationNode,

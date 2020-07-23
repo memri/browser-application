@@ -52,47 +52,49 @@
         showContextPane
     ]
     
-    contextButtons: star schedule
-    
-    actionItems: [
-        showOverlay { title: "{$sharewith}" }
-        addToPanel { title: "{$addtolist}" }
-        duplicate { title: "{$duplicate} {type}" }
-    ]
-    
-    navigateItems: [
-        openView {
-            title: "{$timelineof} {type.lowercased()}"
-            arguments: {
-                view: {
-                    defaultRenderer: timeline
-                    
-                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "{$sharewith}" }
+            addToPanel { title: "{$addtolist}" }
+            duplicate { title: "{$duplicate} {type}" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "{$timelineof} {type.lowercased()}"
+                arguments: {
+                    view: {
+                        defaultRenderer: timeline
+                        
+                         [datasource = pod] {
+                            query: "AuditItem appliesTo:{.id}"
+                            sortProperty: dateCreated
+                            sortAscending: true
+                        }
+                        
+                        [renderer = timeline] {
+                            timeProperty: dateCreated
+                        }
                     }
                 }
             }
-        }
-        openViewByName {
-            title: "{$starred} {type.plural()}"
-            arguments: {
-                name: "filter-starred"
-                viewArguments: {
-                    include: "all-{type}"
+            openViewByName {
+                title: "{$starred} {type.plural()}"
+                arguments: {
+                    name: "filter-starred"
+                    viewArguments: {
+                        include: "all-{type}"
+                    }
                 }
             }
-        }
-        openViewByName {
-            title: "{$all} {type.lowercased().plural()}"
-            name: "all-{type}"
-        }
-    ]
+            openViewByName {
+                title: "{$all} {type.lowercased().plural()}"
+                name: "all-{type}"
+            }
+        ]
+    }
 }
 
 Person {
@@ -127,65 +129,77 @@ Person {
         showContextPane
     ]
     
-    contextButtons: star schedule
-    
-    actionItems: [
-        showOverlay { title: "{$sharewith}" }
-        addToPanel { title: "{$addtolist}" }
-        duplicate { title: "{$duplicate} person" }
-    ]
-    
-    navigateItems: [
-        openView {
-            title: "{$timelineof} person"
-            arguments: {
-                view: {
-                    defaultRenderer: timeline
-                    
-                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+    contextPane {
+        buttons: star schedule
+        
+        action: [
+            showOverlay { title: "{$sharewith}" }
+            addToPanel { title: "{$addtolist}" }
+            duplicate { title: "{$duplicate} person" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "{$timelineof} person"
+                arguments: {
+                    view: {
+                        defaultRenderer: timeline
+                        
+                         [datasource = pod] {
+                            query: "AuditItem appliesTo:{.id}"
+                            sortProperty: dateCreated
+                            sortAscending: true
+                        }
+                        
+                        [renderer = timeline] {
+                            timeProperty: dateCreated
+                        }
                     }
                 }
             }
-        }
-        openViewByName {
-            title: "{$starred} persons"
-            arguments: {
-                name: "filter-starred"
-                viewArguments: {
-                    include: "all-person"
+            openViewByName {
+                title: "{$starred} persons"
+                arguments: {
+                    name: "filter-starred"
+                    viewArguments: {
+                        include: "all-person"
+                    }
                 }
             }
-        }
-        openViewByName {
-            title: "{$all} persons"
-            name: "all-person"
-        }
-    ]
+            openSessionByName {
+                title: "{$all} persons"
+                arguments: {
+                    name: "all-person"
+                }
+            }
+        ]
+    }
     
     /* end include */
     
     [renderer = generalEditor] {
-         groups {
-             profilePicture: profilePicture
-             names: firstName lastName
-             picturesOfPerson: picturesOfPerson
-         }
-        
-         sequence: profilePicture labels names picturesOfPerson phoneNumbers relations addresses websites companies diets medicalConditions publicKeys onlineProfiles other dates
-        
-        /*excluded: profilePicture labels names picturesOfPerson phoneNumbers*/
-        
-        /*readOnly:*/
-        
+        layout: [
+            { section: profilePicture }
+            { section: labels }
+            { section: names, fields: firstName lastName }
+            { section: picturesOfPerson }
+            { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber }
+/*            { section: family, edges: family, show: {{ .family[] }} }*/
+/*            { section: relationships, edges: non-family }*/
+            { section: relationships, edges: relationship, type: Person }
+            { section: addresses, edges: address, type: Address }
+            { section: websites, edges: website, type: Website }
+            { section: companies, edges: company, type: Company }
+            { section: diets, edges: diet, type: Diet }
+            { section: medicalConditions, edges: medicalCondition, type: MedicalCondition }
+            { section: publicKeys, edges: publicKey, type: PublicKey }
+            { section: onlineProfiles, edges: onlineProfile, type: OnlineProfile }
+            { section: other, fields: * }
+            { section: dates }
+        ]
+
         profilePicture {
-            sectionTitle: ""
+            showTitle: false
         
             ZStack {
                 alignment: center
@@ -219,8 +233,7 @@ Person {
                         maxHeight: 140
                         show: {{!readOnly}}
                     
-                        Button {
-                            press: add
+                        Action {
                             cornerRadius: 25
                             maxWidth: 50
                             maxHeight: 50
@@ -228,8 +241,24 @@ Person {
                             color: #434343
                             align: center
                             font: 14 regular
-                        
-                            Text { text: "Edit" }
+                            
+                            press: openViewByName {
+                                renderAs: popup
+                                title: "Edit"
+                                
+                                arguments: {
+                                    name: "choose-item-by-query"
+                                    viewArguments: {
+                                        query: "Photo" /* AND ANY allEdges.targetItemID = {.uid} */
+                                        type: Photo
+                                        renderer: "thumbnail"
+                                        subject: {{.}}
+                                        edgeType: "profilePicture"
+                                        distinct: true
+                                        title: "Choose a photo"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -237,8 +266,7 @@ Person {
         }
         
         picturesOfPerson {
-            foreach: false
-            sectionTitle: "Photos of {.computedTitle()}"
+            title: "Photos of {.computedTitle()}"
         
             SubView {
                 minHeight: 165
@@ -257,27 +285,27 @@ Person {
                     }
                 }
                 arguments: {
-                    toolbar: false
-                    searchbar: false
+                    showToolbar: false
+                    showSearchbar: false
                     readOnly: true
                 }
             }
         }
         
         labels {
-            foreach: false
-            sectionTitle: ""
+            showTitle: false
+            dividers: false
         
             VStack {
                 padding: 10 36 5 36
             
                 Text {
-                    show: {{ !.labels }}
+                    show: {{ !.label }}
                     text: "no labels yet"
                 }
                 
                 FlowStack {
-                    list: {{ .labels[] }}
+                    list: {{ .label[] }}
                 
                     button {
                         press: openViewByName {
@@ -335,7 +363,7 @@ Person[] {
     defaultRenderer: thumbnail
     emptyResultText: "There are no people here yet"
     
-     [datasource = pod] {
+    [datasource = pod] {
         query: "Person"
         sortProperty: dateModified
     }
@@ -344,7 +372,7 @@ Person[] {
         addItem {
             arguments: {
                 template: {
-                    type: Person
+                    _type: Person
                 }
             }
         }
@@ -418,15 +446,26 @@ Person[] {
     }
     
     [renderer = map] {
-        addressKey: addresses
-        labelKey: firstName
+		address: {{.address[]}}
+		label: "{.firstName}"
+        
+/*        Popup {*/
+            VStack {
+                Image {
+                    image: {{.profilePicture}}
+                }
+                Text {
+                    text: "{.firstName} {.lastName}"
+                }
+            }
+/*        }*/
     }
     
     [renderer = chart] {
         chartTitle: "People by height" /* Use this to override the auto-generated chart title */
         
         label: "{.firstName}" /* used for bar chart (also provides label on line chart) */
-        yAxis: "{.height}"
+		yAxis: {{.height}}
         
         hideGridlines: true
         yAxisStartAtZero: true /* use this to force y-Axis to start at zero (vs fitting data)*/
@@ -439,8 +478,8 @@ Person[] {
         chartTitle: "Height vs. Age"
         chartSubtitle: "A demo of dynamically graphing your data."
         
-        xAxis: "{.age}" /* Feeling old? Try "{.age - 10}" to give everyone back a decade ;) */
-        yAxis: "{.height}"
+		xAxis: {{.age()}} /* Feeling old? Try {{.age() - 10}} to give everyone back a decade ;) */
+		yAxis: {{.height}}
         label: "{.firstName}" /* The label to show over the point */
         
         /* line chart ignores sort (automatically sorted by x-axis) */

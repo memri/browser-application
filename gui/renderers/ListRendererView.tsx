@@ -5,7 +5,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {allRenderers, Renderers} from "../../cvu/views/Renderers";
+import {allRenderers} from "../../cvu/views/Renderers";
 import * as React from "react";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionDelete} from "../../cvu/views/Action";

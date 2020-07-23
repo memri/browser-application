@@ -229,24 +229,27 @@ function SimpleList() {
     );
 }
 
-function getContext(name, key) {
+/*function getContext(name, key) {
     let podAPI = new PodAPI(undefined, key);
-    let cache = podAPI;
-    let realm = undefined;
-    let navigation = new MainNavigation();
     let cascadingView = new CascadableView(new SessionView(), []);
+    let cache = new CacheMemri(podAPI);
+    let realm = new Realm();
+    let navigation = new MainNavigation(realm);
 
     return new MemriContext(name, podAPI, cache, undefined,
-        undefined, undefined, undefined,
-        new Views(),cascadingView, navigation, new Renderers(), undefined)
-}
+        undefined, undefined, new Views(),
+        navigation,new Renderers(), undefined)
+}*/
 
-import {mockApi} from "./playground/mockApi"
-import {MainNavigation} from "./gui/navigation/MainNavigation";
-import {CascadableView} from "./cvu/views/CascadingView";
+//import {mockApi} from "./playground/mockApi"
+/*import {MainNavigation} from "./gui/navigation/MainNavigation";
+import {CascadableView} from "./cvu/views/CascadableView";
 import {SessionView} from "./cvu/views/SessionView";
+import {Realm} from "./model/RealmLocal";
+import {CacheMemri} from "./model/Cache";*/
 
-let context = getContext("Memri GUI", mockApi);
+let context = new RootContext("Memri GUI", "ABCDEF");
+context.boot();
 
 function App() {//TODO: don't ask, please, about link inside div =)
   return <div><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />

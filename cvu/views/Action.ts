@@ -7,13 +7,8 @@
 import {CVUSerializer, orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {ActionError} from "./ActionErrors";
-import {CVUParsedSessionDefinition, CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
-import {ViewArguments} from "./UserState";
-import {Item} from "../../model/DataItem";
-import {realmWriteIfAvailable} from "../../gui/util";
 import {debugHistory} from "./ViewDebugger";
-import {SessionView} from "./SessionView";
 import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {MemriContext} from "../../context/MemriContext";

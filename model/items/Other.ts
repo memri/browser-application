@@ -70,10 +70,9 @@ extension MedicalCondition {
 	}
 }*/
 
-import {SchemaPerson} from "../schema";
 import {CacheMemri} from "../Cache";
 
-export class Person extends SchemaPerson {
+export class Person /*extends SchemaPerson*/ {
 	get computedTitle(): string {
 		return `${this.firstName ?? ""} ${this.lastName ?? ""}`
 	}
@@ -87,7 +86,7 @@ export class Person extends SchemaPerson {
 	}
 
 	constructor() {
-		super()
+		//super()
 
 		this.functions["age"] = () => { return this.age }
 	}

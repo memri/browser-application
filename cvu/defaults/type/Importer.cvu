@@ -35,41 +35,51 @@ Importer {
         showContextPane
     ]
     
-    contextButtons: star schedule
-    
-    navigateItems: [
-        openView {
-            title: "Timeline of this importer"
-            arguments {
-                view: {
-                    defaultRenderer: timeline
-                    
-                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "Timeline of this importer"
+                arguments {
+                    view: {
+                        defaultRenderer: timeline
+                        
+                         [datasource = pod] {
+                            query: "AuditItem appliesTo:{.id}"
+                            sortProperty: dateCreated
+                            sortAscending: true
+                        }
+                        
+                        [renderer = timeline] {
+                            timeProperty: dateCreated
+                        }
                     }
                 }
             }
-        }
-        openViewByName {
-            title: "Starred importers"
-            arguments: {
-                name: "filter-starred"
-                viewArguments: {
-                    include: "all-notes"
+            openViewByName {
+                title: "Starred importers"
+                arguments: {
+                    name: "filter-starred"
+                    viewArguments: {
+                        include: "all-notes"
+                    }
                 }
             }
-        }
-        openViewByName {
-            title: "All importers"
-            name: "all-importers"
-        }
-    ]
+            openSessionByName {
+                title: "All importers"
+                arguments: {
+                    name: "all-importers"
+                }
+            }
+        ]
+    }
 }
 
 Importer[] {
@@ -91,7 +101,7 @@ Importer[] {
         press: addItem {
             arguments {
                 template {
-                    type: ImporterRun
+                    _type: ImporterRun
                     name: {{.name}}
                     importer: {{.}}
                 }

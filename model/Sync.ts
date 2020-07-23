@@ -39,8 +39,7 @@
 /// background, items are updated automatically.
 import {PodAPI} from "../api/api";
 import {Datasource} from "../api/Datasource";
-import {getItemType, ItemFamily} from "./schema";
-import {Item, Edge} from "./items/Item";
+import {Edge,getItemType, ItemFamily} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "./Cache";
 import {DatabaseController} from "./DatabaseController";
@@ -190,7 +189,7 @@ export class Sync {
             this.scheduled = long ? 2 : 1
 
 			// Wait 100ms before syncing (should this be longer?)
-			DispatchQueue.main.asyncAfter(now() + (long ? 18000 : 0.1), () => {//TODO now()
+			/*DispatchQueue.main.asyncAfter(now() + (long ? 18000 : 0.1), () => {//TODO now()
 				if (this.syncing) {
                     this.scheduled = 0
                     this.schedule()
@@ -202,7 +201,7 @@ export class Sync {
 
 				// Start syncing local data to the pod
                 this.syncToPod()
-			})
+			})*/ //TODO:
 		}
 	}
 

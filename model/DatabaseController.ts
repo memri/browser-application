@@ -10,10 +10,10 @@
 import {Edge, Item} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
-import * as path from "path";
+//import * as path from "path";
 import {Realm} from "./RealmLocal";
 
-class ItemReference {
+export class ItemReference {
     uid: number
     type
     
@@ -23,7 +23,7 @@ class ItemReference {
     }
     
     resolve() {
-        DatabaseController.read((realm) => { realm.object(this.type, this.uid) })
+        DatabaseController.read((realm) => { realm.objectForPrimaryKey(this.type, this.uid) })
     }
 }
 
@@ -51,7 +51,7 @@ export class DatabaseController {
 	
 	static realmTesting = false
 
-	static get realmConfig(): Realm.Configuration {
+	/*static get realmConfig(): Realm.Configuration {
 		return {
 			// Set the file url
 			path: this.getRealmURL(),
@@ -61,22 +61,22 @@ export class DatabaseController {
 
 			// Set the block which will be called automatically when opening a Realm with
 			// a schema version lower than the one set above
-			/*migration: function(oldSchemaVersion) {
+			/!*migration: function(oldSchemaVersion) {
 				// We haven’t migrated anything yet, so oldSchemaVersion == 0
 				if (oldSchemaVersion < 2) {
 					// Nothing to do!
 					// Realm will automatically detect new properties and removed properties
 					// And will update the schema on disk automatically
 				}
-            }*/
+            }*!/
 		}
-	}
+	}*/
 	
 	/// Computes the Realm database path at /home/<user>/realm.memri/memri.realm and creates the directory (realm.memri) if (it does not exist.
 	/// - Returns: the computed database file url
-	static getRealmURL() {
+	/*static getRealmURL() {
 		// #if (targetEnvironment(simulator)
-		let homeDir = path.dirname(require.main.filename);/*ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"]*/
+		let homeDir = path.dirname(require.main.filename);/!*ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"]*!/
 		if (homeDir) {
 			var realmDir = homeDir + "/realm.memri"
 			
@@ -84,11 +84,11 @@ export class DatabaseController {
 				realmDir += ".testing"
 			}
 			
-			/*try {
+			/!*try {
 				 FileManager.default.createDirectory(realmDir, true)
 			} catch(error) {
 				console.log(error)
-			}*/
+			}*!/
 			
 			//let realmURL = new URL(realmDir + "/memri.realm")
 			return realmDir + "/memri.realm"
@@ -96,15 +96,15 @@ export class DatabaseController {
 			throw "Could not get realm url"
 		}
 		// #else
-		/*let paths = FileManager.default.urls("documentDirectory", "userDomainMask")
+		/!*let paths = FileManager.default.urls("documentDirectory", "userDomainMask")
 		let documentsDirectory = paths[0]
-		return documentsDirectory.appendingPathComponent("memri.realm")*/
+		return documentsDirectory.appendingPathComponent("memri.realm")*!/
 		// #endif
-	}
+	}*/
 	
 	/// This function returns a Realm for the current thread
 	static getRealm() {
-		return new Realm(this.realmConfig)
+		return new Realm()
 	}
 	
 	static get realmQueue() {

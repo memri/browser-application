@@ -1,15 +1,240 @@
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {Views} from "../../cvu/views/Views";
-import {settings} from "../Settings";
-import {getItemType, ItemFamily, SchemaItem} from "../schema";
-import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, realmWriteIfAvailable, unserialize} from "../../gui/util";
+import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, unserialize} from "../../gui/util";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {DatabaseController} from "../DatabaseController";
+import {Color} from "../../parsers/cvu-parser/CVUParser";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
+}
+
+export enum ItemFamily {
+    typeAuditItem = "AuditItem",
+    typeCompany = "Company",
+    typeCreativeWork = "CreativeWork",
+    typeDigitalDocument = "DigitalDocument",
+    typeComment = "Comment",
+    typeNote = "Note",
+    typeMediaObject = "MediaObject",
+    typeAudio = "Audio",
+    typePhoto = "Photo",
+    typeVideo = "Video",
+    typeCVUStoredDefinition = "CVUStoredDefinition",
+    typeDatasource = "Datasource",
+    typeDevice = "Device",
+    typeDiet = "Diet",
+    typeDownloader = "Downloader",
+    typeEdge = "Edge",
+    typeFile = "File",
+    typeImporter = "Importer",
+    typeImporterRun = "ImporterRun",
+    typeIndexer = "Indexer",
+    typeIndexerRun = "IndexerRun",
+    typeLabel = "Label",
+    typeLocation = "Location",
+    typeAddress = "Address",
+    typeCountry = "Country",
+    typeMedicalCondition = "MedicalCondition",
+    typeNavigationItem = "NavigationItem",
+    typeOnlineProfile = "OnlineProfile",
+    typePerson = "Person",
+    typePhoneNumber = "PhoneNumber",
+    typePublicKey = "PublicKey",
+    typeSession = "Session",
+    typeSessions = "Sessions",
+    typeSessionView = "SessionView",
+    typeSetting = "Setting",
+    typeSyncState = "SyncState",
+    typeUserState = "UserState",
+    typeViewArguments = "ViewArguments",
+    typeWebsite = "Website",
+}
+
+//export var discriminator = Discriminator._type //TODO:
+
+export var backgroundColor = function(name) {
+    switch (name) {
+        case ItemFamily.typeAuditItem: return new Color("#93c47d")
+        case ItemFamily.typeCompany: return new Color("#93c47d")
+        case ItemFamily.typeCreativeWork: return new Color("#93c47d")
+        case ItemFamily.typeDigitalDocument: return new Color("#93c47d")
+        case ItemFamily.typeComment: return new Color("#93c47d")
+        case ItemFamily.typeNote: return new Color("#93c47d")
+        case ItemFamily.typeMediaObject: return new Color("#93c47d")
+        case ItemFamily.typeAudio: return new Color("#93c47d")
+        case ItemFamily.typePhoto: return new Color("#93c47d")
+        case ItemFamily.typeVideo: return new Color("#93c47d")
+        case ItemFamily.typeCVUStoredDefinition: return new Color("#93c47d")
+        case ItemFamily.typeDatasource: return new Color("#93c47d")
+        case ItemFamily.typeDevice: return new Color("#93c47d")
+        case ItemFamily.typeDiet: return new Color("#37af1c")
+        case ItemFamily.typeDownloader: return new Color("#93c47d")
+        case ItemFamily.typeEdge: return new Color("#93c47d")
+        case ItemFamily.typeFile: return new Color("#93c47d")
+        case ItemFamily.typeImporter: return new Color("#93c47d")
+        case ItemFamily.typeImporterRun: return new Color("#93c47d")
+        case ItemFamily.typeIndexer: return new Color("#93c47d")
+        case ItemFamily.typeIndexerRun: return new Color("#93c47d")
+        case ItemFamily.typeLabel: return new Color("#93c47d")
+        case ItemFamily.typeLocation: return new Color("#93c47d")
+        case ItemFamily.typeAddress: return new Color("#93c47d")
+        case ItemFamily.typeCountry: return new Color("#93c47d")
+        case ItemFamily.typeMedicalCondition: return new Color("#3dc8e2")
+        case ItemFamily.typeNavigationItem: return new Color("#93c47d")
+        case ItemFamily.typeOnlineProfile: return new Color("#93c47d")
+        case ItemFamily.typePerson: return new Color("#3a5eb2")
+        case ItemFamily.typePhoneNumber: return new Color("#eccf23")
+        case ItemFamily.typePublicKey: return new Color("#93c47d")
+        case ItemFamily.typeSession: return new Color("#93c47d")
+        case ItemFamily.typeSessions: return new Color("#93c47d")
+        case ItemFamily.typeSessionView: return new Color("#93c47d")
+        case ItemFamily.typeSetting: return new Color("#93c47d")
+        case ItemFamily.typeSyncState: return new Color("#93c47d")
+        case ItemFamily.typeUserState: return new Color("#93c47d")
+        case ItemFamily.typeViewArguments: return new Color("#93c47d")
+        case ItemFamily.typeWebsite: return new Color("#3d57e2")
+    }
+}
+
+export var foregroundColor = function(name) {
+    switch (name) {
+        case ItemFamily.typeAuditItem: return new Color("#ffffff")
+        case ItemFamily.typeCompany: return new Color("#ffffff")
+        case ItemFamily.typeCreativeWork: return new Color("#ffffff")
+        case ItemFamily.typeDigitalDocument: return new Color("#ffffff")
+        case ItemFamily.typeComment: return new Color("#ffffff")
+        case ItemFamily.typeNote: return new Color("#ffffff")
+        case ItemFamily.typeMediaObject: return new Color("#ffffff")
+        case ItemFamily.typeAudio: return new Color("#ffffff")
+        case ItemFamily.typePhoto: return new Color("#ffffff")
+        case ItemFamily.typeVideo: return new Color("#ffffff")
+        case ItemFamily.typeCVUStoredDefinition: return new Color("#ffffff")
+        case ItemFamily.typeDatasource: return new Color("#ffffff")
+        case ItemFamily.typeDevice: return new Color("#ffffff")
+        case ItemFamily.typeDiet: return new Color("#ffffff")
+        case ItemFamily.typeDownloader: return new Color("#ffffff")
+        case ItemFamily.typeEdge: return new Color("#ffffff")
+        case ItemFamily.typeFile: return new Color("#ffffff")
+        case ItemFamily.typeImporter: return new Color("#ffffff")
+        case ItemFamily.typeImporterRun: return new Color("#ffffff")
+        case ItemFamily.typeIndexer: return new Color("#ffffff")
+        case ItemFamily.typeIndexerRun: return new Color("#ffffff")
+        case ItemFamily.typeLabel: return new Color("#ffffff")
+        case ItemFamily.typeLocation: return new Color("#ffffff")
+        case ItemFamily.typeAddress: return new Color("#ffffff")
+        case ItemFamily.typeCountry: return new Color("#ffffff")
+        case ItemFamily.typeMedicalCondition: return new Color("#ffffff")
+        case ItemFamily.typeNavigationItem: return new Color("#ffffff")
+        case ItemFamily.typeOnlineProfile: return new Color("#ffffff")
+        case ItemFamily.typePerson: return new Color("#ffffff")
+        case ItemFamily.typePhoneNumber: return new Color("#ffffff")
+        case ItemFamily.typePublicKey: return new Color("#ffffff")
+        case ItemFamily.typeSession: return new Color("#ffffff")
+        case ItemFamily.typeSessions: return new Color("#ffffff")
+        case ItemFamily.typeSessionView: return new Color("#ffffff")
+        case ItemFamily.typeSetting: return new Color("#ffffff")
+        case ItemFamily.typeSyncState: return new Color("#ffffff")
+        case ItemFamily.typeUserState: return new Color("#ffffff")
+        case ItemFamily.typeViewArguments: return new Color("#ffffff")
+        case ItemFamily.typeWebsite: return new Color("#ffffff")
+    }
+}
+/*
+export var getPrimaryKey = function(name) {
+    return new (getItemType(name))().primaryKey() ?? ""
+}*/
+
+export var getItemType = function(name) {
+    switch (name) {
+        case ItemFamily.typeAuditItem: return "AuditItem"
+        case ItemFamily.typeCompany: return "Company"
+        case ItemFamily.typeCreativeWork: return "CreativeWork"
+        case ItemFamily.typeDigitalDocument: return "DigitalDocument"
+        case ItemFamily.typeComment: return "Comment"
+        case ItemFamily.typeNote: return "Note"
+        case ItemFamily.typeMediaObject: return "MediaObject"
+        case ItemFamily.typeAudio: return "Audio"
+        case ItemFamily.typePhoto: return "Photo"
+        case ItemFamily.typeVideo: return "Video"
+        case ItemFamily.typeCVUStoredDefinition: return "CVUStoredDefinition"
+        case ItemFamily.typeDatasource: return "Datasource"
+        case ItemFamily.typeDevice: return "Device"
+        case ItemFamily.typeDiet: return "Diet"
+        case ItemFamily.typeDownloader: return "Downloader"
+        case ItemFamily.typeEdge: return "Edge"
+        case ItemFamily.typeFile: return "File"
+        case ItemFamily.typeImporter: return "Importer"
+        case ItemFamily.typeImporterRun: return "ImporterRun"
+        case ItemFamily.typeIndexer: return "Indexer"
+        case ItemFamily.typeIndexerRun: return "IndexerRun"
+        case ItemFamily.typeLabel: return "Label"
+        case ItemFamily.typeLocation: return "Location"
+        case ItemFamily.typeAddress: return "Address"
+        case ItemFamily.typeCountry: return "Country"
+        case ItemFamily.typeMedicalCondition: return "MedicalCondition"
+        case ItemFamily.typeNavigationItem: return "NavigationItem"
+        case ItemFamily.typeOnlineProfile: return "OnlineProfile"
+        case ItemFamily.typePerson: return "Person"
+        case ItemFamily.typePhoneNumber: return "PhoneNumber"
+        case ItemFamily.typePublicKey: return "PublicKey"
+        case ItemFamily.typeSession: return "Session"
+        case ItemFamily.typeSessions: return "Sessions"
+        case ItemFamily.typeSessionView: return "SessionView"
+        case ItemFamily.typeSetting: return "Setting"
+        case ItemFamily.typeSyncState: return "SyncState"
+        case ItemFamily.typeUserState: return "UserState"
+        case ItemFamily.typeViewArguments: return "ViewArguments"
+        case ItemFamily.typeWebsite: return "Website"
+    }
+}
+
+/// Item is the baseclass for all of the data classes.
+export class SchemaItem {
+    /// A collection of all edges this Item is connected to.
+    allEdges: RealmObjects = []
+    /// Last access date of the Item.
+    dateAccessed: Date
+    /// Creation date of the Item.
+    dateCreated: Date
+    /// Last modification date of the Item.
+    dateModified: Date
+    /// Boolean whether the Item has been deleted.
+    deleted: boolean = false
+    /// The identifier of an external source.
+    externalID
+    /// A description of the item.
+    itemDescription
+    /// Boolean whether the Item has been starred.
+    starred: boolean = false
+    /// Object describing syncing information about this object like loading state, versioning,
+    /// etc.
+    syncState
+    /// The last version loaded from the server.
+    version: number = 0
+    /// The unique identifier of the Item set by the pod.
+    uid
+
+    superDecode(decoder: Decoder) {
+        /*decodeEdges(decoder, "allEdges", this)
+        this.dateAccessed = decoder.decodeIfPresent("dateAccessed") ?? this.dateAccessed
+        this.dateCreated = decoder.decodeIfPresent("dateCreated") ?? this.dateCreated
+        this.dateModified = decoder.decodeIfPresent("dateModified") ?? this.dateModified
+        this.deleted = decoder.decodeIfPresent("deleted") ?? this.deleted
+        this.externalID = decoder.decodeIfPresent("externalID") ?? this.externalID
+        this.itemDescription = decoder.decodeIfPresent("itemDescription") ?? this.itemDescription
+        this.starred = decoder.decodeIfPresent("starred") ?? this.starred
+        this.syncState = decoder.decodeIfPresent("syncState") ?? this.syncState
+        this.version = decoder.decodeIfPresent("version") ?? this.version
+        this.uid.value = decoder.decodeIfPresent("uid") ?? this.uid.value*/
+    }
+
+    /*enum CodingKeys {
+        allEdges, dateAccessed, dateCreated, dateModified, deleted, externalID, itemDescription,
+            starred, syncState, version, uid
+        }*/
 }
 
 export class Item extends SchemaItem {

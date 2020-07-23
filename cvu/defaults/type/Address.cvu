@@ -11,6 +11,7 @@
 Address[] {
     defaultRenderer: list
     filterButtons: showStarred toggleFilterPanel
+    editActionButton: toggleEditMode
 
     [renderer = list]{
         HStack {
@@ -21,7 +22,7 @@ Address[] {
             }
             Spacer
             Map {
-                addressKey: self
+				address: {{.}}
                 maxWidth: 150
                 minHeight: 150
                 maxHeight: 150
@@ -33,7 +34,8 @@ Address[] {
     }
     
     [renderer = map] {
-        addressKey: self
+		address: {{.}}
+		label: "{.computedTitle()}"
     }
     
     [renderer = generalEditor] {
@@ -50,7 +52,7 @@ Address[] {
                 }
                 Spacer
                 Map {
-                    addressKey: self
+					address: {{.}}
                     maxWidth: 150
                     minHeight: 150
                     maxHeight: 150
@@ -64,7 +66,7 @@ Address[] {
                 EditorLabel {
                     title: "{edge.label or edge.type}"
                     edge: {{edge}}
-                    hierarchy: Ayuddress
+                    hierarchy: Address
                 }
                 VStack {
                     Textfield { hint: Street, value: {{.street}}, rows: 2 }
@@ -78,11 +80,7 @@ Address[] {
                         title: "Select a country"
                         value: {{.country}}
                         defaultValue: "{me.address[primary = true].country}"
-                        
-                        [datasource = pod] {
-                            query: "Country"
-                            sortProperty: name
-                        }
+                        query: "Country"
                     }
                 }
             }
@@ -97,36 +95,34 @@ Address {
     contextButtons: star schedule
     
     [renderer = generalEditor] {
-        groups {
-            dates: dateCreated dateModified dateAccessed changelog
-            address: street city state postalCode country
-            location: location
-        }
-        sequence: location labels address other dates
+        layout: [
+            { section: location, exclude: locationWasAutomaticLookupWithHash }
+            { section: labels }
+            { section: address, fields: street city state postalCode country }
+            { section: other, fields: * }
+            { section: dates }
+        ]
         
         location: {
-            foreach: false
-            sectionTitle: ""
+            showTitle: false
             
             Map {
-                addressKey: self
+				address: {{.}}
                 minHeight: 150
                 maxHeight: 150
             }
         }
         
         labels: {
-            foreach: false
-            
             VSTack {
                 padding: 10 36 10 36
                 
                 Text {
-                    show: {{ !.labels }}
+                    show: {{ !.label }}
                     text: "no labels yet"
                 }
                 FlowStack {
-                    list: {{ .labels[] }}
+                    list: {{ .label[] }}
                     
                     Button {
                         press: openViewByName {
@@ -168,7 +164,7 @@ Address {
                     show: {{!readOnly}}
                     
                     [datasource = pod] {
-                        query: "country"
+                        query: "Country"
                         sortProperty: name
                     }
                 }

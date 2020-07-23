@@ -6,7 +6,6 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {SchemaItem} from "../model/schema";
 import {CVUParsedDatasourceDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../parsers/expression-parser/Expression";
 import {debugHistory} from "../cvu/views/ViewDebugger";

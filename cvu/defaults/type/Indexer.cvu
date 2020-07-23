@@ -35,41 +35,51 @@ Indexer {
         showContextPane
     ]
     
-    contextButtons: star schedule
-    
-    navigateItems: [
-        openView {
-            title: "Timeline of this indexer"
-            arguments {
-                view: {
-                    defaultRenderer: timeline
-                    
-                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigateItems: [
+            openView {
+                title: "Timeline of this indexer"
+                arguments {
+                    view: {
+                        defaultRenderer: timeline
+                        
+                         [datasource = pod] {
+                            query: "AuditItem appliesTo:{.id}"
+                            sortProperty: dateCreated
+                            sortAscending: true
+                        }
+                        
+                        [renderer = timeline] {
+                            timeProperty: dateCreated
+                        }
                     }
                 }
             }
-        }
-        openViewByName {
-            title: "Starred indexer"
-            arguments: {
-                name: "filter-starred"
-                viewArguments: {
-                    include: "all-indexers"
+            openViewByName {
+                title: "Starred indexer"
+                arguments: {
+                    name: "filter-starred"
+                    viewArguments: {
+                        include: "all-indexers"
+                    }
                 }
             }
-        }
-        openViewByName {
-            title: "All indexers"
-            name: "all-indexers"
-        }
-    ]
+            openSessionByName {
+                title: "All indexers"
+                arguments: {
+                    name: "all-indexers"
+                }
+            }
+        ]
+    }
 }
 
 Indexer[] {
@@ -92,9 +102,10 @@ Indexer[] {
             addItem {
                 arguments {
                     template {
-                        type: IndexerRun
+                        _type: IndexerRun
                         name: {{.name}}
                         indexer: {{.}}
+                        targetDataType: "Address"
                     }
                 }
             }

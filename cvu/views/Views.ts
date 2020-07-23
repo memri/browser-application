@@ -24,7 +24,7 @@ import {Languages} from "./Languages";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {dataItemListToArray} from "../../model/schema";
-import {CVUStateDefinition, Person} from "../../model/items/Other";
+import {CVUStateDefinition} from "../../model/items/Other";
 import {RealmObjects} from "../../model/RealmLocal";
 
 export class Views {
@@ -46,7 +46,7 @@ export class Views {
 
 		 this.setCurrentLanguage(this.context.settings.get("user/language") ?? "English")
 
-		this.settingWatcher = this.context.settings.subscribe("device/debug/autoReloadCVU").forEach(function (item) {
+		/*this.settingWatcher = this.context.settings.subscribe("device/debug/autoReloadCVU").forEach(function (item) {
 			let value = item;
 			if (typeof item == "boolean") {
 				if (value && this.cvuWatcher == undefined) {
@@ -56,7 +56,7 @@ export class Views {
 					this.cvuWatcher = undefined;
 				}
 			}
-		}.bind(this)) //TODO: maybe i wrong;
+		}.bind(this)) //TODO: maybe i wrong;*/
 
 		// Done
 		 callback()
@@ -643,8 +643,13 @@ export class Views {
 }
 
 function getDefaultViewContents() {
-	let urls = Bundle.main.urls("cvu", ".")
-	return (urls ?? []).map (function(item){ return String(item)}).filter(function (item) {
-		return item != undefined;
-	}).join("\n")
+	//let urls = Bundle.main.urls("cvu", ".")
+	let defaultsCVU = {
+		Note: require("text-loader!../defaults/type/Note1.cvu") //TODO: for testing
+	}
+	let viewContents= [];
+	for (let cvu in defaultsCVU) {
+		viewContents.push(defaultsCVU[cvu]);
+	}
+	return viewContents.join("\n")
 }

@@ -1,11 +1,17 @@
 [renderer = generalEditor] {
-    sequence: labels starred other dates
-    excluded: version deleted syncState uid externalID allEdges
-    readOnly: uid
-    
-    groups {
-        dates: dateCreated dateModified dateAccessed changelog
-    }
+    layout: [
+        { section: labels }
+        {
+            section: other
+            fields: *
+            exclude: version deleted _updated _action _partial _changedInSession uid externalID allEdges
+        }
+        {
+            section: dates
+            exclude: dateCreated dateModified dateAccessed changelog
+            readOnly: true
+        }
+    ]
     
     starred {
         Action {
@@ -14,17 +20,15 @@
     }
     
     labels {
-        foreach: false
-        
         EditorRow {
             Text {
-                show: {{ !.labels }}
+                show: {{ !.label }}
                 text: "No labels yet"
                 padding: 10 0 5 0
                 color: #777
             }
             FlowStack {
-                list: {{ .labels[] }}
+                list: {{ .label[] }}
             
                 Button {
                     press: openViewByName {
@@ -52,8 +56,8 @@
     }
     
     dates {
-        foreach: false
-        sectionTitle: ""
+        showTitle: false
+        dividers: false
         
         Text {
             alignment: center
