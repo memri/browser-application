@@ -37,16 +37,16 @@ interface ApplicationProps { context?: MemriContext; }
 export class Application extends MainUI {
 	constructor(props) {
 		super(props);
+		this.state = {isVisible: this.props.context.showNavigation};
 	}
 
 	render() {
 		this.context = this.props.context;
-
 		return (
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
 				<VStack spacing={0}>
-					<NavigationWrapper isVisible={this.context.showNavigationBinding} context={this.context}>
+					<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
 						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser
 							context={this.context}/>
 						}

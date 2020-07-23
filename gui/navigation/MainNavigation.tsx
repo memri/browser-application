@@ -13,6 +13,7 @@
 
 import {settings} from "../../model/Settings";
 import {jsonDataFromFile, jsonErrorHandling, MemriJSONDecoder, realmWriteIfAvailable} from "../util";
+import {DatabaseController} from "../../model/DatabaseController";
 
 export class MainNavigation {
 	items = []
@@ -29,8 +30,10 @@ export class MainNavigation {
 
 	realm: Realm
 
-	constructor(rlm?: Realm) {
-		this.realm = rlm
+	constructor() {
+		 DatabaseController.read((realm) => {
+			 this.items = realm.objects("NavigationItem").sorted("sequence");
+		});
 	}
 
 	getItems() {

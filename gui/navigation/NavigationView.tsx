@@ -18,9 +18,10 @@ import {
 	ColorArea,
 	Content,
 	MemriButton,
-	MemriTextField, MemriImage, font
+	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer
 } from "../swiftUI";
 import {geom} from "../../demo-react";
+import {List, ListItem} from "@material-ui/core";
 
 
 interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}
@@ -139,10 +140,38 @@ class Navigation extends React.Component<NavigationProps, {}> {
 		super(props);
 	}
 
+	getNavigationItems() {
+		let navigationItems = this.context.navigation.getItems();
+		return navigationItems.map((navItem) => {
+			switch (navItem.type) {
+				case "item":
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigation = false}/>/*(navItem, hide: {
+					withAnimation {
+						self.context.showNavigation = false
+					}
+				})*/
+				case "heading":
+					return <NavigationHeadingView title={navItem.title}/>//(title: navItem.title)
+				case "line":
+					return <NavigationLineView/>
+				default:
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigation = false}/>/*(item: navItem, hide: {
+					withAnimation {
+						self.context.showNavigation = false
+					}
+				})*/
+			}
+			/*return <ListItem button>
+				{item.type}
+			</ListItem>*/
+		});
+	}
+
 	render() {
 		this.keyboardResponder = this.props.keyboardResponder;
 		this.showSettings = this.props.showSettings ?? false;
-		this.context = this.props.context
+		this.context = this.props.context //{/*separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}*/}
+
 		return (
 		<VStack frame={frame({alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
@@ -164,40 +193,14 @@ class Navigation extends React.Component<NavigationProps, {}> {
 					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>add</MemriImage>}
 				</MemriButton>
 			</HStack>
-			{/*<ASTableView separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}>
-				<ASSection id={0} data={this.context.navigation.getItems()} dataID={} >
-
-				</ASSection>
-			</ASTableView>*/}
+			<List>
+				{this.getNavigationItems()}
+			</List>
 
 		</VStack>
 			) //TODO: logic in ASSection
 	}
 
-
-//
-	// TODO: -   This functionality (below) has been temporaily moved to TableView and it should remain here
-	//          so this is a refactoring task
-
-//
-	//    public func hide(){
-	//        withAnimation {
-	//            self.context.showNavigation = false
-	//        }
-	//    }
-
-	//    func item(_ navigationItem: NavigationItem) -> AnyView{
-	//        switch navigationItem.type{
-	//        case "item":
-	//            return AnyView(NavigationItemView(item: navigationItem, hide: hide))
-	//        case "heading":
-	//            return AnyView(NavigationHeadingView(title: navigationItem.title))
-	//        case "line":
-	//            return AnyView(NavigationLineView())
-	//        default:
-	//            return AnyView(NavigationItemView(item: navigationItem, hide: hide))
-	//        }
-	//    }
 }
 
 class NavigationItemView extends React.Component {
@@ -208,13 +211,14 @@ class NavigationItemView extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.context = props.context;
-		this.item = props.item;
-		this.hide = props.hide;
 	}
 
 	render() {
-		let action = function () {
+		this.context = this.props.context;
+		this.item = this.props.item;
+		this.hide = this.props.hide;
+		let action = () => {
+
 			let sessionName = this.item.sessionName;
 			if (sessionName) {
 				// TODO:
@@ -224,15 +228,17 @@ class NavigationItemView extends React.Component {
 				}
 
 				this.hide()
+				console.log(this.context)
 			}
-		}.bind(this)
-		return(
-			<MemriButton buttonStyle={NavigationButtonStyle()} action={action()}>
-				<Text font={Font.system({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: infinity, alignment: Alignment.leading})} contentShape={Rectangle()}>
-					{this.item.title?.firstUppercased ?? ""}
-				</Text>
+		}
+		return(<ListItem>
+			<MemriButton onClick={action}>
+				<MemriText font={font({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: "infinity", alignment: Alignment.leading})} >
+					{this.item.title ?? ""}
+				</MemriText>
 			</MemriButton>
-		)
+			</ListItem>
+		)//?.firstUppercased buttonStyle={NavigationButtonStyle()} action={action()} contentShape={Rectangle()}
 	}
 }
 
@@ -253,12 +259,15 @@ class NavigationHeadingView extends React.Component {
 	}
 	render() {
 		return (
-			<HStack>
-				<Text font={Font.system({size: 18, weight: Font.Weight.bold})} padding={padding({vertical: 8, horizontal: 20})} foregroundColor="#8c73af">
-					{(this.title ?? "").toUpperCase()}
-				</Text>
-				<Spacer/>
-			</HStack>
+			<ListItem>
+				<HStack>
+					<MemriText font={font({size: 18, weight: Font.Weight.bold})}
+							   padding={padding({vertical: 8, horizontal: 20})} foregroundColor="#8c73af">
+						{(this.title ?? "").toUpperCase()}
+					</MemriText>
+					<Spacer/>
+				</HStack>
+			</ListItem>
 		)
 	}
 }
@@ -266,9 +275,11 @@ class NavigationHeadingView extends React.Component {
 class NavigationLineView extends React.Component {
 	render() {
 		return (
-			<VStack padding={padding({horizontal: 50})}>
-				<Divider background="black"/>
-			</VStack>
+			<ListItem>
+				<VStack padding={padding({horizontal: 50})}>
+					<MemriDivider background="black"/>
+				</VStack>
+			</ListItem>
 		)
 	}
 }

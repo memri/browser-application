@@ -336,7 +336,7 @@ export class MemriContext {
 		this["showSessionSwitcher"] = value
 	}
 
-	get showNavigationBinding() {
+	/*get showNavigationBinding() {
 		return this?.showNavigation ?? false //TODO
 		// [weak self] in self?.showNavigation ?? false
 	}
@@ -344,14 +344,15 @@ export class MemriContext {
 	set showNavigationBinding(value) {
 		this.showNavigation = value;
 		// [weak self] in self?.showNavigation = $0//TODO
-	}
+	}*/
 
+	_showNavigation = true;
 	get showNavigation() {
-		return true
+		return this._showNavigation;
 	}
 
 	set showNavigation(value) {
-		this["showNavigation"] = value
+		this._showNavigation = value
 	}
 
 	setSelection(selection: [Item]) {

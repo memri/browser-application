@@ -13,6 +13,8 @@ import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {MemriContext} from "../../context/MemriContext";
 import {CacheMemri} from "../../model/Cache";
+import {ViewArguments} from "./CascadableDict";
+import {CVUStateDefinition} from "../../model/items/Other";
 import {Item} from "../../model/items/Item";
 
 export class Action/* : HashableClass, CVUToString*/ {
@@ -940,7 +942,7 @@ export class ActionOpenSessionByName extends Action {
     }
 
     exec(argumentsJs) {
-        let viewArguments = argumentsJs["viewArguments"] instanceof ViewArguments;
+        let viewArguments = argumentsJs["viewArguments"];
         let name = argumentsJs["name"];
         if (typeof name != "string") {
             throw "Cannot execute ActionOpenSessionByName, no name defined in viewArguments";

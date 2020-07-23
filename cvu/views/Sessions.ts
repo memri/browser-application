@@ -39,13 +39,13 @@ export class Sessions extends DataItem {
 	constructor(decoder)  {
 		super()
 
-		jsonErrorHandling(()=> {//TODO
+		/*jsonErrorHandling(()=> {//TODO
 			this.currentSessionIndex = decoder.decodeIfPresent("currentSessionIndex") ?? this.currentSessionIndex
 
 			this.decodeIntoList(decoder, "sessions", this.sessions)
 
 			this.superDecode(decoder)
-		})
+		})*/
 
 		this.postInit()
 	}

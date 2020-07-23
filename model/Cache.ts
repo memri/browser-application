@@ -53,7 +53,7 @@ export class CacheMemri {
 			let items = {}
 			var lut = {}
 
-			function recur(dict) {
+			/*function recur(dict) {
 				var values = {}
 				let type = dict["_type"];
 				let itemType = getItemType(type);
@@ -77,10 +77,10 @@ export class CacheMemri {
 							continue
 						}
 
-						/*if (realm.schema[type][key]?.type == "date") {//TODO
+						/!*if (realm.schema[type][key]?.type == "date") {//TODO
 							values[key] = new Date(
 								Number((value ?? 0) / 1000))
-						} else {*/
+						} else {*!/
 							values[key] = value
 						//}
 					}
@@ -142,7 +142,7 @@ export class CacheMemri {
 						item.allEdges.push(edge)
 					})
 				}
-			}
+			}*/
 
 		} catch (error) {
 			console.log(`Failed to Install: ${error}`)
