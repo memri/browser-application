@@ -23,7 +23,7 @@ export class ItemReference {
     }
     
     resolve() {
-        DatabaseController.read((realm) => { realm.objectForPrimaryKey(this.type, this.uid) })
+        return DatabaseController.read((realm) => { realm.objectForPrimaryKey(this.type, this.uid) })
     }
 }
 

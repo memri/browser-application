@@ -149,13 +149,13 @@ export class UIElement /*extends CVUToString */{
 		return propertiesLength > 0 || childrenLength > 0
 			? `${this.type} {\n`
 			+ (propertiesLength > 0
-				? `${tabs}${new CVUSerializer().dictToString(this.properties, depth, tab, false)}`
+				? `${tabs}${CVUSerializer.dictToString(this.properties, depth, tab, false)}`
 				: "")
 			+ (propertiesLength > 0 && childrenLength > 0
 				? "\n\n"
 				: "")
 			+ (childrenLength > 0
-				? `${tabs}${new CVUSerializer().arrayToString(this.children, depth, tab, false, true)}`
+				? `${tabs}${CVUSerializer.arrayToString(this.children, depth, tab, false, true)}`
 				: "")
 			+ `\n${tabsEnd}}`
 			: `${this.type}\n`

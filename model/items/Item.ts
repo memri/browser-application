@@ -260,7 +260,7 @@ export class Item extends SchemaItem {
                         && item.name != "uid" && item.name != "_updated"
                 })
                 .map(item => {
-                    `${item.name}: ${new CVUSerializer().valueToString(this[item.name])}`
+                    `${item.name}: ${CVUSerializer.valueToString(this[item.name])}`
                 })
                 .join("\n    ");
 

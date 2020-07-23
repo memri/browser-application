@@ -8,7 +8,10 @@
 import {ExprLookupNode, ExprVariableNode} from "./ExprNodes";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
+import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
 import {ExprInterpreter} from "./ExprInterpreter";
+import {DatabaseController} from "../../model/DatabaseController";
+import {Subscriptable} from "../../context/MemriContext";
 
 export class Expression {
     code: string;
@@ -17,9 +20,9 @@ export class Expression {
     execFunc;
     context;
 
-    interpreter;
+    interpreter?: ExprInterpreter
     parsed = false;
-    ast;
+    ast?: ExprNode
 
     constructor(code, startInStringMode = false, lookup?, execFunc?) {
         this.code = code;
@@ -29,7 +32,8 @@ export class Expression {
     }
 
     toCVUString(depth, tab) {
-        return this.startInStringMode ? `"${this.code}"` : `{{${this.code}}}`
+        let code = this.ast?.toExprString() ?? this.code
+        return this.startInStringMode ? `"${code}"` : `{{${code}}}`
     }
 
     toString() {
@@ -51,31 +55,28 @@ export class Expression {
                 let lookupNode = new ExprLookupNode(sequence);
                 let lookupValue =  this.lookup(lookupNode, null)
 
-
                 let context = this.context;
                 if (context) {
                     let obj = lookupValue;
-                    if (obj instanceof UserState && context) {
-                        // realmWriteIfAvailable(context.realm) {//TODO
-                        //     obj[lastProperty.name] =
-                        //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
-                        // }
+                    if (obj instanceof UserState) {
+                        obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
                         return
-                    } else if (obj instanceof Object && context) {
-                        /* realmWriteIfAvailable(context.realm) {
-                         obj[lastProperty.name] =
-                             !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
-                     }*/
+                    } else if (obj instanceof Object) {
+                        let name = lastProperty.name
+
+                        if (obj.objectSchema[name]?.type != "boolean") {
+                            throw `'${name}' is not a boolean property`
+                        }
+
+                        DatabaseController.writeSync (function() {
+                            obj[name] = !(typeof obj[name] === "boolean" ?? false)
+                        })
                         return
                     }
-                    // TODO FIX: Implement LookUpAble
-                    else if (obj instanceof MemriContext && context) {
-                        // realmWriteIfAvailable(context.realm) {//TODO
-                        //     obj[lastProperty.name] =
-                        //         !ExprInterpreter.evaluateBoolean(obj[lastProperty.name])
-                        // }
+                    else if (typeof obj.subscript == "function") {
+                        obj[lastProperty.name] = !(obj[lastProperty.name] ?? false)
                         return
-                    } else if (obj instanceof UserState && context) {
+                    } else if (obj instanceof UserState) {
                         // realmWriteIfAvailable(context.realm) {//TODO
                         //     obj.set(lastProperty.name,
                         //         !ExprInterpreter.evaluateBoolean(obj.get(lastProperty.name)))
@@ -121,9 +122,26 @@ export class Expression {
         throw "Exception: Unable to fetch type of property referenced in expression. Perhaps expression is not a pure lookup?"
     }
 
+    compile(viewArguments) {
+        let copy = new Expression(this.code, this.startInStringMode, this.lookup, this.execFunc)
+
+        if (this.parsed && this.ast) {
+            copy.interpreter = new ExprInterpreter(this.ast, this.lookup, this.execFunc)
+            copy.parsed = true
+        }
+        else {
+            copy.parse()
+        }
+
+        copy.ast = copy.interpreter.compile(viewArguments)
+
+        return copy
+    }
+
     parse() {
         let lexer = new ExprLexer(this.code, this.startInStringMode)
-        let parser = new ExprParser(lexer.tokenize());
+        let parser = new ExprParser(lexer.tokenize())
+
         this.ast = parser.parse()
 
         // TODO: Error handlign
@@ -149,6 +167,7 @@ export class Expression {
         if (typeof value == "boolean") { return new ExprInterpreter(undefined, undefined, undefined).evaluateBoolean(value) }
         if (typeof value == "number") { return new ExprInterpreter(undefined, undefined, undefined).evaluateNumber(value) }
         if (typeof value == "string") { return new ExprInterpreter(undefined, undefined, undefined).evaluateString(value) }
+        //TODO: dateTime
         //TODO: this should be quite the same
         return null;
     }

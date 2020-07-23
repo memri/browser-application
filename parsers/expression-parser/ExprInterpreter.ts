@@ -4,17 +4,30 @@
 //  Copyright © 2020 Memri. All rights reserved.
 //
 
+import { ViewArguments } from "../../cvu/views/CascadableDict";
 
 import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "./ExprLexer";
-import {ExprBinaryOpNode, ExprConditionNode, ExprStringModeNode, ExprNegationNode,
-    ExprNumberNode, ExprStringNode, ExprBoolNode, ExprNumberExpressionNode, ExprLookupNode, ExprCallNode} from "./ExprNodes";
+import {
+    ExprBinaryOpNode,
+    ExprConditionNode,
+    ExprStringModeNode,
+    ExprNegationNode,
+    ExprNumberNode,
+    ExprStringNode,
+    ExprBoolNode,
+    ExprNumberExpressionNode,
+    ExprLookupNode,
+    ExprCallNode,
+    ExprVariableNode, ExprNilNode, ExprAnyNode
+} from "./ExprNodes";
 import {Item} from "../../model/items/Item";
 
 export class ExprInterpreter {
-    ast;
+    ast: ExprNode
     lookup;
     execFunc;
     stack = [];
+    compilableIdentifiers = ["view", "currentView"]
     
     constructor(ast, lookup, execFunc) {
         this.ast = ast
@@ -37,6 +50,10 @@ export class ExprInterpreter {
     evaluateNumber(x) {
         return Number(x);
     }
+
+    evaluateDateTime(x) {
+        return x//TODO as? Date
+    }
     
     evaluateString(x) {
         return x == null ? "" : String(x);
@@ -51,7 +68,57 @@ export class ExprInterpreter {
         else if (a == null) { return b == null }
         else { return false }
     }
-    
+
+    compile(args?) {
+        let recur = function(node) {
+            if (node instanceof ExprLookupNode) {
+                let first = node.sequence[0]
+                if (first instanceof ExprVariableNode) {
+                    if (this.compilableIdentifiers.includes(first.name)) {
+                        let value = tgus.lookup(node, args)
+                        if (typeof value == "boolean") {
+                            return new ExprBoolNode(value)
+                        } else if (typeof value == "number") {
+                            return new ExprNumberNode(Number(value))
+                        } else if (typeof value == "string") {
+                            return new ExprStringNode(value)
+                        } else if (value == undefined) {
+                            return new ExprNilNode()
+                        } else {
+                            return new ExprAnyNode(value)
+                        }
+                    }
+                }
+            } else if (node instanceof ExprBinaryOpNode) {
+                return new ExprBinaryOpNode(
+                    node.op,
+                    recur(node.lhs),
+                    recur(node.rhs)
+                )
+            } else if (node instanceof ExprConditionNode) {
+                return new ExprConditionNode(
+                    recur(node.condition),
+                    recur(node.trueExp),
+                    recur(node.falseExp)
+                )
+            } else if (node instanceof ExprStringModeNode) {
+                var expressions = []
+                node.expressions.forEach((node) => { expressions.push(recur(node)) })
+                return new ExprStringModeNode(expressions)
+            } else if (node instanceof ExprCallNode) {
+                // recur(node.lookup) // TODO Functions are not supported
+                var argumentsJs = []
+                node.argumentsJs.forEach((node) => { argumentsJs.push(recur(node)) })
+                return new ExprCallNode(node.lookup, argumentsJs)
+            }
+            return node
+        }.bind(this)
+
+        this.ast = recur(this.ast)
+
+        return this.ast
+    }
+
     execSingle(expr, args) {
         if (expr instanceof ExprBinaryOpNode) {
             let result = this.execSingle(expr.lhs, args);
@@ -112,6 +179,8 @@ export class ExprInterpreter {
         else if (expr instanceof ExprNumberNode) { return expr.value }
         else if (expr instanceof ExprStringNode) { return expr.value }
         else if (expr instanceof ExprBoolNode) { return expr.value }
+        else if (expr instanceof ExprNilNode) { return null }
+        else if (expr instanceof ExprAnyNode) { return expr.value }
         else if (expr instanceof ExprNumberExpressionNode) {
             let result = this.execSingle(expr.exp, args)
             return this.evaluateNumber(result)

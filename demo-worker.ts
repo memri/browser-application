@@ -48,7 +48,7 @@ var validate = function(input, doc) {
     let validator = new CVUValidator()
     let result = validator.validate(resultArray);
     
-    var cvuString = new CVUSerializer().valueToString(resultArray, 0, "    ");
+    var cvuString = CVUSerializer.valueToString(resultArray, 0, "    ");
     
     return {
         annotations,

@@ -13,6 +13,7 @@ import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {MemriContext} from "../../context/MemriContext";
 import {CacheMemri} from "../../model/Cache";
+import {Item} from "../../model/items/Item";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -170,7 +171,7 @@ export class Action/* : HashableClass, CVUToString*/ {
         var strBuilder: string[] = [];
 
         if (Object.keys(this.arguments).length > 0) {
-            strBuilder.push(`arguments: ${new CVUSerializer().dictToString(this.arguments, depth + 1, tab)}`);
+            strBuilder.push(`arguments: ${CVUSerializer.dictToString(this.arguments, depth + 1, tab)}`);
         }
         let value = this.values["binding"];
         if (value instanceof Expression) {
@@ -191,7 +192,7 @@ export class Action/* : HashableClass, CVUToString*/ {
                 strBuilder.push(`${key}: ${value.toString()}`);
             }
             else if (this.values[key]) {
-                strBuilder.push(`${key}: ${new CVUSerializer().valueToString(value, depth, tab)}`);
+                strBuilder.push(`${key}: ${CVUSerializer.valueToString(value, depth, tab)}`);
             }
         else {
                 strBuilder.push(`${key}: null`);

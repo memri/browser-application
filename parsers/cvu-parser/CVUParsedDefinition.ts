@@ -39,7 +39,7 @@ export class CVUParsedDefinition extends CVUToString {
 
         }
 
-        let body = new CVUSerializer().dictToString(this.parsed ?? {}, depth+1, tab, true, true, function (lhp, rhp) {
+        let body = CVUSerializer.dictToString(this.parsed ?? {}, depth+1, tab, true, true, function (lhp, rhp) {
             let lv = this.parsed && this.parsed[lhp];
             let rv = this.parsed && this.parsed[rhp]
 

@@ -91,10 +91,10 @@ const ExprInterpreterTests = {
     testNegationWithLookup: {
         snippet: "!.label",
         result: false,
-        lookup: function (lookup, viewArgs) {
+        lookup: function (lookup) {
             return null
         },
-        execFunc: function (lookup, args, viewArgs) {
+        execFunc: function (lookup, args) {
             return true
         }
     },
@@ -155,12 +155,11 @@ const ExprInterpreterTests = {
     
     testErrorLookupFailure: {
         snippet: ".bar",
-        result: 20,
         lookup: function (lookup, viewArgs) {
             throw new Error("Undefined variable")
         },
         execFunc: function (lookup, args, viewArgs) {
-            1//TODO???
+            return 1//TODO???
         },
         error: "Undefined variable"
         // XCTFail()//TODO???
@@ -199,7 +198,7 @@ describe("ExprInterpreter", function() {
 
                 let result = exec(test.snippet, test.startMode, test.lookup, test.execFunc)
                 if (test.callBack) test.callBack(result)
-                if (!test.result) {
+                if (test.result == undefined) {
                     if (test.error) {
                         console.error(key, "expected to throw ", test.error, "but returned ", result);
                         throw new Error(key + " expected to throw error");

@@ -18,7 +18,7 @@ import {ItemReference} from "../../model/DatabaseController";
 
 export class CVUSerializer {
 
-    valueToString(value, depth = 0, tab: string = "    "): string {
+    static valueToString(value, depth = 0, tab: string = "    "): string {
         if (value == null || value === "nil") {
             return "null"
         } else {
@@ -85,7 +85,7 @@ export class CVUSerializer {
         return ""
     }
 
-    arrayToString(list:any[], depth:number = 0, tab:string = "    ", withDef:boolean = true, extraNewLine: boolean = false): string {
+    static arrayToString(list:any[], depth:number = 0, tab:string = "    ", withDef:boolean = true, extraNewLine: boolean = false): string {
         let tabs = tab.repeat(depth);
         let tabsEnd = depth > 0 ? tab.repeat(depth - 1) : "";
 
@@ -106,7 +106,7 @@ export class CVUSerializer {
             : str.join((extraNewLine ? "\n" : "") + `\n${tabs}`)
     }
 
-    dictToString(dict, depth: number = 0, tab: string = "    ",
+    static dictToString(dict, depth: number = 0, tab: string = "    ",
                  withDef: boolean = true, extraNewLine: boolean = false,
                  sortFunc?): string {
         var keys: string[];

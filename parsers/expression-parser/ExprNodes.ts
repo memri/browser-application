@@ -6,8 +6,14 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+import {Item} from "../../model/items/Item";
+import {debugHistory} from "../../cvu/views/ViewDebugger";
 
-export class ExprNumberNode {
+interface ExprNode {
+    toExprString()
+}
+
+export class ExprNumberNode implements ExprNode{
     value
 
     constructor(value) {this.value = value};
@@ -16,41 +22,89 @@ export class ExprNumberNode {
         if (!/\./.test(value)) value = this.value.toFixed(1);
         return `NumberNode(${value})`
     }
+
+    toExprString() {
+        return `${this.value}`
+    }
 }
 
-export class ExprNumberExpressionNode {
+export class ExprNumberExpressionNode implements ExprNode{
     exp
 
     constructor(exp) {this.exp = exp};
     toString() {
         return `NumberExpressionNode(${this.exp})`
     }
+
+    toExprString() {
+        return `${this.exp.toExprString()}`
+    }
 }
 
-export class ExprBoolNode {
+export class ExprBoolNode implements ExprNode{
     value
 
     constructor(value) {this.value = value};
     toString() {
         return `BoolNode(${ this.value })`
     }
+
+    toExprString() {
+        return this.value ? "true" : "false"
+    }
 }
 
-export class ExprStringNode {
+export class ExprStringNode implements ExprNode{
     value
 
     constructor(value) {this.value = value};
     toString() {
         return `StringNode(${this.value})`
     }
+
+    toExprString() {
+        return `"${this.value}"`
+    }
 }
 
-export class ExprNegationNode {
+export class ExprAnyNode implements ExprNode{
+    value
+
+    constructor(value) {this.value = value};
+    toString() {
+        return `AnyNode(${this.value})`
+    }
+    toExprString() {
+        let item = this.value
+        let uid = (item instanceof Item) && item.uid.value
+        if (uid) {
+            return `item(${item.genericType}, ${uid})`
+        }
+        else {
+            debugHistory.error(`Not implemented serialization for: ${value}`)
+            return "0"
+        }
+    }
+}
+
+export class ExprNilNode implements ExprNode{
+    toString() {
+        return "NilNode()"
+    }
+    toExprString() {
+        return "nil"
+    }
+}
+
+export class ExprNegationNode implements ExprNode{
     exp
 
     constructor(exp) {this.exp = exp};
     toString() {
         return `NegationNode(${this.exp})`
+    }
+    toExprString() {
+        return `!${this.exp.toExprString()}`
     }
 }
 
@@ -66,7 +120,7 @@ export enum ExprVariableList {
     single = "single"
 }
 
-export class ExprVariableNode {
+export class ExprVariableNode implements ExprNode{
     name
     type = ExprVariableType.propertyOrItem
     list = ExprVariableList.single
@@ -87,9 +141,18 @@ export class ExprVariableNode {
     toString() {
         return `VariableNode(${this.name}, type:${this.type}, list:${this.list})`
     }
+
+    toExprString() {
+        switch (this.type) {
+            case ExprVariableType.reverseEdge: return `_~${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
+            case ExprVariableType.reverseEdgeItem: return `~${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
+            case ExprVariableType.edge: return `_${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
+            case ExprVariableType.propertyOrItem: return `${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
+        }
+    }
 }
 
-export class ExprLookupNode {
+export class ExprLookupNode implements ExprNode{
     sequence
 
     constructor(sequence) {
@@ -98,9 +161,15 @@ export class ExprLookupNode {
     toString() {
         return `LookupNode(${formatArray(this.sequence)})`
     }
+
+    toExprString() {
+        return this.sequence.map((node) =>
+            node.toExprString()
+        ).join(".")
+    }
 }
 
-export class ExprBinaryOpNode {
+export class ExprBinaryOpNode implements ExprNode{
     op
     lhs
     rhs
@@ -112,9 +181,13 @@ export class ExprBinaryOpNode {
     toString() {
         return `BinaryOpNode(${this.op}, lhs: ${this.lhs}, rhs: ${this.rhs})`
     }
+
+    toExprString() {
+        return `${this.lhs.toExprString()} ${this.op} ${this.rhs.toExprString()}`
+    }
 }
 
-export class ExprConditionNode {
+export class ExprConditionNode implements ExprNode{
     condition
     trueExp
     falseExp
@@ -127,20 +200,35 @@ export class ExprConditionNode {
     toString() {
         return `ConditionNode(condition: ${this.condition}, trueExp: ${this.trueExp}, falseExp: ${this.falseExp})`
     }
+
+    toExprString() {
+        return `${this.condition.toExprString()} ? ${this.trueExp.toExprString()} : ${this.falseExp.toExprString()}`
+    }
 }
 
-export class ExprStringModeNode {
-    expressions
+export class ExprStringModeNode implements ExprNode{
+    expressions: []
 
     constructor(expressions) {
         this.expressions = expressions;
     }
     toString() {
-    return `StringModeNode(expressions: ${formatArray(this.expressions)})`
+        return `StringModeNode(expressions: ${formatArray(this.expressions)})`
+    }
+
+    toExprString() {
+        return this.expressions.map ((node: ExprNode) => {
+            if (node instanceof ExprStringNode) {
+                return node.value
+            }
+            else {
+                return `{${node.toExprString()}}`
+            }
+        }).join("")
     }
 }
 
-export class ExprCallNode {
+export class ExprCallNode implements ExprNode{
     lookup
     argumentsJs
 
@@ -150,6 +238,10 @@ export class ExprCallNode {
     }
     toString() {
         return `CallNode(lookup: ${this.lookup}, argument: ${formatArray(this.argumentsJs)})`
+    }
+
+    toExprString() {
+        return `${this.lookup.toExprString()}(${this.argumentsJs.map(($0) => {$0.toExprString()}).join(", ")}`
     }
 }
 
@@ -169,6 +261,8 @@ export var ExprNodes = {
     ExprNumberNode,
     ExprStringModeNode,
     ExprStringNode,
+    ExprAnyNode,
+    ExprNilNode,
     ExprVariableList,
     ExprVariableNode,
     ExprVariableType
