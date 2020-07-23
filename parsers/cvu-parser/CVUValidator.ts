@@ -35,7 +35,7 @@ import {Action, ActionFamily, ActionProperties, validateActionType} from "../../
 import {UIElement, UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../cvu/views/UIElement";
 import {Expression} from "../expression-parser/Expression";
 import {
-    CVUParsedDatasourceDefinition, CVUParsedRendererDefinition,
+    CVUParsedDatasourceDefinition, CVUParsedObjectDefinition, CVUParsedRendererDefinition,
     CVUParsedSessionDefinition,
     CVUParsedSessionsDefinition,
     CVUParsedViewDefinition
@@ -153,7 +153,7 @@ export class CVUValidator {
 
     validateDefinition(definition) {
         var check = (definition, validate) => {
-            for (let [key, value] of Object.entries(definition.parsed)) {
+            for (let [key, value] of Object.entries(definition.parsed ?? {})) {
                 if (value instanceof Expression) { continue }
 
                 try {
@@ -201,13 +201,15 @@ export class CVUValidator {
             check(definition, (key, value) => {
                 switch (key) {
                     case "name": case "emptyResultText": case "title": case "subTitle": case "filterText": case
-                "activeRenderer": case "defaultRenderer": case "backTitle": case "searchHint":
+                "activeRenderer": case "defaultRenderer": case "backTitle": case "searchHint": case "searchMatchText":
                     return typeof value == "string"
-                    case "userState": return value instanceof UserState
+                    case "userState": return value instanceof CVUParsedObjectDefinition
+                    case "viewArguments": return value instanceof CVUParsedObjectDefinition
+                        // #warning("Add validation for contextPane")
+                    case "contextPane": return value instanceof CVUParsedObjectDefinition
                     case "datasourceDefinition":
                     case "datasource": //TODO: in original file there is no such key, but i think this is correct
                         return value instanceof CVUParsedDatasourceDefinition
-                    case "viewArguments": return value instanceof ViewArguments
                     case "showLabels": return typeof value == "boolean"
                     case "actionButton": case "editActionButton":
                     if (value instanceof Action) { this.validateAction(value) }
@@ -234,7 +236,7 @@ export class CVUValidator {
                             return typeof value[0] == "string" && Array.isArray(value[1]) && typeof value[1][0].isCVUObject === "function"
                         }
                         else { return typeof value == "string" || typeof value.isCVUObject === "function" }//TODO: in original file there is no such check, but i think this is correct to pass tests
-                    case "renderDefinitions": return Array.isArray(value) && value[0] instanceof CVUParsedRendererDefinition
+                    case "rendererDefinitions": return Array.isArray(value) && value[0] instanceof CVUParsedRendererDefinition
                     default: throw "Unknown"
                 }
             })
@@ -249,7 +251,7 @@ export class CVUValidator {
             //     return true
             // })
 
-            let children = definition.parsed["children"]
+            let children = definition.parsed && definition.parsed["children"]
             if (Array.isArray(children)) {
                 for (let child in children) {
                     if (children[child] instanceof UIElement) { this.validateUIElement(children[child]) }

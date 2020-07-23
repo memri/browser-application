@@ -16,8 +16,8 @@ import {
     CVUParsedViewDefinition,
     CVUParsedSessionsDefinition,
     CVUParsedDatasourceDefinition,
-    CVUParsedSessionDefinition
-    
+    CVUParsedSessionDefinition, CVUParsedObjectDefinition
+
 } from "./CVUParsedDefinition"
 import {ActionFamily, getActionType} from "../../cvu/views/Action";
 import {UIElement, UIElementFamily} from "../../cvu/views/UIElement";
@@ -372,9 +372,9 @@ export class CVUParser {
                         // TODO remove code duplication
                         let selector = this.parseBracketsSelector(this.lastToken);
                         if (selector instanceof CVUParsedRendererDefinition) {
-                            var value = (Array.isArray(dict["renderDefinitions"]) && dict["renderDefinitions"].length > 0 && dict["renderDefinitions"][0] instanceof CVUParsedRendererDefinition) ? dict["renderDefinitions"]: [];
+                            var value = (Array.isArray(dict["rendererDefinitions"]) && dict["rendererDefinitions"].length > 0 && dict["rendererDefinitions"][0] instanceof CVUParsedRendererDefinition) ? dict["rendererDefinitions"]: [];
                             value.push(selector);
-                            dict["renderDefinitions"] = value;
+                            dict["rendererDefinitions"] = value;
                             this.parseDefinition(selector);
                             lastKey = null;
                         } else if (selector instanceof CVUParsedSessionDefinition) {
@@ -401,6 +401,10 @@ export class CVUParser {
                     break;
                 case CVUToken.BracketClose:
                     if (isArrayMode) {
+                        if (stack.length == 0) {
+                            stack.push([])
+                        }
+
                         setPropertyValue();
                         isArrayMode = false;
                         lastKey = null;
@@ -409,6 +413,9 @@ export class CVUParser {
                     }
                     break;
                 case CVUToken.CurlyBracketOpen:
+                    if (!lastKey) {
+                        throw new CVUParseErrors.ExpectedIdentifier(this.lastToken!)
+                    }
                     let obj = this.parseDict(lastKey);
                     obj.isCVUObject = () => {
                         return true;
@@ -449,13 +456,13 @@ export class CVUParser {
 
                             addUIElement(type, properties);//TODO
                             continue;
-                        } else if (lvalue == "userstate" || lvalue == "viewarguments") {
+                        } else if (lvalue == "userstate" || lvalue == "viewarguments" || lvalue == "contextpane") {
                             var properties = {};
                             if (CVUToken.CurlyBracketOpen == this.peekCurrentToken().constructor) {
                                 this.popCurrentToken();
-                                properties = this.parseDict(v);
+                                properties = this.parseDict();
                             }
-                            stack.push(new UserState(properties));//TODO:
+                            stack.push(new CVUParsedObjectDefinition(properties));//TODO:
                             continue;
                         } else if (CVUToken.CurlyBracketOpen == nextToken.constructor) {
                             // Do nothing
