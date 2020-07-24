@@ -40,8 +40,14 @@ export class Application extends MainUI {
 		this.state = {isVisible: this.props.context.showNavigation};
 	}
 
+	showNavigationBinding = () => {
+		this.context.showNavigation = !this.context.showNavigation
+		this.setState({isVisible: this.context.showNavigation});
+	}
+
 	render() {
 		this.context = this.props.context;
+		this.context.showNavigationBinding = this.showNavigationBinding;
 		return (
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">

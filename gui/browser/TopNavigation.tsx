@@ -42,12 +42,6 @@ export class TopNavigation extends MainUI {
 
 	constructor(props) {
 		super(props);
-		this.state = {isVisible: this.props.context.showNavigation};
-		this.handleChange = this.handleChange.bind(this);
-	}
-
-	handleChange() {
-		this.setState({isVisible: this.context.showNavigation});
 	}
 
 	init() {
@@ -116,7 +110,7 @@ export class TopNavigation extends MainUI {
 		let context = this.context
 		let inside, buttonToShow;
 		if (!this.inSubView /*&& !memri_shouldUseLargeScreenLayout*/) {
-			inside = <ActionButton onClick={this.handleChange} font={font({size: 20, weight: Font.Weight.semibold})}/>
+			inside = <ActionButton onClick={this.context.showNavigationBinding} font={font({size: 20, weight: Font.Weight.semibold})}/>
 		} else if (this.showCloseButton) {
 			inside = <MemriButton action={function () {
 				context.executeAction(new ActionClosePopup(context))
