@@ -16,13 +16,13 @@ export var unserialize = MemriJSONDecoder;
 
 export function realmWriteIfAvailable(realm: Realm, doWrite) {
     if (realm) {
-        if (!realm.isInTransaction) {
+        //if (!realm.isInTransaction) {
             // TODO: Error handling (this can happen for instance if you pass a
             // non existing property string to dataItem.set())
             realm.write(doWrite());
-        } else {
+       /* } else {
             doWrite()
-        }
+        }*/
     } else {
         doWrite()
     }

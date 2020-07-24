@@ -18,7 +18,7 @@ import {
 	ColorArea,
 	Content,
 	MemriButton,
-	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer
+	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI
 } from "../swiftUI";
 import {geom} from "../../demo-react";
 import {List, ListItem} from "@material-ui/core";
@@ -26,7 +26,7 @@ import {List, ListItem} from "@material-ui/core";
 
 interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}
 
-export class NavigationWrapper extends React.Component<NavigationWrapperProps, {}> {
+export class NavigationWrapper extends MainUI {
 	widthRatio;
 	isVisible;
 	offset;
@@ -129,7 +129,7 @@ export class NavigationWrapper extends React.Component<NavigationWrapperProps, {
 }
 interface NavigationProps { context?; keyboardResponder?; showSettings?; frame?; edgesIgnoringSafeArea?; offset?; simultaneousGesture?; transition?; zIndex?}
 
-class Navigation extends React.Component<NavigationProps, {}> {
+class Navigation extends MainUI {
 	context: MemriContext
 
 	keyboardResponder;
@@ -145,7 +145,7 @@ class Navigation extends React.Component<NavigationProps, {}> {
 		return navigationItems.map((navItem) => {
 			switch (navItem.type) {
 				case "item":
-					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigation = false}/>/*(navItem, hide: {
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigationBinding()}/>/*(navItem, hide: {
 					withAnimation {
 						self.context.showNavigation = false
 					}
@@ -155,7 +155,7 @@ class Navigation extends React.Component<NavigationProps, {}> {
 				case "line":
 					return <NavigationLineView/>
 				default:
-					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigation = false}/>/*(item: navItem, hide: {
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigationBinding()}/>/*(item: navItem, hide: {
 					withAnimation {
 						self.context.showNavigation = false
 					}
@@ -193,9 +193,9 @@ class Navigation extends React.Component<NavigationProps, {}> {
 					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>add</MemriImage>}
 				</MemriButton>
 			</HStack>
-			<List>
+			<ASTableView separatorsEnabled={false} contentInsets={contentInsets({top: 10, left: 0, bottom: 0, right: 0})}>
 				{this.getNavigationItems()}
-			</List>
+			</ASTableView>
 
 		</VStack>
 			) //TODO: logic in ASSection
@@ -203,7 +203,7 @@ class Navigation extends React.Component<NavigationProps, {}> {
 
 }
 
-class NavigationItemView extends React.Component {
+class NavigationItemView extends MainUI {
 	context: MemriContext
 
 	item: NavigationItem
@@ -238,7 +238,7 @@ class NavigationItemView extends React.Component {
 				</MemriText>
 			</MemriButton>
 			</ListItem>
-		)//?.firstUppercased buttonStyle={NavigationButtonStyle()} action={action()} contentShape={Rectangle()}
+		)//?.firstUppercased buttonStyle={NavigationButtonStyle()} contentShape={Rectangle()}
 	}
 }
 
@@ -251,7 +251,7 @@ class NavigationItemView extends React.Component {
 	}
 }*/
 
-class NavigationHeadingView extends React.Component {
+class NavigationHeadingView extends MainUI {
 	title: string
 	constructor(props) {
 		super(props);
@@ -272,7 +272,7 @@ class NavigationHeadingView extends React.Component {
 	}
 }
 
-class NavigationLineView extends React.Component {
+class NavigationLineView extends MainUI {
 	render() {
 		return (
 			<ListItem>

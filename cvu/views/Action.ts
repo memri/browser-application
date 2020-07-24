@@ -16,6 +16,7 @@ import {CacheMemri} from "../../model/Cache";
 import {ViewArguments} from "./CascadableDict";
 import {CVUStateDefinition} from "../../model/items/Other";
 import {Item} from "../../model/items/Item";
+import {ImporterRun, IndexerRun} from "../../model/schema";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -215,8 +216,8 @@ export class Action/* : HashableClass, CVUToString*/ {
     }
 }
 
-enum RenderType {
-    popup, button, emptytype
+export enum RenderType {
+    popup="popup", button="button", emptytype="emptytype"
 }
 
 export enum ActionFamily {
@@ -548,7 +549,7 @@ export class ActionOpenViewWithUIDs extends Action {
         let arrayString = `{${uids.map((item) => String(item)).join(",")}`
 
         // Create a new view
-        let view = CacheMemri.createItem(CVUStateDefinition, {
+        let view = CacheMemri.createItem("CVUStateDefinition", {
             "type": "view",
             "selector": "[view]",
             "definition":
@@ -683,7 +684,7 @@ export class ActionShowStarred extends Action {
                 binding.toggleBool()
             } else {
                 // Go back to the previous view
-                new ActionBack.exec(this.context, {});
+                new ActionBack(this.context).exec({});
             }
         } catch (error) {
             // TODO Error Handling
@@ -718,7 +719,7 @@ export class ActionShowContextPane extends Action {
 
 export class ActionShowNavigation extends Action {
     defaultValues = {
-        "icon": "line.horizontal.3",
+        "icon": "menu",//line.horizontal.3
         "binding": new Expression("context.showNavigation"),
         "inactiveColor": new Color("#434343")//TODO:
     };
@@ -877,15 +878,15 @@ export class ActionOpenSession extends Action {
         "withAnimation": false
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
+    constructor(context: MemriContext, argumentsJs, values = {}) {
         super(context, "openSession", argumentsJs, values)
     }
 
-    openSession(session: CVUStateDefinition, args = null) {
+    openSession(session: CVUStateDefinition, args) {
         let sessions = this.context.sessions
 
         sessions.setCurrentSession(session)
-        sessions.currentSession?.setCurrentView(null, args)
+        sessions.currentSession?.setCurrentView(undefined, args)
     }
 
 //    func openSession(_ context: MemriContext, _ name:String, _ variables:[String:Any]? = nil) throws {
@@ -949,7 +950,7 @@ export class ActionOpenSessionByName extends Action {
         }
 
         try {
-            let stored = this.context.views.fetchDefinitions(name, "session")[0]
+            let stored = this.context.views.fetchDefinitions(undefined, name, "session")[0]
 
             if (!stored) {
                 throw `Exception: Cannot open session with name ${name}. Unable to find view.`
@@ -1139,11 +1140,11 @@ export class ActionRunIndexer extends Action {
         }
         let ds = new Datasource(query)
 
-        this.context.cache.query(ds, function (result) {//TODO: something like that?
+        this.context.cache.query(ds, (result) => {//TODO: something like that?
             if (result) {
-                this.context.indexerAPI.execute(indexerInstance, result)
+                return this.context.indexerAPI.execute(indexerInstance, result)
             }
-        }).bind("this");
+        });
     }
 
     /*class func exec(_ context:MemriContext, _ arguments:[String: Any]) throws {
@@ -1167,7 +1168,7 @@ export class ActionClosePopup extends Action {
 
 export class ActionSetProperty extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": ItemFamily.constructor, "property": String.constructor, "value": AnyObject.constructor},//TODO
+        "argumentTypes": {"subject": "ItemFamily", "property": "string", "value": "AnyObject"},//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {
@@ -1264,7 +1265,7 @@ export class ActionLink extends Action {
 
 export class ActionUnlink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": ItemFamily.constructor, "edgeType": String.constructor, "all": Boolean.constructor},//TODO
+        "argumentTypes": {"subject": "ItemFamily", "edgeType": "String", "all": "Boolean"},//TODO
     }
 
     constructor(context: MemriContext, argumentsJs = null, values = {}) {

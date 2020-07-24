@@ -31,7 +31,7 @@ export class Realm {
             ...properties
         }
         this.db.push(obj);
-        return this.db[this.db.length];
+        return this.db[this.db.length - 1];
     }
 
     write(callback) {

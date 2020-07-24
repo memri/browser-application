@@ -34,7 +34,7 @@ export class Installer {
 			context.views.install()
 
 			// Load default sessions in database
-			//context.sessions.install(context)
+			context.sessions.install(context)
 
 			// Installation complete
 			CacheMemri.createItem("AuditItem", {

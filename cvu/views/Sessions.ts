@@ -99,9 +99,14 @@ export class Sessions extends DataItem {
 			if (index > -1) {
 				this.sessions.splice(index)
 			}
-
+			//===================   <-  The way to solve class problem
+			let realSession = new Session();
+			for (let key in session) {
+				realSession[key] = session[key];
+			}
+			//===================
 			// Add session to array
-			this.sessions.push(session)
+			this.sessions.push(realSession)
 
 			// Update the index pointer
 			this.currentSessionIndex = this.sessions.length - 1
@@ -155,7 +160,7 @@ export class Sessions extends DataItem {
 			if (parsed) {
 				 context.realm.write (() =>{
 					// Load default sessions from the package and store in the database
-					context.realm.create(Sessions.constructor, {
+					context.realm.create("Sessions", {
 						memriID: this.memriID,
 						selector: `[sessions = '${this.memriID}']`,
 						name: this.memriID,

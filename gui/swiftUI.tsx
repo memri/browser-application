@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BaseTextFieldProps, Button, Divider, Icon, TextField} from "@material-ui/core";
+import {BaseTextFieldProps, Button, Divider, Icon, List, TextField} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Font} from "../parsers/cvu-parser/CVUParser";
 
@@ -103,7 +103,7 @@ export class MemriButton extends MainUI {
     }
 }
 
-export class ActionButton extends MainUI {
+/*export class ActionButton extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
     return (
@@ -112,7 +112,7 @@ export class ActionButton extends MainUI {
             </Button>
         )
     }
-}
+}*/
 
 interface MemriTextFieldProps extends BaseTextFieldProps {
     textColor?,
@@ -191,6 +191,17 @@ export class MemriDivider extends MainUI {
     }
 }
 
+export class ASTableView extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <List style={this.setStyles()} className="ASTableView" {...other}>
+                {this.props.children}
+            </List>
+        )
+    }
+}
+
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
     let frameObj = attrs;
 
@@ -259,4 +270,10 @@ export function font(attrs:{family?: string, size?:number; weight?: string}) {
     }
 
     return fontObj;
+}
+
+export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
+    let contentInsetsObj = attrs;
+
+    return contentInsetsObj;
 }

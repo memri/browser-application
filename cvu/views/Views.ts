@@ -95,7 +95,7 @@ export class Views {
 			let cvu = new CVU(code, this.context, this.lookupValueOfVariables, this.executeFunction)
 			let parsedDefinitions = cvu.parse() // TODO: this could be optimized
 
-			let validator = new CVUValidator();
+			/*let validator = new CVUValidator();
 			if (!validator.validate(parsedDefinitions)) {
 				validator.debug()
 				if (validator.warnings.length > 0) {
@@ -105,7 +105,7 @@ export class Views {
 					for (let message of validator.errors) { debugHistory.error(message) }
 					throw `Exception: Errors in default view set:    \n${validator.errors.join("\n    ")}`
 				}
-			}
+			}*///TODO:
 			DatabaseController.tryWriteSync(() => { // Start write transaction outside loop for performance reasons
 				// Loop over lookup table with named views
 				for (let def of parsedDefinitions) {
@@ -465,7 +465,7 @@ export class Views {
 		if (domain) { filter.push(`domain = '${domain}'`) }
 
 		return DatabaseController.read((item) => item.objects("CVUStoredDefinition")
-			.filtered(filter.join(" AND ")).map ( (def) => {  return def instanceof CVUStoredDefinition}) )  ?? []//TODO
+			.filtered(filter.join(" AND ")).map ( (def) => { return (def["_type"] == "CVUStoredDefinition")? def: undefined}) )  ?? []//TODO
 	}
 
 	// TODO: REfactor return list of definitions
@@ -493,7 +493,7 @@ export class Views {
 			let firstDefinition = viewDefParser.parse()[0]
 			if (firstDefinition) {
 				// TODO: potentially turn this off to optimize
-				let validator = new CVUValidator()
+				/*let validator = new CVUValidator()
 				if (!validator.validate([firstDefinition])) {
 					validator.debug()
 					if (validator.warnings.length > 0) {
@@ -503,7 +503,7 @@ export class Views {
 						for (var message of validator.errors) { debugHistory.error(message) }
 						throw `Exception: Errors in default view set:    \n${validator.errors.join("\n    ")}`
 					}
-				}
+				}*/ //TODO:
 
 				return firstDefinition
 			}
@@ -644,12 +644,46 @@ export class Views {
 
 function getDefaultViewContents() {
 	//let urls = Bundle.main.urls("cvu", ".")
-	let defaultsCVU = {
-		Note: require("text-loader!../defaults/type/Note1.cvu") //TODO: for testing
-	}
+	var defaultsCVU = {
+		//example: require("text-loader!../playground/example.view"),
+		/*require("text-loader!../defaults/default_user_views.json"),*/
+		/*require("text-loader!../defaults/macro_views.json"),*/
+		"All-items-with-label": require("text-loader!../defaults/named/All-items-with-label.cvu"),
+		"Choose-item-by-query": require("text-loader!../defaults/named/Choose-item-by-query.cvu"),
+		"Filter-starred": require("text-loader!../defaults/named/Filter-starred.cvu"),
+		/*require("text-loader!../defaults/named_sessions.json"),*/
+		/*require("text-loader!../defaults/named_views.json",)*/
+		generalEditor: require("text-loader!../defaults/renderer/generalEditor.cvu"),
+		chart: require("text-loader!../defaults/renderer/chart.cvu"),
+		list: require("text-loader!../defaults/renderer/list.cvu"),
+		thumbnail: require("text-loader!../defaults/renderer/thumbnail.cvu"),
+
+		defaults: require("text-loader!../defaults/styles/defaults.cvu"),
+		/*require("text-loader!../defaults/template_views.json"),*/
+		Address: require("text-loader!../defaults/type/Address.cvu"),
+		Any: require("text-loader!../defaults/type/Any.cvu"),
+		AuditItem: require("text-loader!../defaults/type/AuditItem.cvu"),
+		Country: require("text-loader!../defaults/type/Country.cvu"),
+		Importer: require("text-loader!../defaults/type/Importer.cvu"),
+		ImporterInstance: require("text-loader!../defaults/type/ImporterInstance.cvu"),
+		Indexer: require("text-loader!../defaults/type/Indexer.cvu"),
+		IndexerRun: require("text-loader!../defaults/type/IndexerRun.cvu"),
+		Label: require("text-loader!../defaults/type/Label.cvu"),
+		//Mixed: require("text-loader!../defaults/type/Mixed.cvu"),
+		Note: require("text-loader!../defaults/type/Note.cvu"),
+		Sessions: require("text-loader!../defaults/Session/Sessions.cvu"),
+		/*require("text-loader!../defaults/type/Person-markup.ml"),*/
+		Person: require("text-loader!../defaults/type/Person.cvu"),
+		Photo: require("text-loader!../defaults/type/Photo.cvu"),
+		Session: require("text-loader!../defaults/type/Session.cvu"),
+		/*require("text-loader!../defaults/type/Session.json"),*/
+		SessionView: require("text-loader!../defaults/type/SessionView.cvu"),
+		//UserNote: require("text-loader!../defaults/user/UserNote.cvu-disabled"),
+		/*require("text-loader!../defaults/views_from_server.json"),*/
+	};
 	let viewContents= [];
 	for (let cvu in defaultsCVU) {
 		viewContents.push(defaultsCVU[cvu]);
 	}
-	return viewContents.join("\n")
+	return viewContents.join("\n").replace(/\r/g,"");
 }

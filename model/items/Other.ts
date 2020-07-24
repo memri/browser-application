@@ -174,7 +174,7 @@ extension IndexerRun {
 
 export class CVUStateDefinition {
 	static fromCVUStoredDefinition(stored: CVUStoredDefinition) {
-		return CacheMemri.createItem(CVUStateDefinition.constructor, {
+		return CacheMemri.createItem("CVUStateDefinition", {
 			"definition": stored.definition,
 			"domain": "state",
 			"name": stored.name,
@@ -185,7 +185,7 @@ export class CVUStateDefinition {
 	}
 
 	static fromCVUParsedDefinition(parsed: CVUParsedDefinition) {
-		return CacheMemri.createItem(CVUStateDefinition.constructor, {
+		return CacheMemri.createItem("CVUStateDefinition", {
 			"definition": parsed.toCVUString(0, "    "),
 			"domain": "state",
 			"name": parsed.name,

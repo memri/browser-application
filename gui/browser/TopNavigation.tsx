@@ -16,7 +16,6 @@ import {
 	ActionOpenViewByName, ActionShowNavigation
 } from "../../cvu/views/Action";
 import {
-	ActionButton,
 	font,
 	frame,
 	HStack,
@@ -28,6 +27,7 @@ import {
 	VStack
 } from "../swiftUI";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
+import {ActionButton} from "../ActionView";
 
 export class TopNavigation extends MainUI {
 	context: MemriContext
@@ -108,9 +108,9 @@ export class TopNavigation extends MainUI {
 		this.init()
 		let backButton = this.context.currentSession?.hasHistory ?? false ? new ActionBack(this.context) : null
 		let context = this.context
-		let inside, buttonToShow;
+		let inside, buttonToShow;//this.context.showNavigationBinding
 		if (!this.inSubView /*&& !memri_shouldUseLargeScreenLayout*/) {
-			inside = <ActionButton onClick={this.context.showNavigationBinding} font={font({size: 20, weight: Font.Weight.semibold})}/>
+			inside = <ActionButton action={new ActionShowNavigation(context)} font={font({size: 20, weight: Font.Weight.semibold})} context={this.context}/>
 		} else if (this.showCloseButton) {
 			inside = <MemriButton action={function () {
 				context.executeAction(new ActionClosePopup(context))

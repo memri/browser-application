@@ -7,7 +7,11 @@
 //
 
 import {Cascadable} from "./Cascadable";
-import {CVUParsedDatasourceDefinition, CVUParsedRendererDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {
+    CVUParsedDatasourceDefinition,
+    CVUParsedObjectDefinition,
+    CVUParsedRendererDefinition
+} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {debugHistory} from "./ViewDebugger";
 import {ResultSet} from "../../model/ResultSet";

@@ -9,6 +9,7 @@ import {jsonDataFromFile, MemriJSONDecoder, realmWriteIfAvailable} from "../../g
 import {SessionView} from "./SessionView";
 import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {DataItem} from "../../model/DataItem";
+import {Views} from "./Views";
 
 export class Session extends DataItem {
  
@@ -132,16 +133,23 @@ export class Session extends DataItem {
             }.bind(this))//TODO
         }
         else {
-            realmWriteIfAvailable(this.realm, function () {
+            realmWriteIfAvailable(this.realm, () => {
                 // Remove all items after the current index
-                this.views.removeSubrange(...(this.currentViewIndex + 1))//TODO
-                
-                // Add the view to the session
-                this.views.push(view)
-                
+                //this.views.removeSubrange(...(this.currentViewIndex + 1)) //TODO
+                this.views.splice(this.currentViewIndex + 1);
+                //===================   <-  The way to solve class problem
+                if (view) {
+                    let realView = new Views();
+                    for (let key in view) {
+                        realView[key] = view[key];
+                    }
+                    //===================
+                    // Add the view to the session
+                    this.views.push(realView)
+                }
                 // Update the index pointer
                 this.currentViewIndex = this.views.length - 1
-            }.bind(this))
+            })
             
             this.decorate(view)
         }
