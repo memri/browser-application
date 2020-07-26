@@ -18,7 +18,7 @@ import {
 import {Session} from "./Session";
 import {CVUParsedSessionDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
-export class Sessions extends DataItem {
+class Sessions extends DataItem {
 	genericType() { return "Sessions" }
 
 	currentSessionIndex = 0

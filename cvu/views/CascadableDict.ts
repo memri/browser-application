@@ -8,9 +8,10 @@ import {Item} from "../../model/items/Item";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {Cascadable} from "./Cascadable";
 import {ItemReference} from "../../model/DatabaseController";
+import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
 export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptable*/ {
-	get(name: string, type?) {
+	get(name: string, type = CascadableDict) {
 		let value = this.cascadeProperty(name)
 		if (!value) {
 			return null
@@ -36,7 +37,7 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 			this.setState(name, new ItemReference(value))
 		}
 		else if (Array.isArray(value) && value[0] instanceof Item) {
-			this.setState(name, value.map((item) => { item
+			this.setState(name, value.map((item) => {
 				if (!item) { return null }
 				return new ItemReference(item)
 			}))
@@ -49,68 +50,22 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 	getSubscript(name) { return this.get(name) }//TODO get with param
 	setSubscript(name, value) { this.set(name, value) }
 
-	constructor(dict?, tail?, host?:Cascadable) {//TODO
-		var result = {}
-
-		if (dict) {
-			for (let [key, value] of Object.entries(dict)) {
-				if (value instanceof Item) {
-					result[key] = new ItemReference(value)
-				}
-				else if (Array.isArray(value) && value[0] instanceof Item) {
-					result[key] = value.map((item) => {
-						if (!item) { return null }
-						return new ItemReference(item)
-					} )
-				}
-				else {
-					result[key] = value
-				}
-			}
-		}
-
-		super(new CVUParsedObjectDefinition(Object.keys(result).length == 0 ? null : result), tail, host)
+	get description() {
+		return this.head.parsed?.keys.description ?? ""
 	}
 
-	/*constructor(other?: CascadableDict, item?: Item) {
-		super(CVUParsedObjectDefinition(), other?.cascadeStack)
-		if (item) { this.set(".", item) }
-	}*/
-
-	merge(other?: CascadableDict) {
-		if (!other) {return this}
-
-		let parsed = other.head.parsed
-		if (parsed) {
-			for (let [key, value] of Object.entries(parsed)) {
-				this.head[key] = value
+	constructor(head?, tail?, host?:Cascadable) {//TODO
+		if (head instanceof CascadableDict) {
+			var combinedTail = head?.tail;
+			combinedTail?.push(tail?.cascadeStack ?? [])
+			super(new CVUParsedObjectDefinition(head?.head.parsed), combinedTail)
+		} else {
+			if (head instanceof CVUParsedDefinition) {
+				super(head, tail, host)
+			} else {
+				super(new CVUParsedObjectDefinition(head), tail, host)
 			}
 		}
-
-		if (!other.tail.length) {
-			this.tail.push(other.tail)
-			this.cascadeStack.push(other.tail)
-		}
-
-		return this
-	}
-
-	deepMerge(other?: CascadableDict) {
-		if (!other) { return this }
-
-		function merge(parsed?) {
-			if (!parsed) { return }
-			for (let [key, value] of Object.entries(parsed)) {
-				this.head[key] = value
-			}
-		}
-
-		merge(other.head.parsed)
-		for (let item of other.tail) {
-			merge(item.parsed)
-		}
-
-		return this
 	}
 
 	resolve(item?: Item) {
@@ -122,21 +77,9 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 		for (let [key, value] of Object.entries(this.head.parsed ?? {})) {
 			let expr = value
 			if (expr instanceof Expression) {
-				let value = expr.execute(this.viewArguments)
-				if (value instanceof Item) { /* ignore */ }
-				else { this.head.parsed[key] = value }
+				this.head.parsed[key] = expr.execute(this.viewArguments)
 			}
 		}
-
-		this.set(".", item)
-
-		return this
-	}
-
-	copy(item?: Item) {
-		let dict = new CascadableDict(CVUParsedObjectDefinition(), this.cascadeStack)
-		if (item) { dict.set(".", item) }
-		return dict
 	}
 
 }

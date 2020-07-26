@@ -24,8 +24,8 @@ import {Languages} from "./Languages";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {dataItemListToArray} from "../../model/schema";
-import {CVUStateDefinition} from "../../model/items/Other";
 import {RealmObjects} from "../../model/RealmLocal";
+import {CVUStateDefinition} from "../../model/items/Item";
 
 export class Views {
 	///

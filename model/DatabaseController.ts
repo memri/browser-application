@@ -18,12 +18,12 @@ export class ItemReference {
     type
     
     constructor (to: Item) {
-        this.uid = to.uid.value ?? -1
-        this.type = to.getType() ?? Item
+        this.uid = to.uid ?? -1
+        this.type = to.getType() ?? new Item;
     }
     
     resolve() {
-        return DatabaseController.read((realm) => { realm.objectForPrimaryKey(this.type, this.uid) })
+        return DatabaseController.read((realm) => { return realm.objectForPrimaryKey(this.type.constructor.name, this.uid) })
     }
 }
 

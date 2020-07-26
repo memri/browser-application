@@ -6,18 +6,21 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
+//import {RootContext} from "../../context/MemriContext";
 import {Cascadable} from "./Cascadable";
 import {
-    CVUParsedDatasourceDefinition,
+    CompileScope,
+    CVUParsedDatasourceDefinition, CVUParsedDefinition,
     CVUParsedObjectDefinition,
-    CVUParsedRendererDefinition
+    CVUParsedRendererDefinition, CVUParsedViewDefinition
 } from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {debugHistory} from "./ViewDebugger";
 import {ResultSet} from "../../model/ResultSet";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
-import {RootContext} from "../../context/MemriContext";
+import {CVUStateDefinition} from "../../model/items/Item";
+
 
 export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     context?: MemriContext
@@ -44,7 +47,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     }
 
     set activeRenderer(value) {
-        delete this.localCache[value] // Remove renderConfig reference
+        //delete this.localCache[value] // Remove renderConfig reference
         // #warning("TODO: Store value in userstate for other context based on .")
         this.setState("defaultRenderer", value)
     }
@@ -147,7 +150,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
         // Update search result to match the query
         // NOTE: allowed force unwrap
-        let resultSet = {}//this.context!.cache.getResultSet(this.datasource.flattened());//TODO
+        let resultSet = this.context!.cache.getResultSet(this.datasource.flattened());//TODO
         this.localCache["resultSet"] = resultSet;//TODO
 
         // Filter the results
@@ -180,7 +183,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                 if (parsedRenderDef instanceof CVUParsedRendererDefinition) {
                     if (parsedRenderDef.domain == "user") {
                         let insertPoint = function(): number {
-                            for (let i in tail) { if (tail[i].domain == "view") { return i } }
+                            for (let i=0;i<tail.length; i++) { if (tail[i].domain == "view") { return i } }
                             return tail.length
                         }()
 
@@ -208,7 +211,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             // Prefer a perfectly matched definition
             return definitions.find((item) => item.name == this.activeRenderer )
                 // Else get the one from the parent renderer
-                ?? definitions.find((item) => item.name == this.activeRenderer.components(".").pop().join("."))
+                ?? definitions.find((item) => item.name == this.activeRenderer.components(".").splice(-1,1).join("."))
         }.bind(this)
 
         let head = getConfig(this.head) ?? function(){
@@ -230,7 +233,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
         if (all && RenderConfigType) {
             // swiftformat:disable:next redundantInit
-            let renderConfig = RenderConfigType.init(head, tail, this.host)
+            let renderConfig = new RenderConfigType(head, tail, this.host)
             // Not actively preventing conflicts in namespace - assuming chance to be low
             this.localCache[this.activeRenderer] = renderConfig
             return renderConfig
@@ -305,25 +308,35 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     get searchMatchText() { return this.userState.get("searchMatchText") ?? "" }
     set searchMatchText(newValue) { this.userState.set("searchMatchText", newValue) }
 
-    constructor(state: CVUStateDefinition, session: Session) {
-        let uid = state.uid.value
+    constructor(state: CVUStateDefinition, session: Session, host?: Cascadable) {
+        if (state instanceof CVUStateDefinition) {
+            let uid = state.uid
 
-        if (!uid) {
-            throw "CVU state object is unmanaged"
+            if (!uid) {
+                throw "CVU state object is unmanaged"
+            }
+
+            let context = session.context
+
+            let head = context?.views.parseDefinition(state)
+            if (!head) {
+                throw "Could not parse state"
+            }
+            head.domain = "state";
+            if (head.definitionType != "view") {
+                throw `Wrong type of definition passed: ${head.definitionType}`;
+            }
+
+            super(head, [])
+
+            this.uid = uid
+            this.session = session
+            this.context = context
+        } else {
+            super(state, session, host)
+            this.uid = -1000000
         }
 
-        let context = session.context
-
-        let head = context?.views.parseDefinition(state)
-        if (!head) {
-            throw "Could not parse state"
-        }
-
-        super(head, [])
-
-        this.uid = uid
-        this.session = session
-        this.context = context
     }
 
     /*constructor(
@@ -391,7 +404,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     setState(propName: string, value?) {
         super.setState(propName, value)
-        this.schedulePersist()
+        //this.schedulePersist() //TODO://
     }
 
     schedulePersist() {
@@ -400,15 +413,15 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     persist() {
         DatabaseController.tryWriteSync((realm) => {
-            var state = realm.object(CVUStateDefinition.self, this.uid)
+            var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored view CVU. Creating a new one.")
 
-                state = CacheMemri.createItem(CVUStateDefinition)
+                state = CacheMemri.createItem("CVUStateDefinition")
 
-                let stateUID = state?.uid.value
+                let stateUID = state?.uid
 
-                if (stateUID) {
+                if (!stateUID) {
                     throw "Exception: could not create stored definition"
                 }
 
@@ -461,7 +474,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         let include = function(parsedDef: CVUParsedDefinition, domain: string) {
             if (!this.cascadeStack.includes(parsedDef)) {
                 // Compile parsed definition to embed state that may change (e.g. currentView)
-                parsedDef.compile(this.viewArguments, CVUParsedDefinition.needed)
+                parsedDef.compile(this.viewArguments, CompileScope.needed)
 
                 // Add to cascade stack
                 this.cascadeStack.push(parsedDef)
@@ -490,13 +503,13 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                             throw `Exception: could not parse view: ${viewName}`
                         }
                     } else if (result instanceof CascadableView) {
-                        let parsed = CVUParsedViewDefinition(result.head.parsed)
+                        let parsed = new CVUParsedViewDefinition(undefined,undefined,undefined, "user", result.head.parsed)
                         include(parsed, domain)
                     } else {
                         throw `Exception: Unable to inherit view from ${inheritFrom}`
                     }
 
-                    delete parsedDef.parsed?.removeValue["inherit"]
+                    delete parsedDef.parsed["inherit"];
                 }
             }
         }.bind(this)

@@ -69,8 +69,9 @@ extension MedicalCondition {
 		type ?? ""
 	}
 }*/
-
+import {Item} from "./Item";
 import {CacheMemri} from "../Cache";
+
 
 export class Person /*extends SchemaPerson*/ {
 	get computedTitle(): string {
@@ -172,29 +173,6 @@ extension IndexerRun {
 	}
 }*/
 
-export class CVUStateDefinition {
-	static fromCVUStoredDefinition(stored: CVUStoredDefinition) {
-		return CacheMemri.createItem("CVUStateDefinition", {
-			"definition": stored.definition,
-			"domain": "state",
-			"name": stored.name,
-			"query": stored.query,
-			"selector": stored.selector,
-			"type": stored.type
-		})
-	}
-
-	static fromCVUParsedDefinition(parsed: CVUParsedDefinition) {
-		return CacheMemri.createItem("CVUStateDefinition", {
-			"definition": parsed.toCVUString(0, "    "),
-			"domain": "state",
-			"name": parsed.name,
-//            "query": stores.query,
-			"selector": parsed.selector,
-			"type": parsed.definitionType
-		})
-	}
-}
 /*
 extension CVUStoredDefinition {
     override var computedTitle: String {

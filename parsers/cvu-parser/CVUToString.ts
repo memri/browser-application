@@ -59,12 +59,12 @@ export class CVUSerializer {
                 return this.dictToString(p, depth + 1, tab)
             } else if (typeof p.toCVUString === "function") {//TODO:
                 return p.toCVUString(depth + 1, tab)
-            } else if (p instanceof Item && p.uid.value) {
-                return `{{ item(${p.genericType}, ${p.uid.value}) }}`
+            } else if (p instanceof Item && p.uid) {
+                return `{{ item(${p.genericType}, ${p.uid}) }}`
             } else if (p instanceof ItemReference) {
                 let p1 = p?.resolve();
-                if (p1 && p1.uid.value)
-                    return `{{ item(${p1.genericType}, ${p1.uid.value}) }}`
+                if (p1 && p1.uid)
+                    return `{{ item(${p1.genericType}, ${p1.uid}) }}`
             } else if (p instanceof Color) {
                 return String(p.toLowerCase().substr(0, 7));
             } else if (typeof p == "number") {//TODO: Double;

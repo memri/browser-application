@@ -5,18 +5,16 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-
-import {Subscriptable} from "../context/MemriContext";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedSessionDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {CVUStateDefinition} from "../model/items/Other";
 import {DatabaseController} from "../model/DatabaseController";
 import {CascadableView} from "../cvu/views/CascadableView";
 import {Realm} from "../model/RealmLocal";
 import {CacheMemri} from "../model/Cache";
 import {ActionFamily} from "../cvu/views/Action";
+import {CVUStateDefinition} from "../model/items/Item";
 
-export class Session extends /*Equatable, */Subscriptable {
+export class Session  /*extends Equatable, Subscriptable*/ {
     /// The name of the item.
     get name() { return this.parsed["name"] }
     set name(value) { this.setState("name", value) }
@@ -56,7 +54,7 @@ export class Session extends /*Equatable, */Subscriptable {
     parsed?: CVUParsedSessionDefinition
     get state() {
 		return DatabaseController.read ((realm) => {
-            realm.objectForPrimaryKey(CVUStateDefinition, this.uid)
+            realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
         })
     }
     
@@ -87,13 +85,12 @@ export class Session extends /*Equatable, */Subscriptable {
         return this.views[this.currentViewIndex]
 	}
 
-    constructor(state?: CVUStateDefinition, sessions: Sessions) {
-        super()
+    constructor(state: CVUStateDefinition, sessions: Sessions) {
         this.sessions = sessions
         this.context = sessions.context
         
         if (state) {
-            let uid = state.uid.value
+            let uid = state.uid
             if (!uid) {
                 throw "CVU state object is unmanaged"
             }
@@ -102,7 +99,7 @@ export class Session extends /*Equatable, */Subscriptable {
 
             let p = this.context?.views.parseDefinition(state)
             
-            if (p !instanceof CVUParsedSessionDefinition) {
+            if (!(p instanceof CVUParsedSessionDefinition)) {
                 throw "Unable to parse state definition"
             }
             
@@ -113,9 +110,9 @@ export class Session extends /*Equatable, */Subscriptable {
             let storedViewStates = state
                 .edges("view")
                 .sorted("sequence")
-                .items(CVUStateDefinition)
+                .items("CVUStateDefinition")
 
-            let parsedViews = this.parsed["viewDefinitions"]
+            let parsedViews = this.parsed.parsed["viewDefinitions"] //tODO:
 
             if (storedViewStates && storedViewStates.length > 0) {
                 for (let viewState of storedViewStates) {
@@ -129,7 +126,7 @@ export class Session extends /*Equatable, */Subscriptable {
                     for (let parsed of parsedViews) {
                         let viewState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
                         state.link(viewState, "view", ".last")
-                        this.views.push(new CascadableView(viewState, this))
+                        this.views.push(new CascadableView(new CVUStateDefinition(viewState), this))
                     }
                 })
                 
@@ -206,13 +203,13 @@ export class Session extends /*Equatable, */Subscriptable {
     
     persist() {
         DatabaseController.tryWriteSync((realm: Realm) => {
-            var state = realm.objectForPrimaryKey(CVUStateDefinition, this.uid)
+            var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored session CVU. Creating a new one.")
 
-                state = CacheMemri.createItem(CVUStateDefinition, {})
+                state = CacheMemri.createItem("CVUStateDefinition", {})
 
-                let uid = state?.uid.value
+                let uid = state?.uid;
                 if (!uid) {
                     throw "Exception: could not create state definition"
                 }
@@ -235,7 +232,7 @@ export class Session extends /*Equatable, */Subscriptable {
                     }
                 }
                 if (i < stateViewEdges.length) {
-                    for (let j of stride(stateViewEdges.length - 1, i, -1)) {
+                    for (let j = stateViewEdges.length - 1; j < i; j--) {
                         state?.unlink(stateViewEdges[j])
                     }
                 }
@@ -267,7 +264,7 @@ export class Session extends /*Equatable, */Subscriptable {
         var nextIndex: number
         
         // If the session already exists, we simply update the session index
-        let index = this.views.find((view) => view.uid == storedView.uid.value)
+        let index = this.views.find((view) => view.uid == storedView.uid)
         if (index) {
             nextIndex = index
         }

@@ -76,7 +76,7 @@ export class ExprAnyNode implements ExprNode{
     }
     toExprString() {
         let item = this.value
-        let uid = (item instanceof Item) && item.uid.value
+        let uid = (item instanceof Item) && item.uid
         if (uid) {
             return `item(${item.genericType}, ${uid})`
         }

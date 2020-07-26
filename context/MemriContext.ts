@@ -13,6 +13,8 @@
  */
 
 // TODO: Remove this and find a solution for Edges
+import {CVUStateDefinition, Item} from "../model/items/Item";
+import {Action} from "../cvu/views/Action";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedDatasourceDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {realmWriteIfAvailable} from "../gui/util";
@@ -22,17 +24,15 @@ import {PodAPI} from "../api/api";
 import {Datasource} from "../api/Datasource";
 import {CascadableView} from "../cvu/views/CascadableView";
 import {Expression} from "../parsers/expression-parser/Expression";
-import {Item} from "../model/items/Item";
-import {getItemType, ItemFamily} from "../model/items/Item";
 import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
-import {Sessions} from "../cvu/views/Sessions";
+import {Sessions} from "../sessions/Sessions";
 import {Installer} from "../install/Installer";
 import {IndexerAPI} from "../api/IndexerAPI";
 import {MainNavigation} from "../gui/navigation/MainNavigation";
 import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
-import {Action} from "../cvu/views/Action";
 import {Realm} from "../model/RealmLocal";
+import {getItemType, ItemFamily} from "../model/schema";
 
 export var globalCache
 

@@ -6,14 +6,15 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import * as DB from "./defaults/default_database.json";
-import {getItem, jsonDataFromFile, MemriJSONDecoder, serialize} from "../gui/util";
+import {getItem} from "../gui/util";
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Item, Edge, getItemType, ItemFamily} from "./items/Item";
+import {Item, Edge} from "./items/Item";
 import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "./DatabaseController";
 import {Realm} from "./RealmLocal";
 import {Sync} from "./Sync";
+import {getItemType, ItemFamily} from "./schema";
 export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
@@ -191,7 +192,7 @@ export class CacheMemri {
 
 				for (var dtype in ItemFamily) {
 					// NOTE: Allowed forced cast
-					let objects = realm.objects(getItemType(dtype))
+					let objects = realm.objects(getItemType(dtype).constructor.name)
 						.filtered("deleted = false " + (filter ?? "")) //TODO
 					for (var item of objects) { returnValue.push(item) }
 				}
@@ -205,7 +206,7 @@ export class CacheMemri {
 
 				// Query based on a simple format:
 				// Query format: <type><space><filter-text>
-				let queryType = getItemType(type)
+				let queryType = getItemType(type).constructor.name
 				//                let t = queryType() as! Object.Type
 
 				var result = realm.objects(queryType)
@@ -290,7 +291,7 @@ export class CacheMemri {
 	/// - Throws: Sync conflict exception
 	/// - Returns: cached dataItem
 	addToCache(item) {
-		if (!item.uid.value) {
+		if (!item.uid) {
 			throw "Cannot add an item without uid to the cache"
 		}
 
@@ -312,7 +313,7 @@ export class CacheMemri {
 	}
 
 	mergeWithCache(item: Item) {
-		let uid = item.uid.value
+		let uid = item.uid
 		if (!uid) {
 			throw "Cannot add an item without uid to the cache"
 		}
@@ -329,7 +330,7 @@ export class CacheMemri {
 				// Try to merge without overwriting local changes
 				if (!cachedItem.safeMerge(item)) {
 					// Merging failed
-					throw `Exception: Sync conflict with item ${item.genericType}:${cachedItem.uid.value ?? 0}`
+					throw `Exception: Sync conflict with item ${item.genericType}:${cachedItem.uid ?? 0}`
 				}
 				return cachedItem
 			}
@@ -554,44 +555,43 @@ export class CacheMemri {
 		return item ?? new Item()
 	}
 
-	createEdge(source: Item, target: Object, edgeType: string,
+	static createEdge(source: Item, target: Object, edgeType: string,
 			   label?: string, sequence?: number) {
-		let targetUID = target["uid"];
-		if (target.objectSchema["uid"] != undefined && typeof targetUID == "number") {
+		if (Array.isArray(target)) {
+			var edge: Edge;
+			DatabaseController.tryWriteSync((realm) => {
+				// TODO:
+				// Always overwrite (see also link())
 
+				// TODO: find item in DB & merge
+				// Uniqueness based on also not primary key
+
+				let values = {
+					"targetItemType": target[0],
+					"targetItemID": target[1],
+					"sourceItemType": source.genericType,
+					"sourceItemID": source.uid,
+					"type": edgeType,
+					"edgeLabel": label,
+					"sequence": sequence,
+					"dateCreated": new Date(),
+					"_action": "create"
+				}
+
+				edge = realm.create("Edge", values)
+			});
+
+			return edge ?? new Edge()
 		} else {
-			throw "Cannot link target, no .uid set"
-		}
+			let targetUID = target["uid"];
+			if (target["uid"] != undefined && typeof targetUID == "number") {
 
-		return CacheMemri.createEdge(source, [target.genericType, targetUID],
-			edgeType, label, sequence)
-	}
-
-	static createEdge(source: Item, target, edgeType: string,
-					  label?, sequence?) {
-		var edge: Edge;
-		DatabaseController.tryWriteSync((realm) => {
-			// TODO:
-			// Always overwrite (see also link())
-
-			// TODO: find item in DB & merge
-			// Uniqueness based on also not primary key
-
-			let values = {
-				"targetItemType": target[0],
-				"targetItemID": target[1],
-				"sourceItemType": source.genericType,
-				"sourceItemID": source.uid.value,
-				"type": edgeType,
-				"edgeLabel": label,
-				"sequence": sequence,
-				"dateCreated": new Date(),
-				"_action": "create"
+			} else {
+				throw "Cannot link target, no .uid set"
 			}
 
-			edge = realm.create("Edge", values)
-		});
-
-		return edge ?? new Edge()
+			return CacheMemri.createEdge(source, ["type" + target["_type"], targetUID],
+				edgeType, label, sequence)
+		}
 	}
 }

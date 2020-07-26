@@ -110,7 +110,7 @@ export class TopNavigation extends MainUI {
 		let context = this.context
 		let inside, buttonToShow;//this.context.showNavigationBinding
 		if (!this.inSubView /*&& !memri_shouldUseLargeScreenLayout*/) {
-			inside = <ActionButton action={new ActionShowNavigation(context)} font={font({size: 20, weight: Font.Weight.semibold})} context={this.context}/>
+			inside = <ActionButton action={new ActionShowNavigation(this.context)} font={font({size: 20, weight: Font.Weight.semibold})} context={this.context}/>
 		} else if (this.showCloseButton) {
 			inside = <MemriButton action={function () {
 				context.executeAction(new ActionClosePopup(context))

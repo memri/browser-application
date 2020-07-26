@@ -11,13 +11,6 @@ enum DataItemError {
 	cannotMergeItemWithDifferentId
 }
 
-export function UUID() {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-		return v.toString(16);
-	});
-}
-
 export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*/ {//TODO
 	/// name of the DataItem implementation class (E.g. "note" or "person")
 	genericType () { return "unknown" }

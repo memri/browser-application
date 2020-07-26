@@ -6,11 +6,13 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {Expression} from "../../parsers/expression-parser/Expression";
-import {Action, ActionMultiAction} from "./Action";
+/*
+import {ActionMultiAction} from "./Action";
 import {debugHistory} from "./ViewDebugger";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
-import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";*/
+import {Expression} from "../../parsers/expression-parser/Expression";
+import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
 export class Cascadable {
     host?: Cascadable
@@ -22,7 +24,7 @@ export class Cascadable {
     get viewArguments() { return this.host?.viewArguments }
     set viewArguments(value) { this.host?.viewArguments = value }
 
-    get description() {
+    /*get description() {
         var merged = {}
 
         function recur(dict: {}) {
@@ -36,18 +38,18 @@ export class Cascadable {
         for (var item of this.tail) { recur(item.parsed) }
 
         return CVUSerializer.dictToString(merged, 0, "    ")
-    }
+    }*/
     
     execExpression(expr) {
         try {
-            let x = expr.execForReturnType(this.viewArguments)
+            let x = expr.execute(this.viewArguments)
             let value = this.transformActionArray(x)
-            if (value == null) { return null }
+            if (value == null) { return undefined }
             else { return value }
         }
         catch (error) {
             debugHistory.error(`${error}`)
-            return null
+            return undefined
         }
     }
     
@@ -81,21 +83,21 @@ export class Cascadable {
     }
     
     cascadePropertyAsCGFloat(name) { //Renamed to avoid mistaken calls when comparing to nil
-        // (this.cascadeProperty(name) as Double?).map { CGFloat($0) }//TODO
+        return (this.cascadeProperty(name)).map((item)=>{ return Number(item) });
     }
     
-    cascadeProperty(name, type?) {
+    cascadeProperty(name) {
         // if (DEBUG//TODO
         //These are temporary checks put in place to catch programmer errors. We should find a safer way that won't lose CVU properties. It is wrapped in DEBUG flag so will not crash in testflight.
         // if T.self == CGFloat.self) { fatalError("You need to use the `cascadePropertyAsCGFloat` function instead") }
         // if (T.self == Int.self) { fatalError("You need to request a Double and then case to integer instead") }
         // #endif
-        let local = this.localCache[name]
-        if (local instanceof Expression) {
-            return this.execExpression(local)
-        }
-        if (local) {
-            return this.transformActionArray(local)
+        let expr = this.localCache[name]
+        if (expr instanceof Expression) {
+            return this.execExpression(expr)
+        } else
+            if (expr) {
+            return this.transformActionArray(expr)
         }
 
         for (var def of this.cascadeStack) {
@@ -115,40 +117,82 @@ export class Cascadable {
 
     
     // TODO support deleting items
-    cascadeList(name, merge = true) {
-        let x = this.localCache[name]
-        if (Array.isArray(x)) { return x }
-        
-        var result = []
-        
-        for (var def of this.cascadeStack) {
-            let x = def[name]
+    cascadeList(name, uniqueKey?, merging?) {
+        if (arguments.length === 3) {
+            let x = this.localCache[name]
             if (Array.isArray(x)) {
-                if (!merge) {
-                    this.localCache[name] = x
-                    return x
-                }
-                else {
-                    result.push(x)
+                return x
+            }
+
+            var result = []
+            var lut = [];
+            for (let def of this.cascadeStack) {
+                let list = def[name];
+                if (Array.isArray(list)) {
+                    for (let item of list) {
+                        let key = uniqueKey(item);
+                        if (key) {
+                            let y = lut[key];
+                            if (y) {
+                                lut[key] = merging(y, item)
+                            } else {
+                                lut[key] = item
+                                result.push(key)
+                            }
+                        } else {
+                            result.push(item)
+                        }
+                    }
                 }
             }
-            else if (x) {//TODO as T?
-                if (!merge) {
-                    this.localCache[name] = [x]
-                    return [x]
+
+            var list = result.map((el) => {
+                let key = el;
+                let item = lut[key];
+                if (typeof key == "string" && item) {
+                    return item
+                } else if (el) { //isCVUObject?
+                    return item
                 }
-                else {
-                    result.push(x)
+                return {}
+            });
+        } else {
+            if (!uniqueKey)
+                uniqueKey = true;
+            let x = this.localCache[name];
+            if (Array.isArray(x)) {
+                return x
+            }
+
+            var result = [];
+            for (let def of this.cascadeStack) {
+                let x = def[name];
+                if (Array.isArray(x)) {
+                    if (!uniqueKey) {
+                        this.localCache[name] = x
+                        return x
+                    } else {
+                        result.push(x)
+                    }
+                } else if (def[name]) {
+                    if (!uniqueKey) {
+                        this.localCache[name] = [x]
+                        return [x]
+                    } else {
+                        result.push(x)
+                    }
                 }
             }
         }
 
-        this.localCache[name] = result
-        return result
+
+        this.localCache[name] = list ?? result
+
+        return list ?? result
     }
     
     
-    cascadeDict(name, defaultDict = [],
+    cascadeDict(name, defaultDict = {}, //TODO:
                         forceArray = false) {
         let x = this.localCache[name]
         if (typeof x === "object") { return x }
@@ -193,29 +237,29 @@ export class Cascadable {
         propName: string,
         lookupName: string,
         parsedType,
-        type = T.constructor
+        type = Cascadable
     ) {
         let x = this.localCache[propName]
-        if (x instanceof T) { return x }
+        //if (x instanceof type) { return x }
 
-        let head = this.head[lookupName] ?? P.init()
+        let head = this.head[lookupName] ?? new parsedType()
         this.head[lookupName] = head
 
-        let tail = this.tail/*.map((item) => { item[lookupName] as? P })*/
+        let tail = this.tail.map((item) => { return (item[lookupName] instanceof parsedType)? item[lookupName]: undefined })
 
-        let cascadable = T.init(head, tail, this)
+        let cascadable = new type(head, tail, this);
         this.localCache[propName] = cascadable
         return cascadable
     }
     
     constructor(
         head?: CVUParsedDefinition,
-        tail?: CVUParsedDefinition,
+        tail?: CVUParsedDefinition[],
         host?: Cascadable
     ) {
         this.host = host
-        this.tail = tail
-        this.head = head
+        this.tail = tail ?? []
+        this.head = head ?? new CVUParsedDefinition();
 
         this.cascadeStack = [this.head]
         this.cascadeStack.push(this.tail)

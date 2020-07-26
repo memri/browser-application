@@ -3,6 +3,12 @@ import {CVUSerializer} from "./CVUToString";
 class CVUToString {
     
 }
+export enum CompileScope {
+    all="all",
+    needed="needed",
+    none="none"
+}
+
 export class CVUParsedDefinition extends CVUToString {
     name: string
     selector: string

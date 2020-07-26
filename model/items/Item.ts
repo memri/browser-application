@@ -1,200 +1,32 @@
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {Views} from "../../cvu/views/Views";
-import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, unserialize} from "../../gui/util";
+import {decodeEdges, jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, unserialize} from "../../gui/util";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
-import {DatabaseController} from "../DatabaseController";
-import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {DatabaseController, ItemReference} from "../DatabaseController";
+import {AuditItem, getItemType, ItemFamily} from "../schema";
+import {RealmObjects, Realm} from "../RealmLocal";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
 }
 
-export enum ItemFamily {
-    typeAuditItem = "AuditItem",
-    typeCompany = "Company",
-    typeCreativeWork = "CreativeWork",
-    typeDigitalDocument = "DigitalDocument",
-    typeComment = "Comment",
-    typeNote = "Note",
-    typeMediaObject = "MediaObject",
-    typeAudio = "Audio",
-    typePhoto = "Photo",
-    typeVideo = "Video",
-    typeCVUStoredDefinition = "CVUStoredDefinition",
-    typeDatasource = "Datasource",
-    typeDevice = "Device",
-    typeDiet = "Diet",
-    typeDownloader = "Downloader",
-    typeEdge = "Edge",
-    typeFile = "File",
-    typeImporter = "Importer",
-    typeImporterRun = "ImporterRun",
-    typeIndexer = "Indexer",
-    typeIndexerRun = "IndexerRun",
-    typeLabel = "Label",
-    typeLocation = "Location",
-    typeAddress = "Address",
-    typeCountry = "Country",
-    typeMedicalCondition = "MedicalCondition",
-    typeNavigationItem = "NavigationItem",
-    typeOnlineProfile = "OnlineProfile",
-    typePerson = "Person",
-    typePhoneNumber = "PhoneNumber",
-    typePublicKey = "PublicKey",
-    typeSession = "Session",
-    typeSessions = "Sessions",
-    typeSessionView = "SessionView",
-    typeSetting = "Setting",
-    typeSyncState = "SyncState",
-    typeUserState = "UserState",
-    typeViewArguments = "ViewArguments",
-    typeWebsite = "Website",
+export function UUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
-//export var discriminator = Discriminator._type //TODO:
-
-export var backgroundColor = function(name) {
-    switch (name) {
-        case ItemFamily.typeAuditItem: return new Color("#93c47d")
-        case ItemFamily.typeCompany: return new Color("#93c47d")
-        case ItemFamily.typeCreativeWork: return new Color("#93c47d")
-        case ItemFamily.typeDigitalDocument: return new Color("#93c47d")
-        case ItemFamily.typeComment: return new Color("#93c47d")
-        case ItemFamily.typeNote: return new Color("#93c47d")
-        case ItemFamily.typeMediaObject: return new Color("#93c47d")
-        case ItemFamily.typeAudio: return new Color("#93c47d")
-        case ItemFamily.typePhoto: return new Color("#93c47d")
-        case ItemFamily.typeVideo: return new Color("#93c47d")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#93c47d")
-        case ItemFamily.typeDatasource: return new Color("#93c47d")
-        case ItemFamily.typeDevice: return new Color("#93c47d")
-        case ItemFamily.typeDiet: return new Color("#37af1c")
-        case ItemFamily.typeDownloader: return new Color("#93c47d")
-        case ItemFamily.typeEdge: return new Color("#93c47d")
-        case ItemFamily.typeFile: return new Color("#93c47d")
-        case ItemFamily.typeImporter: return new Color("#93c47d")
-        case ItemFamily.typeImporterRun: return new Color("#93c47d")
-        case ItemFamily.typeIndexer: return new Color("#93c47d")
-        case ItemFamily.typeIndexerRun: return new Color("#93c47d")
-        case ItemFamily.typeLabel: return new Color("#93c47d")
-        case ItemFamily.typeLocation: return new Color("#93c47d")
-        case ItemFamily.typeAddress: return new Color("#93c47d")
-        case ItemFamily.typeCountry: return new Color("#93c47d")
-        case ItemFamily.typeMedicalCondition: return new Color("#3dc8e2")
-        case ItemFamily.typeNavigationItem: return new Color("#93c47d")
-        case ItemFamily.typeOnlineProfile: return new Color("#93c47d")
-        case ItemFamily.typePerson: return new Color("#3a5eb2")
-        case ItemFamily.typePhoneNumber: return new Color("#eccf23")
-        case ItemFamily.typePublicKey: return new Color("#93c47d")
-        case ItemFamily.typeSession: return new Color("#93c47d")
-        case ItemFamily.typeSessions: return new Color("#93c47d")
-        case ItemFamily.typeSessionView: return new Color("#93c47d")
-        case ItemFamily.typeSetting: return new Color("#93c47d")
-        case ItemFamily.typeSyncState: return new Color("#93c47d")
-        case ItemFamily.typeUserState: return new Color("#93c47d")
-        case ItemFamily.typeViewArguments: return new Color("#93c47d")
-        case ItemFamily.typeWebsite: return new Color("#3d57e2")
-    }
-}
-
-export var foregroundColor = function(name) {
-    switch (name) {
-        case ItemFamily.typeAuditItem: return new Color("#ffffff")
-        case ItemFamily.typeCompany: return new Color("#ffffff")
-        case ItemFamily.typeCreativeWork: return new Color("#ffffff")
-        case ItemFamily.typeDigitalDocument: return new Color("#ffffff")
-        case ItemFamily.typeComment: return new Color("#ffffff")
-        case ItemFamily.typeNote: return new Color("#ffffff")
-        case ItemFamily.typeMediaObject: return new Color("#ffffff")
-        case ItemFamily.typeAudio: return new Color("#ffffff")
-        case ItemFamily.typePhoto: return new Color("#ffffff")
-        case ItemFamily.typeVideo: return new Color("#ffffff")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#ffffff")
-        case ItemFamily.typeDatasource: return new Color("#ffffff")
-        case ItemFamily.typeDevice: return new Color("#ffffff")
-        case ItemFamily.typeDiet: return new Color("#ffffff")
-        case ItemFamily.typeDownloader: return new Color("#ffffff")
-        case ItemFamily.typeEdge: return new Color("#ffffff")
-        case ItemFamily.typeFile: return new Color("#ffffff")
-        case ItemFamily.typeImporter: return new Color("#ffffff")
-        case ItemFamily.typeImporterRun: return new Color("#ffffff")
-        case ItemFamily.typeIndexer: return new Color("#ffffff")
-        case ItemFamily.typeIndexerRun: return new Color("#ffffff")
-        case ItemFamily.typeLabel: return new Color("#ffffff")
-        case ItemFamily.typeLocation: return new Color("#ffffff")
-        case ItemFamily.typeAddress: return new Color("#ffffff")
-        case ItemFamily.typeCountry: return new Color("#ffffff")
-        case ItemFamily.typeMedicalCondition: return new Color("#ffffff")
-        case ItemFamily.typeNavigationItem: return new Color("#ffffff")
-        case ItemFamily.typeOnlineProfile: return new Color("#ffffff")
-        case ItemFamily.typePerson: return new Color("#ffffff")
-        case ItemFamily.typePhoneNumber: return new Color("#ffffff")
-        case ItemFamily.typePublicKey: return new Color("#ffffff")
-        case ItemFamily.typeSession: return new Color("#ffffff")
-        case ItemFamily.typeSessions: return new Color("#ffffff")
-        case ItemFamily.typeSessionView: return new Color("#ffffff")
-        case ItemFamily.typeSetting: return new Color("#ffffff")
-        case ItemFamily.typeSyncState: return new Color("#ffffff")
-        case ItemFamily.typeUserState: return new Color("#ffffff")
-        case ItemFamily.typeViewArguments: return new Color("#ffffff")
-        case ItemFamily.typeWebsite: return new Color("#ffffff")
-    }
-}
-/*
-export var getPrimaryKey = function(name) {
-    return new (getItemType(name))().primaryKey() ?? ""
-}*/
-
-export var getItemType = function(name) {
-    switch (name) {
-        case ItemFamily.typeAuditItem: return "AuditItem"
-        case ItemFamily.typeCompany: return "Company"
-        case ItemFamily.typeCreativeWork: return "CreativeWork"
-        case ItemFamily.typeDigitalDocument: return "DigitalDocument"
-        case ItemFamily.typeComment: return "Comment"
-        case ItemFamily.typeNote: return "Note"
-        case ItemFamily.typeMediaObject: return "MediaObject"
-        case ItemFamily.typeAudio: return "Audio"
-        case ItemFamily.typePhoto: return "Photo"
-        case ItemFamily.typeVideo: return "Video"
-        case ItemFamily.typeCVUStoredDefinition: return "CVUStoredDefinition"
-        case ItemFamily.typeDatasource: return "Datasource"
-        case ItemFamily.typeDevice: return "Device"
-        case ItemFamily.typeDiet: return "Diet"
-        case ItemFamily.typeDownloader: return "Downloader"
-        case ItemFamily.typeEdge: return "Edge"
-        case ItemFamily.typeFile: return "File"
-        case ItemFamily.typeImporter: return "Importer"
-        case ItemFamily.typeImporterRun: return "ImporterRun"
-        case ItemFamily.typeIndexer: return "Indexer"
-        case ItemFamily.typeIndexerRun: return "IndexerRun"
-        case ItemFamily.typeLabel: return "Label"
-        case ItemFamily.typeLocation: return "Location"
-        case ItemFamily.typeAddress: return "Address"
-        case ItemFamily.typeCountry: return "Country"
-        case ItemFamily.typeMedicalCondition: return "MedicalCondition"
-        case ItemFamily.typeNavigationItem: return "NavigationItem"
-        case ItemFamily.typeOnlineProfile: return "OnlineProfile"
-        case ItemFamily.typePerson: return "Person"
-        case ItemFamily.typePhoneNumber: return "PhoneNumber"
-        case ItemFamily.typePublicKey: return "PublicKey"
-        case ItemFamily.typeSession: return "Session"
-        case ItemFamily.typeSessions: return "Sessions"
-        case ItemFamily.typeSessionView: return "SessionView"
-        case ItemFamily.typeSetting: return "Setting"
-        case ItemFamily.typeSyncState: return "SyncState"
-        case ItemFamily.typeUserState: return "UserState"
-        case ItemFamily.typeViewArguments: return "ViewArguments"
-        case ItemFamily.typeWebsite: return "Website"
-    }
-}
 
 /// Item is the baseclass for all of the data classes.
 export class SchemaItem {
+    get genericType() {
+        return 'type'+this.constructor.name;
+    }
     /// A collection of all edges this Item is connected to.
-    allEdges: RealmObjects = []
+    allEdges: RealmObjects = new RealmObjects();
     /// Last access date of the Item.
     dateAccessed: Date
     /// Creation date of the Item.
@@ -218,8 +50,8 @@ export class SchemaItem {
     uid
 
     superDecode(decoder: Decoder) {
-        /*decodeEdges(decoder, "allEdges", this)
-        this.dateAccessed = decoder.decodeIfPresent("dateAccessed") ?? this.dateAccessed
+        decodeEdges(decoder, "allEdges", this)
+        /*this.dateAccessed = decoder.decodeIfPresent("dateAccessed") ?? this.dateAccessed
         this.dateCreated = decoder.decodeIfPresent("dateCreated") ?? this.dateCreated
         this.dateModified = decoder.decodeIfPresent("dateModified") ?? this.dateModified
         this.deleted = decoder.decodeIfPresent("deleted") ?? this.deleted
@@ -228,7 +60,7 @@ export class SchemaItem {
         this.starred = decoder.decodeIfPresent("starred") ?? this.starred
         this.syncState = decoder.decodeIfPresent("syncState") ?? this.syncState
         this.version = decoder.decodeIfPresent("version") ?? this.version
-        this.uid.value = decoder.decodeIfPresent("uid") ?? this.uid.value*/
+        this.uid = decoder.decodeIfPresent("uid") ?? this.uid*/
     }
 
     /*enum CodingKeys {
@@ -240,7 +72,7 @@ export class SchemaItem {
 export class Item extends SchemaItem {
     /// Title computed by implementations of the Item class
     get computedTitle() {
-        return `${this.genericType} [${this.uid.value ?? -1000}]`
+        return `${this.genericType} [${this.uid ?? -1000}]`
     }
 
     functions = {}
@@ -252,7 +84,7 @@ export class Item extends SchemaItem {
 
     get toString() {
         var str = `${this.genericType} ${this.realm == undefined ? "[UNMANAGED] " : ""}{\n`
-            + `    uid: ${this.uid.value == undefined ? "null" : String(this.uid.value ?? 0)}\n`
+            + `    uid: ${this.uid == undefined ? "null" : String(this.uid ?? 0)}\n`
             + `    _updated: ${this["_updated"].length == 0 ? "[]" : `[${this["_updated"].join(", ")}]`}\n`
             + "    " + this.objectSchema.properties
                 .filter(item => {
@@ -280,8 +112,14 @@ export class Item extends SchemaItem {
         return this.edges("changelog")?.items(AuditItem.constructor); //TODO:
     }
 
-    constructor() {
+    constructor(objectFromRealm?) {
         super();
+
+        if (objectFromRealm) {
+            for (let key in objectFromRealm) {
+                this[key] = objectFromRealm[key];
+            }
+        }
 
         this.functions["describeChangelog"] = function () {
             let dateCreated = Views.formatDate(this.dateCreated);
@@ -355,7 +193,7 @@ export class Item extends SchemaItem {
     getString(name: string) {
         if (this.objectSchema[name] == undefined) {
             //#if DEBUG
-            console.log(`Warning: getting property that this item doesnt have: ${name} for ${this.genericType}:${this.uid.value ?? -1000}`)
+            console.log(`Warning: getting property that this item doesnt have: ${name} for ${this.genericType}:${this.uid ?? -1000}`)
             //#endif
 
             return ""
@@ -382,14 +220,16 @@ export class Item extends SchemaItem {
     /// - Parameter propName: name of the property
     /// - Returns: boolean indicating whether Item has the property
     hasProperty(propName: string) {
-        for (let prop of this.objectSchema.properties) {
-            if (prop.name == propName) {
-                return true
-            }
-            let haystack = this[prop.name];
-            if (typeof haystack == "string") {
-                if (haystack.toLowerCase().indexOf(propName.toLowerCase()) > -1) {
+        for (let prop in this) {
+            if (this.hasOwnProperty(prop)) {
+                if (this[prop] == propName) {
                     return true
+                }
+                let haystack = this[prop.name];
+                if (typeof haystack == "string") {
+                    if (haystack.toLowerCase().indexOf(propName.toLowerCase()) > -1) {
+                        return true
+                    }
                 }
             }
         }
@@ -401,7 +241,7 @@ export class Item extends SchemaItem {
     /// - Parameters:
     ///   - name: property name
     get(name: string) {
-        if (this.objectSchema[name] != undefined) {
+        if (this[name] != undefined) {
             return this[name]
         } else if (this.edge(name)) {
             return this.edge(name).target();
@@ -414,31 +254,22 @@ export class Item extends SchemaItem {
     ///   - name: property name
     ///   - value: value
     set(name: string, value) {
-        DatabaseController.writeSync(function () {
-            let schema = this.objectSchema[name];
-            if (schema) {
-                if (this.isEqualValue(this[name], value))
-                    return;
-                switch (schema.type) {
-                    case "number":
-                        this[name] = Number(value)
-                        break;
-                    default:
-                        this[name] = value
-                }
-
+        DatabaseController.writeSync(() => {
+            //let schema = this[name];
+            if  (typeof value != "object" || !value) {
+                this[name] = value
                 this.modified([name])
-            } else if (value) {
-                let obj = value;
-                this.link(obj, name, true)
             } else if (Array.isArray(value)) {
                 let list = value;
                 for (let obj of list) {
                     this.link(obj, name);
                 }
+            } else {
+                let obj = value;
+                this.link(obj, name, true)
             }
             this.dateModified = new Date() // Update DateModified
-        }.bind(this))
+        })
     }
 
     /// Flattens the type hierarchy in sequence to search through all related edge types
@@ -454,7 +285,7 @@ export class Item extends SchemaItem {
     }
 
     reverseEdges(edgeType: string) {
-        if (this.realm && !this.uid.value) {
+        if (this.realm && !this.uid) {
             return null;
         }
 
@@ -467,7 +298,7 @@ export class Item extends SchemaItem {
     }
 
     reverseEdge(edgeType: string) {
-        if (this.realm && !this.uid.value) {
+        if (this.realm && !this.uid) {
             return null;
         }
 
@@ -505,7 +336,7 @@ export class Item extends SchemaItem {
                 return this.edges(collection)
             }
 
-            return this.allEdges.filtered(`deleted = false AND type = '${edgeType}'`)
+            return this.allEdges.filtered(`type = '${edgeType}'`) //deleted = false AND
         }
 
     }
@@ -608,7 +439,7 @@ export class Item extends SchemaItem {
 
 
         let targetID = item["uid"];
-        if (item.objectSchema["uid"] != undefined && typeof targetID == "number") {
+        if (item["uid"] != undefined && typeof targetID == "number") {
 
         } else {
             throw "Exception: Missing uid on target"
@@ -620,8 +451,8 @@ export class Item extends SchemaItem {
 
         let query = `deleted = false and type = '${edgeType}'`
             + (distinct ? "" : ` and targetItemID = ${targetID}`)
-        var edge = this.allEdges.filtered(query)[0] //TODO
-        let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
+        var edge /*= this.allEdges.filtered(query)[0]*/ //TODO
+        let sequenceNumber /*= this.determineSequenceNumber(edgeType, sequence);*/
 
         DatabaseController.writeSync(function () {
             if (item.realm == undefined && item instanceof Item) {
@@ -630,7 +461,7 @@ export class Item extends SchemaItem {
             }
 
             if (edge == undefined) {
-                edge = new CacheMemri().createEdge(
+                edge = CacheMemri.createEdge(
                     this,
                     item,
                     edgeType,
@@ -652,7 +483,7 @@ export class Item extends SchemaItem {
             } else if (edge == undefined) {
                 throw "Exception: Could not create link"
             }
-        })
+        }.bind(this))
 
         return edge
     }
@@ -673,7 +504,7 @@ export class Item extends SchemaItem {
 
     unlink(edge: Edge | Item, edgeType?: string, all: boolean = true) {
         if (edge instanceof Edge) {
-            if (edge.sourceItemID.value == this.uid.value && edge.sourceItemType == this.genericType) {
+            if (edge.sourceItemID.value == this.uid && edge.sourceItemType == this.genericType) {
                 DatabaseController.writeSync(function () {
                     edge.deleted = true;
                     edge["_action"] = "delete"
@@ -715,9 +546,9 @@ export class Item extends SchemaItem {
     /// Toggle boolean property
     /// - Parameter name: property name
     toggle(name: string) {
-        if (this.objectSchema[name]?.type != "boolean") {
+        /*if (this.objectSchema[name]?.type != "boolean") {
             throw `'${name}' is not a boolean property`
-        }
+        }*/
 
         let val = Boolean(this[name]) ?? false
         this.set(name, !val);
@@ -729,7 +560,7 @@ export class Item extends SchemaItem {
     ///   - item: item to compare against
     /// - Returns: boolean indicating whether the property values are the same
     isEqualProperty(propName: string, item: Item) {
-        let prop = this.objectSchema[propName];
+        let prop = this[propName];
         if (prop) {
             // List
             if (Array.isArray(prop)) {
@@ -815,29 +646,31 @@ export class Item extends SchemaItem {
     }
 
     doMerge(item: Item, mergeDefaults: boolean = false) {
-        let properties = this.objectSchema.properties
-        for (let prop of properties) {
-            // Exclude SyncState
-            if (prop.name == "_updated" || prop.name == "_action" || prop.name == "_partial"
-                || prop.name == "deleted" || prop.name == "_changedInSession" || prop.name == "uid") {
-                continue
-            }
-
-            // Perhaps not needed:
-            // - TODO needs to detect lists which will always be set
-            // - TODO needs to detect optionals which will always be set
-
-            // Overwrite only the property values that are not already set
-            if (mergeDefaults) {
-                if (this[prop.name] == undefined) {
-                    this[prop.name] = item[prop.name]
+        let properties = this
+        for (let prop in properties) {
+            if (properties.hasOwnProperty(prop)) {
+                // Exclude SyncState
+                if (prop.name == "_updated" || prop.name == "_action" || prop.name == "_partial"
+                    || prop.name == "deleted" || prop.name == "_changedInSession" || prop.name == "uid") {
+                    continue
                 }
-            }
-                // Overwrite all property values with the values from the passed item, with the
-            // exception, that values cannot be set ot nil
-            else {
-                if (item[prop.name] != undefined) {
-                    this[prop.name] = item[prop.name]
+
+                // Perhaps not needed:
+                // - TODO needs to detect lists which will always be set
+                // - TODO needs to detect optionals which will always be set
+
+                // Overwrite only the property values that are not already set
+                if (mergeDefaults) {
+                    if (this[prop.name] == undefined) {
+                        this[prop.name] = item[prop.name]
+                    }
+                }
+                    // Overwrite all property values with the values from the passed item, with the
+                // exception, that values cannot be set ot nil
+                else {
+                    if (item[prop.name] != undefined) {
+                        this[prop.name] = item[prop.name]
+                    }
                 }
             }
         }
@@ -853,22 +686,27 @@ export class Item extends SchemaItem {
             }
             item.dateAccessed = new Date()
 
-            let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "read"});
+            let auditItem = CacheMemri.createItem("AuditItem", {"action": "read"});
             item.link(auditItem, "changelog");
         });
     }
 
     /// update the dateAccessed property to the current date
     modified(updatedFields: string[]) {
-        let safeSelf = ItemReference(this) //TODO:
+        let safeSelf = new ItemReference(this) //TODO:
         DatabaseController.writeAsync((realm: Realm) => {
             let item = safeSelf.resolve();
             if (!item) {
                 return
             }
 
+            item = new Item(item);
+
             let previousModified = item.dateModified
             item.dateModified = new Date()
+            if (!item["_updated"]) {
+                item["_updated"] = [];
+            }
 
             for (let field of updatedFields) {
                 if (!item["_updated"].includes(field)) {
@@ -876,9 +714,10 @@ export class Item extends SchemaItem {
                 }
             }
 
-            if (previousModified?.distance(new Date()) ?? 0 < 300) /* 5 minutes */ {
+            /*if (previousModified?.distance(new Date()) ?? 0 < 300) /!* 5 minutes *!/ {
                 //#warning("Test that .last gives the last added audit item")
-                let auditItem = item.edges("changelog")?.last?.item(AuditItem.constructor);
+                let itemEdges = item.edges("changelog").filtered("_type = AuditItem");
+                let auditItem = itemEdges[itemEdges.length - 1];
                 let content = auditItem.content;
                 var dict = unserialize(content);
                 if (auditItem && content && dict) {
@@ -891,19 +730,19 @@ export class Item extends SchemaItem {
                     auditItem.content = String(MemriJSONEncoder(dict)) ?? ""
                     return;
                 }
-            }
+            }*/
 
             var dict = {}
             for (let field of updatedFields) {
-                if (item.objectSchema[field] == undefined) {
+                /*if (item.objectSchema[field] == undefined) {
                     throw "Invalid update call"
-                }
+                }*/
                 dict[field] = item[field]
             }
 
             let content = String(MemriJSONEncoder(dict)) ?? ""
             let auditItem = CacheMemri.createItem(
-                AuditItem.constructor, {
+                "AuditItem", {
                     "action": "update",
                     "content": content
                 }
@@ -918,7 +757,7 @@ export class Item extends SchemaItem {
     ///   - rhs: Item 2
     /// - Returns: boolean indicating equality
 /*public static func == (lhs: Item, rhs: Item) -> Bool {
-        lhs.uid.value == rhs.uid.value
+        lhs.uid == rhs.uid
     }*/ //TODO
 
     /// Reads Items from file
@@ -944,6 +783,75 @@ export class Item extends SchemaItem {
         return items
     }
 }
+
+Object.assign(RealmObjects.prototype, {
+    lookup(type?, dir: Direction = Direction.target) {
+        if (this.length == 0) {
+            return
+        }
+
+        var listType = type
+        if (listType == undefined) {
+            let strType = dir == Direction.target ? this?.targetItemType : this?.sourceItemType;
+            let itemType = ItemFamily[strType];
+            if (strType && itemType) {
+                listType = getItemType(itemType).constructor.name;
+            }
+        }
+        let finalType = listType;
+        if (!finalType) {
+            return undefined;
+        }
+
+        try {
+            return DatabaseController.tryRead((realm) => {
+                let filter = "uid = "
+                    + this.map ( (item) => {
+                        let value = (dir == Direction.target ? item.targetItemID : item.sourceItemID);
+                    if (value) {
+                        return String(value)
+                    }
+                    return undefined
+                }).join(" or uid = ")
+                return realm.objects(finalType).filtered(filter); //.objects(finalType)
+            })
+        } catch (error) {
+            debugHistory.error(`${error}`);
+            return undefined;
+        }
+    },
+    items(type) { return this.lookup(type) },
+    targets(type) { return this.lookup(type) },
+    sources(type) { return this.lookup(type, Direction.source) },
+    /*itemsArray(type _: T.Type? = T.self) -> [T] {
+    var result = [T]()
+
+    for edge in self {
+        if let target = edge.target() as? T {
+            result.append(target)
+        }
+    }
+
+    return result
+}
+func edgeArray() -> [Edge] {
+        var result = [Edge]()
+
+        for edge in self {
+            result.append(edge)
+        }
+
+        return result
+    }
+*/
+
+
+})
+
+enum Direction {
+    source, target
+}
+
 
 /*extension RealmSwift.Results where Element == Edge {
     private enum Direction {
@@ -1141,7 +1049,7 @@ export class Edge {
             throw `Invalid JSON, no _type specified for target: ${dict}`
         }
 
-        let type = getItemType(ItemFamily[itemType]);
+        let type = getItemType(ItemFamily[itemType]).constructor.name;
         if (!type) {//TODO as? Object.Type
             throw `Invalid target item type specificed: ${itemType}`
         }
@@ -1172,5 +1080,60 @@ export class Edge {
         this.sequence.value = sequence
         this.edgeLabel = label
         this._action = action
+    }
+}
+
+
+/// TBD
+export class CVUStoredDefinition extends Item {
+    /// TBD
+    definition?: string;
+    /// TBD
+    domain?: string
+    /// The name of the item.
+    name?: string
+    /// TBD
+    query?: string
+    /// TBD
+    selector?: string
+    /// TBD
+    type?: string
+
+    constructor(objectFromRealm) {
+        super();
+        for (let key in objectFromRealm) {
+            this[key] = objectFromRealm[key];
+        }
+    }
+}
+
+export class CVUStateDefinition extends CVUStoredDefinition {
+    static fromCVUStoredDefinition(stored: CVUStoredDefinition) {
+        return CacheMemri.createItem("CVUStateDefinition", {
+            "definition": stored.definition,
+            "domain": "state",
+            "name": stored.name,
+            "query": stored.query,
+            "selector": stored.selector,
+            "type": stored.type
+        })
+    }
+
+    static fromCVUParsedDefinition(parsed: CVUParsedDefinition) {
+        return CacheMemri.createItem("CVUStateDefinition", {
+            "definition": parsed.toCVUString(0, "    "),
+            "domain": "state",
+            "name": parsed.name,
+//            "query": stores.query,
+            "selector": parsed.selector,
+            "type": parsed.definitionType
+        })
+    }
+
+    constructor(objectFromRealm) {
+        super(objectFromRealm);
+        for (let key in objectFromRealm) {
+            this[key] = objectFromRealm[key];
+        }
     }
 }

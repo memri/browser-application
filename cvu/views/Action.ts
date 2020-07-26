@@ -14,8 +14,7 @@ import {Datasource} from "../../api/Datasource";
 import {MemriContext} from "../../context/MemriContext";
 import {CacheMemri} from "../../model/Cache";
 import {ViewArguments} from "./CascadableDict";
-import {CVUStateDefinition} from "../../model/items/Other";
-import {Item} from "../../model/items/Item";
+import {Item, CVUStateDefinition} from "../../model/items/Item";
 import {ImporterRun, IndexerRun} from "../../model/schema";
 
 export class Action/* : HashableClass, CVUToString*/ {
@@ -729,6 +728,7 @@ export class ActionShowNavigation extends Action {
     }
 
     exec(argumentsJs) {
+        this.context.showNavigationBinding();
         // Hide Keyboard
         //dismissCurrentResponder()//TODO
     }
@@ -1048,7 +1048,7 @@ export class ActionRunImporter extends Action {
         // TODO: parse options
         let run = argumentsJs["importerRun"];
         if (run instanceof ImporterRun) {
-            let uid = run.uid.value;
+            let uid = run.uid;
             if (!uid) {
                 throw "Uninitialized import run"
             }
@@ -1096,7 +1096,7 @@ export class ActionRunIndexer extends Action {
                     return
                 }
 
-                let uid = run.uid.value
+                let uid = run.uid
                 if (!uid) {
                     debugHistory.error("Item does not have a uid")
                     return

@@ -1,6 +1,7 @@
 import {debugHistory} from "../cvu/views/ViewDebugger";
 //import {getItemType, ItemFamily} from "../model/items/Item";
 import {DatabaseController} from "../model/DatabaseController";
+import {getItemType, ItemFamily} from "../model/schema";
 //var fs = require("fs");
 
 export var MemriJSONEncoder = function (x) {
@@ -84,7 +85,7 @@ export function decodeEdges(decoder: Decoder, key: string, source: Item) {
         if (edges) {
             for (let edge of edges) {
                 edge.sourceItemType = source.genericType
-                edge.sourceItemID.value = source.uid.value
+                edge.sourceItemID.value = source.uid
             }
             source[key] = edges
         }

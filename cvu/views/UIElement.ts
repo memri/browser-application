@@ -16,11 +16,10 @@ import {
 	VerticalAlignment
 } from "../../parsers/cvu-parser/CVUParser";
 import {Action} from "./Action";
-import {UUID} from "../../model/DataItem";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "./ViewDebugger";
 import {Datasource} from "../../api/Datasource";
-import {Item} from "../../model/items/Item";
+import {Item, UUID} from "../../model/items/Item";
 import {dataItemListToArray} from "../../model/schema";
 
 export class UIElement /*extends CVUToString */{

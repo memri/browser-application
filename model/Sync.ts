@@ -39,10 +39,11 @@
 /// background, items are updated automatically.
 import {PodAPI} from "../api/api";
 import {Datasource} from "../api/Datasource";
-import {Edge,getItemType, ItemFamily} from "./items/Item";
+import {Edge} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "./Cache";
 import {DatabaseController} from "./DatabaseController";
+import {getItemType, ItemFamily} from "./schema";
 
 export class Sync {
 	/// PodAPI Object to use for executing queries
@@ -91,7 +92,7 @@ export class Sync {
                 // Store query in a log item
                 let audititem = new AuditItem()
 
-                audititem.uid.value = CacheMemri.incrementUID()
+                audititem.uid = CacheMemri.incrementUID()
                 audititem.content = String(data) ?? ""
                 audititem.action = "query"
                 audititem.date = new Date()
@@ -245,7 +246,7 @@ export class Sync {
             for (var itemType in ItemFamily) {
                 if (itemType == ItemFamily.typeUserState) { continue }
 
-                let type = getItemType(itemType);
+                let type = getItemType(itemType).constructor.name;
                 if (type) {
                     let items = realm.objects(type).filtered((_action) => _action != undefined) //TODO:
                     for (var item of items) {

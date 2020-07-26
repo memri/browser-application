@@ -25,6 +25,8 @@
  Display any errors in the console
  */
 
+import {UUID} from "../../model/items/Item";
+
 enum InfoType {//TODO
 	info, warn, error
 
@@ -45,7 +47,6 @@ enum InfoType {//TODO
 	}*/
 }
 
-import {UUID} from "../../model/DataItem";
 import {settings} from "../../model/Settings";
 
 class InfoState /*extends Hashable*/ {

@@ -11,7 +11,7 @@ import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinit
 import {DataItem} from "../../model/DataItem";
 import {Views} from "./Views";
 
-export class Session extends DataItem {
+class Session extends DataItem {
  
     genericType() { return "Session" }
  
