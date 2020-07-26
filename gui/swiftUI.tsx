@@ -103,6 +103,16 @@ export class MemriButton extends MainUI {
     }
 }
 
+export class NavigationView extends MainUI {
+    render() {
+        return (
+            <div className={"NavigationView"}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
 /*export class ActionButton extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
@@ -196,6 +206,17 @@ export class ASTableView extends MainUI {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
             <List style={this.setStyles()} className="ASTableView" {...other}>
+                {this.props.children}
+            </List>
+        )
+    }
+}
+
+export class MemriList extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <List style={this.setStyles()} className="MemriList" {...other}>
                 {this.props.children}
             </List>
         )

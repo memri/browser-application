@@ -14,6 +14,8 @@ import {allRenderers} from "../../cvu/views/Renderers";
 import {Search} from "./Search";
 import {FilterPanel} from "./FilterPanel";
 import {ContextPane} from "../contextpane/ContextPane";
+import {CascadableView} from "../../cvu/views/CascadableView";
+import {ContextualBottomBar} from "./ContextualBottomBar";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends MainUI {
@@ -24,20 +26,41 @@ export class Browser extends MainUI {
 	}
 
 	get activeRenderer() {
-		return allRenderers?.allViews[this.context.cascadingView?.activeRenderer ?? ""] ?? Spacer
+		return allRenderers?.allViews[this.context.currentView?.activeRenderer ?? ""] ?? Spacer
 	}
 
 	render() {
 		this.init() //fullHeight layoutPriority={1}
+
+		let currentView = this.context.currentView ?? new CascadableView()
+		currentView.showToolbar = true
+		currentView.fullscreen = false
+
 		return (
 			<ZStack>
-				<VStack alignment={Alignment.center} spacing={0}>
-					<TopNavigation background={new Color("systemBackground").toLowerCase()} context={this.context}/>
-					<this.activeRenderer text={"Browser"}/>
-					<Search context={this.context}/>
-					{this.context.currentSession?.showFilterPanel && <FilterPanel context={this.context}/>}
-				</VStack>
-				<ContextPane context={this.context}/>
+				{this.context.currentView == undefined ? "Loading..." :
+					<>
+						<VStack alignment={Alignment.center} spacing={0}>
+							{currentView.showToolbar
+								&& !currentView.fullscreen
+								&& <TopNavigation background={new Color("systemBackground").toLowerCase()}
+												  context={this.context}/>
+							}
+							<this.activeRenderer context={this.context}/>
+
+							<ContextualBottomBar context={this.context}/>
+
+							{currentView.showSearchbar && !currentView.fullscreen &&
+								<>
+									<Search context={this.context}/>
+									{this.context.currentSession?.showFilterPanel ||
+										<FilterPanel context={this.context}/>}
+								</>
+							}
+						</VStack>
+						{currentView.contextPane ? <ContextPane context={this.context}/> : ""}
+					</>
+				}
 			</ZStack>
 		);
 	}
