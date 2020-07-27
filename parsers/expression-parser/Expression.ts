@@ -156,9 +156,9 @@ export class Expression {
 
         if (value == null) { return null}
         if (typeof value == "object") { return value }
-        if (typeof value == "boolean") { return new ExprInterpreter(undefined, undefined, undefined).evaluateBoolean(value) }
-        if (typeof value == "number") { return new ExprInterpreter(undefined, undefined, undefined).evaluateNumber(value) }
-        if (typeof value == "string") { return new ExprInterpreter(undefined, undefined, undefined).evaluateString(value) }
+        if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value) }
+        if (typeof value == "number") { return ExprInterpreter.evaluateNumber(value) }
+        if (typeof value == "string") { return ExprInterpreter.evaluateString(value) }
         //TODO: dateTime
         //TODO: this should be quite the same
         return null;

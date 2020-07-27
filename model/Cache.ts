@@ -341,7 +341,7 @@ export class CacheMemri {
 	}
 
 	// TODO: does this work for subobjects?
-	bindChangeListeners(item: Item) {
+	bindChangeListeners(item: Item) { //TODO???
 		this.rlmTokens.push(item.observe((objectChange) => {
 			if (item.change == objectChange) {//TODO
 				if (item["_action"] == undefined) {
@@ -377,7 +377,7 @@ export class CacheMemri {
 				DatabaseController.writeSync(() => {//TODO
 					item.deleted = true
 					item["_action"] = "delete";
-					let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "delete"})
+					let auditItem = CacheMemri.createItem("AuditItem", {"action": "delete"})
 					item.link(auditItem, "changelog");
 
 					this.sync.schedule()
@@ -389,7 +389,7 @@ export class CacheMemri {
 					if (!el.deleted) {
 						el.deleted = true
 						el["_action"] = "delete";
-						let auditItem = CacheMemri.createItem(AuditItem.constructor, {"action": "delete"})
+						let auditItem = CacheMemri.createItem("AuditItem", {"action": "delete"})
 						el.link(auditItem, "changelog");
 					}
 				}
@@ -412,9 +412,11 @@ export class CacheMemri {
 		if (itemType) {
 			var dict= {};
 
-			for (var prop of item.objectSchema.properties) {
-				if (!excludes.includes(prop.name)) {
-					dict[prop.name] = item[prop.name]
+			for (var prop in item) {
+				if (item.hasOwnProperty(prop)) {
+					if (!excludes.includes(prop)) {
+						dict[prop] = item[prop]
+					}
 				}
 			}
 
@@ -431,7 +433,7 @@ export class CacheMemri {
 	static incrementUID() {
 		DatabaseController.writeSync((realm: Realm) => {
 			if (cacheUIDCounter == -1) {
-				let setting = realm.objectForPrimaryKey("Setting", -1); //TODO:
+				let setting = realm.objectForPrimaryKey("Setting", -1);
 				if (setting && setting.json) {
 					cacheUIDCounter = Number(setting.json);
 				} else {
@@ -503,17 +505,19 @@ export class CacheMemri {
 				let properties = fromCache/*.objectSchema.properties*/;
 				let excluded = ["uid", "dateCreated", "dateAccessed", "dateModified"]
 				for (let prop in properties) {
-					if (!excluded.includes(properties[prop]) && values[prop] != undefined) {
-						/*if (prop.type == "date") {//TODO:
-							let date = values[prop.name];
-							if (typeof date == "number") {
-								fromCache[prop.name] = new Date(date / 1000);
-							} else {
-								throw `Invalid date received for ${prop.name} got ${String(values[prop.name] ?? "")}`
-							}
-						} else {*/
+					if (properties.hasOwnProperty(prop)) {
+						if (!excluded.includes(properties[prop]) && values[prop] != undefined) {
+							/*if (prop.type == "date") {//TODO:
+                                let date = values[prop.name];
+                                if (typeof date == "number") {
+                                    fromCache[prop.name] = new Date(date / 1000);
+                                } else {
+                                    throw `Invalid date received for ${prop.name} got ${String(values[prop.name] ?? "")}`
+                                }
+                            } else {*/
 							fromCache[prop] = values[prop]
-						//}
+							//}
+						}
 					}
 				}
 				fromCache["dateModified"] = new Date();

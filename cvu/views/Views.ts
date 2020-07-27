@@ -411,7 +411,7 @@ export class Views {
 					args.set(".", list[item]);
 					let hasFound = interpret.execSingle(expr, args);
 					if (hasFound &&
-						new ExprInterpreter().evaluateBoolean(hasFound)) {
+						ExprInterpreter.evaluateBoolean(hasFound)) {
 						value = list[item];
 						break;
 					}

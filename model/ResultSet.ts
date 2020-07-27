@@ -34,7 +34,7 @@ export class ResultSet {
 		// TODO: implement (more) proper query language (and parser)
 		let query = this.datasource.query
 
-		if (query != "") {
+		if (query && query != "") {
 			let typeName = query.split(" ")[0]
 			if (typeName) {
 				return String(typeName == "*" ? "mixed" : typeName)

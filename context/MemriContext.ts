@@ -423,9 +423,9 @@ export class MemriContext {
 					this.executeActionThrows(actions, dataItem, viewArguments)
 					//}
 				}
-			} catch {
+			} catch (error) {
 				// TODO: Log error to the user
-				debugHistory.error("\(error)")
+				debugHistory.error(`${error}`)
 			}
 		}
 	}
@@ -522,11 +522,11 @@ export class MemriContext {
 					throw `Exception: Could not parse ${argName}`
 				}
 			} else if (typeof action.argumentTypes[argName] == "boolean") {
-				finalValue = new ExprInterpreter().evaluateBoolean(argValue)
+				finalValue = ExprInterpreter.evaluateBoolean(argValue)
 			} else if (typeof action.argumentTypes[argName] == "string") {
-				finalValue = new ExprInterpreter().evaluateString(argValue)
+				finalValue = ExprInterpreter.evaluateString(argValue)
 			} else if (typeof action.argumentTypes[argName] == "number") {
-				finalValue = new ExprInterpreter().evaluateNumber(argValue)
+				finalValue = ExprInterpreter.evaluateNumber(argValue)
 			} else if (action.argumentTypes[argName] == [Action].constructor) {
 				finalValue = argValue ?? []
 			} else if (action.argumentTypes[argName] == AnyObject.self) {

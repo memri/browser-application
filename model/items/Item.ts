@@ -109,7 +109,7 @@ export class Item extends SchemaItem {
     }
 
     get changelog() {
-        return this.edges("changelog")?.items(AuditItem.constructor); //TODO:
+        return this.edges("changelog")?.items("AuditItem"); //TODO:
     }
 
     constructor(objectFromRealm?) {
@@ -191,14 +191,14 @@ export class Item extends SchemaItem {
     /// - Parameter name: property name
     /// - Returns: string representation
     getString(name: string) {
-        if (this.objectSchema[name] == undefined) {
+        if (this[name] == undefined) {
             //#if DEBUG
             console.log(`Warning: getting property that this item doesnt have: ${name} for ${this.genericType}:${this.uid ?? -1000}`)
             //#endif
 
             return ""
         } else {
-            return new ExprInterpreter().evaluateString(this[name]); //TODO
+            return ExprInterpreter.evaluateString(this[name]); //TODO
         }
     }
 
@@ -307,7 +307,7 @@ export class Item extends SchemaItem {
 
         // Should this create a temporary edge for which item() is source() ?
         return this.realm?.objects("Edge") //TODO:
-            .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}'`)[0]
+            .filtered(`targetItemID = ${this.uid} AND type = '${edgeType}'`)[0]//deleted = false AND
     }
 
     edges(edgeType: string|string[]) {
@@ -324,7 +324,7 @@ export class Item extends SchemaItem {
                     flattened.push(type)
                 }
             }
-            let filter = `deleted = false and (type = '${flattened.join("' or type = '")}')`;
+            let filter = `(type = '${flattened.join("' or type = '")}')`; //deleted = false and
 
             return this.allEdges.filtered(filter)
         } else {
@@ -371,7 +371,7 @@ export class Item extends SchemaItem {
                 }
                 break;
             case EdgeSequencePosition.last:
-                var sorted = edges.sort("sequence", true) //TODO:
+                var sorted = edges.sorted("sequence", true) //TODO:
                 let lastOrderNumber = sorted[0]?.sequence.value;
                 if (lastOrderNumber) {
                     orderNumber = lastOrderNumber + 1000
@@ -449,7 +449,7 @@ export class Item extends SchemaItem {
             throw "Exception: Edge type is not set"
         }
 
-        let query = `type = '${edgeType}'` //deleted = false and
+        let query = `deleted = false and type = '${edgeType}'` //
             + (distinct ? "" : ` and targetItemID = ${targetID}`)
         var edge = this.allEdges.filtered(query)[0] //TODO
         //let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
@@ -466,15 +466,15 @@ export class Item extends SchemaItem {
                     item,
                     edgeType,
                     label,
-                    undefined
+                    undefined //sequenceNumber
                 );
                 if (edge) {
                     this.allEdges.push(edge);
                 }
             } else if (overwrite && edge) {
-                edge.targetItemID.value = targetID
+                edge.targetItemID= targetID
                 edge.targetItemType = item.genericType
-                edge.sequence.value = sequenceNumber
+                edge.sequence = undefined //sequenceNumber
                 edge.edgeLabel = label
 
                 if (edge["_action"] == undefined) {
@@ -650,8 +650,8 @@ export class Item extends SchemaItem {
         for (let prop in properties) {
             if (properties.hasOwnProperty(prop)) {
                 // Exclude SyncState
-                if (prop.name == "_updated" || prop.name == "_action" || prop.name == "_partial"
-                    || prop.name == "deleted" || prop.name == "_changedInSession" || prop.name == "uid") {
+                if (prop == "_updated" || prop == "_action" || prop == "_partial"
+                    || prop == "deleted" || prop == "_changedInSession" || prop == "uid") {
                     continue
                 }
 
@@ -661,15 +661,15 @@ export class Item extends SchemaItem {
 
                 // Overwrite only the property values that are not already set
                 if (mergeDefaults) {
-                    if (this[prop.name] == undefined) {
-                        this[prop.name] = item[prop.name]
+                    if (this[prop] == undefined) {
+                        this[prop] = item[prop]
                     }
                 }
                     // Overwrite all property values with the values from the passed item, with the
                 // exception, that values cannot be set ot nil
                 else {
-                    if (item[prop.name] != undefined) {
-                        this[prop.name] = item[prop.name]
+                    if (item[prop] != undefined) {
+                        this[prop] = item[prop]
                     }
                 }
             }
@@ -684,6 +684,7 @@ export class Item extends SchemaItem {
             if (!item) {
                 return
             }
+            item = new Item(item);
             item.dateAccessed = new Date()
 
             let auditItem = CacheMemri.createItem("AuditItem", {"action": "read"});
@@ -1044,7 +1045,7 @@ export class Edge {
         if (!dict)
             return;
 
-        let itemType = dict["_type"]?.value;
+        let itemType = dict["_type"];
         if (typeof itemType != "string") {
             throw `Invalid JSON, no _type specified for target: ${dict}`
         }
