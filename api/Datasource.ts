@@ -79,7 +79,7 @@ export class Datasource implements UniqueString {
 	}
 }
 
-export class CascadingDatasource/* extends Cascadable implements UniqueString, Subscriptable*/ {
+export class CascadingDatasource extends Cascadable/*  implements UniqueString, Subscriptable*/ {
 	/// Retrieves the query which is used to load data from the pod
 	get query() {
 		return this.cascadeProperty("query")
