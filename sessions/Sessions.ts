@@ -131,6 +131,8 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     }
     
 	setCurrentSession(state?: CVUStateDefinition) {
+        if (!(state instanceof CVUStateDefinition))
+            state = new CVUStateDefinition(state);
         let storedSession = state ?? this.currentSession?.state;
         if (!storedSession) {
             throw "Exception: Unable fetch stored CVU state"
@@ -140,7 +142,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         let index = this.sessions.findIndex((session) => {
             return session.uid == storedSession.uid
         })
-        if (index) {
+        if (index > -1) {
             this.currentSessionIndex = index
         }
         // Otherwise lets create a new session
@@ -157,7 +159,8 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     
     persistSubject /*= PassthroughSubject<Void, Never>()*///TODO:
     persistCancellable
-    schedulePersist() { this.persistSubject.send() }
+    schedulePersist() { //this.persistSubject.send()
+        }
     
     persist(state?) {
         DatabaseController.tryWriteSync ((realm)=>{

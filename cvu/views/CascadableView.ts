@@ -577,7 +577,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     }
 
     load(callback) {
-        if (this.head["datasourceDefinition"] == undefined) {
+        if (this.head.parsed["datasourceDefinition"] == undefined) {//TODO: in source there are no parsed
             throw "Exception: Missing datasource in view"
         }
 

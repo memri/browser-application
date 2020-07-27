@@ -146,7 +146,7 @@ export class ResultSet {
 	}
 
 	updateUI() {
-		this.objectWillChange.send() // TODO: create our own publishers
+		//this.objectWillChange.send() // TODO: create our own publishers
 	}
 
 	/// Apply client side filter using the FilterText , with a fallback to the server
@@ -184,7 +184,7 @@ export class ResultSet {
 			this.count = filterResult.length
 		}
 
-		this.objectWillChange.send() // TODO: create our own publishers
+		//this.objectWillChange.send() // TODO: create our own publishers
 	}
 
 	/// Executes the query again

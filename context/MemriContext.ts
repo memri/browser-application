@@ -140,7 +140,7 @@ export class MemriContext {
 			if (!check(this)) { return }
 		}
 
-		this.uiUpdateSubject.send()
+		//this.uiUpdateSubject.send() TODO
 	}
 
 	scheduleCascadingViewUpdate(immediate =  false) {
@@ -154,7 +154,7 @@ export class MemriContext {
 			}
 			return
 		} else {
-			this.cascadableViewUpdateSubject.send()
+			//this.cascadableViewUpdateSubject.send() TODO
 		}
 	}
 

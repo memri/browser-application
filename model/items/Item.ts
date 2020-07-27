@@ -449,10 +449,10 @@ export class Item extends SchemaItem {
             throw "Exception: Edge type is not set"
         }
 
-        let query = `deleted = false and type = '${edgeType}'`
+        let query = `type = '${edgeType}'` //deleted = false and
             + (distinct ? "" : ` and targetItemID = ${targetID}`)
-        var edge /*= this.allEdges.filtered(query)[0]*/ //TODO
-        let sequenceNumber /*= this.determineSequenceNumber(edgeType, sequence);*/
+        var edge = this.allEdges.filtered(query)[0] //TODO
+        //let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
         DatabaseController.writeSync(function () {
             if (item.realm == undefined && item instanceof Item) {
@@ -466,8 +466,8 @@ export class Item extends SchemaItem {
                     item,
                     edgeType,
                     label,
-                    sequenceNumber
-                )
+                    undefined
+                );
                 if (edge) {
                     this.allEdges.push(edge);
                 }
@@ -678,7 +678,7 @@ export class Item extends SchemaItem {
 
     /// update the dateAccessed property to the current date
     accessed() {
-        let safeSelf = ItemReference(this) //TODO:
+        let safeSelf = new ItemReference(this) //TODO:
         DatabaseController.writeAsync((realm) => {
             let item = safeSelf.resolve();
             if (!item) {

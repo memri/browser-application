@@ -12,7 +12,7 @@ import {CascadableView} from "../cvu/views/CascadableView";
 import {Realm} from "../model/RealmLocal";
 import {CacheMemri} from "../model/Cache";
 import {ActionFamily} from "../cvu/views/Action";
-import {CVUStateDefinition} from "../model/items/Item";
+import {CVUStateDefinition, EdgeSequencePosition} from "../model/items/Item";
 
 export class Session  /*extends Equatable, Subscriptable*/ {
     /// The name of the item.
@@ -125,7 +125,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                 DatabaseController.tryWriteSync(() => {
                     for (let parsed of parsedViews) {
                         let viewState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
-                        state.link(viewState, "view", ".last")
+                        state.link(viewState, "view", EdgeSequencePosition.last)
                         this.views.push(new CascadableView(new CVUStateDefinition(viewState), this))
                     }
                 })
@@ -260,12 +260,14 @@ export class Session  /*extends Equatable, Subscriptable*/ {
 		if (!storedView) {
             throw "Exception: Unable fetch stored CVU state"
         }
+		if (!(storedView instanceof CVUStateDefinition))
+		    storedView = new CVUStateDefinition(storedView);
         
         var nextIndex: number
         
         // If the session already exists, we simply update the session index
-        let index = this.views.find((view) => view.uid == storedView.uid)
-        if (index) {
+        let index = this.views.findIndex((view) => view.uid == storedView.uid)
+        if (index > -1) {
             nextIndex = index
         }
         // Otherwise lets create a new session
@@ -286,8 +288,6 @@ export class Session  /*extends Equatable, Subscriptable*/ {
         if (!isReload) { storedView.accessed() }
         
         let nextView = this.views[nextIndex]
-        nextView.viewArguments?.deepMerge(viewArguments)
-        
         nextView.load((error) => {
             let item = nextView.resultSet.singletonItem
             if (!isReload && error == undefined && item) {
