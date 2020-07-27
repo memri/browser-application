@@ -11,7 +11,6 @@ const {ExprParser} = require("./ExprParser");
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
 import {ExprInterpreter} from "./ExprInterpreter";
 import {DatabaseController} from "../../model/DatabaseController";
-import {Subscriptable} from "../../context/MemriContext";
 
 export class Expression {
     code: string;
@@ -27,8 +26,8 @@ export class Expression {
     constructor(code, startInStringMode = false, lookup?, execFunc?) {
         this.code = code;
         this.startInStringMode = startInStringMode;
-        this.lookup = lookup;
-        this.execFunc = execFunc
+        this.lookup = lookup ?? (() => true); //TODO: hmm?
+        this.execFunc = execFunc ?? (() => true);
     }
 
     toCVUString(depth, tab) {
@@ -61,7 +60,7 @@ export class Expression {
                     if (obj instanceof UserState) {
                         obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
                         return
-                    } else if (obj instanceof Object) {
+                    } else if (obj instanceof Object) { //TODO: RealmObject maybe? Or another check
                         let name = lastProperty.name
 
                         if (obj.objectSchema[name]?.type != "boolean") {
@@ -76,14 +75,7 @@ export class Expression {
                     else if (typeof obj.subscript == "function") {
                         obj[lastProperty.name] = !(obj[lastProperty.name] ?? false)
                         return
-                    } else if (obj instanceof UserState) {
-                        // realmWriteIfAvailable(context.realm) {//TODO
-                        //     obj.set(lastProperty.name,
-                        //         !ExprInterpreter.evaluateBoolean(obj.get(lastProperty.name)))
-                        // }
-                        return
                     }
-
                 }
             }
         }

@@ -147,12 +147,12 @@ export class CVUSerializer {
                 let isDef = value instanceof CVUParsedDefinition
                 let dict1 = (value)?.parsed
 
-                if (!isDef || dict1 != undefined && dict1?.length > 0) {
+                if (!isDef || dict1 != undefined && Object.entries(dict1)?.length > 0) {
                     let p = value;
                     if (p && typeof p.isCVUObject === "function") {
                         str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
                             + `${key}: ${this.valueToString(p, depth, tab)}`);
-                    } else if (value) {
+                    } else if (value !== undefined) {
                         str.push(`${key}: ${this.valueToString(value, depth, tab)}`);
                     }
                 }
@@ -186,7 +186,7 @@ export class CVUSerializer {
             definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
             hasPriorContent = true
         }
-        p = dict["renderDefinitions"];//TODO normal check
+        p = dict["rendererDefinitions"];//TODO normal check
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedRendererDefinition && p[0].parsed != undefined) {
             let body = this.arrayToString(p, depth - 1, tab, false, true);
             definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);

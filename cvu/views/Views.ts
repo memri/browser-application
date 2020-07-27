@@ -25,7 +25,6 @@ import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {dataItemListToArray} from "../../model/schema";
 import {RealmObjects} from "../../model/RealmLocal";
-import {CVUStateDefinition} from "../../model/items/Item";
 
 export class Views {
 	///
@@ -645,41 +644,35 @@ export class Views {
 function getDefaultViewContents() {
 	//let urls = Bundle.main.urls("cvu", ".")
 	var defaultsCVU = {
-		//example: require("text-loader!../playground/example.view"),
-		/*require("text-loader!../defaults/default_user_views.json"),*/
-		/*require("text-loader!../defaults/macro_views.json"),*/
-		"All-items-with-label": require("text-loader!../defaults/named/All-items-with-label.cvu"),
 		"Choose-item-by-query": require("text-loader!../defaults/named/Choose-item-by-query.cvu"),
 		"Filter-starred": require("text-loader!../defaults/named/Filter-starred.cvu"),
-		/*require("text-loader!../defaults/named_sessions.json"),*/
-		/*require("text-loader!../defaults/named_views.json",)*/
-		generalEditor: require("text-loader!../defaults/renderer/generalEditor.cvu"),
-		chart: require("text-loader!../defaults/renderer/chart.cvu"),
-		list: require("text-loader!../defaults/renderer/list.cvu"),
-		thumbnail: require("text-loader!../defaults/renderer/thumbnail.cvu"),
-
-		defaults: require("text-loader!../defaults/styles/defaults.cvu"),
-		/*require("text-loader!../defaults/template_views.json"),*/
-		Address: require("text-loader!../defaults/type/Address.cvu"),
-		Any: require("text-loader!../defaults/type/Any.cvu"),
-		AuditItem: require("text-loader!../defaults/type/AuditItem.cvu"),
-		Country: require("text-loader!../defaults/type/Country.cvu"),
-		Importer: require("text-loader!../defaults/type/Importer.cvu"),
-		ImporterInstance: require("text-loader!../defaults/type/ImporterInstance.cvu"),
-		Indexer: require("text-loader!../defaults/type/Indexer.cvu"),
-		IndexerRun: require("text-loader!../defaults/type/IndexerRun.cvu"),
-		Label: require("text-loader!../defaults/type/Label.cvu"),
-		//Mixed: require("text-loader!../defaults/type/Mixed.cvu"),
-		Note: require("text-loader!../defaults/type/Note.cvu"),
-		Sessions: require("text-loader!../defaults/Session/Sessions.cvu"),
-		/*require("text-loader!../defaults/type/Person-markup.ml"),*/
-		Person: require("text-loader!../defaults/type/Person.cvu"),
-		Photo: require("text-loader!../defaults/type/Photo.cvu"),
-		Session: require("text-loader!../defaults/type/Session.cvu"),
-		/*require("text-loader!../defaults/type/Session.json"),*/
-		SessionView: require("text-loader!../defaults/type/SessionView.cvu"),
-		//UserNote: require("text-loader!../defaults/user/UserNote.cvu-disabled"),
-		/*require("text-loader!../defaults/views_from_server.json"),*/
+		"all-items-with-label": require("text-loader!../defaults/named/all-items-with-label.cvu"),
+		"calendar": require("text-loader!../defaults/renderer/calendar.cvu"),
+		"chart": require("text-loader!../defaults/renderer/chart.cvu"),
+		"generalEditor": require("text-loader!../defaults/renderer/generalEditor.cvu"),
+		"list": require("text-loader!../defaults/renderer/list.cvu"),
+		"map": require("text-loader!../defaults/renderer/map.cvu"),
+		"messages": require("text-loader!../defaults/renderer/messages.cvu"),
+		"thumbnail": require("text-loader!../defaults/renderer/thumbnail.cvu"),
+		"sessions": require("text-loader!../defaults/session/sessions.cvu"),
+		"defaults": require("text-loader!../defaults/styles/defaults.cvu"),
+		"Address": require("text-loader!../defaults/type/Address.cvu"),
+		"Any": require("text-loader!../defaults/type/Any.cvu"),
+		"AuditItem": require("text-loader!../defaults/type/AuditItem.cvu"),
+		"Country": require("text-loader!../defaults/type/Country.cvu"),
+		"Importer": require("text-loader!../defaults/type/Importer.cvu"),
+		"ImporterInstance": require("text-loader!../defaults/type/ImporterInstance.cvu"),
+		"Indexer": require("text-loader!../defaults/type/Indexer.cvu"),
+		"IndexerRun": require("text-loader!../defaults/type/IndexerRun.cvu"),
+		"Label": require("text-loader!../defaults/type/Label.cvu"),
+		"Location": require("text-loader!../defaults/type/Location.cvu"),
+		//"Mixed": require("text-loader!../defaults/type/Mixed.cvu"),
+		"Note": require("text-loader!../defaults/type/Note.cvu"),
+		//"Note1": require("text-loader!../defaults/type/Note1.cvu"),
+		"Person": require("text-loader!../defaults/type/Person.cvu"),
+		"Photo": require("text-loader!../defaults/type/Photo.cvu"),
+		"Session": require("text-loader!../defaults/type/Session.cvu"),
+		"SessionView": require("text-loader!../defaults/type/SessionView.cvu")
 	};
 	let viewContents= [];
 	for (let cvu in defaultsCVU) {

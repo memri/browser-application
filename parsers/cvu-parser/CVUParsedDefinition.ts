@@ -9,19 +9,23 @@ export enum CompileScope {
     none="none"
 }
 
-export class CVUParsedDefinition extends CVUToString {
+export class CVUParsedDefinition /*extends CVUToString*/ {
     name: string
     selector: string
     domain: string
     get definitionType() {return ""}
     isCompiled: boolean = false
 
-    constructor(selector, name?, domain = "user", parsed?) {
-        super(selector, name, domain, parsed)
-        this.selector = selector
-        this.name = name
-        this.domain = domain;
-        this.parsed = parsed ?? this.parsed
+    constructor(selector  = "", name?, domain = "user", parsed?) {
+        //super(selector, name, domain, parsed)
+        if (typeof selector != "string") {
+            this.parsed = selector;
+        } else {
+            this.selector = selector
+            this.name = name
+            this.domain = domain;
+            this.parsed = parsed
+        }
     }
     
     subscript(propName:string) {

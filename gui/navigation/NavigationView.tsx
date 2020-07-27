@@ -175,7 +175,7 @@ class Navigation extends MainUI {
 		return (
 		<VStack frame={frame({alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
-				<MemriButton action={function () {
+				<MemriButton onClick={function () {
 					this.showSettings = true
 				}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
 					SettingsPane().environmentObject(this.context)
