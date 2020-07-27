@@ -1100,7 +1100,7 @@ export class CVUStoredDefinition extends Item {
     /// TBD
     type?: string
 
-    constructor(objectFromRealm) {
+    constructor(objectFromRealm?) {
         super();
         for (let key in objectFromRealm) {
             this[key] = objectFromRealm[key];

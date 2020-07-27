@@ -114,7 +114,7 @@ export class ListRenderer extends MainUI {
 	}
 }*/
 
-public class RenderState {}
+class RenderState {}
 
 export interface Renderer extends React.Component {
 	// var name: string { get set }

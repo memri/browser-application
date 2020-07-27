@@ -76,21 +76,23 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         })*/
     }
 
-    load(context: MemriContext, state?) {
+    load(context: MemriContext, state?) {//TODO: added this for JS
         this.context = context
         this.sessions = []
 
         DatabaseController.tryRead((realm) => {
             console.log(realm.objects("CVUStateDefinition"));
-            //let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
+            if (!state)
+                state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
             if (state) {
+                if (!(state instanceof CVUStateDefinition))
+                    state = new CVUStateDefinition(state);
                 let p = context.views.parseDefinition(state);
                 if (!(p instanceof CVUParsedSessionsDefinition)) {
                     throw "Unable to parse state definition"
                 }
                 this.parsed = p;
 
-                //let realState = new CVUStateDefinition(state);
                 // Check if there are sessions in the db
                 let storedSessionStates = state
                     .edges("session")

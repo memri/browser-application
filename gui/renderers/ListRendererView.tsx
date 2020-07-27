@@ -9,7 +9,7 @@ import {allRenderers} from "../../cvu/views/Renderers";
 import * as React from "react";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionDelete} from "../../cvu/views/Action";
-import {font, HStack, MainUI, MemriText, padding, Spacer} from "../swiftUI";
+import {font, HStack, MainUI, MemriText, padding, Spacer, VStack} from "../swiftUI";
 
 export var registerListRenderer = function () {
 	if (allRenderers) {
@@ -49,10 +49,10 @@ class CascadingListConfig/*: CascadingRenderConfig, CascadingRendererDefaults */
 	}
 }
 
-class ListRendererView extends MainUI {
+export class ListRendererView extends MainUI {
 	constructor(props) {
 		super(props);
-		this.context = props?.context;
+
 	}
 	context: MemriContext
 	get selectedIndices() {
@@ -69,10 +69,11 @@ class ListRendererView extends MainUI {
 	name = "list"
 
 	get renderConfig() {
-		return this.context.cascadingView?.renderConfig ?? new CascadingListConfig()
+		return this.context.currentView?.renderConfig ?? new CascadingListConfig()
 	}
 
 	render() {
+		this.context = this.props?.context;
 		let context = this.context;
 		let innerContent;
 		let onSwipeToDelete = function (item) {
@@ -87,14 +88,14 @@ class ListRendererView extends MainUI {
 					<MemriText multilineTextAlignment={Alignment.center}
 						  font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
 						  opacity={0.7}>
-						{context.cascadingView?.emptyResultText ?? ""}
+						{context.currentView?.emptyResultText ?? ""}
 					</MemriText>
 					<Spacer/>
 				</HStack>
 				);
 		} else {//TODO:actions
 			innerContent = (
-				<ASTableView editMode={context.currentSession?.isEditMode ?? false} onSelectSingle={}>
+				<ASTableView editMode={context.currentSession?.editMode ?? false} onSelectSingle={}>
 					<ASSection id={0} data={context.items} dataID={this.uid.value} selectedItems={this.selectedIndices} onSwipeToDelete={onSwipeToDelete} alwaysBounce >
 
 					</ASSection>

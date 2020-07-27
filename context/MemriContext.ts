@@ -107,10 +107,10 @@ export class MemriContext {
 		this.closeStack.push(isPresentedBinding)
 	}
 	closeLastInStack() {
-		let lastVisibleIndex = this.closeStack.findIndex(function (el) {
+		let lastVisibleIndex = this.closeStack.reverse().findIndex(function (el) {
 			return el.wrappedValue.isPresented;
 		}) //TODO:
-		if (lastVisibleIndex >= 0) {
+		if (lastVisibleIndex >= -1) {
 			this.closeStack[lastVisibleIndex].wrappedValue.dismiss()
 			this.closeStack = this.closeStack.slice(0, lastVisibleIndex)
 		}
@@ -158,7 +158,7 @@ export class MemriContext {
 		}
 	}
 
-	updateCascadingView() {
+	/*updateCascadingView() {
 		this.maybeLogUpdate()
 
 		let currentView = this.sessions?.currentView
@@ -245,17 +245,17 @@ export class MemriContext {
 				}
 			}.bind(this))
 		}
-	}
+	}*/
 
-	maybeLogRead() {
+	/*maybeLogRead() {
 		let item = this.cascadingView?.resultSet.singletonItem
 		if (item) {
 			let auditItem = CacheMemri.createItem(AuditItem.constructor, {action: "read"})//TODO
 			item.link(auditItem, "changelog")
 		}
-	}
+	}*/
 
-	maybeLogUpdate() {
+	/*maybeLogUpdate() {
 		if (this.cascadingView?.context == undefined) { return }
 
 		let syncState = this.cascadingView?.resultSet.singletonItem?.syncState
@@ -276,7 +276,7 @@ export class MemriContext {
 				console.log("Could not log update, no Item found")
 			}
 		}
-	}
+	}*/
 
 	getPropertyValue(name) {
 		let type = new Mirror(this) //TODO:
@@ -355,16 +355,16 @@ export class MemriContext {
 		this._showNavigation = value
 	}
 
-	setSelection(selection: [Item]) {
+	setSelection(selection: Item[]) {
 		this.currentView?.userState.set("selection", selection)
 		this.scheduleUIUpdate()
 	}
 
 	constructor(
 		name,
-		podAPI,
-		cache,
-		settings,
+		podAPI: PodAPI ,
+		cache: CacheMemri,
+		settings: Settings,
 		installer: Installer,
 		sessions: Sessions,
 		views: Views,
@@ -402,7 +402,7 @@ export class MemriContext {
             .sink { [weak self] in
                 try? self?.currentSession?.setCurrentView()
             }*/
-
+		this.currentSession?.setCurrentView()
 
 	}
 
@@ -463,9 +463,9 @@ export class MemriContext {
 	}
 
 	buildArguments(action: Action, item?: Item, viewArguments?) {
-		let viewArgs = new ViewArguments(this.currentView?.viewArguments)
-			.merge(viewArguments)
-			.resolve(item)
+		let viewArgs = new ViewArguments(viewArguments ?? this.currentView?.viewArguments)
+		viewArgs.resolve(item);
+		viewArgs.set(".", item);
 
 		var args = {}
 		for (let [argName, inputValue] of Object.entries(action.arguments)) {
@@ -640,8 +640,6 @@ export class RootContext extends MemriContext {
 			new Renderers(),
 			new IndexerAPI()
 		)
-
-		this.subContexts = []
 
 		this.currentView?.context = this
 
