@@ -129,10 +129,10 @@ export class MemriContext {
 			// #warning("@Toby how can we prevent the uiUpdateSubject from firing immediate after this?")
 
 			// Do this straight away, usually for the sake of correct animation
-			DispatchQueue.main.async(() => {
+			// DispatchQueue.main.async(() => {
 				// Update UI
-				this.objectWillChange.send()
-			})
+				// this.objectWillChange.send()
+			// })
 			return
 		}
 
@@ -653,8 +653,8 @@ export class RootContext extends MemriContext {
 		}
 
 		//TODO what is weak?
-		// cache.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }
-		// navigation.scheduleUIUpdate = { [weak self] in self?.scheduleUIUpdate($0) }
+		cache.scheduleUIUpdate = ($0) => { this.scheduleUIUpdate($0) }
+		this.navigation.scheduleUIUpdate = ($0) => { this.scheduleUIUpdate($0) }
 	}
 
 	createSubContext(state?: CVUStateDefinition) {

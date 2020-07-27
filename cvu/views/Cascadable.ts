@@ -240,7 +240,7 @@ export class Cascadable {
         type = Cascadable
     ) {
         let x = this.localCache[propName]
-        //if (x instanceof type) { return x }
+        if (x instanceof type) { return x }
 
         let head = this.head[lookupName] ?? new parsedType()
         this.head[lookupName] = head

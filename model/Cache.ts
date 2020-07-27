@@ -272,12 +272,12 @@ export class CacheMemri {
 			resultSet.datasource.sortAscending = datasource.sortAscending
 
 			// Make sure the UI updates when the resultset updates
-			this.cancellables.push(resultSet.objectWillChange.sink(function () {
+			// this.cancellables.push(resultSet.objectWillChange.sink(function () {
 				// TODO: Error handling
 				this.scheduleUIUpdate(function (context) {//TODO
 					return context.cascadingView.resultSet.datasource == resultSet.datasource
 				})
-			}.bind(this)))
+			// }.bind(this)))
 
 			return resultSet
 		}

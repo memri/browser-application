@@ -20,6 +20,9 @@ import {ResultSet} from "../../model/ResultSet";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {CVUStateDefinition} from "../../model/items/Item";
+import {CascadableDict} from "./CascadableDict";
+import {CascadingDatasource} from "../../api/Datasource";
+import {CascadableContextPane} from "./CascadableContextPane";
 
 
 export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
@@ -97,8 +100,8 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     get contextButtons() { return this.cascadeList("contextButtons") }
     set contextButtons(value) { this.setState("contextButtons", value) }
 
-    get datasource() {
-        return this.cascadeContext("datasource", "datasourceDefinition", CVUParsedDatasourceDefinition)
+    get datasource(): CascadingDatasource {
+        return this.cascadeContext("datasource", "datasourceDefinition", CVUParsedDatasourceDefinition, CascadingDatasource)
     }
 
     /*get datasource() {
@@ -125,11 +128,11 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     }*/
 
     get contextPane() {
-        return this.cascadeContext("contextPane", "contextPane", CVUParsedObjectDefinition)
+        return this.cascadeContext("contextPane", "contextPane", CVUParsedObjectDefinition, CascadableContextPane)
     }
 
     get userState() {
-        return this.cascadeContext("userState", "userState", CVUParsedObjectDefinition)
+        return this.cascadeContext("userState", "userState", CVUParsedObjectDefinition, CascadableDict)
     }
 
     set userState(value) {
@@ -137,7 +140,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     }
 
     get viewArguments() {
-        return this.cascadeContext("viewArguments", "viewArguments", CVUParsedObjectDefinition)
+        return this.cascadeContext("viewArguments", "viewArguments", CVUParsedObjectDefinition, CascadableDict)
     }
 
     set viewArguments(value) {
