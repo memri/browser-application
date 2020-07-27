@@ -8,106 +8,108 @@
 
 import * as React from "react";
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
-import {UUID} from "../../model/DataItem";
 import {allRenderers, FilterPanelRendererButton} from "../../cvu/views/Renderers";
-import {frame, HStack, MainUI, MemriButton, padding, VStack} from "../swiftUI";
+import {
+	ASTableView, font,
+	frame,
+	Group,
+	HStack,
+	MainUI,
+	MemriButton,
+	MemriImage,
+	MemriText,
+	padding, SectionHeader, Spacer,
+	VStack
+} from "../swiftUI";
 import {Icon} from "@material-ui/core";
-
-class BrowseSetting/* extends Identifiable*/ {
-	id = UUID()
-	name: string
-	selected: boolean
-	get color() { return this.selected ? new Color("#6aa84f") : new Color("#434343") }
-	get fontWeight() { return this.selected ? Font.Weight.semibold : Font.Weight.regular }
-
-	constructor(name, selected) {
-		// super()
-
-		this.name = name
-		this.selected = selected
-	}
-}
+import {UUID} from "../../model/items/Item";
 
 export class FilterPanel extends MainUI {
-	browseSettings = [new BrowseSetting("Default", true),
-		new BrowseSetting("Year-Month-Day view", false)]
-
-	allOtherFields() {
-		var list = []
-		let item = this.context.cascadingView?.resultSet.items[0]
-
-		if (item) {
-			var excludeList = this.context.cascadingView?.sortFields
-			excludeList?.push(this.context.cascadingView?.datasource.sortProperty ?? "")
-			excludeList?.push("uid")
-			excludeList?.push("deleted")
-
-			let properties = item.objectSchema.properties
-			for (var prop of properties) {
-				if (!(excludeList?.includes(prop.name) ?? false) && prop.type != ".object" && prop.type != ".linkingObjects") {
-					list.push(prop.name)
-				}
-			}
-		}
-
-		return list
-	}
-
-/*	toggleAscending() {
-		realmWriteIfAvailable(this.context.realm, function() {
-			this.context.currentSession?.currentView?.datasource?.sortAscending.value
-				= !(this.context.cascadingView?.datasource.sortAscending ?? true)
-		}.bind(this))
-		this.context.scheduleCascadingViewUpdate()
+	toggleAscending() {
+		let ds = this.context.currentView?.datasource
+		ds?.sortAscending = !(ds?.sortAscending ?? true)
+		this.context.scheduleCascadableViewUpdate()
 	}
 
 	changeOrderProperty(fieldName: string) {
-		realmWriteIfAvailable(this.context.realm, function() {
-			this.context.currentSession?.currentView?.datasource?.sortProperty = fieldName
-		}.bind(this))
+		this.context.currentView?.datasource.sortProperty = fieldName
+		this.context.scheduleCascadableViewUpdate()
+	}
 
-		this.context.scheduleCascadingViewUpdate()
-	}*/
-
-	rendererCategories() {
+	getRendererCategories() {
 		let rendererCategories = Object.entries(allRenderers.tuples)
 			.map ((item) => [
 				item[0],
 				item[1](this.context),
 			])
 			.filter ((item) =>
-				!item[0].includes(".") && item[1].canDisplayResults(this.context.items)//TODO
+				!item[0].includes(".") && item[1].canDisplayResults(this.context.items)
 			)
 			.sort((item1, item2) => item1[1].order - item2[1].order)
 
 		return rendererCategories
 	}
 
-	renderersAvailable() {
-		let currentCategory = this.context.cascadingView?.activeRenderer.split(".")[0]
+	get currentRendererCategory() {
+		return this.context.currentView?.activeRenderer.split(".")[0]//TODO .map(String.init)
+	}
 
-		if (currentCategory) {
-			return this.context.renderers.all
-				.map ((arg0) => {//TODO
-					let [key, value] = arg0
-					return [key, value(this.context)]
-				})
-				.filter ( (renderer) =>
-					renderer.rendererName.split(".")[0] == currentCategory
-				)
-				.sort((item1, item2) => item1.order - item2.order )
-		}
-		return []
+	getRenderersAvailable(category) {
+		if (!category) { return [] }
+		return Object.entries(this.context.renderers.all)
+			.map ((arg0) => {//TODO
+				let [key, value] = arg0
+				return [key, value(this.context)]
+			})
+			.filter ( (renderer) =>
+				renderer[1].rendererName.split(".")[0] == category
+			)
+			.sort((item1, item2) => item1[1].order - item2[1].order )
+	}
+
+	getRelevantFields(type?: PropertyType) {
+		let item = this.context.currentView?.resultSet.items[0]
+		if (!item) { return [] }
+
+		var excludeList: [] = this.context.currentView?.sortFields ?? []
+		excludeList.push(this.context.currentView?.datasource.sortProperty ?? "")
+		excludeList.push("uid", "deleted", "externalId")
+
+		let properties: [] = item.objectSchema.properties
+
+		return properties.map((prop) => {
+			if (!excludeList.includes(prop.name) && !prop.name.startsWith("_") && prop.type != "object" &&
+				prop.type != "linkingObjects") {
+					return prop.name
+				}
+				else {
+					return undefined
+				}
+		}).filter((item) => item != undefined)
 	}
 
 	isActive(renderer: FilterPanelRendererButton) {
-		return this.context.cascadingView?.activeRenderer.split(".")[0] ?? "" == renderer.rendererName
+		return this.context.currentView?.activeRenderer.split(".")[0] ?? "" == renderer.rendererName
 	}
 
 	render() {
 		this.context = this.props.context
 		let context = this.context
-		let cascadingView = this.context.cascadingView
+		let cascadableView = this.context.currentView
+		let renderers = this.getRendererCategories()
+		let segmentedRendererCategories = []
+		let rendererCategories = []
+
+		for (let i = 0; i < renderers.length; i++) {
+			rendererCategories.push(renderers[i])
+			if (rendererCategories.length == 5) {
+				segmentedRendererCategories.push(rendererCategories)
+				rendererCategories = []
+			}
+		}
+		if (rendererCategories.length) segmentedRendererCategories.push(rendererCategories)
+		// let segmentedRendererCategories = this.getRendererCategories().segments(ofSize: 5).indexed()
+		//TODO segments function?
 
 		return (
 			<div className="FilterPanel">
@@ -116,29 +118,127 @@ export class FilterPanel extends MainUI {
 					background={"#eee"}
 			>
 				<VStack alignment={Alignment.leading} spacing={0} padding={padding({bottom: 1})}>
-					<HStack alignment={Alignment.top} spacing={3}
+					<VStack spacing={3}
 							frame={frame({maxWidth: ".infinity", alignment: Alignment.leading})}
 							padding={padding({leading: 12, top: 1})}
-							background={new Color("white").toLowerCase()}
+							background={"white"}
 					>
-						{this.rendererCategories().map((renderer) => <MemriButton
-							action={context.executeAction(renderer[1])} key={renderer[0]}>
-							<Icon>{renderer[1].getString("icon")}</Icon>
-						</MemriButton>)}
-					</HStack>
+						{segmentedRendererCategories.map((categories) =>
+							<HStack alignment={Alignment.top} spacing={3}
+									frame={frame({maxWidth: ".infinity", alignment: Alignment.leading})}
+									padding={padding({leading: 12, top: 1})}
+									background={new Color("white").toLowerCase()}
+							>
+								{categories.map((renderer) =>
+									<MemriButton
+										onClick={() => context.executeAction(renderer[1])} key={renderer[0]}>
+										<MemriImage fixedSize=""
+													padding={padding({horizontal: 5, vertical: 5})}
+													frame={frame({width: 35, height: 40, alignment: Alignment.center})}
+													foregroundColor={this.isActive(renderer[1])
+														? renderer[1].getColor("activeColor").toLowerCase()
+														: renderer[1].getColor("inactiveColor").toLowerCase()}
+													background={this.isActive(renderer[1])
+														? renderer[1].getColor("activeBackgroundColor").toLowerCase()
+														: renderer[1].getColor("inactiveBackgroundColor").toLowerCase()}
+										>
+											{renderer[1].getString("icon")}
+										</MemriImage>
+									</MemriButton>
+								)}
+							</HStack>
+						)}
+					</VStack>
 
-					{/*<ASTableView>
-						<ASSection id={0} data={this.renderersAvailable()} dataID={} >
-
-						</ASSection>
-					</ASTableView>*/}
+					<ASTableView>
+						{this.getRenderersAvailable(this.currentRendererCategory).map((item) =>
+							<MemriButton onClick={() => this.context.executeAction(item[1])}>
+								<Group padding={padding({horizontal: 6, vertical: 6})}>
+									{cascadableView?.activeRenderer == item[1].rendererName ?
+										<MemriText foregroundColor={"#6aa84f"}
+												   font={font({size: 16, weight: Font.Weight.semibold})}
+										>
+											{item[1].getString("title")}
+										</MemriText>
+										:
+										<MemriText foregroundColor={"#434343"}
+												   font={font({size: 16, weight: Font.Weight.regular})}
+										>
+											{item[1].getString("title")}
+										</MemriText>
+									}
+								</Group>
+							</MemriButton>
+						)}
+					</ASTableView>
 				</VStack>
 
-				{/*<ASTableView>
-					<ASSection id={0} container={} >
+				<ASTableView>
+					<SectionHeader background={"white"}
+								   padding={padding({vertical: 1, leading: 1})}
+					>
+						<MemriText padding={4}
+								   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
+								   font={font({size: 14, weight: Font.Weight.semibold})}
+								   foregroundColor={"#434343"}
+								   background={new Color("secondarySystemBackground").toLowerCase()}
+						>
+							Sort on:
+						</MemriText>
 
-					</ASSection>
-				</ASTableView>*/}
+					</SectionHeader>
+					{cascadableView?.datasource.sortProperty?.map((currentSortProperty) =>
+						<MemriButton onClick={this.toggleAscending}>
+							<HStack>
+								<MemriText foregroundColor={"#6aa84f"}
+										   font={font({size: 16, weight: Font.Weight.semibold,
+											   design: "default"})}
+										   frame={frame({
+											   minWidth: 0,
+											   maxWidth: "infinity",
+											   alignment: Alignment.leading
+										   })}
+								>
+									{currentSortProperty}
+								</MemriText>
+								<Spacer/>
+								<MemriImage resizable={true}
+											aspectRatio={"fit"}
+											foregroundColor={"#6aa84f"}
+											frame={frame({minWidth: 10, maxWidth: 10})}
+								>
+									{cascadableView.datasource.sortAscending === false
+									? "arrow_down"
+									: "arrow_up"}
+								</MemriImage>
+							</HStack>
+						</MemriButton>
+					)}
+					{cascadableView?.sortFields.filter (($0) =>
+						cascadableView?.datasource.sortProperty != $0
+					).map ((fieldName) =>
+						<MemriButton onClick={() => this.changeOrderProperty(fieldName)}>
+							<MemriText foregroundColor={"#434343"}
+									   font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
+									   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
+							>
+								{fieldName}
+							</MemriText>
+						</MemriButton>
+					)}
+					{this.getRelevantFields().map ((fieldName) =>
+						<MemriButton onClick={() => this.changeOrderProperty(fieldName)}>
+							<MemriText foregroundColor={"#434343"}
+									   font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
+									   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
+							>
+								{fieldName}
+							</MemriText>
+						</MemriButton>
+					)}
+
+				</ASTableView>
+
 			</HStack>
 			</div>
 		);

@@ -26,7 +26,7 @@ export class Browser extends MainUI {
 	}
 
 	get activeRenderer() {
-		return allRenderers?.allViews[this.context.currentView?.activeRenderer ?? ""] ?? Spacer
+		return allRenderers?.allViews[this.context.currentView?.activeRenderer ?? ""] ?? new Spacer({})
 	}
 
 	render() {
@@ -46,7 +46,8 @@ export class Browser extends MainUI {
 								&& <TopNavigation background={new Color("systemBackground").toLowerCase()}
 												  context={this.context}/>
 							}
-							<this.activeRenderer context={this.context}/>
+							{this.activeRenderer.props.context = this.context && this.activeRenderer.render()}
+							{/*<this.activeRenderer context={this.context}/>*/}
 
 							<ContextualBottomBar context={this.context}/>
 

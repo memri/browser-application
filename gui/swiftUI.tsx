@@ -212,6 +212,28 @@ export class ASTableView extends MainUI {
     }
 }
 
+export class SectionHeader extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="Group" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+export class Group extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <List style={this.setStyles()} className="Group" {...other}>
+                {this.props.children}
+            </List>
+        )
+    }
+}
+
 export class MemriList extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
