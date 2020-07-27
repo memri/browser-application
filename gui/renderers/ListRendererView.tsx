@@ -81,7 +81,7 @@ export class ListRendererView extends MainUI {
 			return true
 		}
 
-		if (context.cascadingView?.resultSet.length == 0) {
+		if (context.currentView?.resultSet.count == 0) {
 			innerContent = (
 				<HStack alignment={Alignment.top} padding={padding({"all": 30, "top": 40})}>
 					<Spacer/>
