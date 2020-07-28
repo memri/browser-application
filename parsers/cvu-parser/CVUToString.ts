@@ -10,7 +10,6 @@ import {
     CVUParsedSessionDefinition, CVUParsedViewDefinition
 } from "./CVUParsedDefinition";
 import {UIElement} from "../../cvu/views/UIElement";
-import {Expression} from "../expression-parser/Expression";
 import {Item} from "../../model/items/Item";
 import {ItemReference} from "../../model/DatabaseController";
 

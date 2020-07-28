@@ -2,11 +2,7 @@
 //  Datasource.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {CVUParsedDatasourceDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {Expression} from "../parsers/expression-parser/Expression";
-import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Cascadable} from "../cvu/views/Cascadable";
-import {Subscriptable} from "../context/MemriContext";
 
 interface UniqueString {
 	uniqueString
@@ -50,7 +46,7 @@ export class Datasource implements UniqueString {
 		this.sortAscending = sortAscending
 	}
 
-	fromCVUDefinition(def: CVUParsedDatasourceDefinition,
+	/*fromCVUDefinition(def: CVUParsedDatasourceDefinition,
 										viewArguments?) {
 		var getValue = function (name: string) {
 			let expr = def[name];
@@ -66,13 +62,13 @@ export class Datasource implements UniqueString {
 			return def[name]
 		}
 
-		/*return Cache.createItem(Datasource.self, values: [
+		/!*return Cache.createItem(Datasource.self, values: [
 			"selector": def.selector ?? "[datasource]",
 			"query": try getValue("query") ?? "",
 			"sortProperty": try getValue("sortProperty") ?? "",
 			"sortAscending": try getValue("sortAscending") ?? true,
-		])*/ //TODO:
-	}
+		])*!/ //TODO:
+	}*/
 }
 
 export class CascadingDatasource extends Cascadable/*  implements UniqueString, Subscriptable*/ {

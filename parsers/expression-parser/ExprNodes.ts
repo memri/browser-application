@@ -81,7 +81,7 @@ export class ExprAnyNode implements ExprNode{
             return `item(${item.genericType}, ${uid})`
         }
         else {
-            debugHistory.error(`Not implemented serialization for: ${value}`)
+            debugHistory.error(`Not implemented serialization for: ${this.value}`)
             return "0"
         }
     }
