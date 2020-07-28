@@ -323,7 +323,12 @@ export enum ActionProperties {
     inactiveColor = "inactiveColor",
     activeBackgroundColor = "activeBackgroundColor",
     inactiveBackgroundColor = "inactiveBackgroundColor",
-    title = "title"
+    title = "title",
+
+    viewName = "viewName", sessionName = "sessionName", view = "view",
+    viewArguments = "viewArguments", session = "session", importer = "importer",
+    indexer = "indexer", subject = "subject", property = "property",
+    value = "value", path = "path", edgeType = "edgeType", distinct = "distinct", all = "all", actions ="actions", item = "item"
 }
 
 export var validateActionType = function (key: string, value): boolean {
@@ -334,16 +339,21 @@ export var validateActionType = function (key: string, value): boolean {
     let prop = ActionProperties[key];
     switch (prop) {
         case ActionProperties.name:
+        case ActionProperties.path: case ActionProperties.property:
+        case ActionProperties.edgeType:
+        case ActionProperties.viewName:
+        case ActionProperties.sessionName:
+        case ActionProperties.title:
+        case ActionProperties.showTitle:
+        case ActionProperties.icon:
             return typeof value == "string";
         case ActionProperties.arguments:
             return Array.isArray(value) // TODO do better by implementing something similar to executeAction
         case ActionProperties.renderAs:
             return (value instanceof RenderType); //TODO
-        case ActionProperties.title:
-        case ActionProperties.showTitle:
-        case ActionProperties.icon:
-            return typeof value == "string";
         case ActionProperties.opensView:
+        case ActionProperties.distinct:
+        case ActionProperties.all:
             return typeof value == "boolean"
         case ActionProperties.color:
         case ActionProperties.backgroundColor:
@@ -351,6 +361,16 @@ export var validateActionType = function (key: string, value): boolean {
         case ActionProperties.activeBackgroundColor:
         case ActionProperties.inactiveBackgroundColor:
             return value instanceof Color;
+        case ActionProperties.value: return true // AnyObject is always true
+        case ActionProperties.subject:
+        case ActionProperties.importer:
+        case ActionProperties.indexer:
+        case ActionProperties.item:
+            return value instanceof Item
+        case ActionProperties.viewArguments: return value instanceof CVUParsedObjectDefinition || typeof value.isCVUObject == "function"
+        case ActionProperties.view: return value instanceof CVUParsedViewDefinition || typeof value.isCVUObject == "function"
+        case ActionProperties.session: return value instanceof CVUParsedSessionDefinition || typeof value.isCVUObject == "function"
+        case ActionProperties.actions: return Array.isArray(value) /*instanceof [Action]*/ //TODO:
         default:
             return false
     }
@@ -371,8 +391,8 @@ export class ActionBack extends Action {
         "withAnimation": false
     }
 
-    constructor(context, argumentsJs = null, values = {}) {
-        super(context, "back", argumentsJs, values)
+    constructor(context, values = {}) {
+        super(context, "back", values)
     }
 
     exec() {
@@ -403,8 +423,8 @@ export class ActionAddItem extends Action {
         "inactiveColor": new Color("#434343")
     };
 
-    constructor(context, argumentsJs = null, values = {}) {
-        super(context, "addItem", argumentsJs, values);
+    constructor(context, values = {}) {
+        super(context, "addItem", values);
     }
 
     exec(argumentsJs) {
@@ -436,11 +456,29 @@ export class ActionOpenView extends Action {
         "opensView": true
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "openView", argumentsJs, values);
+    constructor(context: MemriContext, values = {}) {
+        super(context, "openView", values);
     }
 
-    openView(context: MemriContext, view: CVUStateDefinition, argumentsJs = null) {
+    openView(context: MemriContext, view: CVUStateDefinition|Item, argumentsJs = null) {
+        if (view instanceof Item) {
+           let item = view;
+            let uid = item.uid;
+            if (!uid) {
+                throw "Uninitialized item"
+            }
+            // Create a new view
+            view = CacheMemri.createItem("CVUStateDefinition", {
+                "type": "view",
+                "selector": "[view]",
+                "definition":
+`[view] {
+    [datasource = pod] {
+        query: "\(item.genericType) AND uid = \(uid)"
+    }
+}`,
+            })
+        }
         let session = context.currentSession;
         if (session) {
             // Add view to session
@@ -450,19 +488,6 @@ export class ActionOpenView extends Action {
             debugHistory.error("No session is active on context")
         }
     }
-
-    /*openView(context: MemriContext, item: DataItem, argumentsJs = null) {
-        // Create a new view
-        let view = new SessionView({
-            "datasource": new Datasource({
-                // Set the query options to load the item
-                "query": `${item.genericType} AND memriID = '${item.memriID}'`
-            })
-        });
-
-        // Open the view
-        this.openView(context, view, argumentsJs);
-    }*/ //TODO: totally need to check
 
     exec(argumentsJs) {
         //        let selection = context.cascadingView.userState.get("selection") as? [DataItem]
@@ -491,18 +516,18 @@ export class ActionOpenView extends Action {
 
 export class ActionOpenViewByName extends Action {
     defaultValues = {
-        //"argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO
+        //"argumentTypes": {"viewName": String.constructor, "viewArguments": ViewArguments.constructor},//TODO
         "withAnimation": false,
         "opensView": true
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "openViewByName", argumentsJs, values);
+    constructor(context: MemriContext, values = {}) {
+        super(context, "openViewByName", values);
     }
 
     exec(argumentsJs) {
         let viewArguments = argumentsJs["viewArguments"]/* instanceof ViewArguments*/;
-        let name = argumentsJs["name"];
+        let name = argumentsJs["viewName"];
         if (typeof name == "string") {
             // Fetch a dynamic view based on its name
             let stored = this.context.views.fetchDefinitions(name, "view")[0];//TODO?
@@ -534,8 +559,8 @@ export class ActionOpenViewWithUIDs extends Action {
         "opensView": true,
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "openView", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "openView", values)
     }
 
     /*openView(context: MemriContext, view: CVUStateDefinition, argumentsJs = null) {
@@ -549,26 +574,34 @@ export class ActionOpenViewWithUIDs extends Action {
         }
     }*/
 
-    openView(context: MemriContext, itemType: string, uids: [], argumentsJs = null) {
-        if (!uids.length) { throw "No UIDs specified" }
+    openView(context: MemriContext, itemType: string|CVUStateDefinition, uids: [], argumentsJs = null) {
+        if (typeof itemType == "string") {
+            if (!uids.length) { throw "No UIDs specified" }
 
-        let arrayString = `{${uids.map((item) => String(item)).join(",")}`
+            let arrayString = `{${uids.map((item) => String(item)).join(",")}`
 
-        // Create a new view
-        let view = CacheMemri.createItem("CVUStateDefinition", {
-            "type": "view",
-            "selector": "[view]",
-            "definition":
-`[view] {
+            // Create a new view
+            itemType = CacheMemri.createItem("CVUStateDefinition", {
+                "type": "view",
+                "selector": "[view]",
+                "definition":
+                    `[view] {
     [datasource = pod] {
         query: "${itemType} AND uid IN ${arrayString}"
     }
 }`
 
-        })
-
+            })
+        }
         // Open the view
-        this.openView(context, view, argumentsJs)
+        let session = context.currentSession
+        if (session) {
+            // Add view to session
+            session.setCurrentView(itemType, argumentsJs)
+        } else {
+            // TODO: Error Handling
+            debugHistory.error("No session is active on context")
+        }
     }
 
     exec(argumentsJs: {}) {
@@ -598,8 +631,8 @@ export class ActionToggleEditMode extends Action {
         "withAnimation": false
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "toggleEditMode", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "toggleEditMode", values)
     }
 
     exec(argumentsJs) {
@@ -618,8 +651,8 @@ export class ActionToggleFilterPanel extends Action {
         "activeColor": new Color("#6aa84f")
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "toggleFilterPanel", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "toggleFilterPanel", values)
     }
 
     exec(argumentsJs) {
@@ -637,8 +670,8 @@ export class ActionStar extends Action {
         "binding": new Expression("dataItem.starred")//TODO
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "star", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "star", values)
     }
 
     // TODO selection handling for binding
@@ -678,15 +711,15 @@ export class ActionShowStarred extends Action {
         "withAnimation": false
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "showStarred", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "showStarred", values)
     }
 
     exec(argumentsJs) {
         try {
             let binding = this.binding;
             if (binding && !binding.isTrue()) {
-                new ActionOpenViewByName(this.context).exec({"name": "filter-starred"});
+                new ActionOpenViewByName(this.context).exec({"viewName": "filter-starred"});
                 binding.toggleBool()
             } else {
                 // Go back to the previous view
@@ -709,8 +742,8 @@ export class ActionShowContextPane extends Action {
         "binding": new Expression("currentSession.showContextPane")//TODO
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "showContextPane", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "showContextPane", values)
     }
 
     exec(argumentsJs) {
@@ -730,8 +763,8 @@ export class ActionShowNavigation extends Action {
         "inactiveColor": new Color("#434343")//TODO:
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "showNavigation", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "showNavigation", values)
     }
 
     exec(argumentsJs) {
@@ -749,8 +782,8 @@ export class ActionSchedule extends Action {
         "icon": "alarm"
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "schedule", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "schedule", values)
     }
 
     exec(argumentsJs) {
@@ -769,8 +802,8 @@ export class ActionShowSessionSwitcher extends Action {
         "color": new Color("#CCC")
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "showSessionSwitcher", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "showSessionSwitcher", values)
     }
 
     exec(argumentsJs) {
@@ -786,8 +819,8 @@ export class ActionForward extends Action {
         "opensView": true,
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "forward", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "forward", values)
     }
 
     exec() {
@@ -814,8 +847,8 @@ export class ActionForwardToFront extends Action {
         "opensView": true,
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "forwardToFront", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "forwardToFront", values)
     }
 
     exec(argumentsJs) {
@@ -840,8 +873,8 @@ export class ActionBackAsSession extends Action {
         "withAnimation": false
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "backAsSession", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "backAsSession", values)
     }
 
     exec() {
@@ -885,8 +918,8 @@ export class ActionOpenSession extends Action {
         "withAnimation": false
     };
 
-    constructor(context: MemriContext, argumentsJs, values = {}) {
-        super(context, "openSession", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "openSession", values)
     }
 
     openSession(session: CVUStateDefinition, args) {
@@ -940,18 +973,18 @@ export class ActionOpenSession extends Action {
 // TODO How to deal with viewArguments in sessions
 export class ActionOpenSessionByName extends Action {
     defaultValues = {
-        //"argumentTypes": {"name": String.constructor, "viewArguments": ViewArguments.constructor},//TODO:
+        //"argumentTypes": {"sessionName": String.constructor, "viewArguments": ViewArguments.constructor},//TODO:
         "opensView": true,
             "withAnimation": false
     };
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "openSessionByName", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "openSessionByName", values)
     }
 
     exec(argumentsJs) {
         let viewArguments = argumentsJs["viewArguments"];
-        let name = argumentsJs["name"];
+        let name = argumentsJs["sessionName"];
         if (typeof name != "string") {
             throw "Cannot execute ActionOpenSessionByName, no name defined in viewArguments";
         }
@@ -979,8 +1012,8 @@ export class ActionOpenSessionByName extends Action {
 }
 
 export class ActionDelete extends Action {
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "delete", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "delete", values)
     }
 
     exec(argumentsJs) {
@@ -1016,8 +1049,11 @@ export class ActionDelete extends Action {
 }
 
 export class ActionDuplicate extends Action {
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "duplicate", argumentsJs, values);
+    defaultValues = {
+        //"argumentTypes": ["item": ItemFamily.self],
+        }
+    constructor(context: MemriContext, values = {}) {
+        super(context, "duplicate", values);
     }
 
     exec(argumentsJs) {
@@ -1029,7 +1065,7 @@ export class ActionDuplicate extends Action {
         } else {
             let item = argumentsJs["item"];
             if (item instanceof Item) {
-                new ActionAddItem(this.context).exec({"item": item});
+                new ActionAddItem(this.context).exec({"template": item});
             } else {
                 // TODO Error handling
                 throw "Cannot execute ActionDupliate. The user either needs to make a selection, or a dataItem needs to be passed to this call."
@@ -1044,16 +1080,16 @@ export class ActionDuplicate extends Action {
 
 export class ActionRunImporter extends Action {
     defaultValues = {
-        "argumentTypes": ["importerRun"],
+        "argumentTypes": ["importer"],
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "runImporter", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "runImporter", values)
     }
 
     exec(argumentsJs) {
         // TODO: parse options
-        let run = argumentsJs["importerRun"];
+        let run = argumentsJs["importer"];
         if (run instanceof ImporterRun) {
             let uid = run.uid;
             if (!uid) {
@@ -1075,8 +1111,8 @@ export class ActionRunImporter extends Action {
 
 
 export class ActionRunIndexer extends Action {
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "runIndexer", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "runIndexer", values)
     }
 
     exec(argumentsJs) {
@@ -1109,7 +1145,7 @@ export class ActionRunIndexer extends Action {
                     return
                 }
 
-                this.context.podAPI.runIndexer(uid, (error, data) => {
+                this.context.podAPI.runIndexer(uid, (error) => {
                     if (error == undefined) {
                         var watcher: AnyCancellable
                         watcher = this.context.cache.subscribe(run).sink((item) => {
@@ -1160,8 +1196,8 @@ export class ActionRunIndexer extends Action {
 }
 
 export class ActionClosePopup extends Action {
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "closePopup", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "closePopup", values)
     }
 
     exec(argumentsJs) {
@@ -1178,8 +1214,8 @@ export class ActionSetProperty extends Action {
         "argumentTypes": {"subject": "ItemFamily", "property": "string", "value": "AnyObject"},//TODO
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "setProperty", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "setProperty", values)
     }
 
     exec(argumentsJs) {
@@ -1209,8 +1245,8 @@ class ActionSetSetting extends Action{
         //"argumentTypes": ["path": String.self, "value": Any.self]
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "setSetting", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "setSetting", values)
     }
 
     exec(argumentsJs) {
@@ -1237,8 +1273,8 @@ export class ActionLink extends Action {
         //"argumentTypes": {"subject": ItemFamily.constructor, "edgeType": String.constructor, "distinct": Bool.self}//TODO:
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "link", argumentsJs, values);
+    constructor(context: MemriContext, values = {}) {
+        super(context, "link", values);
     }
 
     exec(argumentsJs) {
@@ -1275,8 +1311,8 @@ export class ActionUnlink extends Action {
         "argumentTypes": {"subject": "ItemFamily", "edgeType": "String", "all": "Boolean"},//TODO
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "unlink", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "unlink", values)
     }
 
     exec(argumentsJs) {
@@ -1315,8 +1351,8 @@ export class ActionMultiAction extends Action {
         "opensView": true
     }
 
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "multiAction", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "multiAction", values)
     }
 
     exec(argumentsJs) {
@@ -1336,8 +1372,8 @@ export class ActionMultiAction extends Action {
 }
 
 export class ActionNoop extends Action {
-    constructor(context: MemriContext, argumentsJs = null, values = {}) {
-        super(context, "noop", argumentsJs, values)
+    constructor(context: MemriContext, values = {}) {
+        super(context, "noop", values)
     }
 
     exec(argumentsJs) {

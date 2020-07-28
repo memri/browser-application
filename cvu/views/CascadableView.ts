@@ -23,6 +23,7 @@ import {CVUStateDefinition} from "../../model/items/Item";
 import {CascadableDict} from "./CascadableDict";
 import {CascadingDatasource} from "../../api/Datasource";
 import {CascadableContextPane} from "./CascadableContextPane";
+import {RootContext} from "../../context/MemriContext";
 
 
 export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
@@ -43,7 +44,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     set name(value) { this.setState("name", value) }
 
     get activeRenderer(): string {
-        let s = this.cascadeProperty("defaultRenderer")
+        let s = "list" /*this.cascadeProperty("defaultRenderer")*/
         if (s) { return s }
         debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
         return ""
@@ -81,9 +82,6 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     get sortFields() { return this.cascadeList("sortFields") }
     set sortFields(value) { this.setState("sortFields", value) }
-
-    // get editButtons() { return this.cascadeList("editButtons") }
-    // set editButtons(value) { this.setState("editButtons", value) }
 
     get filterButtons() { return this.cascadeList("filterButtons") }
     set filterButtons(value) { this.setState("filterButtons", value) }
@@ -236,7 +234,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
         if (all && RenderConfigType) {
             // swiftformat:disable:next redundantInit
-            let renderConfig = new RenderConfigType(head, tail, this.host)
+            let renderConfig = new RenderConfigType(head, tail, this)
             // Not actively preventing conflicts in namespace - assuming chance to be low
             this.localCache[this.activeRenderer] = renderConfig
             return renderConfig
@@ -408,6 +406,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     setState(propName: string, value?) {
         super.setState(propName, value)
         //this.schedulePersist() //TODO://
+        this.context?.scheduleUIUpdate();
     }
 
     schedulePersist() {
@@ -435,132 +434,121 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         })
     }
 
-    cascade() {
-        // Reset properties
-        this.tail = []
-        this.localCache = {}
-        this.cascadeStack = []
+    include(parsed: CVUParsedDefinition, domain: string, merge: boolean = false) {
+        if (!this.cascadeStack.includes(parsed)) {
+            // Compile parsed definition to embed state that may change (e.g. currentView)
+            parsed.compile(this.viewArguments, CompileScope.needed) //TODO
 
-        // Fetch query from the view from session
-        if (this.head["datasourceDefinition"] == undefined) {
-            throw "Exception: Cannot compute a view without a query to fetch data"
-        }
+            // Add to cascade stack
+            this.cascadeStack.push(parsed)
+            if (parsed != this.head) { this.tail.push(parsed) }
 
-        // Look up the associated result set
-        let resultSet = this.context?.cache.getResultSet(this.datasource.flattened())
-        if (!resultSet) {
-            throw "Exception: Unable to fetch result set from view"
-        }
-
-        // Determine whether this is a list or a single item resultset
-        let isList = resultSet.isList
-
-        // Fetch the type of the results
-        let type = resultSet.determinedType
-        if (!type) {
-            throw "Exception: ResultSet does not know the type of its data"
-        }
-
-        var needles: string[]
-        if (type != "mixed") {
-            // Determine query
-            needles = [
-                isList ? `${type}[]` : `${type}`, // TODO: if this is not found it should get the default template
-                isList ? "*[]" : "*",
-            ]
-        } else {
-            needles = [isList ? "*[]" : "*"]
-        }
-
-        var activeRenderer
-
-        let include = function(parsedDef: CVUParsedDefinition, domain: string) {
-            if (!this.cascadeStack.includes(parsedDef)) {
-                // Compile parsed definition to embed state that may change (e.g. currentView)
-                parsedDef.compile(this.viewArguments, CompileScope.needed)
-
-                // Add to cascade stack
-                this.cascadeStack.push(parsedDef)
-
-                let d = parsedDef["defaultRenderer"]
-                if (activeRenderer == undefined && d) {
-                    activeRenderer = d
-                }
-
-                let inheritFrom = parsedDef["inherit"]
+            let doInherit = (parsed: CVUParsedDefinition) => {
+                let inheritFrom = parsed["inherit"];
                 if (inheritFrom) {
+                    delete parsed.parsed["inherit"] //TODO:
+
                     var result = inheritFrom
 
-                    let expr = inheritFrom
+                    let expr = inheritFrom;
                     if (expr instanceof Expression) {
                         result = expr.execute(this.viewArguments)
                     }
 
-                    let viewName = result
-                    if (typeof viewName === "string") {
-                        let view = this.context?.views.fetchDefinitions(viewName)[0]
+                    let viewName = result;
+                    if (typeof viewName == "string") {
+                        let view = this.context?.views.fetchDefinitions(viewName)[0];
                         if (view) {
-                            parse(view, domain)
-                        }
-                        else {
+                            this.parse(view, domain)
+                        } else {
                             throw `Exception: could not parse view: ${viewName}`
                         }
-                    } else if (result instanceof CascadableView) {
-                        let parsed = new CVUParsedViewDefinition(undefined,undefined,undefined, "user", result.head.parsed)
-                        include(parsed, domain)
-                    } else {
+                    }
+                else if (result instanceof CascadableView) {
+                        let view = result;
+                            let parsedInclude = new CVUParsedViewDefinition(undefined, undefined, undefined,undefined, "user",view.head.parsed);
+                    if (merge) {
+                        parsed.mergeValuesWhenNotSet(parsedInclude)
+                        doInherit(parsed)
+                    }
+                    else {
+                        this.include(parsedInclude, domain)
+                    }
+                }
+                else {
                         throw `Exception: Unable to inherit view from ${inheritFrom}`
                     }
-
-                    delete parsedDef.parsed["inherit"];
                 }
             }
-        }.bind(this)
 
-        let parse = function(def?: CVUStoredDefinition, domain: string) {
-            try {
-                if (!def) {
-                    throw "Exception: missing view definition"
-                }
+            doInherit(parsed)
+        }
+    }
 
-                let parsedDef = this.context?.views.parseDefinition(def)
-                if (parsedDef) {
-                    parsedDef.domain = domain
-
-                    include(parsedDef, domain)
-                } else {
-                    debugHistory.error("Could not parse definition")
-                }
-            } catch (error) {
-                if (error instanceof CVUParseErrors) {
-                    debugHistory.error(`${error.toString(def?.definition ?? "")}`)
-                } else {
-                    debugHistory.error(`${error}`)
-                }
+    parse(def: CVUStoredDefinition, domain: string) {
+        try {
+            if (!def) {
+                throw "Exception: missing view definition"
             }
-        }.bind(this)
+            let parsedDef = this.context?.views.parseDefinition(def);
+            if (parsedDef) {
+                parsedDef.domain = domain
 
-        // Add head to the cascadeStack
-        include(this.head, "state")
+                this.include(parsedDef, domain)
+            } else {
+                debugHistory.error("Could not parse definition")
+            }
+        } catch (error) {
+            if (error instanceof CVUParseErrors) {
+                debugHistory.error(`${error.toErrorString(def?.definition ?? "")}`)
+            } else {
+                debugHistory.error(`${error}`)
+            }
+        }
+    }
 
-        // Find views based on datatype
+    cascade(resultSet: ResultSet) {
+// Determine whether this is a list or a single item resultset
+        let isList = resultSet.isList;
+
+        // Fetch the type of the results
+        let type = resultSet.determinedType;
+        if (!type) {
+            throw "Exception: ResultSet does not know the type of its data"
+        }
+
+        var needles
+        if (type != "mixed") {
+            // Determine query
+            needles = [
+                isList ? `${type}[]` : `${type}`,
+                // TODO: if this is not found it should get the default template
+                isList ? "*[]" : "*",
+            ]
+        }
+        else {
+            needles = [isList ? "*[]" : "*"]
+        }
+
+// Find views based on datatype
         for (let domain of ["user", "defaults"]) {
-            for (let needle in needles) {
-                let def = this.context?.views.fetchDefinitions(needle, domain)[0]
+            for (let needle of needles) {
+                let def = this.context?.views.fetchDefinitions(needle, domain)[0];
                 if (def) {
-                    parse(def, domain)
+                    this.parse(def, domain)
                 } else if (domain != "user") {
-                    debugHistory.warn(`Could not find definition for '${needle}' in domain '${domain}'`)
+                    debugHistory
+                        .warn(`Could not find definition for '${needle}' in domain '${domain}'`)
                 }
             }
         }
 
-        if (activeRenderer == undefined) {
+        if (this.activeRenderer == "") {
             throw "Exception: could not determine the active renderer for this view"
         }
 
-        // TODO is this needed for anything or should the tail property be removed?
-        this.tail = this.cascadeStack.pop()
+        // TODO: is this needed for anything or should the tail property be removed?
+        this.tail = this.cascadeStack[this.cascadeStack.length - 1];
         this.localCache = {} // Reset local cache again since it was filled when we fetched datasource
     }
 
@@ -576,10 +564,25 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         })
     }
 
+    loading = false;
+
     load(callback) {
-        if (this.head.parsed["datasourceDefinition"] == undefined) {//TODO: in source there are no parsed
-            throw "Exception: Missing datasource in view"
+        if (this.loading) {
+            return
         }
+        this.loading = true
+
+        // Reset properties
+        this.tail = []
+        this.localCache = {}
+        this.cascadeStack = []
+
+        // Load all includes in the stack so that we can make sure there is a datasource defined
+        this.include(this.head, "state", true)
+
+        let datasource = this.datasource
+        if (datasource.query == undefined) { throw "Exception: Missing datasource in view" }
+        this.localCache = {} // Clear cache again to delete the entry for datasource
 
         // Look up the associated result set
         let resultSet = this.context?.cache.getResultSet(this.datasource.flattened())
@@ -587,15 +590,15 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             throw "Exception: Unable to fetch result set from view"
         }
 
+        if (this.context instanceof RootContext) {
+            debugHistory.info("Computing view " + (this.name ?? this.state?.selector ?? ""))
+        }
+
         // If we can guess the type of the result based on the query, let's compute the view
         if (resultSet.determinedType != undefined) {
-            if (this.context instanceof RootContext) {
-                debugHistory.info("Computing view " + (this.name ?? this.state?.selector ?? ""))
-            }
-
             try {
                 // Load the cascade list of views
-                this.cascade()
+                this.cascade(resultSet)
 
                 this.resultSet.load((error) => {
                     if (error) {
@@ -606,12 +609,16 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                         this.context?.scheduleUIUpdate()
                     }
 
+                    this.loading = false
                     callback(error)
                 })
             } catch (error) {
                 // TODO: Error handling
                 // TODO: User Error handling
                 debugHistory.error(`${error}`)
+
+                this.loading = false
+                callback(error)
             }
         }
         // Otherwise let's execute the query first to be able to read the type from the data
@@ -621,8 +628,12 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                     // TODO: Error handling
                     debugHistory.error(`Exception: could not load result: ${error}`)
                 } else {
-                    this.load(callback)
+                    // Load the cascade list of views
+                    this.cascade(resultSet)
                 }
+
+                this.loading = false
+                callback(error)
             })
         }
 }
