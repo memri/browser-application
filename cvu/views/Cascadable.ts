@@ -32,7 +32,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
 
         return CVUSerializer.dictToString(merged, 0, "    ")
     }
-    
+
     execExpression(expr) {
         try {
             let x = expr.execute(this.viewArguments)
@@ -45,7 +45,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
             return undefined
         }
     }
-    
+
     transformActionArray(value) {
         var result = []
         if (Array.isArray(value)) {
@@ -59,12 +59,12 @@ export class Cascadable/* extends CustomStringConvertible*/{
                 }
             }
         }
-        
+
         if (result.length > 0) {
             if (result[0]?.constructor?.name == "Action"/*, T.self == Action.self*/) {//TODO
                 return (new ActionMultiAction(value[0].context, {actions: value}))
             }
-            
+
             return result
         }
         else { return value }
@@ -78,11 +78,11 @@ export class Cascadable/* extends CustomStringConvertible*/{
     isSet() {
         return (Object.keys(this.head.parsed).length ?? 0) > 0 || this.tail.length > 0
     }
-    
+
     cascadePropertyAsCGFloat(name) { //Renamed to avoid mistaken calls when comparing to nil
         return (this.cascadeProperty(name)).map((item)=>{ return Number(item) });
     }
-    
+
     cascadeProperty(name) {
         // if (DEBUG//TODO
         //These are temporary checks put in place to catch programmer errors. We should find a safer way that won't lose CVU properties. It is wrapped in DEBUG flag so will not crash in testflight.
@@ -93,7 +93,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         if (expr?.constructor?.name == "Expression") {
             return this.execExpression(expr)
         } else
-            if (expr) {
+        if (expr) {
             return this.transformActionArray(expr)
         }
 
@@ -112,7 +112,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         return null
     }
 
-    
+
     // TODO support deleting items
     cascadeList(name, uniqueKey?, merging?) {
         if (arguments.length === 3) {
@@ -187,15 +187,15 @@ export class Cascadable/* extends CustomStringConvertible*/{
 
         return list ?? result
     }
-    
-    
+
+
     cascadeDict(name, defaultDict = {}, //TODO:
-                        forceArray = false) {
+                forceArray = false) {
         let x = this.localCache[name]
         if (typeof x === "object") { return x }
-        
+
         var result = defaultDict
-        
+
         if (forceArray) {
             for (var def of this.cascadeStack) {
                 let x = def[name]
@@ -225,7 +225,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
                 }
             }
         }
-        
+
         this.localCache[name] = result
         return result
     }
@@ -237,18 +237,19 @@ export class Cascadable/* extends CustomStringConvertible*/{
         type = Cascadable
     ) {
         let x = this.localCache[propName]
-        if (x?.constructor?.name == "type") { return x }
+        if (x?.constructor?.name == type.toString()) { return x }
 
-        let head = this.head[lookupName] ?? new parsedType();
+        let head = this.head.parsed[lookupName] ?? new parsedType();
         this.head[lookupName] = head
 
-        let tail = this.tail.map((item) => { return (item[lookupName]?.constructor?.name == "parsedType")? item[lookupName]: undefined })
+        let tail = this.tail[lookupName]? [this.tail[lookupName]]: [];
+        //.map((item) => { return (item[lookupName]?.constructor?.name == parsedType.constructor.name)? item[lookupName]: undefined })
 
-        let cascadable = new type(head, tail, this);
+        let cascadable = new type(head.parsed, tail, this);
         this.localCache[propName] = cascadable
         return cascadable
     }
-    
+
     constructor(
         head?: CVUParsedDefinition,
         tail?: CVUParsedDefinition[],
