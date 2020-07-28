@@ -16,13 +16,14 @@ export class CVUParsedDefinition {
     constructor(selector  = "", name?, domain = "user", parsed?) {
         //super(selector, name, domain, parsed)
         if (typeof selector != "string") {
-            this.parsed = selector;
-        } else {
-            this.selector = selector
-            this.name = name
-            this.domain = domain;
-            this.parsed = parsed
+            parsed = selector;
+            selector = "";
         }
+
+        this.selector = selector
+        this.name = name
+        this.domain = domain;
+        this.parsed = parsed
     }
     
     subscript(propName:string) {
@@ -65,7 +66,7 @@ export class CVUParsedDefinition {
                 return 1
         }.bind(this));
 
-        return `${this.selector != "" ? `${this.selector ?? ""} ` : ""} ${body}`;
+        return `${this.selector != "" ? `${this.selector ?? ""} ` : ""}${body}`;
     }
     
     toString() {
