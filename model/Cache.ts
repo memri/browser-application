@@ -182,11 +182,11 @@ export class CacheMemri {
 			callback("Empty Query", null)
 		} else {
 			// Schedule the query to sync from the pod
-			if (syncWithRemote) {this.sync.syncQuery(datasource)}
+			//if (syncWithRemote) {this.sync.syncQuery(datasource)}
 
 			// Parse query
 			let [typeName, filter] = this.parseQuery(q)
-			let type = ItemFamily[typeName]
+			let type = ItemFamily["type"+typeName]
 			if (typeName == "*") {
 				var returnValue = []
 
@@ -209,7 +209,7 @@ export class CacheMemri {
 				let queryType = getItemType(type)?.constructor?.name
 				//                let t = queryType() as! Object.Type
 
-				var result = realm.objects(queryType)
+				var result = realm.objects(typeName)
 					.filtered("deleted = false " + (filter ?? ""))
 
 				let sortProperty = datasource.sortProperty
@@ -223,9 +223,9 @@ export class CacheMemri {
 				// Construct return array
 				var returnValue = []
 				for (var item of result) {
-					if (item?.constructor?.name == "Item") {
+					//if (item?.constructor?.name == "Item") {
 						returnValue.push(item)
-					}
+					//}
 				}
 
 				// Done

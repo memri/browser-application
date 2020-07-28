@@ -9,7 +9,8 @@ import {allRenderers} from "../../cvu/views/Renderers";
 import * as React from "react";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionDelete} from "../../cvu/views/Action";
-import {font, HStack, MainUI, MemriText, padding, Spacer, VStack} from "../swiftUI";
+import {ASTableView, font, HStack, MainUI, MemriText, padding, Spacer, VStack} from "../swiftUI";
+import {ListItem} from "@material-ui/core";
 
 export var registerListRenderer = function () {
 	if (allRenderers) {
@@ -72,6 +73,16 @@ export class ListRendererView extends MainUI {
 		return this.context.currentView?.renderConfig ?? new CascadingListConfig()
 	}
 
+	getItems() {
+		let items = this.context.items;
+		return items.map((item) => {
+			return <ListItem>{item.title}</ListItem>
+		})
+		/*<ASSection id={0} data={context.items} dataID={this.uid.value} selectedItems={this.selectedIndices} onSwipeToDelete={onSwipeToDelete} alwaysBounce >
+
+		</ASSection>*/
+	}
+
 	render() {
 		/*this.context = this.props?.context;*/
 		let context = this.context;
@@ -96,9 +107,7 @@ export class ListRendererView extends MainUI {
 		} else {//TODO:actions
 			innerContent = (
 				<ASTableView editMode={context.currentSession?.editMode ?? false} onSelectSingle={}>
-					<ASSection id={0} data={context.items} dataID={this.uid.value} selectedItems={this.selectedIndices} onSwipeToDelete={onSwipeToDelete} alwaysBounce >
-
-					</ASSection>
+					{this.getItems()}
 			</ASTableView>
 			);
 		}
