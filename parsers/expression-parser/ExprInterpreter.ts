@@ -64,16 +64,16 @@ export class ExprInterpreter {
         if (type === "boolean") { return a == IP.evaluateBoolean(b) }
         else if (type === "number") { return a == IP.evaluateNumber(b) }
         else if (type === "string") { return a == `${b ?? ""}` }//TODO
-        else if (a instanceof Item && b instanceof Item) { return a == b }
+        else if (a.constructor.name == "Item" && b.constructor.name == "Item") { return a == b }
         else if (a == null) { return b == null }
         else { return false }
     }
 
     compile(args?) {
         let recur = function(node) {
-            if (node instanceof ExprLookupNode) {
+            if (node.constructor.name == "ExprLookupNode") {
                 let first = node.sequence[0]
-                if (first instanceof ExprVariableNode) {
+                if (first.constructor.name == "ExprVariableNode") {
                     if (this.compilableIdentifiers.includes(first.name)) {
                         let value = this.lookup(node, args)
                         if (typeof value == "boolean") {
@@ -89,23 +89,23 @@ export class ExprInterpreter {
                         }
                     }
                 }
-            } else if (node instanceof ExprBinaryOpNode) {
+            } else if (node.constructor.name == "ExprBinaryOpNode") {
                 return new ExprBinaryOpNode(
                     node.op,
                     recur(node.lhs),
                     recur(node.rhs)
                 )
-            } else if (node instanceof ExprConditionNode) {
+            } else if (node.constructor.name == "ExprConditionNode") {
                 return new ExprConditionNode(
                     recur(node.condition),
                     recur(node.trueExp),
                     recur(node.falseExp)
                 )
-            } else if (node instanceof ExprStringModeNode) {
+            } else if (node.constructor.name == "ExprStringModeNode") {
                 var expressions = []
                 node.expressions.forEach((node) => { expressions.push(recur(node)) })
                 return new ExprStringModeNode(expressions)
-            } else if (node instanceof ExprCallNode) {
+            } else if (node.constructor.name == "ExprCallNode") {
                 // recur(node.lookup) // TODO Functions are not supported
                 var argumentsJs = []
                 node.argumentsJs.forEach((node) => { argumentsJs.push(recur(node)) })
@@ -120,7 +120,7 @@ export class ExprInterpreter {
     }
 
     execSingle(expr, args) {
-        if (expr instanceof ExprBinaryOpNode) {
+        if (expr.constructor.name == "ExprBinaryOpNode") {
             let result = this.execSingle(expr.lhs, args);
             
             switch (expr.op) {
@@ -157,7 +157,7 @@ export class ExprInterpreter {
                     break // this can never happen
             }
         }
-        else if (expr instanceof ExprConditionNode) {
+        else if (expr.constructor.name == "ExprConditionNode") {
             if (IP.evaluateBoolean(this.execSingle(expr.condition, args))) {
                 return this.execSingle(expr.trueExp, args)
             }
@@ -165,31 +165,31 @@ export class ExprInterpreter {
                 return this.execSingle(expr.falseExp, args)
             }
         }
-        else if (expr instanceof ExprStringModeNode) {
+        else if (expr.constructor.name == "ExprStringModeNode") {
             var result = []
             for (var exprI in expr.expressions) {
                 result.push(IP.evaluateString(this.execSingle(expr.expressions[exprI], args), ""))
             }
             return result.join("")
         }
-        else if (expr instanceof ExprNegationNode) {
+        else if (expr.constructor.name == "ExprNegationNode") {
             let result = this.execSingle(expr.exp, args)
             return !IP.evaluateBoolean(result)
         }
-        else if (expr instanceof ExprNumberNode) { return expr.value }
-        else if (expr instanceof ExprStringNode) { return expr.value }
-        else if (expr instanceof ExprBoolNode) { return expr.value }
-        else if (expr instanceof ExprNilNode) { return null }
-        else if (expr instanceof ExprAnyNode) { return expr.value }
-        else if (expr instanceof ExprNumberExpressionNode) {
+        else if (expr.constructor.name == "ExprNumberNode") { return expr.value }
+        else if (expr.constructor.name == "ExprStringNode") { return expr.value }
+        else if (expr.constructor.name == "ExprBoolNode") { return expr.value }
+        else if (expr.constructor.name == "ExprNilNode") { return null }
+        else if (expr.constructor.name == "ExprAnyNode") { return expr.value }
+        else if (expr.constructor.name == "ExprNumberExpressionNode") {
             let result = this.execSingle(expr.exp, args)
             return IP.evaluateNumber(result)
         }
-        else if (expr instanceof ExprLookupNode) {
+        else if (expr.constructor.name == "ExprLookupNode") {
             let x = this.lookup(expr, args)
             return x
         }
-        else if (expr instanceof ExprCallNode) {
+        else if (expr.constructor.name == "ExprCallNode") {
             let fArgs = expr.argumentsJs.map(x => this.execSingle(x, args))//TODO
             return this.execFunc(expr.lookup, fArgs, args)
         }

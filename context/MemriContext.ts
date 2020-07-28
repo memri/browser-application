@@ -18,13 +18,11 @@
 
 // TODO: Remove this and find a solution for Edges
 import {CVUStateDefinition, Item} from "../model/items/Item";
-import {Action} from "../cvu/views/Action";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/api";
-import {CascadableView} from "../cvu/views/CascadableView";
 import {Expression} from "../parsers/expression-parser/Expression";
 import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
 import {Sessions} from "../sessions/Sessions";
@@ -175,7 +173,7 @@ export class MemriContext {
 			let parsedDef = this.views.parseDefinition(currentView.viewDefinition)
 			if (parsedDef) {
 				let ds = parsedDef["datasourceDefinition"]
-				if (ds && ds instanceof CVUParsedDatasourceDefinition) {
+				if (ds && ds.constructor.name == "CVUParsedDatasourceDefinition") {
 					// TODO: this is at the wrong moment. Should be done after cascading
 					currentView.set("datasource",
 						new Datasource().fromCVUDefinition(ds, currentView.viewArguments))
@@ -198,7 +196,7 @@ export class MemriContext {
 
 		// If we can guess the type of the result based on the query, let's compute the view
 		if (resultSet.determinedType != undefined) {
-			if (this instanceof RootContext) { // if (type(of: self) == RootMain.self) {
+			if (this.constructor.name == "RootContext") { // if (type(of: self) == RootMain.self) {
 				debugHistory.info("Computing view "
 					+ (currentView.name ?? currentView.viewDefinition?.selector ?? ""))
 			}
@@ -476,7 +474,7 @@ export class MemriContext {
 
 			var argValue;
 			let expr = inputValue;
-			if (expr instanceof Expression) {
+			if (expr.constructor.name == "Expression") {
 				argValue = expr.execute(viewArgs)
 			} else {
 				argValue = inputValue
@@ -485,7 +483,7 @@ export class MemriContext {
 			var finalValue
 
 			let dataItem = argValue;
-			if (dataItem instanceof Item) {
+			if (dataItem.constructor.name == "Item") {
 				finalValue = dataItem
 			} else if (typeof argValue.isCVUObject === "function") {
 				let dict = argValue;
@@ -505,11 +503,11 @@ export class MemriContext {
 				}
 			}
 			else if (action.argumentTypes[argName] == ViewArguments.constructor) {
-				if (argValue instanceof ViewArguments) {
+				if (argValue.constructor.name == "ViewArguments") {
 					let viewArgs = argValue;
 					// We explicitly don't copy here. The caller is responsible for uniqueness
 					finalValue = viewArgs.resolve(item)
-				} else if (argValue instanceof CVUParsedDefinition) {
+				} else if (argValue.constructor.name == "CVUParsedDefinition") {
 					// #warning("This seems to not set the head properly")
 					let parsedDef = argValue
 					finalValue = new ViewArguments(parsedDef).resolve(item, viewArgs)

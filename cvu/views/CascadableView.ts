@@ -104,12 +104,12 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     /*get datasource() {
         let x = this.localCache["datasource"];
-        if (x instanceof CascadingDatasource) { return x }
+        if (x.constructor.name == "CascadingDatasource") { return x }
 
         let ds = this.sessionView.datasource;
         if (ds) {
             let stack = this.cascadeStack.map (x => {//TODO
-                if (x && x["datasourceDefinition"] instanceof CVUParsedDatasourceDefinition)
+                if (x && x["datasourceDefinition"].constructor.name == "CVUParsedDatasourceDefinition")
                     return x
             })
 
@@ -147,7 +147,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     get resultSet() {
         let x = this.localCache["resultSet"]
-        if (x instanceof ResultSet) { return x }
+        if (x.constructor.name == "ResultSet") { return x }
 
         // Update search result to match the query
         // NOTE: allowed force unwrap
@@ -181,7 +181,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         try {
             for (var def of renderDef) {
                 let parsedRenderDef = this.context?.views.parseDefinition(def)
-                if (parsedRenderDef instanceof CVUParsedRendererDefinition) {
+                if (parsedRenderDef.constructor.name == "CVUParsedRendererDefinition") {
                     if (parsedRenderDef.domain == "user") {
                         let insertPoint = function(): number {
                             for (let i=0;i<tail.length; i++) { if (tail[i].domain == "view") { return i } }
@@ -205,7 +205,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     get renderConfig(): CascadingRenderConfig {
         let x = this.localCache[this.activeRenderer]
-        if (x instanceof CascadingRenderConfig) { return x }
+        if (x.constructor.name == "CascadingRenderConfig") { return x }
 
         let getConfig = function(a: CVUParsedDefinition) {
             let definitions = (a["rendererDefinitions"] ?? [])
@@ -310,7 +310,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     set searchMatchText(newValue) { this.userState.set("searchMatchText", newValue) }
 
     constructor(state: CVUStateDefinition, session: Session, host?: Cascadable) {
-        if (state instanceof CVUStateDefinition) {
+        if (state.constructor.name == "CVUStateDefinition") {
             let uid = state.uid
 
             if (!uid) {
@@ -451,7 +451,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                     var result = inheritFrom
 
                     let expr = inheritFrom;
-                    if (expr instanceof Expression) {
+                    if (expr.constructor.name == "Expression") {
                         result = expr.execute(this.viewArguments)
                     }
 
@@ -464,7 +464,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                             throw `Exception: could not parse view: ${viewName}`
                         }
                     }
-                else if (result instanceof CascadableView) {
+                else if (result.constructor.name == "CascadableView") {
                         let view = result;
                             let parsedInclude = new CVUParsedViewDefinition(undefined, undefined, undefined,undefined, "user",view.head.parsed);
                     if (merge) {
@@ -499,7 +499,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                 debugHistory.error("Could not parse definition")
             }
         } catch (error) {
-            if (error instanceof CVUParseErrors) {
+            if (error.constructor.name == "CVUParseErrors") {
                 debugHistory.error(`${error.toErrorString(def?.definition ?? "")}`)
             } else {
                 debugHistory.error(`${error}`)
@@ -590,7 +590,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             throw "Exception: Unable to fetch result set from view"
         }
 
-        if (this.context instanceof RootContext) {
+        if (this.context.constructor.name == "RootContext") {
             debugHistory.info("Computing view " + (this.name ?? this.state?.selector ?? ""))
         }
 

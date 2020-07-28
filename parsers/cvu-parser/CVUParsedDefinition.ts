@@ -83,7 +83,7 @@ export class CVUParsedDefinition /*extends CVUToString*/ {
             let notnil = unknown
             if (!notnil) { return unknown }
 
-            if (notnil instanceof Expression) {
+            if (notnil.constructor.name == "Expression") {
                 return scope == CompileScope.all
                     ? notnil.execute(viewArguments)
                     : notnil.compile(viewArguments)
@@ -93,10 +93,10 @@ export class CVUParsedDefinition /*extends CVUToString*/ {
                 }
                 return notnil
             } else if (Array.isArray(notnil)) {
-                if (notnil[0] instanceof CVUParsedDefinition) {
+                if (notnil[0].constructor.name == "CVUParsedDefinition") {
                     for (var i in notnil) {
                         let def = recur(notnil[i])
-                        if (def instanceof CVUParsedDefinition) {
+                        if (def.constructor.name == "CVUParsedDefinition") {
                             notnil[i] = def
                         }
                     }
@@ -107,9 +107,9 @@ export class CVUParsedDefinition /*extends CVUToString*/ {
                 }
 
                 return notnil
-            } else if (notnil instanceof CVUParsedDefinition) {
+            } else if (notnil.constructor.name == "CVUParsedDefinition") {
                 notnil.parsed = recur(notnil.parsed)
-            } else if (notnil instanceof UIElement) {
+            } else if (notnil.constructor.name == "UIElement") {
                 let dict = recur(notnil.properties)
                 if (dict) {
                     notnil.properties = dict
@@ -134,7 +134,7 @@ export class CVUParsedDefinition /*extends CVUToString*/ {
                     this.parsed = {}
                 }*/
                 let cascadableDict = this.parsed[key];
-                if (cascadableDict instanceof CascadableDict) {
+                if (cascadableDict.constructor.name == "CascadableDict") {
                     cascadableDict.deepMerge(value);
                 } else {
                     this.parsed[key] = (value)?.copy() //CascadablaDict
@@ -144,12 +144,12 @@ export class CVUParsedDefinition /*extends CVUToString*/ {
                     this.parsed = {}
                 }*/
                 this.parsed[key] = value;
-            } else if (value instanceof CVUParsedDefinition) {
+            } else if (value.constructor.name == "CVUParsedDefinition") {
                 (this.parsed[key])?.mergeValuesWhenNotSet(value)
-            } else if (Array.isArray(value) && value.length > 0 && value[0] instanceof CVUParsedDefinition) {
+            } else if (Array.isArray(value) && value.length > 0 && value[0].constructor.name == "CVUParsedDefinition") {
                 let list = value;
                 var localList = this.parsed[key];
-                if (Array.isArray(localList) && localList.length > 0 && localList[0] instanceof CVUParsedDefinition) {
+                if (Array.isArray(localList) && localList.length > 0 && localList[0].constructor.name == "CVUParsedDefinition") {
                     for (let def of list) {
                         var found = false;
                         for (let localDef of localList) {

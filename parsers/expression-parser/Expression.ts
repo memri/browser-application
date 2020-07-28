@@ -48,20 +48,20 @@ export class Expression {
     toggleBool() {
         if (!this.parsed) this.parse()
         let node = this.ast
-        if (node instanceof ExprLookupNode) {
+        if (node.constructor.name == "ExprLookupNode") {
             var sequence = node.sequence
             let lastProperty = sequence.pop()
-            if (lastProperty instanceof ExprVariableNode) {
+            if (lastProperty.constructor.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence);
                 let lookupValue =  this.lookup(lookupNode, null)
 
                 let context = this.context;
                 if (context) {
                     let obj = lookupValue;
-                    if (obj instanceof UserState) {
+                    if (obj.constructor.name == "UserState") {
                         obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
                         return
-                    } else if (obj instanceof Object) { //TODO: RealmObject maybe? Or another check
+                    } else if (obj.constructor.name == "Object") { //TODO: RealmObject maybe? Or another check
                         let name = lastProperty.name
 
                         if (obj.objectSchema[name]?.type != "boolean") {
@@ -88,13 +88,13 @@ export class Expression {
         if (!this.parsed) this.parse()
 
         let node = this.ast
-        if (node instanceof ExprLookupNode) {
+        if (node.constructor.name == "ExprLookupNode") {
             var sequence = node.sequence
             let lastProperty = sequence.pop()
-            if (lastProperty instanceof ExprVariableNode) {
+            if (lastProperty.constructor.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence)
                 let dataItem = this.lookup(lookupNode, viewArguments)//TODO
-                if (dataItem instanceof DataItem) {
+                if (dataItem.constructor.name == "DataItem") {
                     let propType = dataItem.objectSchema[lastProperty.name]?.type;
                     if (propType) {
                         let propType = property.type
@@ -184,11 +184,11 @@ export class Expression {
                 list[i] = this.resolve(list[i], viewArguments, dontResolveItems)
             }
             return list
-        } else if (object instanceof Expression) {
+        } else if (object.constructor.name == "Expression") {
             let expr = object;
             let value = expr.execute(viewArguments);
             let item = value;
-            if (dontResolveItems && item instanceof Item) {
+            if (dontResolveItems && item.constructor.name == "Item") {
                 return new ItemReference(item);
             } else {
                 return value

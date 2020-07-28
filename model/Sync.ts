@@ -218,8 +218,8 @@ export class Sync {
 			DatabaseController.writeAsync((realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
-                        let resolvedItem = (item instanceof ItemReference || item instanceof EdgeReference) && item.resolve()
-						if (item instanceof ItemReference && resolvedItem) {
+                        let resolvedItem = (item.constructor.name == "ItemReference" || item.constructor.name == "EdgeReference") && item.resolve()
+						if (item.constructor.name == "ItemReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
 								realm.delete(resolvedItem)
 							}
@@ -227,7 +227,7 @@ export class Sync {
 								resolvedItem._action = ""
 								resolvedItem._updated.removeAll()
 							}
-						} else if (item instanceof EdgeReference && resolvedItem) {
+						} else if (item.constructor.name == "EdgeReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
 								realm.delete(resolvedItem)
 							}

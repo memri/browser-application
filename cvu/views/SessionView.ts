@@ -67,13 +67,13 @@ export class SessionView /*extends DataItem */{
         var args = viewArguments
 
         let src = parsed && parsed["datasourceDefinition"]
-        if (ds == null && src && src instanceof CVUParsedDatasourceDefinition) {
+        if (ds == null && src && src.constructor.name == "CVUParsedDatasourceDefinition") {
             ds = new Datasource().fromCVUDefinition(src, viewArguments)//TODO
         }
-        if (userState == null && parsed["userState"] instanceof UserState) {//TODO
+        if (userState == null && parsed["userState"].constructor.name == "UserState") {//TODO
             us = parsed["userState"]?.clone();
         }
-        if (viewArguments == null && parsed["viewArguments"] instanceof ViewArguments) {//TODO
+        if (viewArguments == null && parsed["viewArguments"].constructor.name == "ViewArguments") {//TODO
             args = parsed["viewArguments"].clone();
         }
         

@@ -9,11 +9,8 @@ import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {debugHistory} from "./ViewDebugger";
 import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
-import {MemriContext} from "../../context/MemriContext";
 import {CacheMemri} from "../../model/Cache";
-import {ViewArguments} from "./CascadableDict";
-import {Item, CVUStateDefinition} from "../../model/items/Item";
-import {ImporterRun, IndexerRun} from "../../model/schema";
+import {CVUStateDefinition} from "../../model/items/Item";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -21,7 +18,7 @@ export class Action/* : HashableClass, CVUToString*/ {
 
     get binding() {
         let expr = (this.values["binding"] ?? this.defaultValues["binding"]);
-        if (expr instanceof Expression) {
+        if (expr.constructor.name == "Expression") {
             expr.lookup = this.context.views.lookupValueOfVariables;
             expr.execFunc = this.context.views.executeFunction;
             expr.context = this.context;
@@ -119,7 +116,7 @@ export class Action/* : HashableClass, CVUToString*/ {
     get(key: string, viewArguments = null) {
         let x = this.values[key] ?? this.defaultValues[key] ?? this.baseValues[key];
         let expr = x;
-        if (expr instanceof Expression) {
+        if (expr.constructor.name == "Expression") {
             try {
                 expr.lookup = this.context.views.lookupValueOfVariables;
                 expr.execFunc = this.context.views.executeFunction;
@@ -181,7 +178,7 @@ export class Action/* : HashableClass, CVUToString*/ {
             strBuilder.push(`arguments: ${CVUSerializer.dictToString(this.arguments, depth + 1, tab)}`);
         }
         let value = this.values["binding"];
-        if (value instanceof Expression) {
+        if (value.constructor.name == "Expression") {
             strBuilder.push(`binding: ${value.toString()}`)
         }
 
@@ -195,7 +192,7 @@ export class Action/* : HashableClass, CVUToString*/ {
         });/*.keys.sorted(by: { $0 < $1 })*/ //TODO:
         for (let key in keys) {
             let value = this.values[key];
-            if (value instanceof Expression) {
+            if (value.constructor.name == "Expression") {
                 strBuilder.push(`${key}: ${value.toString()}`);
             }
             else if (this.values[key]) {
@@ -332,7 +329,7 @@ export enum ActionProperties {
 }
 
 export var validateActionType = function (key: string, value): boolean {
-    if (value instanceof Expression) {
+    if (value.constructor.name == "Expression") {
         return true
     }
 
@@ -350,7 +347,7 @@ export var validateActionType = function (key: string, value): boolean {
         case ActionProperties.arguments:
             return Array.isArray(value) // TODO do better by implementing something similar to executeAction
         case ActionProperties.renderAs:
-            return (value instanceof RenderType); //TODO
+            return (value.constructor.name == "RenderType"); //TODO
         case ActionProperties.opensView:
         case ActionProperties.distinct:
         case ActionProperties.all:
@@ -360,16 +357,16 @@ export var validateActionType = function (key: string, value): boolean {
         case ActionProperties.inactiveColor:
         case ActionProperties.activeBackgroundColor:
         case ActionProperties.inactiveBackgroundColor:
-            return value instanceof Color;
+            return value.constructor.name == "Color";
         case ActionProperties.value: return true // AnyObject is always true
         case ActionProperties.subject:
         case ActionProperties.importer:
         case ActionProperties.indexer:
         case ActionProperties.item:
-            return value instanceof Item
-        case ActionProperties.viewArguments: return value instanceof CVUParsedObjectDefinition || typeof value.isCVUObject == "function"
-        case ActionProperties.view: return value instanceof CVUParsedViewDefinition || typeof value.isCVUObject == "function"
-        case ActionProperties.session: return value instanceof CVUParsedSessionDefinition || typeof value.isCVUObject == "function"
+            return value.constructor.name == "Item"
+        case ActionProperties.viewArguments: return value.constructor.name == "CVUParsedObjectDefinition" || typeof value.isCVUObject == "function"
+        case ActionProperties.view: return value.constructor.name == "CVUParsedViewDefinition" || typeof value.isCVUObject == "function"
+        case ActionProperties.session: return value.constructor.name == "CVUParsedSessionDefinition" || typeof value.isCVUObject == "function"
         case ActionProperties.actions: return Array.isArray(value) /*instanceof [Action]*/ //TODO:
         default:
             return false
@@ -429,7 +426,7 @@ export class ActionAddItem extends Action {
 
     exec(argumentsJs) {
         let dataItem = argumentsJs["template"]
-        if (dataItem instanceof Item) {//TODO
+        if (dataItem.constructor.name == "Item") {//TODO
             // Copy template
             //let copy = this.context.cache.duplicate(dataItem);
             //#warning("Test that this creates a unique node")
@@ -461,7 +458,7 @@ export class ActionOpenView extends Action {
     }
 
     openView(context: MemriContext, view: CVUStateDefinition|Item, argumentsJs = null) {
-        if (view instanceof Item) {
+        if (view.constructor.name == "Item") {
            let item = view;
             let uid = item.uid;
             if (!uid) {
@@ -497,9 +494,9 @@ export class ActionOpenView extends Action {
 
         // if let selection = selection, selection.count > 0 { self.openView(context, selection) }
         let sessionView = argumentsJs["view"];
-        if (sessionView instanceof CVUStateDefinition) {
+        if (sessionView.constructor.name == "CVUStateDefinition") {
             this.openView(this.context, sessionView, viewArguments);
-        } else if (item instanceof CVUStateDefinition) {
+        } else if (item.constructor.name == "CVUStateDefinition") {
             this.openView(this.context, item, viewArguments);
         } else if (item) {
             this.openView(this.context, item, viewArguments)
@@ -526,7 +523,7 @@ export class ActionOpenViewByName extends Action {
     }
 
     exec(argumentsJs) {
-        let viewArguments = argumentsJs["viewArguments"]/* instanceof ViewArguments*/;
+        let viewArguments = argumentsJs["viewArguments"]/*.constructor.name == "ViewArguments"*/;
         let name = argumentsJs["viewName"];
         if (typeof name == "string") {
             // Fetch a dynamic view based on its name
@@ -885,11 +882,11 @@ export class ActionBackAsSession extends Action {
             } else {
                 let state = session.state
                 let copy = this.context.cache.duplicate(state)
-                if (state && copy instanceof CVUStateDefinition) {
+                if (state && copy.constructor.name == "CVUStateDefinition") {
                     for (var view of session.views) {
                         let state = view.state
                         let viewCopy = this.context.cache.duplicate(state)
-                        if (state && viewCopy instanceof CVUStateDefinition) {
+                        if (state && viewCopy.constructor.name == "CVUStateDefinition") {
                             copy.link(viewCopy, "view", ".last")
                         }
                     }
@@ -947,7 +944,7 @@ export class ActionOpenSession extends Action {
         let item = argumentsJs["session"]
         if (item) {
             let session = item;
-            if (session instanceof CVUStateDefinition) {
+            if (session.constructor.name == "CVUStateDefinition") {
                 this.openSession(this.context, args)
             } else {
                 // TODO Error handling
@@ -956,7 +953,7 @@ export class ActionOpenSession extends Action {
         }
         else {
             let session = argumentsJs["item"];
-            if (session instanceof CVUStateDefinition) {
+            if (session.constructor.name == "CVUStateDefinition") {
                 this.openSession(this.context, args);
             }
 
@@ -1034,7 +1031,7 @@ export class ActionDelete extends Action {
             this.context.scheduleCascadableViewUpdate(true);
         } else {
             let dataItem = argumentsJs["item"];
-            if (dataItem instanceof Item) {
+            if (dataItem.constructor.name == "Item") {
                 this.context.cache.delete(dataItem);
                 this.context.scheduleCascadableViewUpdate(true);
             } else {
@@ -1064,7 +1061,7 @@ export class ActionDuplicate extends Action {
             });//TODO:
         } else {
             let item = argumentsJs["item"];
-            if (item instanceof Item) {
+            if (item.constructor.name == "Item") {
                 new ActionAddItem(this.context).exec({"template": item});
             } else {
                 // TODO Error handling
@@ -1090,7 +1087,7 @@ export class ActionRunImporter extends Action {
     exec(argumentsJs) {
         // TODO: parse options
         let run = argumentsJs["importer"];
-        if (run instanceof ImporterRun) {
+        if (run.constructor.name == "ImporterRun") {
             let uid = run.uid;
             if (!uid) {
                 throw "Uninitialized import run"
@@ -1118,7 +1115,7 @@ export class ActionRunIndexer extends Action {
     exec(argumentsJs) {
         // TODO: parse options
         let run = argumentsJs["indexerRun"]
-        if (!(run instanceof IndexerRun)) {
+        if (!(run.constructor.name == "IndexerRun")) {
             throw "Exception: no indexer run passed"
         }
         if (run.indexer?.runDestination == "ios") {
@@ -1220,7 +1217,7 @@ export class ActionSetProperty extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (!(subject instanceof Item)) {
+        if (!(subject.constructor.name == "Item")) {
             throw "Exception: subject is not set"
         }
 
@@ -1260,7 +1257,7 @@ class ActionSetSetting extends Action{
         settings./*shared. TODO*/set(path, value);
 
             // TODO: refactor
-            ((this.context/* instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
+            ((this.context/*.constructor.name == "SubContext"*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
     }
 
     /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {
@@ -1279,7 +1276,7 @@ export class ActionLink extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (!(subject instanceof Item)) {
+        if (!(subject.constructor.name == "Item")) {
             throw "Exception: subject is not set";
         }
 
@@ -1289,7 +1286,7 @@ export class ActionLink extends Action {
         }
 
         let selected = argumentsJs["item"];
-        if (!(selected instanceof Item)) {
+        if (!(selected.constructor.name == "Item")) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1317,7 +1314,7 @@ export class ActionUnlink extends Action {
 
     exec(argumentsJs) {
         let subject = argumentsJs["subject"];
-        if (!(subject instanceof Item)) {
+        if (!(subject.constructor.name == "Item")) {
             throw "Exception: subject is not set";
         }
 
@@ -1327,7 +1324,7 @@ export class ActionUnlink extends Action {
         }
 
         let selected = argumentsJs["item"];
-        if (!(selected instanceof Item)) {
+        if (!(selected.constructor.name == "Item")) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1357,7 +1354,7 @@ export class ActionMultiAction extends Action {
 
     exec(argumentsJs) {
         let actions = argumentsJs["actions"];
-        if (!(Array.isArray(actions) && actions[0] instanceof Action)) {
+        if (!(Array.isArray(actions) && actions[0].constructor.name == "Action")) {
             throw "Cannot execute ActionMultiAction: no actions passed in arguments"
         }
 

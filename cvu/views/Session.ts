@@ -181,7 +181,7 @@ class Session extends DataItem {
     }*/
     
     static fromCVUDefinition(def) {
-        let views = def["viewDefinitions"] instanceof Array && def["viewDefinitions"][0] instanceof CVUParsedViewDefinition ? def["viewDefinitions"] : []
+        let views = def["viewDefinitions"].constructor.name == "Array" && def["viewDefinitions"][0].constructor.name == "CVUParsedViewDefinition" ? def["viewDefinitions"] : []
             .map(function (item){ return new SessionView().fromCVUDefinition(item) })
         
         return new Session({

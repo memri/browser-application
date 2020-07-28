@@ -455,7 +455,7 @@ export class Item extends SchemaItem {
         //let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
         DatabaseController.writeSync(function () {
-            if (item.realm == undefined && item instanceof Item) {
+            if (item.realm == undefined && item.constructor.name == "Item") {
                 item["_action"] = "create"
                 this.realm?.add(item, ".modified") //TODO
             }
@@ -503,7 +503,7 @@ export class Item extends SchemaItem {
     //    }
 
     unlink(edge: Edge | Item, edgeType?: string, all: boolean = true) {
-        if (edge instanceof Edge) {
+        if (edge.constructor.name == "Edge") {
             if (edge.sourceItemID.value == this.uid && edge.sourceItemType == this.genericType) {
                 DatabaseController.writeSync(function () {
                     edge.deleted = true;

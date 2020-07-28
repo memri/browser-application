@@ -295,7 +295,7 @@ export class ExprParser {
                 this.popCurrentToken();
 
                 var lastVar = sequence[sequence.length - 1];
-                if (!(lastVar instanceof ExprNodes.ExprVariableNode)) {
+                if (!(lastVar.constructor.name == "ExprNodes".ExprVariableNode)) {
                     throw new ExprParseErrors.ExpectedIdentifier
                 }
 
@@ -330,7 +330,7 @@ export class ExprParser {
                 sequence.push(new ExprNodes.ExprVariableNode(name));
             } else if (ExprToken.EOF == nextToken.constructor) {
                 return new ExprNodes.ExprLookupNode(sequence)
-            } else if (sequence.length == 1 && sequence[0] instanceof ExprNodes.ExprVariableNode) {
+            } else if (sequence.length == 1 && sequence[0].constructor.name == "ExprNodes".ExprVariableNode) {
                 break
             } else {
                 throw new ExprParseErrors.ExpectedIdentifier;

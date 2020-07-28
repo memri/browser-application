@@ -4,16 +4,15 @@
 
 
 import {MemriContext} from "../context/MemriContext";
-import {Item} from "../model/items/Item";
 import {Datasource} from "./Datasource";
 
 export class IndexerAPI {
 	context?: MemriContext
 
-	execute(indexerInstance: IndexerRun, items: [Item]) {
+	execute(indexerInstance: IndexerRun, items: Item[]) {
 		if (indexerInstance.name == "Note Label Indexer") {
 			let notes = items
-			if (!Array.isArray(notes) || !(notes[0] instanceof Note)) {
+			if (!Array.isArray(notes) || !(notes[0].constructor.name == "Note")) {
 				throw `Could not execute IndexerRun ${indexerInstance} non note objects passed`
 			}
 			this.executeNoteLabelIndexer(indexerInstance, notes)
@@ -24,7 +23,7 @@ export class IndexerAPI {
 /*}
 
 class IndexerAPI {*/
-	executeNoteLabelIndexer(indexerInstance: IndexerRun, items: [Note]) {
+	executeNoteLabelIndexer(indexerInstance: IndexerRun, items: Note[]) {
 		this.context?.cache.query(new Datasource("Label"), (error, labels) => {
 			if (!labels) {
 				if (error) {

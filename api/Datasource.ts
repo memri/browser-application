@@ -50,7 +50,7 @@ export class Datasource implements UniqueString {
 										viewArguments?) {
 		var getValue = function (name: string) {
 			let expr = def[name];
-			if (expr instanceof Expression) {
+			if (expr.constructor.name == "Expression") {
 				try {
 					let x = expr.execForReturnType(viewArguments);
 					return x

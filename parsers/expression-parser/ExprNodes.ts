@@ -76,7 +76,7 @@ export class ExprAnyNode implements ExprNode{
     }
     toExprString() {
         let item = this.value
-        let uid = (item instanceof Item) && item.uid
+        let uid = (item.constructor.name == "Item") && item.uid
         if (uid) {
             return `item(${item.genericType}, ${uid})`
         }
@@ -225,7 +225,7 @@ export class ExprStringModeNode implements ExprNode{
 
     toExprString() {
         return this.expressions.map ((node: ExprNode) => {
-            if (node instanceof ExprStringNode) {
+            if (node.constructor.name == "ExprStringNode") {
                 return node.value
             }
             else {

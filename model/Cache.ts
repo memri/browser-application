@@ -89,7 +89,7 @@ export class CacheMemri {
 
 				let obj = CacheMemri.createItem(itemType, values);
 				let item = obj, allEdges = dict["allEdges"]
-				if (item instanceof Item && allEdges) {//TODO: isCvuObject?
+				if (item.constructor.name == "Item" && allEdges) {//TODO: isCvuObject?
 					items[item] = allEdges
 				}
 
@@ -223,7 +223,7 @@ export class CacheMemri {
 				// Construct return array
 				var returnValue = []
 				for (var item of result) {
-					if (item instanceof Item) {
+					if (item.constructor.name == "Item") {
 						returnValue.push(item)
 					}
 				}

@@ -100,7 +100,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
 
             let p = this.context?.views.parseDefinition(state)
             
-            if (!(p instanceof CVUParsedSessionDefinition)) {
+            if (!(p.constructor.name == "CVUParsedSessionDefinition")) {
                 throw "Unable to parse state definition"
             }
             
@@ -121,7 +121,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                 }
             }
             // Or if the views are encoded in the definition
-            else if (parsedViews && parsedViews.length > 0 && parsedViews[0] instanceof CVUParsedViewDefinition)
+            else if (parsedViews && parsedViews.length > 0 && parsedViews[0].constructor.name == "CVUParsedViewDefinition")
             {
                 DatabaseController.tryWriteSync(() => {
                     for (let parsed of parsedViews) {
@@ -261,7 +261,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
 		if (!storedView) {
             throw "Exception: Unable fetch stored CVU state"
         }
-		if (!(storedView instanceof CVUStateDefinition))
+		if (!(storedView.constructor.name == "CVUStateDefinition"))
 		    storedView = new CVUStateDefinition(storedView);
         
         var nextIndex: number

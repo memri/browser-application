@@ -16,10 +16,10 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 		}
 
 		let itemRef = value
-		if (value instanceof ItemReference) {
+		if (value.constructor.name == "ItemReference") {
 			return value.resolve()
 		}
-		else if (Array.isArray(value) && value[0] instanceof ItemReference) {
+		else if (Array.isArray(value) && value[0].constructor.name == "ItemReference") {
 			return value.map((ref) => {
 				if (!ref) { return null }
 				return ref.resolve()
@@ -31,10 +31,10 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 	}
 
 	set(name: string, value?) {
-		if (value instanceof Item) {
+		if (value.constructor.name == "Item") {
 			this.setState(name, new ItemReference(value))
 		}
-		else if (Array.isArray(value) && value[0] instanceof Item) {
+		else if (Array.isArray(value) && value[0].constructor.name == "Item") {
 			this.setState(name, value.map((item) => {
 				if (!item) { return null }
 				return new ItemReference(item)
@@ -49,20 +49,20 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 	setSubscript(name, value) { this.set(name, value) }
 
 	constructor(head?, tail?: CVUParsedDefinition[]|Item, host?:Cascadable) {//TODO
-		if (head instanceof CascadableDict) {
+		if (head.constructor.name == "CascadableDict") {
 			super(new CVUParsedObjectDefinition(), head.cascadeStack)
 			if (tail) { this.set(".", tail) }
-		} else if (head instanceof CVUParsedDefinition) {
+		} else if (head.constructor.name == "CVUParsedDefinition") {
 			super(head, tail, host)
 		} else {
 			var result = {}
 
 			if (head) {
 				for (let [key, value] of Object.entries(head)) {
-					if (value instanceof Item) {
+					if (value.constructor.name == "Item") {
 						result[key] = new ItemReference(value)
 					}
-					else if (Array.isArray(value) && value[0] instanceof Item) {
+					else if (Array.isArray(value) && value[0].constructor.name == "Item") {
 						result[key] = value.map ((item) => {
 							if (!item) { return undefined }
 							return new ItemReference(item)
