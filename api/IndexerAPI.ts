@@ -1,10 +1,6 @@
 //
 //  IndexerAPI.swift
-//  memri
-//
-//  Created by Koen van der Veen on 24/06/2020.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 
 import {MemriContext} from "../context/MemriContext";

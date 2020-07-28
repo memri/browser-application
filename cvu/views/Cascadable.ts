@@ -1,22 +1,16 @@
 //
 //  Cascadable.swift
-//  memri
-//
-//  Created by Ruben Daniels on 5/24/20.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
-/*
 import {ActionMultiAction} from "./Action";
 import {debugHistory} from "./ViewDebugger";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
-import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";*/
+import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {Expression} from "../../parsers/expression-parser/Expression";
-import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
-export class Cascadable {
+export class Cascadable/* extends CustomStringConvertible*/{
     host?: Cascadable
-    cascadeStack: []
+    cascadeStack: CVUParsedDefinition[]
     tail: CVUParsedDefinition[]
     head: CVUParsedDefinition
     localCache = {}
@@ -24,7 +18,7 @@ export class Cascadable {
     get viewArguments() { return this.host?.viewArguments }
     set viewArguments(value) { this.host?.viewArguments = value }
 
-    /*get description() {
+    get description() {
         var merged = {}
 
         function recur(dict: {}) {
@@ -38,7 +32,7 @@ export class Cascadable {
         for (var item of this.tail) { recur(item.parsed) }
 
         return CVUSerializer.dictToString(merged, 0, "    ")
-    }*/
+    }
     
     execExpression(expr) {
         try {
@@ -80,6 +74,10 @@ export class Cascadable {
     setState(propName: string, value?) {
         this.head[propName] = value
         delete this.localCache[propName]
+    }
+
+    isSet() {
+        return (Object.keys(this.head.parsed).length ?? 0) > 0 || this.tail.length > 0
     }
     
     cascadePropertyAsCGFloat(name) { //Renamed to avoid mistaken calls when comparing to nil
@@ -242,7 +240,7 @@ export class Cascadable {
         let x = this.localCache[propName]
         if (x instanceof type) { return x }
 
-        let head = this.head[lookupName] ?? new parsedType()
+        let head = this.head[lookupName] ?? new parsedType.init()
         this.head[lookupName] = head
 
         let tail = this.tail.map((item) => { return (item[lookupName] instanceof parsedType)? item[lookupName]: undefined })
@@ -262,6 +260,6 @@ export class Cascadable {
         this.head = head ?? new CVUParsedDefinition();
 
         this.cascadeStack = [this.head]
-        this.cascadeStack.push(this.tail)
+        this.cascadeStack.push(...this.tail)
     }
 }

@@ -1,10 +1,6 @@
 //
 //  Datasource.swift
-//  memri
-//
-//  Created by Koen van der Veen on 25/05/2020.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import {CVUParsedDatasourceDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {Expression} from "../parsers/expression-parser/Expression";
@@ -132,13 +128,6 @@ export class CascadingDatasource extends Cascadable/*  implements UniqueString, 
 			this.sortAscending,
 		) //TODO:
 	}
-
-	/*constructor(cascadeStack: CVUParsedDatasourceDefinition[],
-				viewArguments?: ViewArguments,
-				datasource: Datasource) {
-		super(cascadeStack, viewArguments)
-		this.datasource = datasource
-	}*/
 
 	getSubscript(propName: string) {
 		switch (propName) {

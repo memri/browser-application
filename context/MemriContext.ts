@@ -1,3 +1,7 @@
+//
+// MemriContext.swift
+// Copyright © 2020 memri. All rights reserved.
+
 /*
  Notes on documentation
 
@@ -144,7 +148,7 @@ export class MemriContext {
 		//this.uiUpdateSubject.send() TODO
 	}
 
-	scheduleCascadingViewUpdate(immediate =  false) {
+	scheduleCascadableViewUpdate(immediate =  false) {
 		if (immediate) {
 			// Do this straight away, usually for the sake of correct animation
 			try { this.currentSession?.setCurrentView() }
@@ -464,12 +468,14 @@ export class MemriContext {
 	}
 
 	buildArguments(action: Action, item?: Item, viewArguments?) {
-		let viewArgs = new ViewArguments(viewArguments ?? this.currentView?.viewArguments)
-		viewArgs.resolve(item);
-		viewArgs.set(".", item);
+		let viewArgs = new ViewArguments(this.currentView?.viewArguments, item)
+			.merge(viewArguments)
+			.resolve(item)
 
 		var args = {}
-		for (let [argName, inputValue] of Object.entries(action.arguments)) {
+		for (let [argName, inputValue] of Object.entries(action.values)) {
+			if (action.argumentTypes[argName] == undefined) { continue }
+
 			var argValue;
 			let expr = inputValue;
 			if (expr instanceof Expression) {
@@ -485,32 +491,22 @@ export class MemriContext {
 				finalValue = dataItem
 			} else if (typeof argValue.isCVUObject === "function") {
 				let dict = argValue;
-				for (let [key, value] of Object.entries(dict)) {
-					let expr = value;
-					if (expr instanceof Expression) {
-						dict[key] = expr.execute(viewArgs)
-					} else if (Array.isArray(value)) {
-						for (let i = 0; i < value.length; i++) {
-							let expr = value[i];
-							if (expr instanceof Expression) {
-								value[i] = expr.execute(viewArgs)
-							}
-						}
-					}
-				}
-
 				if (action.argumentTypes[argName] == ViewArguments.constructor) {
-					finalValue = new ViewArguments(dict)
-				} else if (action.argumentTypes[argName] == ItemFamily.constructor) {
-					finalValue = this.getItem(dict, item, viewArguments)
-				} else if (action.argumentTypes[argName] == CVUStateDefinition.constructor) {
-					let viewDef = new CVUParsedViewDefinition(UUID())
+					finalValue = new ViewArguments(dict).resolve(item, viewArgs)
+				}
+				else if (action.argumentTypes[argName] == ItemFamily.constructor) {
+					finalValue = this.getItem(Expression.resolve(dict, viewArguments), item)
+				}
+				else if (action.argumentTypes[argName] == CVUStateDefinition.constructor) {
+					let viewDef = new CVUParsedViewDefinition("[view]")
 					viewDef.parsed = dict
 					finalValue = CVUStateDefinition.fromCVUParsedDefinition(viewDef)
-				} else {
+				}
+				else {
 					throw `Exception: Unknown argument type specified in action definition ${argName}`
 				}
-			} else if (action.argumentTypes[argName] == ViewArguments.constructor) {
+			}
+			else if (action.argumentTypes[argName] == ViewArguments.constructor) {
 				if (argValue instanceof ViewArguments) {
 					let viewArgs = argValue;
 					// We explicitly don't copy here. The caller is responsible for uniqueness
@@ -518,7 +514,7 @@ export class MemriContext {
 				} else if (argValue instanceof CVUParsedDefinition) {
 					// #warning("This seems to not set the head properly")
 					let parsedDef = argValue
-					finalValue = new ViewArguments(parsedDef).resolve(item)
+					finalValue = new ViewArguments(parsedDef).resolve(item, viewArgs)
 				} else {
 					throw `Exception: Could not parse ${argName}`
 				}
@@ -541,15 +537,15 @@ export class MemriContext {
 			args[argName] = finalValue
 		}
 
-// Last element of arguments array is the context data item
+		// Last element of arguments array is the context data item
 		args["item"] = item ?? this.currentView?.resultSet.singletonItem
 
 		return args
 	}
 
-	getItem(dict, dataItem?: Item, viewArguments?) {
+	getItem(dict, dataItem?: Item) {
 		// TODO: refactor: move to function
-		let stringType = dict["_type"];
+		let stringType = dict && dict["_type"];
 		if (typeof stringType != "string") {
 			throw "Missing type attribute to indicate the type of the data item"
 		}
@@ -561,25 +557,13 @@ export class MemriContext {
 		if (ItemType) {
 			throw `Cannot find family ${stringType}`
 		}
-		var values = {}
-		let uid = dict["uid"];
-		if (typeof uid == "number") {
-			values["uid"] = uid
+		var values = dict ?? {}
+		if (typeof dict["uid"] != "number") {
+			delete values["uid"]
 		}
+		delete values["_type"]
 
-		var initArgs = dict
-		delete initArgs["_type"];
-		delete initArgs["uid"]
-
-// swiftformat:disable:next redundantInit
-		let item = CacheMemri.createItem(ItemType, values)
-
-// TODO: fill item
-		for (let [propName, propValue] of Object.entries(initArgs)) {
-			item.set(propName, propValue)
-		}
-
-		return item
+		return CacheMemri.createItem(ItemType, values)
 	}
 }
 
@@ -625,17 +609,13 @@ export class RootContext extends MemriContext {
 
 		globalCache = cache // TODO: remove this and fix edges
 
-		let sessionState = CacheMemri.createItem(
-			"CVUStateDefinition",
-			{uid: CacheMemri.getDeviceID()}
-		)
 		super(
 			name,
 			podAPI,
 			cache,
 			settings,
 			new Installer(),
-			new Sessions(sessionState),
+			new Sessions(undefined,true),
 			views,
 			new MainNavigation(),
 			new Renderers(),
@@ -662,32 +642,31 @@ export class RootContext extends MemriContext {
 		return subContext
 	}
 
-	boot(callback?) {
-		// Make sure memri is installed properly
-		this.installer.installIfNeeded(this,() => {
-			//#if (targetEnvironment(simulator)
+	boot(isTesting:boolean = false, callback?) {
+		//#if (targetEnvironment(simulator)
+		if (!isTesting) {
 			// Reload for easy adjusting
 			this.views.context = this
 			this.views.install()
+		}
 		//	#endif*/
 
-			// Load views configuration
-			this.views.load(this, () => {
+		// Load views configuration
+		this.views.load(this, () => {
+			if (isTesting) { return }
+			// Load session
+			//this.sessions.load(this)
 
-				// Load session
-				//this.sessions.load(this)
+			// Update view when sessions changes
+			/*this.cancellable = this.sessions.objectWillChange.sink(function () {
+				this.scheduleUIUpdate()
+			})*/
 
-				// Update view when sessions changes
-				/*this.cancellable = this.sessions.objectWillChange.sink(function () {
-					this.scheduleUIUpdate()
-				})*/
+			// Load current view
+			//this.currentSession?.setCurrentView()
 
-				// Load current view
-				//this.currentSession?.setCurrentView()
-
-				callback && callback()
-			})
-		});
+			callback && callback()
+		})
 	}
 
 	mockBoot() {

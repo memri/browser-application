@@ -1,8 +1,6 @@
 //
-//  UserState.swift
-//
+//  CascadableDict.swift
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import {Item} from "../../model/items/Item";
 import {Expression} from "../../parsers/expression-parser/Expression";
@@ -50,38 +48,88 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 	getSubscript(name) { return this.get(name) }//TODO get with param
 	setSubscript(name, value) { this.set(name, value) }
 
-	get description() {
-		return this.head.parsed?.keys.description ?? ""
-	}
-
-	constructor(head?, tail?, host?:Cascadable) {//TODO
+	constructor(head?, tail?: CVUParsedDefinition[]|Item, host?:Cascadable) {//TODO
 		if (head instanceof CascadableDict) {
-			var combinedTail = head?.tail;
-			combinedTail?.push(tail?.cascadeStack ?? [])
-			super(new CVUParsedObjectDefinition(head?.head.parsed), combinedTail)
+			super(new CVUParsedObjectDefinition(), head.cascadeStack)
+			if (tail) { this.set(".", tail) }
+		} else if (head instanceof CVUParsedDefinition) {
+			super(head, tail, host)
 		} else {
-			if (head instanceof CVUParsedDefinition) {
-				super(head, tail, host)
-			} else {
-				super(new CVUParsedObjectDefinition(head), tail, host)
+			var result = {}
+
+			if (head) {
+				for (let [key, value] of Object.entries(head)) {
+					if (value instanceof Item) {
+						result[key] = new ItemReference(value)
+					}
+					else if (Array.isArray(value) && value[0] instanceof Item) {
+						result[key] = value.map ((item) => {
+							if (!item) { return undefined }
+							return new ItemReference(item)
+						})
+					}
+					else {
+						result[key] = value
+					}
+				}
 			}
+
+			super(new CVUParsedObjectDefinition(Object.keys(result).length === 0 ? undefined : result), tail, host)
 		}
 	}
 
-	resolve(item?: Item) {
+	merge(other?: CascadableDict) {
+		if (!other) { return this }
+
+		let parsed = other.head.parsed
+		if (parsed) {
+			for (let [key, value] of Object.entries(parsed)) {
+				this.head[key] = value
+			}
+		}
+
+		if (Object.keys(other.tail).length > 0) {
+			this.tail.push(...other.tail)
+			this.cascadeStack.push(...other.tail)
+		}
+
+		return this
+	}
+
+	deepMerge(other?: CascadableDict) {
+		if (!other) { return this }
+
+		let merge = (parsed?) => {
+			if (!parsed) { return }
+			for (let [key, value] of Object.entries(parsed)) {
+				this.head[key] = value
+			}
+		}
+
+		merge(other.head.parsed)
+		for (let item of other.tail) {
+			merge(item.parsed)
+		}
+
+		return this
+	}
+
+	resolve(item?: Item, viewArguments?: ViewArguments) {
 		// TODO: Only doing this for head, let's see if that is enough
 		//       Currently the assumption is that tails never change.
 		//       If they do, a copy is required
 
-		// #warning("This will resolve items which is not good")
-		for (let [key, value] of Object.entries(this.head.parsed ?? {})) {
-			let expr = value
-			if (expr instanceof Expression) {
-				this.head.parsed[key] = expr.execute(this.viewArguments)
-			}
-		}
+		this.head.parsed = Expression.resolve(this.head.parsed, viewArguments, true)
+		this.set(".", item)
+
+		return this
 	}
 
+	copy(item?: Item) {
+		let dict = new CascadableDict(new CVUParsedObjectDefinition(), this.cascadeStack)
+		if (item) { dict.set(".", item) }
+		return dict
+	}
 }
 
 export var UserState = CascadableDict

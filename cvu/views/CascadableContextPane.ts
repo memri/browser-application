@@ -1,8 +1,6 @@
 //
 //  CascadableContextPane.swift
-//
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 
 import {Cascadable} from "./Cascadable";
@@ -16,8 +14,4 @@ export class CascadableContextPane extends Cascadable {
 
     get navigate(){ return this.cascadeList("navigate") }
     set (value) { this.setState("navigate", value) }
-
-    isSet() {
-        return this.head.parsed?.length > 0 || this.tail.length > 0
-    }
 }

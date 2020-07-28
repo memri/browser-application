@@ -1,8 +1,6 @@
 //
 //  Action.swift
-//
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import {CVUSerializer, orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Expression} from "../../parsers/expression-parser/Expression";
@@ -99,7 +97,7 @@ export class Action/* : HashableClass, CVUToString*/ {
         return this.toCVUString(0, "    ")
     }
 
-    constructor(context: MemriContext, name: string, argumentsJs = null, values = {}) {
+    constructor(context: MemriContext, name: string, values = {}) {
         this.context = context;
 
         //super();//TODO:
@@ -111,7 +109,6 @@ export class Action/* : HashableClass, CVUToString*/ {
             this.name = ActionFamily.noop;
         } // TODO REfactor: Report error to user
 
-        this.arguments = argumentsJs ?? this.arguments;
         this.values = values;
         let x = this.values["renderAs"];
         if (typeof x == "string") {
@@ -167,9 +164,17 @@ export class Action/* : HashableClass, CVUToString*/ {
         }
     }
 
+    getArguments(item?: Item) {
+        try { return this.context.buildArguments(this, item) }
+        catch (error) {
+            debugHistory.warn(`Could not parse arguments for popup: ${error}`)
+            return {}
+        }
+    }
+
     toCVUString(depth:number, tab:string):string {
-        let tabs = tab.repeat(depth);
-        let tabsEnd = depth > 0 ? tab.repeat(depth - 1) : "";
+        let tabs = tab.repeat(depth + 1);
+        let tabsEnd = depth > 0 ? tab.repeat(depth) : "";
         var strBuilder: string[] = [];
 
         if (Object.keys(this.arguments).length > 0) {
@@ -194,9 +199,9 @@ export class Action/* : HashableClass, CVUToString*/ {
                 strBuilder.push(`${key}: ${value.toString()}`);
             }
             else if (this.values[key]) {
-                strBuilder.push(`${key}: ${CVUSerializer.valueToString(value, depth, tab)}`);
+                strBuilder.push(`${key}: ${CVUSerializer.valueToString(value, depth + 1, tab)}`);
             }
-        else {
+            else {
                 strBuilder.push(`${key}: null`);
             }
         }
@@ -302,6 +307,8 @@ export var getActionType = function (name) {
     }
 };
 
+// #warning("Check that the CVU validator is called. somehow with viewName missing defaults still passed")
+//TODO stop mark
 export enum ActionProperties {
     name = "name",
     arguments = "arguments",

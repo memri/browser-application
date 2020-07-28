@@ -1,10 +1,6 @@
 //
 //  ActionErrors.swift
-//  memri
-//
-//  Created by Koen van der Veen on 25/05/2020.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 class Error {
     messages: "";
