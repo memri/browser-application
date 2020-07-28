@@ -490,13 +490,13 @@ export class CVUParser {
                                 }
                             }
 
-                            let argumentsJs = options["arguments"] ? Object.assign({}, options["arguments"]) : {} //TODO:
-                            delete options["arguments"];
+                            //let argumentsJs = options["arguments"] ? Object.assign({}, options["arguments"]) : {} //TODO:
+                            //delete options["arguments"];
                             let actionFamily = ActionFamily[name];
                             if (actionFamily) {
                                 //TODO:
                                  let ActionType = getActionType(actionFamily);//TODO:
-                                 stack.push(new ActionType(this.context, argumentsJs, options));//[this.context, arguments, options]
+                                 stack.push(new ActionType(this.context, options));//[this.context, arguments, options]
                                 //stack.push(actionFamily)
                             } else {
                                 // TODO ERROR REPORTING

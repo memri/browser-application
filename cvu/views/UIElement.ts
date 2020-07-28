@@ -21,6 +21,7 @@ import {debugHistory} from "./ViewDebugger";
 import {Datasource} from "../../api/Datasource";
 import {Item, UUID} from "../../model/items/Item";
 import {dataItemListToArray} from "../../model/schema";
+import {ViewArguments} from "./CascadableDict";
 
 export class UIElement /*extends CVUToString */{
 	id = UUID()
@@ -48,7 +49,7 @@ export class UIElement /*extends CVUToString */{
 	}
 
 	get(propName, item = null, viewArguments?) {
-		viewArguments = viewArguments || new ViewArguments()
+		let args = viewArguments ?? new ViewArguments({".": item});
 		let prop = this.properties[propName]
 		if (prop) {
 			let propValue = prop
@@ -56,11 +57,9 @@ export class UIElement /*extends CVUToString */{
 			// Execute expression to get the right value
 			let expr = propValue
 			if (expr instanceof Expression) {
-				viewArguments.set(".", item) // TODO: Optimization This is called a billion times. Find a better place for this
-
 				try {
 					//if (T.self == [DataItem].self) {//TODO
-						let x =  expr.execute(viewArguments)
+						let x =  expr.execute(args)
 
 						var result = []
 						let list = x
@@ -82,7 +81,7 @@ export class UIElement /*extends CVUToString */{
 				} catch (error) {
 					// TODO: Refactor error handling
 					debugHistory.error(`Could note compute ${propName}\n`
-						+ `Arguments: [${viewArguments.toString()}]\n`
+						+ `Arguments: [${args.toString()}]\n`
 						+ (expr.startInStringMode
 							? `Expression: \"${expr.code}\"\n`
 							: `Expression: ${expr.code}\n`)
@@ -138,9 +137,9 @@ export class UIElement /*extends CVUToString */{
 	}
 
 	toCVUString(depth, tab) {
-		let tabs = tab.repeat(depth);
-		let tabsPlus = tab.repeat(depth + 1);
-		let tabsEnd = (depth - 1 > 0)? tab.repeat(depth - 1) : ""; //TODO:
+		let tabs = tab.repeat(depth + 1);
+		let tabsPlus = tab.repeat(depth + 2);
+		//let tabsEnd = (depth - 1 > 0)? tab.repeat(depth - 1) : ""; //TODO:
 
 		let propertiesLength = Object.keys(this.properties).length ?? 0
 		let childrenLength = Object.keys(this.children).length ?? 0
@@ -148,15 +147,15 @@ export class UIElement /*extends CVUToString */{
 		return propertiesLength > 0 || childrenLength > 0
 			? `${this.type} {\n`
 			+ (propertiesLength > 0
-				? `${tabs}${CVUSerializer.dictToString(this.properties, depth, tab, false)}`
+				? `${tabsPlus}${CVUSerializer.dictToString(this.properties, depth, tab + 1, false)}`
 				: "")
 			+ (propertiesLength > 0 && childrenLength > 0
 				? "\n\n"
 				: "")
 			+ (childrenLength > 0
-				? `${tabs}${CVUSerializer.arrayToString(this.children, depth, tab, false, true)}`
+				? `${tabsPlus}${CVUSerializer.arrayToString(this.children, depth, tab + 1, false, true)}`
 				: "")
-			+ `\n${tabsEnd}}`
+			+ `\n${tabs}}`
 			: `${this.type}\n`
 	}
 

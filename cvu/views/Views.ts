@@ -25,6 +25,8 @@ import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {dataItemListToArray} from "../../model/schema";
 import {RealmObjects} from "../../model/RealmLocal";
+import {Item} from "../../model/items/Item";
+import {ViewArguments} from "./CascadableDict";
 
 export class Views {
 	///
@@ -62,6 +64,9 @@ export class Views {
 	}
 
 	listenForChanges() {
+		if (!this.context?.podAPI.isConfigured) {
+			return;
+		}
 		// Subscribe to changes in CVUStoredDefinition
 		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition").forEach(function (items) { // CVUStoredDefinition AND domain='user'
 		this.reloadViews(items)
@@ -109,11 +114,13 @@ export class Views {
 				// Loop over lookup table with named views
 				for (let def of parsedDefinitions) {
 					var values = {
-						"selector": def.selector,
-						"name": def.name,
 						"domain": "defaults",
 						"definition": def.toString(),//TODO
 					}
+
+					if (def.selector != undefined) { values["selector"] = def.selector }
+					if (def.name != undefined) { values["name"] = def.name }
+
 					let selector = def.selector
 					if (!selector) {
 						throw "Exception: selector on parsed CVU is not defined"
@@ -146,15 +153,15 @@ export class Views {
 		}
 	}
 
-	static formatDate(date) {//TODO:
+	static formatDate(date, dateFormat?) {//TODO:
 		let showAgoDate = settings.get("user/general/gui/showDateAgo")
 
 		if (date) {
 			/*// Compare against 36 hours ago
-			if (showAgoDate == false || date.timeIntervalSince(new Date(-129_600)) < 0) {//TODO
+			if (dateFormat != undefined || showAgoDate == false || date.timeIntervalSince(new Date(-129_600)) < 0) {//TODO
 				let dateFormatter = new DateFormatter()
 
-				dateFormatter.dateFormat = Settings.get("user/formatting/date") ?? "yyyy/MM/dd HH:mm"
+				dateFormatter.dateFormat = dateFormat ?? Settings.get("user/formatting/date") ?? "yyyy/MM/dd HH:mm"
 				dateFormatter.locale = Locale("en_US")
 				dateFormatter.timeZone = TimeZone(0)
 
@@ -176,7 +183,7 @@ export class Views {
 		}
 	}
 
-	reloadViews(items) {
+	reloadViews() {
 //        guard let defs = items as? [CVUStoredDefinition] else {
 //            return
 //        }
@@ -296,8 +303,8 @@ export class Views {
 					throw error
 				}
 			} else
-			if (isFunction && i == lookup.sequence.length) {
-				value = value?.functions[node.name]
+			if (isFunction && i == lookup.sequence.length && value && value instanceof Item) {
+				value = value.functions[node.name]
 				if (value == undefined) {
 					// TODO: parse [blah]
 					this.recursionCounter = 0
@@ -348,6 +355,21 @@ export class Views {
 							default:
 								// TODO: Warn
 								break
+						}
+					} else if (value instanceof Date) {
+						switch (node.name) {
+							case "format":
+							/*guard isFunction else { throw "You must call .format() as a function" }
+
+                            value = { (args: [Any?]?) -> Any? in
+                            if args?.count == 0 { return Views.formatDate(date) }
+                            else { return Views.formatDate(date, dateFormat: args?[0] as? String) }
+                        }
+                        case "timeSince1970": value = date.timeIntervalSince1970
+                        case "timeSinceNow": value = date.timeIntervalSinceNow*/
+							default:
+								// TODO: Warn
+								debugHistory.warn("Could not find property \(node.name) on string")
 						}
 					} else if (v instanceof Edge) {//TODO
 						switch (node.name) {
@@ -404,7 +426,7 @@ export class Views {
 
 				let interpret = new ExprInterpreter(node, this.lookupValueOfVariables, this.executeFunction)
 				let list = dataItemListToArray(value) //value; //TODO:
-				let args = new ViewArguments(viewArguments);
+				let args = viewArguments?.copy() ?? new ViewArguments();
 				let expr = node.sequence[0]
 
 				for (let item in list) {
@@ -422,12 +444,6 @@ export class Views {
 				break
 			}
 		}
-
-		// Format a date
-		/*let date = value
-		if (date instanceof Date) {
-			value = this.formatDate(date)
-		}*/
 
 		this.recursionCounter -= 1
 

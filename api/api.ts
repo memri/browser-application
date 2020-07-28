@@ -4,7 +4,14 @@ import {debugHistory} from "../cvu/views/ViewDebugger";
 
 export class PodAPI {
     key;
-     
+    host?: string
+    username?: string
+    password?: string
+
+    get isConfigured(): boolean {
+        return (this.host ?? settings.get("user/pod/host")) != ""
+    }
+
     constructor(podkey, mockApi?) {
         this.key = podkey
         this.mockApi = mockApi
@@ -12,7 +19,7 @@ export class PodAPI {
     
     async http({method = "GET", path = "", body, data}, callback) {
 
-        let podhost = settings.get("user/pod/host") || ""
+        let podhost = this.host ?? settings.get("user/pod/host")
         if (podhost == "mock") {
             return this.mockApi.http({method, path, body, data}, callback);
         }
@@ -22,15 +29,14 @@ export class PodAPI {
         var url = new URL(podhost)
         if (!url) {
             let message = `Invalid pod host set in settings: ${podhost}`
-            // console.error(message)
             callback(message, null)
             return
         }
 
         url.pathname += "v1/" + path
         
-        let username = settings.get("user/pod/username");
-        let password = settings.get("user/pod/password");
+        let username = this.username ?? settings.get("user/pod/username");
+        let password = this.password ?? settings.get("user/pod/password");
         
         let loginString = undefined;
         if (username && password) {

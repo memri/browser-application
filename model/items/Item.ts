@@ -1050,19 +1050,20 @@ export class Edge {
             throw `Invalid JSON, no _type specified for target: ${dict}`
         }
 
-        let type = getItemType(ItemFamily[itemType]).constructor.name;
-        if (!type) {//TODO as? Object.Type
+        let type = getItemType(ItemFamily[itemType]);
+        if (!type) {//TODO as? Item.Type
             throw `Invalid target item type specificed: ${itemType}`
         }
 
-        var values = {}
-        for (let [key, value] of dict) {
-            values[key] = value.value
+        let realm = DatabaseController.getRealm()
+        var item = new type();
+        for (let [key, value] of Object.entries(dict)) {
+                item[key] = value;
         }
 
-        let item = CacheMemri.createItem(type, values);
+        item = CacheMemri.addToCache(item);
         let uid = item["uid"];
-        if (typeof uid == "number") {
+        if (uid) {
             this.targetItemType = itemType
             this.targetItemID.value = uid
         } else {

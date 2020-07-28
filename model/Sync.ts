@@ -42,8 +42,8 @@ import {Datasource} from "../api/Datasource";
 import {Edge} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "./Cache";
-import {DatabaseController} from "./DatabaseController";
-import {getItemType, ItemFamily} from "./schema";
+import {DatabaseController, ItemReference} from "./DatabaseController";
+import {AuditItem, getItemType, ItemFamily} from "./schema";
 
 export class Sync {
 	/// PodAPI Object to use for executing queries
@@ -77,7 +77,7 @@ export class Sync {
 
 	/// Schedule a query to sync the resulting Items from the pod
 	/// - Parameter datasource: QueryOptions used to perform the query
-	syncQuery(datasource: Datasource) {
+	syncQuery(datasource: Datasource, auditable: boolean = true, callback?) {
 		// TODO: if (this query was executed recently, considering postponing action
 		try {
             let data = JSON.stringify({ // TODO: move this to Datasource
@@ -88,21 +88,33 @@ export class Sync {
             
             // Add to realm
 			DatabaseController.writeAsync((realm) => {
+                var safeRef: ItemReference
+                if (auditable) {
+                    // Store query in a log item
+                    let audititem = new AuditItem()
 
-                // Store query in a log item
-                let audititem = new AuditItem()
+                    audititem.uid = CacheMemri.incrementUID()
+                    audititem.content = String(data) ?? ""
+                    audititem.action = "query"
+                    audititem.date = new Date()
 
-                audititem.uid = CacheMemri.incrementUID()
-                audititem.content = String(data) ?? ""
-                audititem.action = "query"
-                audititem.date = new Date()
+                    // Set syncstate to "fetch" in order to get priority treatment for querying
+                    audititem._action = "fetch"
 
-                // Set syncstate to "fetch" in order to get priority treatment for querying
-                audititem._action = "fetch"
-
-				realm.add(audititem)
+                    realm.add(audititem)
+                    safeRef = new ItemReference(audititem);
+                }
 				// Execute query with priority
-				this.prioritySync(datasource, audititem)
+                this.prioritySync(datasource, () => {
+                    if (auditable) {
+                        // We no longer need to process this log item
+                        DatabaseController.writeAsync(() => {
+                            safeRef?.resolve()?._action = undefined;
+                        })
+                    }
+
+                    callback()
+                })
 			})
 			
 		} catch(error) {
@@ -130,7 +142,7 @@ export class Sync {
 		}
 	}
 
-	prioritySync(datasource, audititem) {
+	prioritySync(datasource, callback?) {
 		// Only execute queries once per session until we fix syncing
         
 //        guard recentQueries[datasource.uniqueString] != true else {
@@ -138,9 +150,7 @@ export class Sync {
 //        }
         
         debugHistory.info(`Syncing from pod with query: ${datasource.query ?? ""}`)
-        
-        let safeRef = new ItemReference(audititem)
-        
+
         // Call out to the pod with the query
         this.podAPI.query(datasource, (error, items) => {
             if (items) {
@@ -155,7 +165,7 @@ export class Sync {
                     for (var item of items) {
                         // TODO: handle sync errors
                         try {
-                            cache.addToCache(item)
+                            CacheMemri.addToCache(item)
                         } catch(error) {
                             debugHistory.error(`${error}`)
                         }
@@ -168,10 +178,7 @@ export class Sync {
                         debugHistory.error(`${error}`)
                     }
 
-                    // We no longer need to process this log item
-					DatabaseController.writeAsync(function(){
-                        safeRef.resolve()?._action = null
-                    })
+                    callback && callback();
                 }
             } else {
                 // Ignore errors (we'll retry next time)
@@ -182,7 +189,6 @@ export class Sync {
 
 	/// Schedule a syncing round
 	/// - Remark: currently calls mock code
-	/// - TODO: implement syncToPod()
 	schedule(long =  false) {
 		// Don't schedule when we are already scheduled
 		if (this.scheduled == 0 || !long && this.scheduled == 2) {
@@ -201,13 +207,14 @@ export class Sync {
                 this.scheduled = 0
 
 				// Start syncing local data to the pod
+				 this.syncing = true
                 this.syncToPod()
 			})*/ //TODO:
 		}
 	}
 
 	syncToPod() {
-		function markAsDone(list) {
+		function markAsDone(list, callback) {
 			DatabaseController.writeAsync((realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
@@ -231,6 +238,8 @@ export class Sync {
 						}
 					}
 				}
+
+                callback();
 			})
 		}
 		
@@ -251,7 +260,7 @@ export class Sync {
                     let items = realm.objects(type).filtered((_action) => _action != undefined) //TODO:
                     for (var item of items) {
                         let action = item._action
-                        if (action && itemQueue[action] != undefined) {
+                        if (action && itemQueue[action] != undefined && item.uid > 0) {
                             itemQueue[action]?.push(item)
                             found += 1
                         }
@@ -288,16 +297,22 @@ export class Sync {
                          edgeQueue["update"],
                          edgeQueue["delete"],
                          (error) => {
-                            this.syncing = false
-
                             if (error) {
                                 debugHistory.error(`Could not sync to pod: ${error}`)
+                                this.syncing = false;
                                 this.schedule(true)
                             }
                             else {
                                 // #warning(`Items/Edges could have changed in the mean time, check dateModified/AuditItem`)
-                                markAsDone(safeItemQueue)
-                                markAsDone(safeEdgeQueue)
+                                markAsDone(safeItemQueue, ()=>{
+                                    markAsDone(safeEdgeQueue, ()=>{
+                                        debugHistory.info("Syncing complete")
+
+                                        this.syncing = false
+                                        this.schedule()
+                                    })
+                                });
+
 
                                 this.schedule()
                             }
@@ -306,10 +321,27 @@ export class Sync {
                     debugHistory.error(`Could not sync to pod: ${error}`)
                 }
             } else {
+                this.syncing = false;
                 this.schedule(true)
             }
         })
 	}
+
+    //#warning("This is terribly brittle, we'll need to completely rearchitect syncing next week")
+    syncAllFromPod(callback) {
+        this.syncQuery(new Datasource("CVUStoredDefinition"), false, () => {
+            this.syncQuery(new Datasource("CVUStateDefinition"), false, () => {
+                this.syncQuery(new Datasource("Country"), false, () => {
+                    this.syncQuery(new Datasource("Setting"), false, () => {
+                        this.syncQuery(new Datasource("NavigationItem"), false, () => {
+                            callback()
+                        })
+                    })
+                })
+            })
+        })
+    }
+
 
 	syncFromPod() {
 		// TODO:

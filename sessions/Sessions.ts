@@ -34,6 +34,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
     /// TBD
     context: MemriContext
+    isDefault: boolean = false
     
     sessions = []/*= [Session]()*/ //TODO:
     cancellables= []
@@ -54,13 +55,17 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         return this.sessions[index];
     }
 
-    constructor(state?: CVUStateDefinition) {
+    constructor(state?: CVUStateDefinition, isDefault: boolean = false) {
         if (state) {
             let uid = state.uid;
             if (!uid) {
                 throw "CVU state object is unmanaged"
             }
             this.uid = uid
+        } else if (isDefault) {
+            this.isDefault = isDefault
+            // Load default sessions for this device
+            this.uid = settings.get("device/sessions/uid")
         }
         
         // Setup update publishers
@@ -77,6 +82,13 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     }
 
     load(context: MemriContext, state?) {//TODO: added this for JS
+        if (this.isDefault && this.uid == undefined) {
+            this.uid = settings.get("device/sessions/uid")
+            if (this.uid == undefined) {
+                throw "Could not find stored sessions to load from"
+            }
+        }
+
         this.context = context
         this.sessions = []
 
@@ -137,7 +149,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
             state = new CVUStateDefinition(state);
         let storedSession = state ?? this.currentSession?.state;
         if (!storedSession) {
-            throw "Exception: Unable fetch stored CVU state"
+            throw "Exception: Unable to fetch stored CVU state for session"
         }
 
         // If the session already exists, we simply update the session index
@@ -201,7 +213,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
             let templateQuery = "selector = '[sessions = defaultSessions]'";
             let template = realm.objects("CVUStoredDefinition").filtered(templateQuery)[0];
             let parsed = context.views.parseDefinition(template);
-            let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid);
+            //let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid);
             if (!template || !parsed /*|| !state*/) {
                 throw "Installation is corrupt. Cannot recover."
             }
@@ -210,7 +222,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
             let allSessions = defs.map((item) => {
                 return CVUStateDefinition.fromCVUParsedDefinition(item)
             })
-            //let state = new CVUStateDefinition(CacheMemri.createItem("CVUStateDefinition", {"uid":this.uid}));
+            let state = CacheMemri.createItem("CVUStateDefinition")
             state = new CVUStateDefinition(state); //TODO: should be a better way
             for (let session of allSessions) {
                 state.link(session, "session", EdgeSequencePosition.last)

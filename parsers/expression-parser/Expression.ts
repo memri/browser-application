@@ -10,7 +10,8 @@ const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
 import {ExprInterpreter} from "./ExprInterpreter";
-import {DatabaseController} from "../../model/DatabaseController";
+import {DatabaseController, ItemReference} from "../../model/DatabaseController";
+import {Item} from "../../model/items/Item";
 
 export class Expression {
     code: string;
@@ -168,5 +169,32 @@ export class Expression {
         if (!this.parsed) this.parse()
 
         return this.interpreter.execute(args)
+    }
+
+    static resolve(object?, viewArguments?: ViewArguments, dontResolveItems: boolean = false) { //TODO:
+        var dict = object;
+        if (typeof dict.isCVUObject == "function") {
+            for (let [key, value] of Object.entries(dict)) {
+                dict[key] = this.resolve(value, viewArguments, dontResolveItems)
+            }
+            return dict;
+        } else if (Array.isArray(object)) {
+            let list = object;
+            for (let i = 0; i < list.length; i++) {
+                list[i] = this.resolve(list[i], viewArguments, dontResolveItems)
+            }
+            return list
+        } else if (object instanceof Expression) {
+            let expr = object;
+            let value = expr.execute(viewArguments);
+            let item = value;
+            if (dontResolveItems && item instanceof Item) {
+                return new ItemReference(item);
+            } else {
+                return value
+            }
+        } else {
+            return object
+        }
     }
 }

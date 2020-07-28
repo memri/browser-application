@@ -47,6 +47,7 @@ export class Renderers {
         //registerChartRenderer()
         // registerCalendarRenderer()
         // registerMessageRenderer()
+        //registerPhotoViewerRenderer()
     }
     
     get tuples() {

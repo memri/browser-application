@@ -45,11 +45,11 @@ export class CacheMemri {
 	}
 
 	/// gets default item from database, and adds them to realm
-	install() {
+	install(dbName: string) {
 		let realm = DatabaseController.getRealm();
 		// Load default database from disk
 		try {
-			//let jsonData = jsonDataFromFile("default_database")
+			//let jsonData = jsonDataFromFile(dbName)
 			let dicts = DB;//require("text-loader!./defaults/default_database.json"); //MemriJSONDecoder(jsonData)
 			let items = {}
 			var lut = {}
@@ -261,15 +261,10 @@ export class CacheMemri {
 			return resultSet
 		} else {
 			// Create new result set
-			let resultSet = new ResultSet(this);
+			let resultSet = new ResultSet(this, datasource);
 
 			// Store resultset in the lookup table
 			this.queryIndex[key] = resultSet
-
-			// Make sure the new resultset has the right query properties
-			resultSet.datasource.query = datasource.query
-			resultSet.datasource.sortProperty = datasource.sortProperty
-			resultSet.datasource.sortAscending = datasource.sortAscending
 
 			// Make sure the UI updates when the resultset updates
 			// this.cancellables.push(resultSet.objectWillChange.sink(function () {
@@ -290,7 +285,7 @@ export class CacheMemri {
 	/// - Parameter item:DataItem to be added
 	/// - Throws: Sync conflict exception
 	/// - Returns: cached dataItem
-	addToCache(item) {
+	static addToCache(item) {
 		if (!item.uid) {
 			throw "Cannot add an item without uid to the cache"
 		}
@@ -307,12 +302,12 @@ export class CacheMemri {
 			console.log(`Could not add to cache: ${error}`)
 		}
 
-		this.bindChangeListeners(item)
+		//this.bindChangeListeners(item)
 
 		return item
 	}
 
-	mergeWithCache(item: Item) {
+	static mergeWithCache(item: Item) {
 		let uid = item.uid
 		if (!uid) {
 			throw "Cannot add an item without uid to the cache"
@@ -321,7 +316,7 @@ export class CacheMemri {
 		// Check if this is a new item or an existing one
 		let cachedItem: Item = getItem(item.genericType, uid);
 		if (cachedItem) {
-			if (item.version <= cachedItem.version) {
+			if (item.version <= cachedItem.version && !cachedItem["_partial"]) {
 				return cachedItem;
 			}
 
@@ -341,7 +336,7 @@ export class CacheMemri {
 	}
 
 	// TODO: does this work for subobjects?
-	bindChangeListeners(item: Item) { //TODO???
+	/*bindChangeListeners(item: Item) { //TODO???
 		this.rlmTokens.push(item.observe((objectChange) => {
 			if (item.change == objectChange) {//TODO
 				if (item["_action"] == undefined) {
@@ -365,7 +360,7 @@ export class CacheMemri {
 			}
 		}))
 	}
-
+*/
 	/// marks an item to be deleted
 	/// - Parameter item: item to be deleted
 	/// - Remark: All methods and properties must throw when deleted = true;
@@ -433,7 +428,7 @@ export class CacheMemri {
 	static incrementUID() {
 		DatabaseController.writeSync((realm: Realm) => {
 			if (cacheUIDCounter == -1) {
-				let setting = realm.objectForPrimaryKey("Setting", -1);
+				let setting = realm.objects("Setting").filtered(`key = '${this.getDeviceID()}/uid-counter'`)[0];
 				if (setting && setting.json) {
 					cacheUIDCounter = Number(setting.json);
 				} else {
@@ -442,7 +437,9 @@ export class CacheMemri {
 					// As an exception we are not using Cache.createItem here because it should
 					// not be synced to the backend
 					realm.create("Setting", {
-						"uid": -1,
+						"uid": cacheUIDCounter - 1,
+						"key": `${this.getDeviceID()}/uid-counter`,
+						"_action": "create",
 						"json": String(cacheUIDCounter),
 					})
 					return
@@ -450,9 +447,13 @@ export class CacheMemri {
 			}
 
 			cacheUIDCounter += 1
-			let setting = realm.objectForPrimaryKey("Setting", -1);
+			let setting = realm.objects("Setting").filtered(`key = '${this.getDeviceID()}/uid-counter'`)[0];
 			if (setting) {
-				setting.json = String(cacheUIDCounter)
+				setting.json = String(cacheUIDCounter);
+				if (setting._action == undefined) {
+					setting._action = "update"
+					setting["_updated"] = ["json"]
+				}
 			}
 		});
 		return cacheUIDCounter
@@ -482,6 +483,7 @@ export class CacheMemri {
 		return newerItem
 	}
 
+	//#warning("This doesnt trigger syncToPod()")
 	static createItem(type, values?, unique?: string) {
 		var item
 		DatabaseController.tryWriteSync((realm: Realm) => {
@@ -490,7 +492,7 @@ export class CacheMemri {
 			// TODO:
 			// Always merge
 			var fromCache
-			let uid = values["uid"];
+			let uid = dict["uid"];
 			if (unique) {
 				// TODO: find item in DB & merge
 				// Uniqueness based on also not primary key
@@ -504,21 +506,26 @@ export class CacheMemri {
 				// mergeFromCache(fromCache, ....)
 				let properties = fromCache/*.objectSchema.properties*/;
 				let excluded = ["uid", "dateCreated", "dateAccessed", "dateModified"]
+
+				var fields = [];
+
+				function setWhenChanged(name: string, value?) {
+					if (fromCache.isEqualValue(fromCache[name], value)) {
+						return;
+					}
+					fromCache[name] = value
+					fields.push(name)
+				}
+
 				for (let prop in properties) {
 					if (properties.hasOwnProperty(prop)) {
-						if (!excluded.includes(properties[prop]) && values[prop] != undefined) {
-							/*if (prop.type == "date") {//TODO:
-                                let date = values[prop.name];
-                                if (typeof date == "number") {
-                                    fromCache[prop.name] = new Date(date / 1000);
-                                } else {
-                                    throw `Invalid date received for ${prop.name} got ${String(values[prop.name] ?? "")}`
-                                }
-                            } else {*/
-							fromCache[prop] = values[prop]
-							//}
+						if (!excluded.includes(properties[prop]) && dict[prop] != undefined) {
+							setWhenChanged(prop, dict[prop])
 						}
 					}
+				}
+				if (fields.length > 0){
+					fromCache.modified(fields)
 				}
 				fromCache["dateModified"] = new Date();
 
@@ -526,7 +533,7 @@ export class CacheMemri {
 					item["_action"] = "update"
 				}
 
-				if (item instanceof Item && type != "AuditItem") {
+				if (item && type != "AuditItem") {
 					let auditItem = CacheMemri.createItem("AuditItem", {"action": "update"})
 					item.link(auditItem, "changelog")
 				}
@@ -542,7 +549,7 @@ export class CacheMemri {
 				dict["uid"] = CacheMemri.incrementUID();
 			}
 
-//            print("\(type) - \(dict["uid"])")
+            console.log(`${type} - ${dict["uid"]}`)
 
 			item = realm.create(type, dict);
 
@@ -550,7 +557,7 @@ export class CacheMemri {
 				item["_action"] = "create"
 			}
 
-			if (item instanceof Item && type != "AuditItem") {
+			if (item && type != "AuditItem") {
 				let auditItem = CacheMemri.createItem("AuditItem", {"action": "create"})
 				item.link(auditItem, "changelog");
 			}

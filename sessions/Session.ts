@@ -224,7 +224,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
             if (stateViewEdges) {
                 var i = 0
                 for (let edge in stateViewEdges) {
-                    if (edge.targetItemID.value == this.views[i].uid) {
+                    if (edge.targetItemID == this.views[i].uid) {
                         i += 1
                         continue
                     }
@@ -289,6 +289,8 @@ export class Session  /*extends Equatable, Subscriptable*/ {
         if (!isReload) { storedView.accessed() }
         
         let nextView = this.views[nextIndex]
+        nextView.viewArguments?.deepMerge(viewArguments);
+
         nextView.load((error) => {
             let item = nextView.resultSet.singletonItem
             if (!isReload && error == undefined && item) {
@@ -329,9 +331,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                 let doIt = () => {
                     try {
                         if (this.screenshot == undefined) {
-                            let file = CacheMemri.createItem(File,
-                                {"uri": File.generateFilePath()}
-                            )
+                            let file = CacheMemri.createItem("File")
                             this.screenshot = file
                         }
 

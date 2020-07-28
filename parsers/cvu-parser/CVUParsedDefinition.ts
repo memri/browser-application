@@ -1,4 +1,5 @@
 import {CVUSerializer} from "./CVUToString";
+import {CascadableDict} from "../../cvu/views/CascadableDict";
 
 class CVUToString {
     
@@ -68,7 +69,7 @@ export class CVUParsedDefinition /*extends CVUToString*/ {
                 return 1
         }.bind(this));
 
-        return `${this.selector ?? ""} ${body}`;
+        return `${this.selector != "" ? `${this.selector ?? ""} ` : ""} ${body}`;
     }
     
     toString() {
@@ -119,6 +120,62 @@ export class CVUParsedDefinition /*extends CVUToString*/ {
         }
 
         this.parsed = recur(this.parsed)
+    }
+
+    mergeValuesWhenNotSet(other: CVUParsedDefinition) {
+        let dict = other.parsed;
+        if (!dict) return;
+        if (this.parsed == undefined) {
+            this.parsed = {}
+        }
+        for (let [key, value] of Object.entries(dict)) {
+            if (key == "userState" || key == "viewArguments") {
+                /*if (this.parsed == undefined) {
+                    this.parsed = {}
+                }*/
+                let cascadableDict = this.parsed[key];
+                if (cascadableDict instanceof CascadableDict) {
+                    cascadableDict.deepMerge(value);
+                } else {
+                    this.parsed[key] = (value)?.copy() //CascadablaDict
+                }
+            } else if (this.parsed[key] == undefined) {
+                /*if (this.parsed == undefined) {
+                    this.parsed = {}
+                }*/
+                this.parsed[key] = value;
+            } else if (value instanceof CVUParsedDefinition) {
+                (this.parsed[key])?.mergeValuesWhenNotSet(value)
+            } else if (Array.isArray(value) && value.length > 0 && value[0] instanceof CVUParsedDefinition) {
+                let list = value;
+                var localList = this.parsed[key];
+                if (Array.isArray(localList) && localList.length > 0 && localList[0] instanceof CVUParsedDefinition) {
+                    for (let def of list) {
+                        var found = false;
+                        for (let localDef of localList) {
+                            if (localDef.selector == def.selector) {
+                                localDef.mergeValuesWhenNotSet(def)
+                                found = true
+                                break
+                            }
+                        }
+                        if (!found) {
+                            localList.push(def)
+                            this.parsed[key] = localList
+                        }
+                    }
+                }
+            } else if (Array.isArray(value)) {
+                let list = value;
+                var localList = this.parsed[key];
+                if (Array.isArray(localList)) {
+                    for (let item of list) {
+                        localList.push(item)
+                    }
+                    this.parsed[key] = localList;
+                }
+            }
+        }
     }
 }
 export class CVUParsedObjectDefinition extends CVUParsedDefinition {

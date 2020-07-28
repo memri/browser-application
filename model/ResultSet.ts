@@ -14,7 +14,7 @@ import {ItemFamily} from "./schema";
 
 export class ResultSet {
 	/// Object describing the query and postprocessing instructions
-	datasource: Datasource = new Datasource("")
+	datasource: Datasource
 	/// Resulting Items
 	items = []
 	/// Nr of items in the resultset
@@ -82,8 +82,9 @@ export class ResultSet {
 	}
 
 
-	constructor(ch: CacheMemri) {
+	constructor(ch: CacheMemri, datasource: Datasource) {
 		this.cache = ch
+		this.datasource = datasource
 	}
 
 	/// Executes a query given the current QueryOptions, filters the result client side and executes the callback on the resulting

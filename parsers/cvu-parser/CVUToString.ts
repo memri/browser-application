@@ -19,7 +19,7 @@ import {ItemReference} from "../../model/DatabaseController";
 export class CVUSerializer {
 
     static valueToString(value, depth = 0, tab: string = "    "): string {
-        if (value == null || value === "nil") {
+        if (value == null /*|| value === "nil"*/) {
             return "null"
         } else {
             let p = value;
@@ -58,7 +58,7 @@ export class CVUSerializer {
             } else if (typeof p.isCVUObject === "function") {//TODO:
                 return this.dictToString(p, depth + 1, tab)
             } else if (typeof p.toCVUString === "function") {//TODO:
-                return p.toCVUString(depth + 1, tab)
+                return p.toCVUString(depth, tab)
             } else if (p instanceof Item && p.uid) {
                 return `{{ item(${p.genericType}, ${p.uid}) }}`
             } else if (p instanceof ItemReference) {
@@ -153,6 +153,7 @@ export class CVUSerializer {
                         str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
                             + `${key}: ${this.valueToString(p, depth, tab)}`);
                     } else if (value !== undefined) {
+                        console.log(`****** ${key}`);
                         str.push(`${key}: ${this.valueToString(value, depth, tab)}`);
                     }
                 }
@@ -176,19 +177,19 @@ export class CVUSerializer {
         }
         p = dict["sessionDefinitions"];//TODO normal check
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedSessionDefinition && p[0].parsed != undefined) {
-            let body = this.arrayToString(p, depth - 1, tab, false, true);
+            let body = this.arrayToString(p, depth, tab, false, true);
             definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
             hasPriorContent = true
         }
         p = dict["viewDefinitions"];//TODO normal check
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedViewDefinition && p[0].parsed != undefined) {
-            let body = this.arrayToString(p, depth - 1, tab, false, true);
+            let body = this.arrayToString(p, depth, tab, false, true);
             definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
             hasPriorContent = true
         }
         p = dict["rendererDefinitions"];//TODO normal check
         if (Array.isArray(p) && p.length > 0 && p[0] instanceof CVUParsedRendererDefinition && p[0].parsed != undefined) {
-            let body = this.arrayToString(p, depth - 1, tab, false, true);
+            let body = this.arrayToString(p, depth, tab, false, true);
             definitions.push(`${hasPriorContent ? `\n\n${tabs}` : ``}${body}`);
             hasPriorContent = true
         }

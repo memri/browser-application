@@ -143,11 +143,13 @@ export class ExprVariableNode implements ExprNode{
     }
 
     toExprString() {
+        var strName = this.name;
+        if (strName == "@@DEFAULT@@") { strName = "." };
         switch (this.type) {
-            case ExprVariableType.reverseEdge: return `_~${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
-            case ExprVariableType.reverseEdgeItem: return `~${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
-            case ExprVariableType.edge: return `_${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
-            case ExprVariableType.propertyOrItem: return `${this.name}${this.list == ExprVariableList.single ? "" : "[]"}`
+            case ExprVariableType.reverseEdge: return `_~${strName}${this.list == ExprVariableList.single ? "" : "[]"}`
+            case ExprVariableType.reverseEdgeItem: return `~${strName}${this.list == ExprVariableList.single ? "" : "[]"}`
+            case ExprVariableType.edge: return `_${strName}${this.list == ExprVariableList.single ? "" : "[]"}`
+            case ExprVariableType.propertyOrItem: return `${strName}${this.list == ExprVariableList.single ? "" : "[]"}`
         }
     }
 }
@@ -163,8 +165,13 @@ export class ExprLookupNode implements ExprNode{
     }
 
     toExprString() {
-        return this.sequence.map((node) =>
-            node.toExprString()
+        return this.sequence.map((node) => {
+                let value = node.toExprString()
+                if (value == "." && this.sequence.length > 1) {
+                    return ""
+                }
+                return value
+            }
         ).join(".")
     }
 }
@@ -241,7 +248,7 @@ export class ExprCallNode implements ExprNode{
     }
 
     toExprString() {
-        return `${this.lookup.toExprString()}(${this.argumentsJs.map(($0) => {$0.toExprString()}).join(", ")}`
+        return `${this.lookup.toExprString()}(${this.argumentsJs.map(($0) => {$0.toExprString()}).join(", ")})`
     }
 }
 
