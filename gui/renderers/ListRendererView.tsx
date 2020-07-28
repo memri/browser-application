@@ -73,7 +73,7 @@ export class ListRendererView extends MainUI {
 	}
 
 	render() {
-		this.context = this.props?.context;
+		/*this.context = this.props?.context;*/
 		let context = this.context;
 		let innerContent;
 		let onSwipeToDelete = function (item) {

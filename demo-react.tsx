@@ -249,7 +249,20 @@ import {Realm} from "./model/RealmLocal";
 import {CacheMemri} from "./model/Cache";*/
 
 let context = new RootContext("Memri GUI", "ABCDEF");
-context.boot();
+context.installer.await(() => {
+    context.boot(false, () => {
+        /*this.settingWatcher = context.settings.subscribe(
+            "device/sensors/location/track",
+            type: Bool.self
+    ).sink {
+            if let value = $0 as? Bool {
+                if value { SensorManager.shared.locationTrackingEnabledByUser() }
+        else { SensorManager.shared.locationTrackingDisabledByUser() }
+        }
+        }*/
+    })
+});
+context.installer.install(context, "");
 
 function App() {//TODO: don't ask, please, about link inside div =)
   return <div><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />

@@ -144,7 +144,7 @@ export class CVUSerializer {
                         str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
                             + `${key}: ${this.valueToString(p, depth, tab)}`);
                     } else if (value !== undefined) {
-                        console.log(`****** ${key}`);
+                        //console.log(`****** ${key}`);
                         str.push(`${key}: ${this.valueToString(value, depth, tab)}`);
                     }
                 }

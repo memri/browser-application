@@ -28,6 +28,38 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
     /// The uid of the CVUStateDefinition
     uid: number
+    loading: boolean;
+
+    constructor(state: CVUStateDefinition, session: Session, host?: Cascadable) {
+        if (state?.constructor?.name == "CVUStateDefinition") {
+            let uid = state.uid
+
+            if (!uid) {
+                throw "CVU state object is unmanaged"
+            }
+
+            let context = session.context
+
+            let head = context?.views.parseDefinition(state)
+            if (!head) {
+                throw "Could not parse state"
+            }
+            head.domain = "state";
+            if (head.definitionType != "view") {
+                throw `Wrong type of definition passed: ${head.definitionType}`;
+            }
+
+            super(head, [])
+
+            this.uid = uid
+            this.session = session
+            this.context = context
+        } else {
+            super(state, session, host)
+            this.uid = -1000000
+        }
+        this.loading = false;
+    }
 
     get state() {
         return DatabaseController.read((realm) => {
@@ -305,37 +337,6 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     get searchMatchText() { return this.userState.get("searchMatchText") ?? "" }
     set searchMatchText(newValue) { this.userState.set("searchMatchText", newValue) }
 
-    constructor(state: CVUStateDefinition, session: Session, host?: Cascadable) {
-        if (state?.constructor?.name == "CVUStateDefinition") {
-            let uid = state.uid
-
-            if (!uid) {
-                throw "CVU state object is unmanaged"
-            }
-
-            let context = session.context
-
-            let head = context?.views.parseDefinition(state)
-            if (!head) {
-                throw "Could not parse state"
-            }
-            head.domain = "state";
-            if (head.definitionType != "view") {
-                throw `Wrong type of definition passed: ${head.definitionType}`;
-            }
-
-            super(head, [])
-
-            this.uid = uid
-            this.session = session
-            this.context = context
-        } else {
-            super(state, session, host)
-            this.uid = -1000000
-        }
-
-    }
-
     /*constructor(
         head?: CVUParsedDefinition,
         tail?: CVUParsedDefinition[],
@@ -559,8 +560,6 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             }
         })
     }
-
-    loading = false;
 
     load(callback) {
         if (this.loading) {

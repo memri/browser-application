@@ -49,6 +49,16 @@ Photo[]: {
     [renderer = thumbnail] {
         spacing: 1
         edgeInset: 0 0 0 0 /* inset edges */
+		
+		press: openView {
+            view: {
+                inherit: {{currentView}}
+                defaultRenderer: "photoViewer"
+            }
+			viewArguments: {
+				currentItem: {{.}}
+			}
+		}
         
         Image {
             image: {{.file}}
@@ -63,6 +73,29 @@ Photo[]: {
 		TimelineItem {
 			icon: "camera"
 			title: "Photo"
+		}
+	}
+	
+	
+	[renderer = photoViewer] {
+		file: {{.file}}
+		initialItem: {{currentItem}}
+		
+		VStack {
+			padding: 10
+			VStack {
+				spacing: 5
+				padding: 12
+				background: #FFFFFF
+				cornerRadius: 5
+				Text {
+					text: "{.caption}"
+					font: 18 bold
+				}
+				Text {
+					text: "Photo taken: {.dateCreated}"
+				}
+			}
 		}
 	}
 }

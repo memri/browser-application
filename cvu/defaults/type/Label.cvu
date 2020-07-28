@@ -14,8 +14,8 @@ Label[]: {
     defaultRenderer: thumbnail
     
     actionButton: addItem {
-        arguments: {
-            type: "label"
+        template: {
+            _type: "label"
             name: "new label"
         }
     }

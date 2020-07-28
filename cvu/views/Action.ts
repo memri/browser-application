@@ -108,7 +108,7 @@ export class Action/* : HashableClass, CVUToString*/ {
 
         this.values = values;
         let x = this.values["renderAs"];
-        if (typeof x == "string") {
+        if (x && typeof x == "string") {
             this.values["renderAs"] = RenderType[x]
         }
     }

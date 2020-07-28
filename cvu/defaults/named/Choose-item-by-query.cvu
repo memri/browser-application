@@ -5,9 +5,7 @@
     editActionButton: toggleEditMode
     actionButton:
         addItem {
-            arguments {
-                type: {{type}}
-            }
+            type: {{type}}
         }
         
     defaultRenderer: {{ renderer or "list" }}
@@ -24,11 +22,9 @@
     [renderer = list]{
         press: [
             link {
-                arguments {
-                    subject: {{subject}}
-                    edgeType: {{edgeType}}
-                    distinct: {{distinct}}
-                }
+                subject: {{subject}}
+                edgeType: {{edgeType}}
+                distinct: {{distinct}}
             }
             closePopup
         ]
@@ -37,11 +33,9 @@
     [renderer = thumbnail]{
         press: [
             link {
-                arguments {
-                    subject: {{subject}}
-                    edgeType: {{edgeType}}
-                    distinct: {{distinct}}
-                }
+                subject: {{subject}}
+                edgeType: {{edgeType}}
+                distinct: {{distinct}}
             }
             closePopup
         ]

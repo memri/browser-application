@@ -16,19 +16,17 @@ Importer {
             icon: "increase.indent"
             title: "Show Timeline"
             
-            arguments {
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem appliesTo:{.id}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
                 }
             }
         }
@@ -47,36 +45,30 @@ Importer {
         navigate: [
             openView {
                 title: "Timeline of this importer"
-                arguments {
-                    view: {
-                        defaultRenderer: timeline
-                        
-                         [datasource = pod] {
-                            query: "AuditItem appliesTo:{.id}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
-                        
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
-                        }
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
                 title: "Starred importers"
-                arguments: {
-                    name: "filter-starred"
-                    viewArguments: {
-                        include: "all-notes"
-                    }
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
                 }
             }
             openSessionByName {
                 title: "All importers"
-                arguments: {
-                    name: "all-importers"
-                }
+                sessionName: "all-importers"
             }
         ]
     }

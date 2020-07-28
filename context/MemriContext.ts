@@ -651,7 +651,7 @@ export class RootContext extends MemriContext {
 		this.views.load(this, () => {
 			if (isTesting) { return }
 			// Load session
-			//this.sessions.load(this)
+			this.sessions.load(this)
 
 			// Update view when sessions changes
 			/*this.cancellable = this.sessions.objectWillChange.sink(function () {
@@ -659,7 +659,7 @@ export class RootContext extends MemriContext {
 			})*/
 
 			// Load current view
-			//this.currentSession?.setCurrentView()
+			this.currentSession?.setCurrentView()
 
 			callback && callback()
 		})

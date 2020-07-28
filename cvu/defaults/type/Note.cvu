@@ -16,19 +16,17 @@ Note {
             icon: "increase.indent"
             title: "Show Timeline"
             
-            arguments {
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem appliesTo:{.id}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
                 }
             }
         }
@@ -47,36 +45,30 @@ Note {
         navigate: [
             openView {
                 title: "Timeline of this note"
-                arguments {
-                    view: {
-                        defaultRenderer: timeline
-                        
-                        [datasource = pod] {
-                            query: "AuditItem appliesTo:{.id}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
-                        
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
-                        }
+                view: {
+                    defaultRenderer: timeline
+                    
+                    [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
                 title: "Starred notes"
-                arguments: {
-                    name: "filter-starred"
-                    viewArguments: {
-                        include: "all-notes"
-                    }
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
                 }
             }
             openSessionByName {
                 title: "All notes"
-                arguments: {
-                    name: "all-notes"
-                }
+                sessionName: "all-notes"
             }
         ]
     }
@@ -107,10 +99,8 @@ Note[] {
     
     actionButton:
         addItem {
-            arguments {
-                template {
-                    _type: Note
-                }
+            template {
+                _type: Note
             }
         }
         

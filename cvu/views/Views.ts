@@ -650,9 +650,9 @@ export class Views {
 function getDefaultViewContents() {
 	//let urls = Bundle.main.urls("cvu", ".")
 	var defaultsCVU = {
-		"Choose-item-by-query": require("text-loader!../defaults/named/Choose-item-by-query.cvu"),
-		"Filter-starred": require("text-loader!../defaults/named/Filter-starred.cvu"),
 		"all-items-with-label": require("text-loader!../defaults/named/all-items-with-label.cvu"),
+		"choose-item-by-query": require("text-loader!../defaults/named/choose-item-by-query.cvu"),
+		"filter-starred": require("text-loader!../defaults/named/filter-starred.cvu"),
 		"calendar": require("text-loader!../defaults/renderer/calendar.cvu"),
 		"chart": require("text-loader!../defaults/renderer/chart.cvu"),
 		"generalEditor": require("text-loader!../defaults/renderer/generalEditor.cvu"),
@@ -674,7 +674,6 @@ function getDefaultViewContents() {
 		"Location": require("text-loader!../defaults/type/Location.cvu"),
 		//"Mixed": require("text-loader!../defaults/type/Mixed.cvu"),
 		"Note": require("text-loader!../defaults/type/Note.cvu"),
-		//"Note1": require("text-loader!../defaults/type/Note1.cvu"),
 		"Person": require("text-loader!../defaults/type/Person.cvu"),
 		"Photo": require("text-loader!../defaults/type/Photo.cvu"),
 		"Session": require("text-loader!../defaults/type/Session.cvu"),

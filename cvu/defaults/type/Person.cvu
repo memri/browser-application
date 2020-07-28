@@ -33,19 +33,17 @@
             icon: "increase.indent"
             title: "{$showtimeline}"
             
-            arguments: {
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem appliesTo:{.id}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
                 }
             }
         }
@@ -64,34 +62,30 @@
         navigate: [
             openView {
                 title: "{$timelineof} {type.lowercased()}"
-                arguments: {
-                    view: {
-                        defaultRenderer: timeline
-                        
-                         [datasource = pod] {
-                            query: "AuditItem appliesTo:{.id}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
-                        
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
-                        }
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
                 title: "{$starred} {type.plural()}"
-                arguments: {
-                    name: "filter-starred"
-                    viewArguments: {
-                        include: "all-{type}"
-                    }
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-{type}"
                 }
             }
             openViewByName {
                 title: "{$all} {type.lowercased().plural()}"
-                name: "all-{type}"
+                viewName: "all-{type}"
             }
         ]
     }
@@ -110,19 +104,17 @@ Person {
             icon: "increase.indent"
             title: "{$showtimeline}"
             
-            arguments: {
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem appliesTo:{.id}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
                 }
             }
         }
@@ -141,36 +133,30 @@ Person {
         navigate: [
             openView {
                 title: "{$timelineof} person"
-                arguments: {
-                    view: {
-                        defaultRenderer: timeline
-                        
-                         [datasource = pod] {
-                            query: "AuditItem appliesTo:{.id}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
-                        
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
-                        }
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
                 title: "{$starred} persons"
-                arguments: {
-                    name: "filter-starred"
-                    viewArguments: {
-                        include: "all-person"
-                    }
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-person"
                 }
             }
             openSessionByName {
                 title: "{$all} persons"
-                arguments: {
-                    name: "all-person"
-                }
+                sessionName: "all-person"
             }
         ]
     }
@@ -246,17 +232,15 @@ Person {
                                 renderAs: popup
                                 title: "Edit"
                                 
-                                arguments: {
-                                    name: "choose-item-by-query"
-                                    viewArguments: {
-                                        query: "Photo" /* AND ANY allEdges.targetItemID = {.uid} */
-                                        type: Photo
-                                        renderer: "thumbnail"
-                                        subject: {{.}}
-                                        edgeType: "profilePicture"
-                                        distinct: true
-                                        title: "Choose a photo"
-                                    }
+                                viewName: "choose-item-by-query"
+                                viewArguments: {
+                                    query: "Photo" /* AND ANY allEdges.targetItemID = {.uid} */
+                                    type: Photo
+                                    renderer: "thumbnail"
+                                    subject: {{.}}
+                                    edgeType: "profilePicture"
+                                    distinct: true
+                                    title: "Choose a photo"
                                 }
                             }
                         }
@@ -309,8 +293,8 @@ Person {
                 
                     button {
                         press: openViewByName {
-                            name: "all-items-with-label"
-                            arguments: {
+                            viewName: "all-items-with-label"
+                            viewArguments: {
                                 name: "{.name}"
                                 uid: {{.uid}}
                             }
@@ -370,10 +354,8 @@ Person[] {
     
     actionButton:
         addItem {
-            arguments: {
-                template: {
-                    _type: Person
-                }
+            template: {
+                _type: Person
             }
         }
     

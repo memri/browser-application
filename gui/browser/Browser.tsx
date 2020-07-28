@@ -46,7 +46,7 @@ export class Browser extends MainUI {
 								&& <TopNavigation background={new Color("systemBackground").toLowerCase()}
 												  context={this.context}/>
 							}
-							{this.activeRenderer.props.context = this.context && this.activeRenderer.render()}
+							{(this.activeRenderer.context = this.context) && this.activeRenderer.render()}
 							{/*<this.activeRenderer context={this.context}/>*/}
 
 							<ContextualBottomBar context={this.context}/>
@@ -54,8 +54,7 @@ export class Browser extends MainUI {
 							{currentView.showSearchbar && !currentView.fullscreen &&
 								<>
 									<Search context={this.context}/>
-									{this.context.currentSession?.showFilterPanel ||
-										<FilterPanel context={this.context}/>}
+
 								</>
 							}
 						</VStack>

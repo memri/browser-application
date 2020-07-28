@@ -16,19 +16,17 @@ ImporterRun {
             icon: "increase.indent"
             title: "Show Timeline"
             
-            arguments {
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem appliesTo:{.id}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
                 }
             }
         }
@@ -47,36 +45,30 @@ ImporterRun {
         navigate: [
             openView {
                 title: "Timeline of this importer run"
-                arguments {
-                    view: {
-                        defaultRenderer: timeline
-                        
-                         [datasource = pod] {
-                            query: "AuditItem appliesTo:{.id}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
-                        
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
-                        }
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
                 title: "Starred importer runs"
-                arguments: {
-                    name: "filter-starred"
-                    viewArguments: {
-                        include: "all-notes"
-                    }
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
                 }
             }
             openSessionByName {
                 title: "All importer runs"
-                arguments: {
-                    name: "all-importer-instances"
-                }
+                viewName: "all-importer-instances"
             }
         ]
     }
@@ -134,9 +126,7 @@ ImporterRun {
                         margin: 5 5 5 35
                         
                         press: runImporter {
-                            arguments {
-                                importerRun: {{.}}
-                            }
+                            importer: {{.}}
                         }
                         
                         Text {
@@ -170,11 +160,9 @@ ImporterRun[] {
     
     actionButton:
         addItem {
-            arguments {
-                template {
-                    _type: ImporterRunInstance
-                    name: {{.name}}
-                }
+            template {
+                _type: ImporterRunInstance
+                name: {{.name}}
             }
         }
 

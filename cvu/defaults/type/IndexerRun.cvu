@@ -16,19 +16,17 @@ IndexerRun {
             icon: "increase.indent"
             title: "Show Timeline"
             
-            arguments {
-                view: {
-                    defaultRenderer: timeline
-                    
-                    [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
-                        sortProperty: dateCreated
-                        sortAscending: true
-                    }
-                    
-                    [renderer = timeline] {
-                        timeProperty: dateCreated
-                    }
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem appliesTo:{.id}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
                 }
             }
         }
@@ -47,36 +45,30 @@ IndexerRun {
         navigateItems: [
             openView {
                 title: "Timeline of this indexer run"
-                arguments {
-                    view: {
-                        defaultRenderer: timeline
-                        
-                         [datasource = pod] {
-                            query: "AuditItem appliesTo:{.id}"
-                            sortProperty: dateCreated
-                            sortAscending: true
-                        }
-                        
-                        [renderer = timeline] {
-                            timeProperty: dateCreated
-                        }
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem appliesTo:{.id}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
                     }
                 }
             }
             openViewByName {
                 title: "Starred indexer runs"
-                arguments: {
-                    name: "filter-starred"
-                    viewArguments: {
-                        include: "all-notes"
-                    }
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
                 }
             }
             openSessionByName {
                 title: "All indexer runs"
-                arguments: {
-                    name: "all-indexer-instances"
-                }
+                sessionName: "all-indexer-instances"
             }
         ]
     }
@@ -156,9 +148,7 @@ IndexerRun {
                         margin: 0 5 10 35
                         
                         press: runIndexer {
-                            arguments {
-                                indexerRun: {{.}}
-                            }
+                            indexer: {{.}}
                         }
                         
                         Text {
@@ -192,11 +182,9 @@ IndexerRun[] {
 
     actionButton:
         addItem {
-            arguments {
-                template {
-                    _type: IndexerRunInstance
-                    name: {{.name}}
-                }
+            template {
+                _type: IndexerRunInstance
+                name: {{.name}}
             }
         }
 

@@ -484,7 +484,7 @@ export class CacheMemri {
 	}
 
 	//#warning("This doesnt trigger syncToPod()")
-	static createItem(type, values?, unique?: string) {
+	static createItem(type, values = {}, unique?: string) {
 		var item
 		DatabaseController.tryWriteSync((realm: Realm) => {
 			var dict = values
@@ -510,7 +510,18 @@ export class CacheMemri {
 				var fields = [];
 
 				function setWhenChanged(name: string, value?) {
-					if (fromCache.isEqualValue(fromCache[name], value)) {
+					let isEqualValue = (a, b) => {
+						if (a == undefined) {
+							return b == undefined
+						} else if (a) {
+							return a == b
+						}
+						else {
+							debugHistory.warn("Unable to compare value: types do not mach")
+							return false
+						}
+					};
+					if (isEqualValue(fromCache[name], value)) {
 						return;
 					}
 					fromCache[name] = value
@@ -549,7 +560,7 @@ export class CacheMemri {
 				dict["uid"] = CacheMemri.incrementUID();
 			}
 
-            console.log(`${type} - ${dict["uid"]}`)
+            //console.log(`${type} - ${dict["uid"]}`)
 
 			item = realm.create(type, dict);
 
@@ -557,6 +568,7 @@ export class CacheMemri {
 				item["_action"] = "create"
 			}
 
+			item = new Item(item);
 			if (item && type != "AuditItem") {
 				let auditItem = CacheMemri.createItem("AuditItem", {"action": "create"})
 				item.link(auditItem, "changelog");
