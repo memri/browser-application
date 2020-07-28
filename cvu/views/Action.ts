@@ -54,7 +54,7 @@ export class Action/* : HashableClass, CVUToString*/ {
 
     values = {};
 
-    context;
+    context: MemriContext;
 
     isActive(): boolean {
         let binding = this.binding;
