@@ -1318,42 +1318,42 @@ export class Website  {
 export function dataItemListToArray(object) {
     var collection = []
     if (!Array.isArray(object) || !object.length) return
-    if (object[0].constructor.name == "Item") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "AuditItem") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Company") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "CreativeWork") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "DigitalDocument") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Comment") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Note") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "MediaObject") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Audio") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Photo") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Video") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "CVUStoredDefinition") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Device") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Diet") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Downloader") { object.forEach(function (item) {collection.push(item)}) }
-    //else if (object[0].constructor.name == "Edge") { return object.itemsArray() }
-    else if (object[0].constructor.name == "File") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Importer") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "ImporterRun") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Indexer") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "IndexerRun") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Label") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Location") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Address") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Country") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "MedicalCondition") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "NavigationItem") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "OnlineProfile") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Person") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "PhoneNumber") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "PublicKey") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Session") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Sessions") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "SessionView") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Setting") { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0].constructor.name == "Website") { object.forEach(function (item) {collection.push(item)}) }
+    if (object[0]?.constructor?.name == "Item") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "AuditItem") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Company") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "CreativeWork") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "DigitalDocument") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Comment") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Note") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "MediaObject") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Audio") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Photo") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Video") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "CVUStoredDefinition") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Device") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Diet") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Downloader") { object.forEach(function (item) {collection.push(item)}) }
+    //else if (object[0]?.constructor?.name == "Edge") { return object.itemsArray() }
+    else if (object[0]?.constructor?.name == "File") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Importer") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "ImporterRun") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Indexer") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "IndexerRun") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Label") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Location") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Address") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Country") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "MedicalCondition") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "NavigationItem") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "OnlineProfile") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Person") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "PhoneNumber") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "PublicKey") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Session") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Sessions") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "SessionView") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Setting") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Website") { object.forEach(function (item) {collection.push(item)}) }
 
     return collection
 }

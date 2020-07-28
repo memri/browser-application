@@ -68,7 +68,7 @@ export class PodAPI {
         if (className == "Edge") {
             var result = []
             let list = item[prop]
-            if (list.constructor.name == "Array" && list[0].constructor.name == "Edge") {
+            if (list?.constructor?.name == "Array" && list[0]?.constructor?.name == "Edge") {
                 for (let edge of list) {
                     let d = getDataItem(edge)
                     if (d) {
@@ -201,7 +201,7 @@ export class PodAPI {
 	}
 
     simplify(item: SchemaItem | Edge, create = false) {
-        if (item.constructor.name == "SchemaItem") {
+        if (item?.constructor?.name == "SchemaItem") {
             let updatedFields = item.syncState?.updatedFields
             var result = {
                 "_type": item.genericType,

@@ -6,14 +6,13 @@
 //
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedSessionDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedSessionDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {DatabaseController} from "../model/DatabaseController";
 import {CascadableView} from "../cvu/views/CascadableView";
 import {Realm} from "../model/RealmLocal";
 import {CacheMemri} from "../model/Cache";
 import {ActionFamily} from "../cvu/views/Action";
 import {CVUStateDefinition, EdgeSequencePosition} from "../model/items/Item";
-import {MemriContext} from "../context/MemriContext";
 
 export class Session  /*extends Equatable, Subscriptable*/ {
     /// The name of the item.
@@ -100,7 +99,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
 
             let p = this.context?.views.parseDefinition(state)
             
-            if (!(p.constructor.name == "CVUParsedSessionDefinition")) {
+            if (!(p?.constructor?.name == "CVUParsedSessionDefinition")) {
                 throw "Unable to parse state definition"
             }
             
@@ -121,7 +120,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                 }
             }
             // Or if the views are encoded in the definition
-            else if (parsedViews && parsedViews.length > 0 && parsedViews[0].constructor.name == "CVUParsedViewDefinition")
+            else if (parsedViews && parsedViews.length > 0 && parsedViews[0]?.constructor?.name == "CVUParsedViewDefinition")
             {
                 DatabaseController.tryWriteSync(() => {
                     for (let parsed of parsedViews) {
@@ -261,7 +260,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
 		if (!storedView) {
             throw "Exception: Unable fetch stored CVU state"
         }
-		if (!(storedView.constructor.name == "CVUStateDefinition"))
+		if (!(storedView?.constructor?.name == "CVUStateDefinition"))
 		    storedView = new CVUStateDefinition(storedView);
         
         var nextIndex: number

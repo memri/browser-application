@@ -7,7 +7,7 @@
 //
 
 import {DatabaseController} from "../model/DatabaseController";
-import {CVUParsedSessionDefinition, CVUParsedSessionsDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedSessionsDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {EdgeSequencePosition, CVUStateDefinition} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "../model/Cache";
@@ -97,10 +97,10 @@ export class Sessions /*: ObservableObject, Equatable*/ {
             if (!state)
                 state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
             if (state) {
-                if (!(state.constructor.name == "CVUStateDefinition"))
+                if (!(state?.constructor?.name == "CVUStateDefinition"))
                     state = new CVUStateDefinition(state);
                 let p = context.views.parseDefinition(state);
-                if (!(p.constructor.name == "CVUParsedSessionsDefinition")) {
+                if (!(p?.constructor?.name == "CVUParsedSessionsDefinition")) {
                     throw "Unable to parse state definition"
                 }
                 this.parsed = p;
@@ -116,7 +116,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                     }
                 }
                 // Or if the sessions are encoded in the definition
-                else if (Array.isArray(p["sessionDefinitions"]) && p["sessionDefinitions"].length > 0 && p["sessionDefinitions"][0].constructor.name == "CVUParsedSessionDefinition") {
+                else if (Array.isArray(p["sessionDefinitions"]) && p["sessionDefinitions"].length > 0 && p["sessionDefinitions"][0]?.constructor?.name == "CVUParsedSessionDefinition") {
                     let parsedSessions = p["sessionDefinitions"];
                     DatabaseController.tryWriteSync((realm) => {
                         for (let parsed of parsedSessions) {
@@ -145,7 +145,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     }
     
 	setCurrentSession(state?: CVUStateDefinition) {
-        if (!(state.constructor.name == "CVUStateDefinition"))
+        if (!(state?.constructor?.name == "CVUStateDefinition"))
             state = new CVUStateDefinition(state);
         let storedSession = state ?? this.currentSession?.state;
         if (!storedSession) {

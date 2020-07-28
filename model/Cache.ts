@@ -89,7 +89,7 @@ export class CacheMemri {
 
 				let obj = CacheMemri.createItem(itemType, values);
 				let item = obj, allEdges = dict["allEdges"]
-				if (item.constructor.name == "Item" && allEdges) {//TODO: isCvuObject?
+				if (item?.constructor?.name == "Item" && allEdges) {//TODO: isCvuObject?
 					items[item] = allEdges
 				}
 
@@ -192,7 +192,7 @@ export class CacheMemri {
 
 				for (var dtype in ItemFamily) {
 					// NOTE: Allowed forced cast
-					let objects = realm.objects(getItemType(dtype).constructor.name)
+					let objects = realm.objects(getItemType(dtype)?.constructor?.name)
 						.filtered("deleted = false " + (filter ?? "")) //TODO
 					for (var item of objects) { returnValue.push(item) }
 				}
@@ -206,7 +206,7 @@ export class CacheMemri {
 
 				// Query based on a simple format:
 				// Query format: <type><space><filter-text>
-				let queryType = getItemType(type).constructor.name
+				let queryType = getItemType(type)?.constructor?.name
 				//                let t = queryType() as! Object.Type
 
 				var result = realm.objects(queryType)
@@ -223,7 +223,7 @@ export class CacheMemri {
 				// Construct return array
 				var returnValue = []
 				for (var item of result) {
-					if (item.constructor.name == "Item") {
+					if (item?.constructor?.name == "Item") {
 						returnValue.push(item)
 					}
 				}

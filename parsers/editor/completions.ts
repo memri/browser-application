@@ -326,7 +326,7 @@ function addPropertyValues(completions, propertyName) {
 function normalize(obj) {
     var regexp = /,\s*/;
     for (const [key, value] of Object.entries(obj)) {
-        if (value.constructor.name == "Object") {
+        if (value?.constructor?.name == "Object") {
             obj[key] = normalize(value);
         }
         else {

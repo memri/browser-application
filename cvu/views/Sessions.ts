@@ -165,7 +165,7 @@ class Sessions extends DataItem {
 						selector: `[sessions = '${this.memriID}']`,
 						name: this.memriID,
 						currentSessionIndex: Number(parsed["sessionsDefinition"] ?? 0),
-						sessions: (Array.isArray(parsed["sessionDefinitions"]) && parsed["sessionDefinitions"][0].constructor.name == "CVUParsedSessionDefinition" ? parsed["sessionDefinitions"] : [])
+						sessions: (Array.isArray(parsed["sessionDefinitions"]) && parsed["sessionDefinitions"][0]?.constructor?.name == "CVUParsedSessionDefinition" ? parsed["sessionDefinitions"] : [])
 							.map (function(item){ Session.fromCVUDefinition(item) }),//TODO
 					})
 				})

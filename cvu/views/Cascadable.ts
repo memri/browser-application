@@ -6,7 +6,6 @@ import {ActionMultiAction} from "./Action";
 import {debugHistory} from "./ViewDebugger";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
-import {Expression} from "../../parsers/expression-parser/Expression";
 
 export class Cascadable/* extends CustomStringConvertible*/{
     host?: Cascadable
@@ -51,7 +50,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         var result = []
         if (Array.isArray(value)) {
             for (var v of value) {
-                if (v.constructor.name == "Expression") {
+                if (v?.constructor?.name == "Expression") {
                     let x = this.execExpression(v)
                     result.push(x)
                 }
@@ -62,7 +61,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         }
         
         if (result.length > 0) {
-            if (result[0].constructor.name == "Action"/*, T.self == Action.self*/) {//TODO
+            if (result[0]?.constructor?.name == "Action"/*, T.self == Action.self*/) {//TODO
                 return (new ActionMultiAction(value[0].context, {actions: value}))
             }
             
@@ -91,7 +90,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         // if (T.self == Int.self) { fatalError("You need to request a Double and then case to integer instead") }
         // #endif
         let expr = this.localCache[name]
-        if (expr.constructor.name == "Expression") {
+        if (expr?.constructor?.name == "Expression") {
             return this.execExpression(expr)
         } else
             if (expr) {
@@ -100,7 +99,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
 
         for (var def of this.cascadeStack) {
             let expr = def[name]
-            if (expr.constructor.name == "Expression") {
+            if (expr?.constructor?.name == "Expression") {
                 this.localCache[name] = expr
                 return this.cascadeProperty(name)
             }
@@ -238,12 +237,12 @@ export class Cascadable/* extends CustomStringConvertible*/{
         type = Cascadable
     ) {
         let x = this.localCache[propName]
-        if (x.constructor.name == "type") { return x }
+        if (x?.constructor?.name == "type") { return x }
 
         let head = this.head[lookupName] ?? new parsedType.init()
         this.head[lookupName] = head
 
-        let tail = this.tail.map((item) => { return (item[lookupName].constructor.name == "parsedType")? item[lookupName]: undefined })
+        let tail = this.tail.map((item) => { return (item[lookupName]?.constructor?.name == "parsedType")? item[lookupName]: undefined })
 
         let cascadable = new type(head, tail, this);
         this.localCache[propName] = cascadable

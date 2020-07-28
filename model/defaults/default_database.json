@@ -145,7 +145,7 @@
     {
         "_type": "Note",
         "title": "Note2",
-        "content": "some random note",
+        "content": "some random note"
     },
 	{
 		"_type": "Photo",
@@ -625,7 +625,7 @@
     },
     { "_type": "Address", "uid": 100013, "type": "Indexer example",
         "allEdges": [
-            {"type":"location", "itemType": "Location", "uid": 100017},
+            {"type":"location", "itemType": "Location", "uid": 100017}
         ]
     },
     { "_type": "Location",
@@ -662,7 +662,7 @@
             {"type":"diet", "itemType": "Diet", "uid": 1011},
             {"type":"medicalCondition", "itemType": "MedicalCondition", "uid": 1012},
             {"type":"address", "edgeLabel": "Home", "itemType": "Address", "uid": 1013},
-            {"type":"address", "edgeLabel": "Holiday home in France", "itemType": "Address", "uid": 1014},
+            {"type":"address", "edgeLabel": "Holiday home in France", "itemType": "Address", "uid": 1014}
         ],
         "version": 1
     },
@@ -677,7 +677,7 @@
             {"type":"relationship", "itemType": "Person", "uid": 1},
             {"type":"profilePicture", "itemType": "Photo", "uid": 501},
             {"type":"label", "itemType": "Label", "uid": 1015},
-            {"type":"label", "itemType": "Label", "uid": 1016},
+            {"type":"label", "itemType": "Label", "uid": 1016}
         ],
         "version": 1
     },
@@ -693,7 +693,7 @@
         "allEdges": [
             {"type":"profilePicture", "itemType": "Photo", "uid": 502},
             {"type":"label", "itemType": "Label", "uid": 1015},
-            {"type":"label", "itemType": "Label", "uid": 1016},
+            {"type":"label", "itemType": "Label", "uid": 1016}
         ],
         "version": 1
     },

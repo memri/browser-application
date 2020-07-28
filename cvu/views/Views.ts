@@ -1,20 +1,10 @@
 
 // TODO: Move to integrate with some of the sessions features so that Sessions can be nested
 import {CVU} from "../../parsers/cvu-parser/CVU";
-import {CVUValidator} from "../../parsers/cvu-parser/CVUValidator";
 import {debugHistory} from "./ViewDebugger";
-import {
-	CVUParsedColorDefinition,
-	CVUParsedDatasourceDefinition, CVUParsedLanguageDefinition,
-	CVUParsedRendererDefinition, CVUParsedSessionDefinition, CVUParsedSessionsDefinition, CVUParsedStyleDefinition,
-	CVUParsedViewDefinition
-} from "../../parsers/cvu-parser/CVUParsedDefinition";
-import {ParseErrors} from "../../parsers/cvu-parser/CVUParseErrors";
 import {settings} from "../../model/Settings";
 import {
-	ExprLookupNode,
 	ExprVariableList,
-	ExprVariableNode,
 	ExprVariableType
 } from "../../parsers/expression-parser/ExprNodes";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
@@ -25,7 +15,7 @@ import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {dataItemListToArray} from "../../model/schema";
 import {RealmObjects} from "../../model/RealmLocal";
-import {Item} from "../../model/items/Item";
+import {CVUStateDefinition} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
 
 export class Views {
@@ -126,16 +116,16 @@ export class Views {
 						throw "Exception: selector on parsed CVU is not defined"
 					}
 
-					if (def.constructor.name == "CVUParsedViewDefinition") {
+					if (def?.constructor?.name == "CVUParsedViewDefinition") {
 						values["type"] = "view"
 						//                    values["query"] = (def as! CVUParsedViewDefinition)?.query ?? ""
-					} else if (def.constructor.name == "CVUParsedRendererDefinition") { values["type"] = "renderer" }
-					else if (def.constructor.name == "CVUParsedDatasourceDefinition") { values["type"] = "datasource" }
-					else if (def.constructor.name == "CVUParsedStyleDefinition") { values["type"] = "style" }
-					else if (def.constructor.name == "CVUParsedColorDefinition") { values["type"] = "color" }
-					else if (def.constructor.name == "CVUParsedLanguageDefinition") { values["type"] = "language" }
-					else if (def.constructor.name == "CVUParsedSessionsDefinition") { values["type"] = "sessions" }
-					else if (def.constructor.name == "CVUParsedSessionDefinition") { values["type"] = "session" }
+					} else if (def?.constructor?.name == "CVUParsedRendererDefinition") { values["type"] = "renderer" }
+					else if (def?.constructor?.name == "CVUParsedDatasourceDefinition") { values["type"] = "datasource" }
+					else if (def?.constructor?.name == "CVUParsedStyleDefinition") { values["type"] = "style" }
+					else if (def?.constructor?.name == "CVUParsedColorDefinition") { values["type"] = "color" }
+					else if (def?.constructor?.name == "CVUParsedLanguageDefinition") { values["type"] = "language" }
+					else if (def?.constructor?.name == "CVUParsedSessionsDefinition") { values["type"] = "sessions" }
+					else if (def?.constructor?.name == "CVUParsedSessionDefinition") { values["type"] = "session" }
 					else { throw "Exception: unknown definition" }
 
 					// Store definition
@@ -144,7 +134,7 @@ export class Views {
 				}
 			})
 		} catch (error) {
-			if (error.constructor.name == "ParseErrors") {
+			if (error?.constructor?.name == "ParseErrors") {
 				// TODO: Fatal error handling
 				throw `Parse Error: ${error.toErrorString()}`
 			} else {
@@ -281,7 +271,7 @@ export class Views {
 		var i = 0
 		for (var node of lookup.sequence) {
 			i += 1
-			if (node.constructor.name == "ExprVariableNode") {
+			if (node?.constructor?.name == "ExprVariableNode") {
 				if (first) {
 					// TODO: move to CVU validator??
 					if (node.list == ExprVariableList.list || node.type != ExprVariableType.propertyOrItem) {
@@ -303,7 +293,7 @@ export class Views {
 					throw error
 				}
 			} else
-			if (isFunction && i == lookup.sequence.length && value && value.constructor.name == "Item") {
+			if (isFunction && i == lookup.sequence.length && value && value?.constructor?.name == "Item") {
 				value = value.functions[node.name]
 				if (value == undefined) {
 					// TODO: parse [blah]
@@ -315,7 +305,7 @@ export class Views {
 			} else {
 					let dataItem = value
 					let v = value
-					if (dataItem.constructor.name == "Item") {
+					if (dataItem?.constructor?.name == "Item") {
 						switch (node.name) {
 							case "genericType": value = dataItem.genericType;
 								break;
@@ -356,7 +346,7 @@ export class Views {
 								// TODO: Warn
 								break
 						}
-					} else if (value.constructor.name == "Date") {
+					} else if (value?.constructor?.name == "Date") {
 						switch (node.name) {
 							case "format":
 							/*guard isFunction else { throw "You must call .format() as a function" }
@@ -371,7 +361,7 @@ export class Views {
 								// TODO: Warn
 								debugHistory.warn("Could not find property \(node.name) on string")
 						}
-					} else if (v.constructor.name == "Edge") {//TODO
+					} else if (v?.constructor?.name == "Edge") {//TODO
 						switch (node.name) {
 							case "source": value = v.source(); break;
 							case "target": value = v.target(); break
@@ -384,7 +374,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on edge`)
 								break
 						}
-					} else if (v.constructor.name == "RealmObjects") {//TODO
+					} else if (v?.constructor?.name == "RealmObjects") {//TODO
 						switch (node.name) {
 							case "count": value = v.length; break
 							case "first": value = v[0]; break
@@ -397,7 +387,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on list of edge`)
 								break
 						}
-					} else if (v.constructor.name == "Realm".List) {//TODO
+					} else if (v?.constructor?.name == "Realm".List) {//TODO
 						switch (node.name) {
 							case "count": value = v.length; break//TODO
 							default:
@@ -421,7 +411,7 @@ export class Views {
 				}
 			}
 			// .addresses[primary = true] || [0]
-			else if (node.constructor.name == "ExprLookupNode") {
+			else if (node?.constructor?.name == "ExprLookupNode") {
 				// TODO: This is implemented very slowly first. Let's think about an optimization
 
 				let interpret = new ExprInterpreter(node, this.lookupValueOfVariables, this.executeFunction)
@@ -496,7 +486,7 @@ export class Views {
 		}
 		//#warning("Turned off caching temporarily due to issue with UserState being cached wrongly (and then changed in cache)")
 		let cached = -1; //InMemoryObjectCache.get(strDef)
-		if (cached.constructor.name == "CVU") {//TODO:?????
+		if (cached?.constructor?.name == "CVU") {//TODO:?????
 			return cached.parse()[0]
 		} else if (viewDef.definition) {
 			let definition = viewDef.definition
@@ -542,7 +532,7 @@ export class Views {
 			let list = parsed["views"];
 			let p = list[parsed["currentViewIndex"] ?? 0];
 			if
-			(Array.isArray(list) && list[0].constructor.name == "CVUParsedViewDefinition" && p && typeof p == "number") {
+			(Array.isArray(list) && list[0]?.constructor?.name == "CVUParsedViewDefinition" && p && typeof p == "number") {
 				view = CVUStateDefinition.fromCVUParsedDefinition(p)
 			} else {
 				throw "Invalid definition type"
@@ -594,7 +584,7 @@ export class Views {
 				if (viewDefinition) {
 					if (viewDefinition.type == "renderer") {
 						let parsed = context.views.parseDefinition(viewDefinition)
-						if (parsed && parsed.constructor.name == "CVUParsedRendererDefinition") {
+						if (parsed && parsed?.constructor?.name == "CVUParsedRendererDefinition") {
 							if (parsed["children"] != undefined) { cascadeStack.push(parsed) }
 							else {
 								throw `Exception: Specified view does not contain any UI elements: ${viewOverride}`
@@ -630,7 +620,7 @@ export class Views {
 						let viewDefinition = context.views.fetchDefinitions(name, "renderer", key)[0]
 						if (viewDefinition) {
 							let parsed =  context.views.parseDefinition(viewDefinition)
-							if (parsed.constructor.name == "CVUParsedRendererDefinition") {
+							if (parsed?.constructor?.name == "CVUParsedRendererDefinition") {
 								if (parsed["children"] != undefined) { cascadeStack.push(parsed) }
 							}
 						}

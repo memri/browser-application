@@ -31,15 +31,8 @@
 //        }
 //    }
 
-import {Action, ActionFamily, ActionProperties, validateActionType} from "../../cvu/views/Action";
-import {UIElement, UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../cvu/views/UIElement";
-import {Expression} from "../expression-parser/Expression";
-import {
-    CVUParsedDatasourceDefinition, CVUParsedObjectDefinition, CVUParsedRendererDefinition,
-    CVUParsedSessionDefinition,
-    CVUParsedSessionsDefinition,
-    CVUParsedViewDefinition
-} from "./CVUParsedDefinition";
+import {ActionFamily, ActionProperties, validateActionType} from "../../cvu/views/Action";
+import {UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../cvu/views/UIElement";
 
 export class CVUValidator {
     // Based on keyword when its added to the dict
@@ -153,7 +146,7 @@ export class CVUValidator {
     validateDefinition(definition) {
         var check = (definition, validate) => {
             for (let [key, value] of Object.entries(definition.parsed ?? {})) {
-                if (value.constructor.name == "Expression") { continue }
+                if (value?.constructor?.name == "Expression") { continue }
 
                 try {
                     if (Array.isArray(value)) {
@@ -175,43 +168,43 @@ export class CVUValidator {
             }
         }
 
-        if (definition.constructor.name == "CVUParsedSessionsDefinition") {
+        if (definition?.constructor?.name == "CVUParsedSessionsDefinition") {
             check(definition, function(key, value) {
                 switch (key) {
                     case "currentSessionIndex": return typeof value == "number"
-                    case "sessionDefinitions": return  Array.isArray(value) && value[0].constructor.name == "CVUParsedSessionDefinition"
+                    case "sessionDefinitions": return  Array.isArray(value) && value[0]?.constructor?.name == "CVUParsedSessionDefinition"
                     default: throw "Unknown"
                 }
             })
         }
-        else if (definition.constructor.name == "CVUParsedSessionDefinition") {
+        else if (definition?.constructor?.name == "CVUParsedSessionDefinition") {
             check(definition, function (key, value) {
                 switch (key) {
                     case "name": return typeof value == "string"
                     case "currentViewIndex": return typeof value == "number"
-                    case "viewDefinitions": return Array.isArray(value) && value[0].constructor.name == "CVUParsedViewDefinition"
+                    case "viewDefinitions": return Array.isArray(value) && value[0]?.constructor?.name == "CVUParsedViewDefinition"
                     case "editMode": case "showFilterPanel": case "showContextPane": return typeof value == "boolean"
-                    case "screenshot": return value.constructor.name == "File" //TODO ask Harut
+                    case "screenshot": return value?.constructor?.name == "File" //TODO ask Harut
                     default: throw "Unknown"
                 }
             })
         }
-        else if (definition.constructor.name == "CVUParsedViewDefinition") {
+        else if (definition?.constructor?.name == "CVUParsedViewDefinition") {
             check(definition, (key, value) => {
                 switch (key) {
                     case "name": case "emptyResultText": case "title": case "subTitle": case "filterText": case
                 "activeRenderer": case "defaultRenderer": case "backTitle": case "searchHint": case "searchMatchText":
                     return typeof value == "string"
-                    case "userState": return value.constructor.name == "CVUParsedObjectDefinition"
-                    case "viewArguments": return value.constructor.name == "CVUParsedObjectDefinition"
+                    case "userState": return value?.constructor?.name == "CVUParsedObjectDefinition"
+                    case "viewArguments": return value?.constructor?.name == "CVUParsedObjectDefinition"
                         // #warning("Add validation for contextPane")
-                    case "contextPane": return value.constructor.name == "CVUParsedObjectDefinition"
+                    case "contextPane": return value?.constructor?.name == "CVUParsedObjectDefinition"
                     case "datasourceDefinition":
                     case "datasource": //TODO: in original file there is no such key, but i think this is correct
-                        return value.constructor.name == "CVUParsedDatasourceDefinition"
+                        return value?.constructor?.name == "CVUParsedDatasourceDefinition"
                     case "showLabels": return typeof value == "boolean"
                     case "actionButton": case "editActionButton":
-                    if (value.constructor.name == "Action") { this.validateAction(value) }
+                    if (value?.constructor?.name == "Action") { this.validateAction(value) }
                     else { return false }
                     break;
                     case "sortFields":
@@ -221,13 +214,13 @@ export class CVUValidator {
                 "navigateItems": case "contextButtons":
                     if (Array.isArray(value)) {
                         for (let action in value) {
-                            if (action.constructor.name == "Action") { this.validateAction(action) }
+                            if (action?.constructor?.name == "Action") { this.validateAction(action) }
                             else {
                                 this.errors.push(`Expected action definition but found '${this.valueToTruncatedString(action)}' at property '${key}' of ${definition.selector != null ? definition.selector : ""}`)
                             }
                         }
                     }
-                    else if (value.constructor.name == "Action") { this.validateAction(value) }
+                    else if (value?.constructor?.name == "Action") { this.validateAction(value) }
                     else { return false }
                     break;
                     case "include":
@@ -235,12 +228,12 @@ export class CVUValidator {
                             return typeof value[0] == "string" && Array.isArray(value[1]) && typeof value[1][0].isCVUObject === "function"
                         }
                         else { return typeof value == "string" || typeof value.isCVUObject === "function" }//TODO: in original file there is no such check, but i think this is correct to pass tests
-                    case "rendererDefinitions": return Array.isArray(value) && value[0].constructor.name == "CVUParsedRendererDefinition"
+                    case "rendererDefinitions": return Array.isArray(value) && value[0]?.constructor?.name == "CVUParsedRendererDefinition"
                     default: throw "Unknown"
                 }
             })
         }
-        else if (definition.constructor.name == "CVUParsedRendererDefinition") {
+        else if (definition?.constructor?.name == "CVUParsedRendererDefinition") {
             // TODO support all the renderer properties
             // check(definition, (key, value) => {
             //     if (definition.parsed[key] as? [String:Any?])?["children"] != nil
@@ -253,7 +246,7 @@ export class CVUValidator {
             let children = definition.parsed && definition.parsed["children"]
             if (Array.isArray(children)) {
                 for (let child in children) {
-                    if (children[child].constructor.name == "UIElement") { this.validateUIElement(children[child]) }
+                    if (children[child]?.constructor?.name == "UIElement") { this.validateUIElement(children[child]) }
                     else {
                         this.errors.push(`Expected element definition but found '${this.valueToTruncatedString(children[child])}' in ${definition.selector != null ? definition.selector : ""}`)
                     }

@@ -95,7 +95,7 @@ class RenderGroup {
     body: UIElement = null
     
     constructor(dict) {
-        if (Array.isArray(dict["children"]) && dict["children"][0].constructor.name == "UIElement") this.body = dict["children"][0]
+        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
         delete dict["children"]
         this.options = dict
     }
@@ -145,7 +145,7 @@ class CascadingRenderConfig extends Cascadable {
     
     getRenderGroup(group) {
         let renderGroup = this.localCache[group]
-        if (renderGroup.constructor.name == "RenderGroup") {
+        if (renderGroup?.constructor?.name == "RenderGroup") {
             return renderGroup
         }
         else if (group == "*" && this.cascadeProperty("*") == null) {
@@ -176,7 +176,7 @@ class CascadingRenderConfig extends Cascadable {
             let body = renderGroup.body
             if (body) {
                 let s = this;//TODO
-                if (s.constructor.name == "CascadingRendererDefaults") {
+                if (s?.constructor?.name == "CascadingRendererDefaults") {
                     s.setDefaultValues(body)
                 }
                 

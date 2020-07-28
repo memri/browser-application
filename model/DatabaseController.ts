@@ -7,7 +7,7 @@
 //
 
 
-import {Edge, Item} from "./items/Item";
+import {Item} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
 //import * as path from "path";
@@ -19,11 +19,11 @@ export class ItemReference {
     
     constructor (to: Item) {
         this.uid = to.uid ?? -1
-        this.type = to.getType() ?? new Item;
+        this.type = to.getType() ?? new Item();
     }
     
     resolve() {
-        return DatabaseController.read((realm) => { return realm.objectForPrimaryKey(this.type.constructor.name, this.uid) })
+        return DatabaseController.read((realm) => { return realm.objectForPrimaryKey(this.type?.constructor?.name, this.uid) })
     }
 }
 

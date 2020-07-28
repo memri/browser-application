@@ -5,7 +5,7 @@ import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {DatabaseController, ItemReference} from "../DatabaseController";
-import {AuditItem, getItemType, ItemFamily} from "../schema";
+import {getItemType, ItemFamily} from "../schema";
 import {RealmObjects, Realm} from "../RealmLocal";
 
 enum ItemError {
@@ -23,7 +23,7 @@ export function UUID() {
 /// Item is the baseclass for all of the data classes.
 export class SchemaItem {
     get genericType() {
-        return 'type'+this.constructor.name;
+        return 'type'+this?.constructor?.name;
     }
     /// A collection of all edges this Item is connected to.
     allEdges: RealmObjects = new RealmObjects();
@@ -455,7 +455,7 @@ export class Item extends SchemaItem {
         //let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
         DatabaseController.writeSync(function () {
-            if (item.realm == undefined && item.constructor.name == "Item") {
+            if (item.realm == undefined && item?.constructor?.name == "Item") {
                 item["_action"] = "create"
                 this.realm?.add(item, ".modified") //TODO
             }
@@ -503,7 +503,7 @@ export class Item extends SchemaItem {
     //    }
 
     unlink(edge: Edge | Item, edgeType?: string, all: boolean = true) {
-        if (edge.constructor.name == "Edge") {
+        if (edge?.constructor?.name == "Edge") {
             if (edge.sourceItemID.value == this.uid && edge.sourceItemType == this.genericType) {
                 DatabaseController.writeSync(function () {
                     edge.deleted = true;
@@ -796,7 +796,7 @@ Object.assign(RealmObjects.prototype, {
             let strType = dir == Direction.target ? this?.targetItemType : this?.sourceItemType;
             let itemType = ItemFamily[strType];
             if (strType && itemType) {
-                listType = getItemType(itemType).constructor.name;
+                listType = getItemType(itemType)?.constructor?.name;
             }
         }
         let finalType = listType;

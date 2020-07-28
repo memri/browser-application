@@ -6,7 +6,6 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {CVUParsedDatasourceDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {realmWriteIfAvailable} from "../../gui/util";
 import {Datasource} from "../../api/Datasource";
 
@@ -67,13 +66,13 @@ export class SessionView /*extends DataItem */{
         var args = viewArguments
 
         let src = parsed && parsed["datasourceDefinition"]
-        if (ds == null && src && src.constructor.name == "CVUParsedDatasourceDefinition") {
+        if (ds == null && src && src?.constructor?.name == "CVUParsedDatasourceDefinition") {
             ds = new Datasource().fromCVUDefinition(src, viewArguments)//TODO
         }
-        if (userState == null && parsed["userState"].constructor.name == "UserState") {//TODO
+        if (userState == null && parsed["userState"]?.constructor?.name == "UserState") {//TODO
             us = parsed["userState"]?.clone();
         }
-        if (viewArguments == null && parsed["viewArguments"].constructor.name == "ViewArguments") {//TODO
+        if (viewArguments == null && parsed["viewArguments"]?.constructor?.name == "ViewArguments") {//TODO
             args = parsed["viewArguments"].clone();
         }
         

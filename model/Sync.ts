@@ -37,7 +37,6 @@
 
 /// Based on a query, Sync checks whether it still has the latest version of the resulting Items. It does this asynchronous and in the
 /// background, items are updated automatically.
-import {PodAPI} from "../api/api";
 import {Datasource} from "../api/Datasource";
 import {Edge} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
@@ -218,8 +217,8 @@ export class Sync {
 			DatabaseController.writeAsync((realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
-                        let resolvedItem = (item.constructor.name == "ItemReference" || item.constructor.name == "EdgeReference") && item.resolve()
-						if (item.constructor.name == "ItemReference" && resolvedItem) {
+                        let resolvedItem = (item?.constructor?.name == "ItemReference" || item?.constructor?.name == "EdgeReference") && item.resolve()
+						if (item?.constructor?.name == "ItemReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
 								realm.delete(resolvedItem)
 							}
@@ -227,7 +226,7 @@ export class Sync {
 								resolvedItem._action = ""
 								resolvedItem._updated.removeAll()
 							}
-						} else if (item.constructor.name == "EdgeReference" && resolvedItem) {
+						} else if (item?.constructor?.name == "EdgeReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
 								realm.delete(resolvedItem)
 							}
@@ -255,7 +254,7 @@ export class Sync {
             for (var itemType in ItemFamily) {
                 if (itemType == ItemFamily.typeUserState) { continue }
 
-                let type = getItemType(itemType).constructor.name;
+                let type = getItemType(itemType)?.constructor?.name;
                 if (type) {
                     let items = realm.objects(type).filtered((_action) => _action != undefined) //TODO:
                     for (var item of items) {
@@ -269,7 +268,7 @@ export class Sync {
             }
 
             // Edges
-            let edges = realm.objects(Edge).filtered((_action) => _action != undefined) //TODO
+            let edges = realm.objects("Edge").filtered((_action) => _action != undefined) //TODO
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {

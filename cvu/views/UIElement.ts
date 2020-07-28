@@ -4,8 +4,6 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-
-import {Expression} from "../../parsers/expression-parser/Expression";
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
 import {
 	Alignment,
@@ -15,11 +13,8 @@ import {
 	TextAlignment,
 	VerticalAlignment
 } from "../../parsers/cvu-parser/CVUParser";
-import {Action} from "./Action";
-import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "./ViewDebugger";
-import {Datasource} from "../../api/Datasource";
-import {Item, UUID} from "../../model/items/Item";
+import {UUID} from "../../model/items/Item";
 import {dataItemListToArray} from "../../model/schema";
 import {ViewArguments} from "./CascadableDict";
 
@@ -56,7 +51,7 @@ export class UIElement /*extends CVUToString */{
 
 			// Execute expression to get the right value
 			let expr = propValue
-			if (expr.constructor.name == "Expression") {
+			if (expr?.constructor?.name == "Expression") {
 				try {
 					//if (T.self == [DataItem].self) {//TODO
 						let x =  expr.execute(args)
@@ -105,7 +100,7 @@ export class UIElement /*extends CVUToString */{
 
 			// Execute expression to get the right value
 			let expr = propValue
-			if (expr.constructor.name == "Expression") {
+			if (expr?.constructor?.name == "Expression") {
 				try { return expr.getTypeOfItem(viewArguments) }
 				catch (error) {
 					// TODO: Refactor: Error Handling
@@ -254,7 +249,7 @@ export enum UIElementProperties {
 }
 
 export var validateUIElementProperties = function (key, value) {
-	if (value.constructor.name == "Expression") {
+	if (value?.constructor?.name == "Expression") {
 		return true
 	}
 
@@ -292,46 +287,46 @@ export var validateUIElementProperties = function (key, value) {
 		case UIElementProperties.blur:
 		case UIElementProperties.opacity:
 		case UIElementProperties.zindex:
-			return value.constructor.name == "CGFloat" || typeof value == "number";
-		case UIElementProperties.image: return value.constructor.name == "File" || typeof value == "string";
-		case UIElementProperties.press: return value.constructor.name == "Action" || Array.isArray(value) && value[0].constructor.name == "Action"
-		case UIElementProperties.list: return Array.isArray(value) && value[0].constructor.name == "Item"
-		case UIElementProperties.view: return value.constructor.name == "CVUParsedDefinition" || typeof value.isCVUObject === "function"
+			return value?.constructor?.name == "CGFloat" || typeof value == "number";
+		case UIElementProperties.image: return value?.constructor?.name == "File" || typeof value == "string";
+		case UIElementProperties.press: return value?.constructor?.name == "Action" || Array.isArray(value) && value[0]?.constructor?.name == "Action"
+		case UIElementProperties.list: return Array.isArray(value) && value[0]?.constructor?.name == "Item"
+		case UIElementProperties.view: return value?.constructor?.name == "CVUParsedDefinition" || typeof value.isCVUObject === "function"
 		case UIElementProperties.arguments: return typeof value.isCVUObject === "function"
-		case UIElementProperties.location: return value.constructor.name == "Location"
-		case UIElementProperties.address: return value.constructor.name == "Address"
+		case UIElementProperties.location: return value?.constructor?.name == "Location"
+		case UIElementProperties.address: return value?.constructor?.name == "Address"
 		case UIElementProperties.value: return true
-		case UIElementProperties.datasource: return value.constructor.name == "Datasource"
+		case UIElementProperties.datasource: return value?.constructor?.name == "Datasource"
 		case UIElementProperties.color:
 		case UIElementProperties.background:
 		case UIElementProperties.rowbackground:
-			return value.constructor.name == "Color"
+			return value?.constructor?.name == "Color"
 		case UIElementProperties.font:
 			if (Array.isArray(value)) {
-			return value[0].constructor.name == "CGFloat" || typeof value[0] == "number" || (value[0].constructor.name == "CGFloat" || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
-		} else { return value.constructor.name == "CGFloat" || typeof value == "number"}
+			return value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number" || (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
+		} else { return value?.constructor?.name == "CGFloat" || typeof value == "number"}
 		case UIElementProperties.padding:
 		case UIElementProperties.margin:
 			if (Array.isArray(value)) {
-				return (value[0].constructor.name == "CGFloat" || typeof value[0] == "number") && (value[1].constructor.name == "CGFloat" || typeof value[1] == "number")
-					&& (value[2].constructor.name == "CGFloat" || typeof value[2] == "number") && (value[3].constructor.name == "CGFloat" || typeof value[3] == "number")
+				return (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+					&& (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
 			} else {
-				return value.constructor.name == "CGFloat" || typeof value == "number"
+				return value?.constructor?.name == "CGFloat" || typeof value == "number"
 			}
 		case UIElementProperties.border:
 			if (Array.isArray(value)) {
-			return value[0].constructor.name == "Color" && (value[1].constructor.name == "CGFloat" || typeof value[1] == "number")
+			return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
 		} else { return false }
 		case UIElementProperties.shadow:
 			if (Array.isArray(value)) {
-				return value[0].constructor.name == "Color" && (value[1].constructor.name == "CGFloat" || typeof value[1] == "number")
-					&& (value[2].constructor.name == "CGFloat" || typeof value[2] == "number") && (value[3].constructor.name == "CGFloat" || typeof value[3] == "number")
+				return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+					&& (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
 			} else {
 				return false
 			}
 		case UIElementProperties.offset:
 			if (Array.isArray(value)) {
-				return (value[0].constructor.name == "CGFloat" || typeof value[0] == "number") && (value[1].constructor.name == "CGFloat" || typeof value[1] == "number")
+				return (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
 			} else {
 				return false
 			}

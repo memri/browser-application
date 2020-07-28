@@ -12,7 +12,7 @@ export class IndexerAPI {
 	execute(indexerInstance: IndexerRun, items: Item[]) {
 		if (indexerInstance.name == "Note Label Indexer") {
 			let notes = items
-			if (!Array.isArray(notes) || !(notes[0].constructor.name == "Note")) {
+			if (!Array.isArray(notes) || !(notes[0]?.constructor?.name == "Note")) {
 				throw `Could not execute IndexerRun ${indexerInstance} non note objects passed`
 			}
 			this.executeNoteLabelIndexer(indexerInstance, notes)
