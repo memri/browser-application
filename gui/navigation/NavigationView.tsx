@@ -223,7 +223,7 @@ class NavigationItemView extends MainUI {
 			if (sessionName) {
 				// TODO:
 				try {
-					new ActionOpenSessionByName(this.context).exec({"name": sessionName})
+					new ActionOpenSessionByName(this.context).exec({"sessionName": sessionName})
 				} catch {
 				}
 
