@@ -1382,3 +1382,36 @@ export class ActionNoop extends Action {
     }*/
 }
 
+//FilterPanelRendererButton moved from Renderers.ts
+export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
+    defaults = {
+        activeColor: new Color("#6aa84f"),
+        activeBackgroundColor: new Color("#eee"),
+        title: "Unnamed Renderer"
+    }
+
+    order
+    canDisplayResults
+    rendererName
+
+    constructor(context, name, order, title, icon, canDisplayResults){
+        super(context, "setRenderer",{icon: icon, title: title})
+
+        this.rendererName = name
+        this.order = order
+        this.canDisplayResults = canDisplayResults
+    }
+
+    /*constructor(context, argumentsJs = null, values = {}) {//TODO
+        fatalError("init(argumentsJs:values:) has not been implemented")
+    }*/
+
+    isActive() {
+        return this.context.currentView?.activeRenderer == this.rendererName
+    }
+
+    exec(argumentsJs) {
+        this.context.currentView.activeRenderer = this.rendererName
+        this.context.scheduleUIUpdate()/*{ _ in true }*///TODO // scheduleCascadableViewUpdate() // TODO why are userState not kept?
+    }
+}
