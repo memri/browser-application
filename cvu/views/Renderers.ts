@@ -12,6 +12,7 @@ import {UIElement, UIElementFamily} from "./UIElement";
 import {Cascadable} from "./Cascadable";
 import {registerListRenderer} from "../../gui/renderers/ListRendererView";
 import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
+import {Item} from "../../model/items/Item";
 
 export class Renderers {
     all = {}
@@ -120,11 +121,11 @@ interface CascadingRendererDefaults {
 //        return null
 //    }
 
-class CascadingRenderConfig extends Cascadable {
+export class CascadingRenderConfig extends Cascadable {
     
     constructor(
         head?: CVUParsedDefinition,
-        tail?: [CVUParsedDefinition],
+        tail?: CVUParsedDefinition[],
         host?: Cascadable
     ) {
         super(head, tail, host)
