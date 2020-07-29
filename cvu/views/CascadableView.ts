@@ -19,6 +19,7 @@ import {CacheMemri} from "../../model/Cache";
 import {CascadableDict} from "./CascadableDict";
 import {CascadingDatasource} from "../../api/Datasource";
 import {CascadableContextPane} from "./CascadableContextPane";
+import {CascadingRenderConfig} from "./Renderers";
 
 
 
@@ -72,8 +73,9 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     set name(value) { this.setState("name", value) }
 
     get activeRenderer(): string {
-        let s = "list" /*this.cascadeProperty("defaultRenderer")*/
+        let s = this.cascadeProperty("defaultRenderer")
         if (s) { return s }
+        return "list"
         debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
         return ""
     }
@@ -240,7 +242,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             // Prefer a perfectly matched definition
             return definitions.find((item) => item.name == this.activeRenderer )
                 // Else get the one from the parent renderer
-                ?? definitions.find((item) => item.name == this.activeRenderer.components(".").splice(-1,1).join("."))
+                ?? definitions.find((item) => item.name == this.activeRenderer.split(".").splice(-1,1).join("."))
         }.bind(this)
 
         let head = getConfig(this.head) ?? function(){
@@ -527,7 +529,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             needles = [isList ? "*[]" : "*"]
         }
 
-// Find views based on datatype
+        // Find views based on datatype
         for (let domain of ["user", "defaults"]) {
             for (let needle of needles) {
                 let def = this.context?.views.fetchDefinitions(needle, domain)[0];
@@ -545,7 +547,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         }
 
         // TODO: is this needed for anything or should the tail property be removed?
-        this.tail = this.cascadeStack[this.cascadeStack.length - 1];
+        this.tail = [this.cascadeStack[this.cascadeStack.length - 1]];
         this.localCache = {} // Reset local cache again since it was filled when we fetched datasource
     }
 
