@@ -6,13 +6,13 @@
 
 
 // Potential solution: https://stackoverflow.com/questions/42746981/list-all-subclasses-of-one-class
-import {Action} from "./Action";
-import {Color} from "../../parsers/cvu-parser/CVUParser";
+
 import {UIElement, UIElementFamily} from "./UIElement";
 import {Cascadable} from "./Cascadable";
 import {registerListRenderer} from "../../gui/renderers/ListRendererView";
 import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Item} from "../../model/items/Item";
+import {FilterPanelRendererButton} from "./Action";
 
 export class Renderers {
     all = {}
@@ -58,38 +58,7 @@ export class Renderers {
 
 export var allRenderers = new Renderers();
 
-export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
-    defaults = {
-        activeColor: new Color("#6aa84f"),
-        activeBackgroundColor: new Color("#eee"),
-        title: "Unnamed Renderer"
-    }
-    
-    order
-    canDisplayResults
-    rendererName
-    
-    constructor(context, name, order, title, icon, canDisplayResults){
-        super(context, "setRenderer",{icon: icon, title: title})
-
-        this.rendererName = name
-        this.order = order
-        this.canDisplayResults = canDisplayResults
-    }
-    
-    /*constructor(context, argumentsJs = null, values = {}) {//TODO
-        fatalError("init(argumentsJs:values:) has not been implemented")
-    }*/
-    
-    isActive() {
-        return this.context.currentView?.activeRenderer == this.rendererName
-    }
-    
-    exec(argumentsJs) {
-        this.context.currentView.activeRenderer = this.rendererName
-        this.context.scheduleUIUpdate()/*{ _ in true }*///TODO // scheduleCascadableViewUpdate() // TODO why are userState not kept?
-    }
-}
+//FilterPanelRendererButton moved to Action.ts
 
 class RenderGroup {
     options = {}
@@ -192,6 +161,23 @@ export class CascadingRenderConfig extends Cascadable {
         }
         else {
             return new UIElementView(new UIElement(UIElementFamily.Empty), item ?? new Item())
+        }
+    }
+}
+
+//CascadingListConfig moved from ListRendererView.tsx
+export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRendererDefaults*/ {
+    type = "list"
+
+    get longPress() { return this.cascadeProperty("longPress") }
+    get press() { return this.cascadeProperty("press") }
+
+    get slideLeftActions() { return this.cascadeList("slideLeftActions") }
+    get slideRightActions() { return this.cascadeList("slideRightActions") }
+
+    setDefaultValues(element: UIElement) {
+        if (element.properties["padding"] == undefined) {
+            element.properties["padding"] = [10, 10, 10, 20]
         }
     }
 }
