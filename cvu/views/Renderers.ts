@@ -13,6 +13,7 @@ import {registerListRenderer} from "../../gui/renderers/ListRendererView";
 import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Item} from "../../model/items/Item";
 import {FilterPanelRendererButton} from "./Action";
+import {UIElementView} from "../../gui/common/UIElementView";
 
 export class Renderers {
     all = {}
@@ -149,9 +150,16 @@ export class CascadingRenderConfig extends Cascadable {
                 if (s?.constructor?.name == "CascadingRendererDefaults") {
                     s.setDefaultValues(body)
                 }
-                
-                return new UIElementView(body, item, argumentsJs ?? viewArguments)
+                let props = {
+                    gui: body,
+                    dataItem: item,
+                    viewArguments: argumentsJs ?? viewArguments
+                }
+                let uiElement = new UIElementView(props);
+                //(body, item, argumentsJs ?? viewArguments)
+                return uiElement.render();
             }
+
             return new UIElementView(new UIElement(UIElementFamily.Empty), item)
         }
 

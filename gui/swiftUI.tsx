@@ -216,7 +216,18 @@ export class SectionHeader extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <div style={this.setStyles()} className="Group" {...other}>
+            <div style={this.setStyles()} className="SectionHeader" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+export class Section extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="Section" {...other}>
                 {this.props.children}
             </div>
         )
@@ -244,6 +255,17 @@ export class MemriList extends MainUI {
         )
     }
 }
+
+export class UIImage extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <img style={this.setStyles()} className="UIImage" {...other}/>
+        )
+    }
+}
+
+
 
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
     let frameObj = attrs;
@@ -313,6 +335,11 @@ export function font(attrs:{family?: string, size?:number; weight?: string}) {
     }
 
     return fontObj;
+}
+
+export function border(attrs) {
+    //TODO: {width: [0, 0, 1, 1], color: "#eee"}
+ return attrs;
 }
 
 export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
