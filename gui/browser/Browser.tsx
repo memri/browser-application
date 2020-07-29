@@ -23,8 +23,8 @@ export class Browser extends MainUI {
 
 	init() {
 		this.context = this.props.context;
-		this.inSubView = this.props.inSubView;
-		this.showCloseButton = this.props.showCloseButton;
+		this.inSubView = this.props.inSubView ?? false;
+		this.showCloseButton = this.props.showCloseButton ?? false;
 	}
 
 	get activeRenderer() {

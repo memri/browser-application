@@ -4,7 +4,6 @@
 
 import * as React from "react";
 import {
-	ActionButton,
 	font,
 	frame,
 	HStack, MainUI,
@@ -16,6 +15,7 @@ import {
 } from "../swiftUI";
 import {ActionNoop} from "../../cvu/views/Action";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
+import {ActionButton} from "../ActionView";
 
 export class ContextPaneForeground extends MainUI {
 	paddingLeft = 25

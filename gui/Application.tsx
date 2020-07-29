@@ -52,12 +52,14 @@ export class Application extends MainUI {
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
 				<VStack spacing={0}>
+					{(this.context.installer.isInstalled && !this.context.installer.debugMode) ?
 					<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
 						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser
 							context={this.context}/>
 						}
-					</NavigationWrapper>
-					<Spacer/>
+					</NavigationWrapper> :
+					<SetupWizard/>
+					}
 				</VStack>
 			</ScreenSizer>
 			</div>
@@ -65,15 +67,6 @@ export class Application extends MainUI {
 	}
 }
 
-
-
-export class Hello extends React.Component {
-	render() {
-		return (
-			"Hello " + (this.props.text ?? "World") + "!"
-		)
-	}
-}
 
 /*struct Application_Previews: PreviewProvider {
 	static var previews: some View {

@@ -9,18 +9,17 @@ import {Item} from "../../model/items/Item";
 import {HStack, MainUI, MemriButton, MemriDivider, MemriImage, padding, Spacer, VStack} from "../swiftUI";
 import {ActionDelete} from "../../cvu/views/Action";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
-import {Hello} from "../Application";
 
 export class ContextualBottomBar extends MainUI {
 	context: MemriContext
 	
 	shouldShow() {
-		return true
+		//return true
 		return this.context.currentSession?.editMode ?? false
 	}
 	
 	nonEmptySelection() {
-		return true
+		//return true
 		return !(this.context.currentView?.userState.get("selection", Item)?.length == 0 ?? true)
 	}
 	
@@ -31,7 +30,6 @@ export class ContextualBottomBar extends MainUI {
 			return (
 				<VStack spacing={0} background={new Color("secondarySystemBackground").toLowerCase()}>
 					<MemriDivider/>
-					<Hello text={"ContextualBottomBar"}/>
 					<HStack padding={padding({horizontal: 5, vertical: 5})}>
 						<Spacer/>
 						{this.context.currentSession?.editMode ||

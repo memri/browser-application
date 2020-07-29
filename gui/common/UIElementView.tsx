@@ -27,6 +27,7 @@ import {Action, ActionUnlink} from "../../cvu/views/Action";
 import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
+import {SubView} from "./SubView";
 
 export class UIElementView extends MainUI {
     context: MemriContext

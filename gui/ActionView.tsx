@@ -8,10 +8,11 @@
 
 
 import {MainUI, MemriButton, MemriImage, MemriText, padding, VStack} from "./swiftUI";
-import {Button} from "@material-ui/core";
 import * as React from "react";
-import {Action, ActionNoop, RenderType} from "../cvu/views/Action";
+import {Action, ActionFamily, ActionNoop, RenderType} from "../cvu/views/Action";
 import {MemriContext} from "../context/MemriContext";
+import {ViewArguments} from "../cvu/views/CascadableDict";
+import {SubView} from "./common/SubView";
 
 export class ActionButton extends MainUI {
 	context: MemriContext
@@ -103,99 +104,75 @@ class ActionButtonView extends MainUI {
 
 		);//font(.subheadline)
 	}
-
-	/*var body: some View {
-		let icon = action.getString("icon")
-		let title: String? = action.get("title")
-
-		return Button(action: {
-			withAnimation {
-				self.execute?()
-			}
-        }) {
-			if icon != "" || title == nil {
-                Image(systemName: icon == "" ? "exclamationmark.triangle" : icon)
-					.fixedSize()
-					.padding(.horizontal, 5)
-					.padding(.vertical, 5)
-					.foregroundColor(action.color)
-					.background(action.backgroundColor)
-				//                    .border(Color.red, width: 1)
-			}
-
-			if title != nil && (icon == "" || action.getBool("showTitle")) {
-				// NOTE: Allowed force unwrapping (logic)
-				Text(title ?? "")
-					.font(.subheadline)
-					.foregroundColor(.black)
-			}
-		}
-	}*/
 }
 
-/*struct ActionPopupButton: View {
-	@EnvironmentObject var context: MemriContext
+class ActionPopupButton extends MainUI {
+	context: MemriContext
 
-	var action: Action
-    var item: Item? = nil
+	action: Action
+	item?: Item
 
-	@State var isShowing = false
+	isShowing = false
 
-	var body: some View {
-		ActionButtonView(action: self.action, execute: {
-			self.isShowing = true
-        })
-        .sheet(isPresented: $isShowing) {
-            ActionPopup(action: self.action, item: self.item).environmentObject(self.context)
-        }
+	render() {
+		this.context = this.props.context;
+		this.action = this.props.action;
+		this.item = this.props.item;
+		return (
+			<ActionButtonView onClick={this.action} execute={this.isShowing = true} sheet={
+				<ActionPopup isPresented={this.$isShowing} action={this.action} item={this.item} context={this.context}>
+				</ActionPopup>
+			}/>
+		)
 	}
 }
 
-struct ActionPopup: View {
-	@EnvironmentObject var context: MemriContext
-	@Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+class ActionPopup extends MainUI {
+	context: MemriContext
+	presentationMode
 
-	var action: Action
-    var item: Item? = nil
+	action: Action
+	item?: Item
 
-	var body: some View {
-		// TODO: refactor: this list item needs to be removed when we close the popup in any way
-        self.context.addToStack(self.presentationMode)
+	render() {
+		this.context = this.props.context;
+		this.action = this.props.action;
+		this.item = this.props.item;
 
-        let args = action.arguments["viewArguments"] as? ViewArguments ?? ViewArguments(nil)
-		args.set("showCloseButton", true)
-
-		// TODO: scroll selected into view? https://stackoverflow.com/questions/57121782/scroll-swiftui-list-to-new-selection
-		if action.name == .openView {
-			if let view = action.arguments["view"] as? CVUStateDefinition {
-				return SubView(
-					context: self.context,
-					view: view, // TODO: refactor: consider adding .closePopup to all press actions
-					item: item,
-					viewArguments: args
+		this.context.addToStack(this.presentationMode);
+		let args = this.action.getArguments(this.item)
+		let viewArgs = new ViewArguments(args["viewArguments"]);
+		viewArgs.set("showCloseButton", true);
+		if (this.action.name == ActionFamily.openView) {
+			let view = args["view"];
+			if (view?.constructor?.name == "CVUStateDefinition") {
+				return (
+					<SubView context={this.context} view={view} item={this.item} viewArguments={viewArgs}>
+						{this.props.children}
+					</SubView>
 				)
 			} else {
 				// TODO: ERror logging
 			}
-		} else if action.name == .openViewByName {
-			if let viewName = action.arguments["name"] as? String {
-				return SubView(
-					context: self.context,
-					viewName: viewName,
-					item: item,
-					viewArguments: args
+		} else if (this.action.name == ActionFamily.openViewByName) {
+			let viewName = args["viewName"]
+			if (viewName && typeof viewName == "string") {
+				return (
+					<SubView context={this.context} viewName={viewName} item={this.item} viewArguments={viewArgs}>
+						{this.props.children}
+					</SubView>
 				)
 			} else {
 				// TODO: Error logging
 			}
+		} else {
+			return (
+				<SubView context={this.context} viewName="catch-all-view" item={this.item} viewArguments={viewArgs}>
+					{this.props.children}
+				</SubView>
+			)
 		}
-
-		// We should never get here. This is just to ease the compiler
-		return SubView(
-			context: self.context,
-			viewName: "catch-all-view",
-			item: item,
-			viewArguments: args
-		)
 	}
-}*/
+}
+
+

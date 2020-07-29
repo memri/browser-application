@@ -3,8 +3,6 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from "react";
-import {MemriContext} from "../../context/MemriContext";
-import {realmWriteIfAvailable} from "../util";
 import {MainUI, ZStack} from "../swiftUI";
 import {Alignment} from "../../parsers/cvu-parser/CVUParser";
 import {ContextPaneBackground} from "./ContextPaneBackground";

@@ -45,8 +45,7 @@ export class MainNavigation {
 
 	load(callback) {
 		// Fetch navigation from realm and sort based on the order property
-		let navItems = this.realm.objects(NavigationItem.constructor)
-		//.sorted(byKeyPath: "order")
+		let navItems = this.realm.objects("NavigationItem").sorted("order")
 
 		// Add items to the items array
 		for (let item of navItems) {
