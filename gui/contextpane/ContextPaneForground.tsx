@@ -1,35 +1,28 @@
 //
 //  ForgroundContextPane.swift
-//  memri
-//
-//  Created by Jess Taylor on 3/21/20.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import * as React from "react";
 import {
 	ActionButton,
 	font,
 	frame,
-	HStack,
+	HStack, MainUI,
 	MemriButton, MemriDivider,
 	MemriText,
 	padding,
 	ScrollView, Spacer,
 	VStack
 } from "../swiftUI";
-import {MemriContext} from "../../context/MemriContext";
 import {ActionNoop} from "../../cvu/views/Action";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 
-export class ContextPaneForeground extends React.Component {
-	context: MemriContext
-
+export class ContextPaneForeground extends MainUI {
 	paddingLeft = 25
 
 	render() {
 		let context = this.props.context
-		let labels = context.cascadingView?.resultSet
+		let labels = context.currentView?.resultSet
 			.singletonItem?.edges("label")?.itemsArray("Label") ?? []
 		let addLabelAction = new ActionNoop(context)
 		return (
@@ -44,16 +37,16 @@ export class ContextPaneForeground extends React.Component {
 							opacity={0.75}
 							padding={padding({horizontal: this.paddingLeft, vertical: 5})}
 						>
-							{context.cascadingView?.title ?? "title"}{/*TODO: make this generic*/}
+							{context.currentView?.title ?? "title"}{/*TODO: make this generic*/}
 						</MemriText>
 						<MemriText
 							font={font({family: "body"})}
 							opacity={0.75}
 							padding={padding({horizontal: this.paddingLeft, bottom: 15})}
-						>{context.cascadingView?.subtitle ?? "subtitle"}</MemriText>
+						>{context.currentView?.subtitle ?? "subtitle"}</MemriText>
 
 						<HStack padding={padding({horizontal: this.paddingLeft, bottom: 15})}>
-							{(context.cascadingView?.contextButtons ?? []).map((actionItem) => <ActionButton action={actionItem}/>)}
+							{(context.currentView?.contextPane.buttons ?? []).map((actionItem) => <ActionButton action={actionItem}/>)}
 						</HStack>
 
 						<MemriDivider/>
@@ -80,7 +73,7 @@ export class ContextPaneForeground extends React.Component {
 						<Spacer/>
 					</HStack>
 					<VStack alignment={Alignment.leading} spacing={0} padding={padding({horizontal: this.paddingLeft})}>
-						{(context.cascadingView?.actionItems ?? []).map((actionItem) =>
+						{(context.currentView?.contextPane.actions ?? []).map((actionItem) =>
 							<MemriButton action={context.executeAction(actionItem)}>
 								<MemriText
 									foregroundColor={"black"}
@@ -100,7 +93,7 @@ export class ContextPaneForeground extends React.Component {
 						>{"navigateLabel"}</MemriText>{/*NSLocalizedString("navigateLabel", comment: "")*/}
 					</HStack>
 					<VStack alignment={Alignment.leading} spacing={0}>
-						{(context.cascadingView?.navigateItems ?? []).map((navigateItem) =>
+						{(context.currentView?.contextPane.navigate ?? []).map((navigateItem) =>
 							<MemriButton action={context.executeAction(navigateItem)}>
 								<MemriText
 									foregroundColor={"black"}

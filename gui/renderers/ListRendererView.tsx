@@ -1,9 +1,6 @@
 //
-//  ListRenderer.swift
-//  memri
-//
+//  ListRendererView.swift
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import {allRenderers} from "../../cvu/views/Renderers";
 import * as React from "react";
@@ -84,7 +81,7 @@ export class ListRendererView extends MainUI {
 	}
 
 	render() {
-		/*this.context = this.props?.context;*/
+		this.context = this.props?.context;
 		let context = this.context;
 		let innerContent;
 		let onSwipeToDelete = function (item) {

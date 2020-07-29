@@ -1,10 +1,6 @@
 //
 //  Search.swift
-//  memri
-//
-//  Created by Koen van der Veen on 19/02/2020.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import * as React from "react";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
@@ -25,16 +21,16 @@ export class Search extends MainUI{
 			>
 				<MemriDivider background="#efefef"/>
 				<HStack padding={padding({horizontal: 15, vertical: 6})}>
-					<MemriTextField value={this.context.cascadingView?.filterText ?? "" }
-									placeholder={this.context.cascadingView?.searchHint ?? ""}
+					<MemriTextField value={this.context.currentView?.filterText ?? "" }
+									placeholder={this.context.currentView?.searchHint ?? ""}
 									showPrevNextButtons={false}
 									layoutPriority={-1}
 					>
 					</MemriTextField>
 
-					<MemriText>{this.context.cascadingView?.searchMatchText ?? ""}</MemriText>
+					<MemriText>{this.context.currentView?.searchMatchText ?? ""}</MemriText>
 
-					{(this.context.cascadingView?.filterButtons ?? []).map((filterButton) =>
+					{(this.context.currentView?.filterButtons ?? []).map((filterButton) =>
 						<ActionButton action={filterButton}
 							font={font({size: 20, weight: "medium"})}/>
 					)}

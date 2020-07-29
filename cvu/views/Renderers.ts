@@ -69,7 +69,7 @@ export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
     rendererName
     
     constructor(context, name, order, title, icon, canDisplayResults){
-        super(context, "setRenderer", null,{icon: icon, title: title})
+        super(context, "setRenderer",{icon: icon, title: title})
 
         this.rendererName = name
         this.order = order

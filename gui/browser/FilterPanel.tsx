@@ -1,10 +1,6 @@
 //
-//  FIlterpannel.swift
-//  memri
-//
-//  Created by Koen van der Veen on 25/03/2020.
+//  FilterPanel.swift
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import * as React from "react";
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";

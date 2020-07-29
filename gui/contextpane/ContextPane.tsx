@@ -1,24 +1,17 @@
 //
 //  ContentPane.swift
-//  memri
-//
-//  Created by Jess Taylor on 3/10/20.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import * as React from "react";
 import {MemriContext} from "../../context/MemriContext";
 import {realmWriteIfAvailable} from "../util";
-import {ZStack} from "../swiftUI";
+import {MainUI, ZStack} from "../swiftUI";
 import {Alignment} from "../../parsers/cvu-parser/CVUParser";
 import {ContextPaneBackground} from "./ContextPaneBackground";
 import {ContextPaneForeground} from "./ContextPaneForground";
 import {geom} from "../../demo-react";
 
-interface ContextPaneProps { context?: MemriContext; allRenderers?}
-export class ContextPane extends React.Component<ContextPaneProps, {}> {
-	context: MemriContext
-
+export class ContextPane extends MainUI {
 	widthRatio = 0.75
 /*
 	@GestureState(reset: { _, transaction in
@@ -32,10 +25,8 @@ export class ContextPane extends React.Component<ContextPaneProps, {}> {
 	}
 
 	set isVisible (newValue) {
-		realmWriteIfAvailable(this.context.realm, () => {
-			this.context.currentSession?.showContextPane = newValue
-			this.context.scheduleUIUpdate(true)
-		})
+		this.context.currentSession?.showContextPane = newValue
+		this.context.scheduleUIUpdate(true)
 	}
 
 	paneWidth(geom) {

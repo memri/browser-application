@@ -1,9 +1,6 @@
 //
 //  TopNavigation.swift
-//  memri
-//
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import * as React from 'react';
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
@@ -64,7 +61,7 @@ export class TopNavigation extends MainUI {
 
 	openAllViewsOfSession() {
 		try {
-			new ActionOpenViewByName(this.context).exec({name: "views-in-current-session"})
+			new ActionOpenViewByName(this.context).exec({viewName: "views-in-current-session"})
 		} catch (error) {
 			debugHistory.error(`Unable to open views for session: ${error}`)
 		}

@@ -1,9 +1,6 @@
 //
-//  ContentView.swift
-//  memri
-//
+//  Browser.swift
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 import * as React from 'react';
 import {Alignment, Color} from "../../parsers/cvu-parser/CVUParser";
@@ -19,14 +16,23 @@ import {ContextualBottomBar} from "./ContextualBottomBar";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends MainUI {
-	context: MemriContext
+	inSubView: boolean
+	showCloseButton: boolean
+
+	currentView
 
 	init() {
 		this.context = this.props.context;
+		this.inSubView = this.props.inSubView;
+		this.showCloseButton = this.props.showCloseButton;
 	}
 
 	get activeRenderer() {
-		return allRenderers?.allViews[this.context.currentView?.activeRenderer ?? ""] ?? new Spacer({})
+		let activeRenderer = allRenderers?.allViews[this.context.currentView?.activeRenderer ?? ""] ?? new Spacer({})
+		activeRenderer.props = activeRenderer.props ?? {}
+		activeRenderer.props.context = this.context
+		activeRenderer.props.background = this.currentView.fullscreen ? "black" : "clear"//TODO
+		return activeRenderer
 	}
 
 	render() {
@@ -36,6 +42,8 @@ export class Browser extends MainUI {
 		currentView.showToolbar = true
 		currentView.fullscreen = false
 
+		this.currentView = currentView
+
 		return (
 			<ZStack>
 				{this.context.currentView == undefined ? "Loading..." :
@@ -44,17 +52,19 @@ export class Browser extends MainUI {
 							{currentView.showToolbar
 								&& !currentView.fullscreen
 								&& <TopNavigation background={new Color("systemBackground").toLowerCase()}
-												  context={this.context}/>
+												  context={this.context}
+												  inSubView={this.inSubView}
+												  showCloseButton={this.showclosebutton}/>
 							}
-							{(this.activeRenderer.context = this.context) && this.activeRenderer.render()}
-							{/*<this.activeRenderer context={this.context}/>*/}
+							{this.activeRenderer.render()}
 
 							<ContextualBottomBar context={this.context}/>
 
 							{currentView.showSearchbar && !currentView.fullscreen &&
 								<>
 									<Search context={this.context}/>
-
+									{this.context.currentSession?.showFilterPanel ||
+										<FilterPanel context={this.context}/>}
 								</>
 							}
 						</VStack>

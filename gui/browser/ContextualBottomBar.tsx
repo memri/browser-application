@@ -1,10 +1,6 @@
 //
 //  ContextualBottomBar.swift
-//  memri
-//
-//  Created by Toby Brennan on 15/7/20.
 //  Copyright © 2020 memri. All rights reserved.
-//
 
 
 import * as React from 'react';
