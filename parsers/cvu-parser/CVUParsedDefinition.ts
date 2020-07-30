@@ -84,7 +84,7 @@ export class CVUParsedDefinition {
                 return scope == CompileScope.all
                     ? notnil.execute(viewArguments)
                     : notnil.compile(viewArguments)
-            } else if (typeof notnil === "object") {
+            } else if (typeof notnil.isCVUObject == "function") {
                 for (let [key, value] of Object.entries(notnil)) {
                     notnil[key] = recur(value)
                 }

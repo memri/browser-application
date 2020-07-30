@@ -1,7 +1,7 @@
 import * as React from "react";
 import {BaseTextFieldProps, Button, Divider, Icon, List, TextField} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
-import {Font} from "../parsers/cvu-parser/CVUParser";
+import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
 
 interface MemriUIProps {
     foregroundColor?
@@ -22,6 +22,203 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     styles;
     context: MemriContext;
 
+    setProperties(properties, _: Item, __: MemriContext, viewArguments: ViewArguments) {
+        let ViewPropertyOrder = [
+            "style",
+            "frame",
+            "color",
+            "font",
+            "padding",
+            "background",
+            "textAlign",
+            "rowbackground",
+            "cornerRadius",
+            "cornerborder",
+            "border",
+            "margin",
+            "shadow",
+            "offset",
+            "blur",
+            "opacity",
+            "zindex",
+        ]
+
+        var view = [];
+
+        function setProperty(name: string, value?) {
+            switch (name) {
+                case "style":
+                    // TODO: Refactor: Implement style sheets
+                    break
+                case "shadow":
+                    if (Array.isArray(value)) {
+                        let color = value[0]/* as? Color*/;
+                        let radius = value[1]/* as? CGFloat*/;
+                        let x = value[2]/* as? CGFloat*/;
+                        let y = value[3]/* as? CGFloat*/;
+
+                        if (color && radius && x && y) {
+                            view["boxShadow"] = `${x}px ${y}px ${radius}px 0 ${color}`
+                        }
+                    } else {
+                        console.log("Exception: Invalid values for shadow")
+                        view["boxShadow"] = '0'
+                    }
+                    break;
+                case "margin":
+                case "padding":
+                    if (Array.isArray(value)) {
+                        //#warning("This errored while editing CVU. Why did the validator not catch this?")
+
+                        view["padding"] = padding(
+                            {
+                                top: value[0] ?? 0,
+                                leading: value[3] ?? 0,
+                                bottom: value[2] ?? 0,
+                                trailing: value[1] ?? 0
+                            }
+                        )
+                    } else {
+                        view["padding"] = padding(value);
+                    }
+                    break;
+                case "blur":
+                    if (value) {
+                        view["Blur"] = value //TODO:
+                    }
+                    break;
+                case "opacity":
+                    if (value) {
+                        view["Opacity"] = value//TODO:
+                    }
+                    break;
+                case "color":
+                    if (value) {
+                        view["color"] = value // TODO: named colors do not work
+                    }
+                    break;
+                case "background":
+                    if (value) {
+                        view["backgroundColor"] = value;
+                    }
+                    break;
+                case "rowbackground":
+                    if (value) {
+                        view["listRowBackground"] = value; //TODO:
+                    }
+                    break;
+                case "border":
+                    /* if let value = value as? [Any?] {
+                         if let color = value[0] as? Color {
+                             return AnyView(border(color, width: value[1] as? CGFloat ?? 1.0))
+                 }
+                 else {
+                         print("FIX BORDER HANDLING2")
+                     }
+                 }
+                 else {
+                         print("FIX BORDER HANDLING")
+                     }*/ //TODO:
+                    break;
+                case "offset":
+                    if (Array.isArray(value)) {
+                        view["offset"] = offset({x: value[0], y: value[1]})
+                    }
+                    break;
+                case "zindex":
+                    if (value) {
+                        view["zIndex"] = value;
+                    }
+                case "cornerRadius":
+                    if (value) {
+                        view["borderRadius"] = value;
+                    }
+                    break;
+                case "cornerborder":
+                    if (Array.isArray(value)) {
+                        let color = value[0]; //Color
+                        if (color) {
+                            /*
+                                return AnyView(overlay(
+                                    RoundedRectangle(cornerRadius: value[2] as? CGFloat ?? 1.0)
+                    .stroke(color, lineWidth: value[1] as? CGFloat ?? 1.0)
+                    .padding(1)
+                    ))*/ //TODO:
+                        }
+                    }
+                case "frame":
+                    if (Array.isArray(value)) {
+                        view["frame"] = frame(
+                            {
+                                minWidth: value[0],
+                                maxWidth: value[1],
+                                minHeight: value[2],
+                                maxHeight: value[3],
+                                alignment: value[4] ?? Alignment.top
+                            }
+                        )
+                    }
+                    break
+                case "font":
+                    var fontV;
+
+                    if (Array.isArray(value)) {
+                        let name = value[0];
+                        if (name) {
+                            fontV = font({family: name, size: value[1] ?? 12.0});
+                        } else {
+                            fontV = font({
+                                family: "system", size: value[0] ?? 12.0,
+                                weight: value[1],
+                                design: "default"
+                            });
+                        }
+                    } else if (value) {
+                        fontV = font({family: "system", size: value});
+                    } else if (Font.Weight[value]) {
+                        fontV = font({family: "system", size: 12, weight: value});
+                    } else {
+
+                    }
+                    Object.assign(view, fontV);
+                    break;
+                case "textAlign":
+                    if (TextAlignment[value]) {
+                        view["textAlign"] = value;
+                    }
+                    break;
+                //        case "minWidth", "minHeight", "align", "maxWidth", "maxHeight", "spacing", "alignment", "text", "maxchar", "removewhitespace", "bold":
+                //            break
+                default:
+                    console.log(`NOT IMPLEMENTED PROPERTY: ${name}`)
+            }
+        }
+
+        if (properties.length == 0) {
+            return view
+        }
+
+        for (let name in ViewPropertyOrder) {
+            var value = properties[name];
+            if (value) {
+                let expr = value;
+                if (expr?.constructor?.name == "Expression") {
+                    try {
+                        value = expr.execute(viewArguments);
+                    } catch {
+                        // TODO: refactor: Error handling
+                        console.log(`Could not set property. Executing expression ${expr} failed`)
+                        continue
+                    }
+                }
+
+                setProperty(name, value);
+            }
+        }
+
+        return view
+    }
+
     setStyles() {
         let styles = {
             color: this.props.foregroundColor ?? this.props.textColor ?? "black",
@@ -32,7 +229,11 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             borderRadius: this.props.cornerRadius,
             opacity: this.props.opacity
         }
-        Object.assign(styles, this.props.font, this.props.padding, this.props.frame);
+        var fixedProps = {}
+        if (this.props.setProperties) {
+            fixedProps = this.setProperties(this.props.setProperties.properties, undefined, undefined , this.props.setProperties.viewArguments);
+        }
+        Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
         return styles;
     }
 }
@@ -360,6 +561,5 @@ export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
 }
 
 export function setProperties(properties, item, context, viewArguments) {
-    //TODO: {width: [0, 0, 1, 1], color: "#eee"}
-    return properties;
+    return {properties: properties, item: item, context: context, viewArguments: viewArguments}
 }
