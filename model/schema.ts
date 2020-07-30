@@ -15,6 +15,7 @@ import {Person} from "./items/Other";
 import {Sessions} from "../sessions/Sessions";
 import {Session} from "../sessions/Session";
 import {UserState, ViewArguments} from "../cvu/views/CascadableDict";
+import {jsonErrorHandling} from "../gui/util";
 //import {RealmObjects} from "./RealmLocal";
 //import {Person} from "./items/Other";
 
@@ -342,7 +343,7 @@ export class Comment  {
 }
 
 /// A file containing a note.
-export class Note  {
+export class Note {
     /// TBD
     title
     /// TBD
@@ -355,16 +356,21 @@ export class Note  {
         return this.edges("comment")?.items(Comment)
     }
 
-    constructor(decoder) {
-        
+    constructor(objectFromRealm?) {
+        //super(objectFromRealm);
 
-        jsonErrorHandling(function () {
+        if (objectFromRealm) {
+            for (let key in objectFromRealm) {
+                this[key] = objectFromRealm[key];
+            }
+        }
+        /*jsonErrorHandling(function () {
             this.title = decoder.decodeIfPresent("title") ?? this.title
             this.content = decoder.decodeIfPresent("content") ?? this.content
             this.textContent = decoder.decodeIfPresent("textContent") ?? this.textContent
 
             this.superDecode(decoder)
-        }.bind(this))
+        }.bind(this))*/
     }
 }
 

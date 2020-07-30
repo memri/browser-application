@@ -234,6 +234,17 @@ export class Section extends MainUI {
     }
 }
 
+export class Empty extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="Empty" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
 export class Group extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;

@@ -205,11 +205,11 @@ export class Item extends SchemaItem {
     /// Get the type of Item
     /// - Returns: type of the Item
     getType() {
-        let type = ItemFamily[this.genericType];
+        let type = ItemFamily["type" + this["_type"]];
         if (type) {
             let T = getItemType(type)
             // NOTE: allowed forced downcast
-            return (new T())
+            return (new T(this))
         } else {
             console.log(`Cannot find type ${this.genericType} in ItemFamily`)
             return null

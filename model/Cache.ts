@@ -179,7 +179,7 @@ export class CacheMemri {
 		debugHistory.info(`Executing query ${q}`)
 
 		if (q == "") {
-			callback("Empty Query", null)
+			callback && callback("Empty Query", null)
 		} else {
 			// Schedule the query to sync from the pod
 			//if (syncWithRemote) {this.sync.syncQuery(datasource)}
@@ -197,7 +197,7 @@ export class CacheMemri {
 					for (var item of objects) { returnValue.push(new Item(item)) }
 				}
 
-				callback(null, returnValue)
+				callback && callback(null, returnValue)
 			}
 			// Fetch the type of the data item
 			else if (type) {
@@ -229,10 +229,10 @@ export class CacheMemri {
 				}
 
 				// Done
-				callback(null, returnValue)
+				callback && callback(null, returnValue)
 			} else {
 				// Done
-				callback(`Unknown type send by server: ${q}`, null)
+				callback && callback(`Unknown type send by server: ${q}`, null)
 			}
 		}
 	}

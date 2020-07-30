@@ -19,7 +19,7 @@ import {CacheMemri} from "../../model/Cache";
 import {CascadableDict} from "./CascadableDict";
 import {CascadingDatasource} from "../../api/Datasource";
 import {CascadableContextPane} from "./CascadableContextPane";
-import {CascadingRenderConfig} from "./Renderers";
+import {allRenderers, CascadingRenderConfig} from "./Renderers";
 
 
 
@@ -251,11 +251,11 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             return head
         }.bind(this)()
 
-        var tail: CVUParsedRendererDefinition[] = this.tail.map((item) => getConfig(item) )
+        var tail: CVUParsedRendererDefinition[] = this.tail.map((item) => getConfig(item) ).filter((item)=> item != undefined);
 
         this.insertRenderDefs(tail)
 
-        let all = this.allRenderers
+        let all = allRenderers
         let RenderConfigType
 
         if (all) {

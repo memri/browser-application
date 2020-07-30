@@ -4,7 +4,7 @@
 
 
 import {
-    border,
+    border, Empty,
     font, frame,
     Group,
     HStack,
@@ -27,7 +27,7 @@ import {Action, ActionUnlink} from "../../cvu/views/Action";
 import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
-// import {SubView} from "./SubView";
+//import {SubView} from "./SubView";
 
 export class UIElementView extends MainUI {
     context: MemriContext
@@ -139,37 +139,37 @@ export class UIElementView extends MainUI {
                     (this.from.type == UIElementFamily.VStack) ?
                         <VStack alignment={this.get("alignment") ?? Alignment.leading}
                                 spacing={this.get("spacing") ?? 0} clipped
-                                {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                             {this.renderChildren}
                         </VStack> :
                         (this.from.type == UIElementFamily.HStack) ?
                             <HStack alignment={this.get("alignment") ?? Alignment.top}
                                     spacing={this.get("spacing") ?? 0} clipped
-                                    {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                    setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                 {this.renderChildren}
                             </HStack> :
                             (this.from.type == UIElementFamily.ZStack) ?
                                 <ZStack alignment={this.get("alignment") ?? Alignment.top}
                                         spacing={this.get("spacing") ?? 0} clipped
-                                        {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                        setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                     {this.renderChildren}
                                 </ZStack> :
                                 ((this.from.type == UIElementFamily.EditorSection) ?
                                     <ZStack alignment={this.get("alignment") ?? Alignment.top}
                                             spacing={this.get("spacing") ?? 0} clipped
-                                            {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                            setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                         {this.renderChildren}
                                     </ZStack> :
                                     ((this.has("title")) ?
                                         <Section header={(this.get("title") ?? "").toUpperCase()} generalEditorHeader
                                                  clipped
-                                                 {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                 setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                             <MemriDivider/>
                                             {this.renderChildren}
                                             <MemriDivider/>
                                         </Section> :
                                         <VStack spacing={0} clipped
-                                                {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                             {this.renderChildren}
                                         </VStack>)) :
                     (this.from.type == UIElementFamily.EditorRow) ?
@@ -180,7 +180,7 @@ export class UIElementView extends MainUI {
                                         leading: this.get("nopadding") != true ? 36 : 0,
                                         trailing: this.get("nopadding") != true ? 36 : 0
                                     })} clipped
-                                    {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}
+                                    setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}
                                     background={this.get("readOnly") ?? this.viewArguments.get("readOnly") ?? false
                                         ? "#f9f9f9"
                                         : "#f7fcf5"}>
@@ -220,11 +220,11 @@ export class UIElementView extends MainUI {
                                 }
                             </HStack> :
                             (this.from.type == UIElementFamily.Button) ?
-                                <MemriButton action={buttonAction} {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                <MemriButton action={buttonAction} setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                     {this.renderChildren}
                                 </MemriButton> :
                                 (this.from.type == UIElementFamily.FlowStack) ?
-                                    <FlowStack {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                    <FlowStack setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                        {/* FlowStack(getList("list")) { listItem in
                                     ForEach(0 ..< self.from.children.count) { index in
                                         UIElementView(self.from.children[index], listItem, self.viewArguments)
@@ -236,7 +236,7 @@ export class UIElementView extends MainUI {
                                         (this.from.processText(this.get("text"))
                                             ?? this.get("nilText")
                                             ?? (this.get("allowNil", false) ? "" : undefined)).map((text) => {
-                                                return <MemriText {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                return <MemriText setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                                     {text}
                                                     {/*.if(from.getBool("bold")) { $0.bold() }
                                                     .if(from.getBool("italic")) { $0.italic() }
@@ -247,11 +247,11 @@ export class UIElementView extends MainUI {
                                             }
                                         ) :
                                         (this.from.type == UIElementFamily.Textfield) ?
-                                            <this.renderTextfield {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                            <this.renderTextfield setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                             </this.renderTextfield> :
                                             (this.from.type == UIElementFamily.RichTextfield) ?
-                                                <this.renderRichTextfield {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                <this.renderRichTextfield setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                 </this.renderRichTextfield> :
                                                 (this.from.type == UIElementFamily.ItemCell) ?
@@ -263,7 +263,7 @@ export class UIElementView extends MainUI {
                                                                      viewName={this.from.getString("viewName")}
                                                                      item={this.item}
                                                                      viewArguments={new ViewArguments(this.get("arguments"))}
-                                                                     {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                             </SubView> :
 
@@ -271,7 +271,7 @@ export class UIElementView extends MainUI {
                                                                      view={setView}
                                                                      item={this.item}
                                                                      viewArguments={new ViewArguments(this.get("arguments"))}
-                                                                     {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                             </SubView> :
                                                         (this.from.type == UIElementFamily.Map) ?
@@ -303,7 +303,7 @@ export class UIElementView extends MainUI {
                                                                 .setProperties(from.properties, self.item, context, self.viewArguments)*/}
                                                             </> :
                                                             (this.from.type == UIElementFamily.Picker) ?
-                                                                <this.renderPicker {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                <this.renderPicker setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                 </this.renderPicker> :
                                                                 (this.from.type == UIElementFamily.SecureField) ?
@@ -313,13 +313,13 @@ export class UIElementView extends MainUI {
                                                                         <ActionButton
                                                                             action={this.get("press") ?? new Action(this.context, "noop")}
                                                                             item={this.item}
-                                                                            {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                            setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                         </ActionButton> :
                                                                         (this.from.type == UIElementFamily.MemriButton) ?
                                                                             <MemriButton
                                                                                 item={this.item}
-                                                                                {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                             </MemriButton> :
                                                                             (this.from.type == UIElementFamily.TimelineItem) ?
@@ -341,13 +341,13 @@ export class UIElementView extends MainUI {
                                                                                     </> :
                                                                                     (this.from.type == UIElementFamily.Image) ?
                                                                                             (this.has("systemName")) ?
-                                                                                                <MemriImage {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                <MemriImage setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                                                                                     {this.get("systemName") ?? "exclamationmark.bubble"}
                                                                                                     {/*.if(from.has("resizable")) { self.resize($0) }*/}
                                                                                                 </MemriImage> :
                                                                                                 (this.has("bundleImage")) ?
-                                                                                                    <this.getbundleImage renderingMode="original" {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}/> :
-                                                                                                    <MemriImage {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                    <this.getbundleImage renderingMode="original" setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}/> :
+                                                                                                    <MemriImage setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                                                                                                         {this.get("systemName") ?? "exclamationmark.bubble"}
                                                                                                         {/*Image(uiImage: getImage("image"))
                                                                                                         .renderingMode(.original)
@@ -364,27 +364,27 @@ export class UIElementView extends MainUI {
                                                                                             <>
                                                                                             </> :
                                                                                             (this.from.type == UIElementFamily.HorizontalLine) ?
-                                                                                                <HorizontalLine {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                <HorizontalLine setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                                                 </HorizontalLine> :
                                                                                                 (this.from.type == UIElementFamily.Rectangle) ?
-                                                                                                    <Rectangle {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                    <Rectangle setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                                                     </Rectangle> :
                                                                                                     (this.from.type == UIElementFamily.RoundedRectangle) ?
-                                                                                                        <RoundedRectangle {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                        <RoundedRectangle setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                                                         </RoundedRectangle> :
                                                                                                         (this.from.type == UIElementFamily.Spacer) ?
-                                                                                                            <Spacer {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                            <Spacer setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                                                             </Spacer> :
                                                                                                             (this.from.type == UIElementFamily.Divider) ?
-                                                                                                                <MemriDivider {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                                <MemriDivider setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                                                                 </MemriDivider> :
                                                                                                                 (this.from.type == UIElementFamily.Empty) ?
-                                                                                                                    <Empty {setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                                                                                                    <Empty setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                                                                                                                     </Empty> :
                                                                                                                     <>
