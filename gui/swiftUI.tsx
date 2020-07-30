@@ -347,3 +347,8 @@ export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
 
     return contentInsetsObj;
 }
+
+export function setProperties(properties, item, context, viewArguments) {
+    //TODO: {width: [0, 0, 1, 1], color: "#eee"}
+    return properties;
+}

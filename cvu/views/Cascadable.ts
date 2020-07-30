@@ -242,8 +242,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         let head = this.head.parsed[lookupName] ?? new parsedType();
         this.head[lookupName] = head
 
-        let tail = this.tail[lookupName]? [this.tail[lookupName]]: [];
-        //.map((item) => { return (item[lookupName]?.constructor?.name == parsedType.constructor.name)? item[lookupName]: undefined })
+        let tail = this.tail.map((item) => { return (item[lookupName]?.constructor?.name == parsedType.constructor.name)? item[lookupName]: undefined }).filter((item) => item != undefined)
 
         let cascadable = new type(head.parsed, tail, this);
         this.localCache[propName] = cascadable

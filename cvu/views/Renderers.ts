@@ -150,17 +150,12 @@ export class CascadingRenderConfig extends Cascadable {
                 if (s?.constructor?.name == "CascadingRendererDefaults") {
                     s.setDefaultValues(body)
                 }
-                let props = {
-                    gui: body,
-                    dataItem: item,
-                    viewArguments: argumentsJs ?? viewArguments
-                }
-                let uiElement = new UIElementView(props);
+                let uiElement = new UIElementView({gui: body, dataItem: item, viewArguments: argumentsJs ?? viewArguments});
                 //(body, item, argumentsJs ?? viewArguments)
                 return uiElement.render();
             }
 
-            return new UIElementView(new UIElement(UIElementFamily.Empty), item)
+            return new UIElementView({gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
         }
 
         let renderGroup = this.getRenderGroup(group)
@@ -168,7 +163,7 @@ export class CascadingRenderConfig extends Cascadable {
             return doRender(renderGroup, item)
         }
         else {
-            return new UIElementView(new UIElement(UIElementFamily.Empty), item ?? new Item())
+            return new UIElementView({gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
         }
     }
 }

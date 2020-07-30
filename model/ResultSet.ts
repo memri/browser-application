@@ -15,7 +15,7 @@ export class ResultSet {
 	/// Object describing the query and postprocessing instructions
 	datasource: Datasource
 	/// Resulting Items
-	items = []
+	items: Item[] = []
 	/// Nr of items in the resultset
 	count = 0
 	/// Boolean indicating whether the Items in the result are currently being loaded

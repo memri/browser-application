@@ -12,7 +12,7 @@ import * as React from "react";
 import {Action, ActionFamily, ActionNoop, RenderType} from "../cvu/views/Action";
 import {MemriContext} from "../context/MemriContext";
 import {ViewArguments} from "../cvu/views/CascadableDict";
-import {SubView} from "./common/SubView";
+// import {SubView} from "./common/SubView";
 
 export class ActionButton extends MainUI {
 	context: MemriContext

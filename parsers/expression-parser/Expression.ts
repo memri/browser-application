@@ -171,7 +171,7 @@ export class Expression {
 
     static resolve(object?, viewArguments?: ViewArguments, dontResolveItems: boolean = false) { //TODO:
         var dict = object;
-        if (typeof dict.isCVUObject == "function") {
+        if (typeof dict?.isCVUObject == "function") {
             for (let [key, value] of Object.entries(dict)) {
                 dict[key] = this.resolve(value, viewArguments, dontResolveItems)
             }

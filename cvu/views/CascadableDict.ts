@@ -48,8 +48,8 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 	setSubscript(name, value) { this.set(name, value) }
 
 	constructor(head?, tail?: CVUParsedDefinition[]|Item, host?:Cascadable) {//TODO
-		if (head?.constructor?.name == "CascadableDict") {
-			super(new CVUParsedObjectDefinition(), head.cascadeStack)
+		if (head?.constructor?.name == "CascadableDict" || tail?.constructor?.name == "Item") {
+			super(new CVUParsedObjectDefinition(), head?.cascadeStack)
 			if (tail) { this.set(".", tail) }
 		} else if (head?.constructor?.name == "CVUParsedDefinition") {
 			super(head, tail, host)
