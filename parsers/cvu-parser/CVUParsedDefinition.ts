@@ -90,29 +90,30 @@ export class CVUParsedDefinition {
                 }
                 return notnil
             } else if (Array.isArray(notnil)) {
-                if (notnil[0]?.constructor?.name == "CVUParsedDefinition") {
-                    for (var i in notnil) {
-                        let def = recur(notnil[i])
-                        if (def?.constructor?.name == "CVUParsedDefinition") {
-                            notnil[i] = def
-                        }
-                    }
-                } else {
-                    for (var i in notnil) {
-                        notnil[i] = recur(notnil[i])
+                var list = notnil;
+                for (let i =0;i < list.length;i++) {
+                    list[i] = recur(list[i])
+                }
+                return list
+            } else if (Array.isArray(notnil) && notnil.length > 0 && notnil[0]?.constructor?.name == "CVUParsedDefinition") {
+                var list = notnil;
+                for (let i = 0; i < list.length; i++) {
+                    let def = recur(list[i]);
+                    if (def?.constructor?.name == "CVUParsedDefinition") {
+                        list[i] = def
                     }
                 }
-
-                return notnil
+                return list;
             } else if (notnil?.constructor?.name == "CVUParsedDefinition") {
-                notnil.parsed = recur(notnil.parsed)
+                let def = notnil;
+                def.parsed = recur(def.parsed);
             } else if (notnil?.constructor?.name == "UIElement") {
-                let dict = recur(notnil.properties)
-                if (dict) {
-                    notnil.properties = dict
+                let el = notnil;
+                let dict = recur(el.properties);
+                if (typeof dict.isCVUObject == "function") {
+                    el.properties = dict
                 }
             }
-
             return notnil
         }
 
