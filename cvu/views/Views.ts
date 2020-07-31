@@ -388,25 +388,25 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on list of edge`)
 								break
 						}
-					} else if (v?.constructor?.name == "Realm".List) {//TODO
-						switch (node.name) {
+					} else if (v?.constructor?.name == "RealmObjects.ListBase") {//TODO
+						switch (node) {
 							case "count": value = v.length; break//TODO
 							default:
 								// TODO: Warn
-								debugHistory.warn(`Could not find property ${node.name} on list`)
+								debugHistory.warn(`Could not find property ${node} on list`)
 								break
 						}
 					} else if (typeof v.subscript == "function") {//Subscriptable
 						value = v[node.name]
 					}
 					// CascadingRenderer??
-					else if (typeof v === "object") {//TODO:
-						if (v.objectSchema[node.name] == null) {
+					else if (v?.constructor?.name == "RealmObject") {//TODO:
+						if (v[node] == null) {
 							// TODO: error handling
 							this.recursionCounter = 0
-							throw `No variable with name ${node.name}`
+							throw `No variable with name ${node}`
 						} else {
-							value = v[node.name] // How to handle errors?
+							value = v[node] // How to handle errors?
 						}
 					}
 				}
