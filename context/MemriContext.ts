@@ -643,6 +643,7 @@ export class RootContext extends MemriContext {
 			// Reload for easy adjusting
 			this.views.context = this
 			this.views.install()
+			this.sessions.install(this);
 		}
 		//	#endif*/
 

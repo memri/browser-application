@@ -250,8 +250,8 @@ import {CacheMemri} from "./model/Cache";*/
 
 let context = new RootContext("Memri GUI", "ABCDEF");
 context.installer.await(() => {
-    /*context.boot(false, () => {
-        /!*this.settingWatcher = context.settings.subscribe(
+    context.boot(false, () => {
+        /*this.settingWatcher = context.settings.subscribe(
             "device/sensors/location/track",
             type: Bool.self
     ).sink {
@@ -259,8 +259,8 @@ context.installer.await(() => {
                 if value { SensorManager.shared.locationTrackingEnabledByUser() }
         else { SensorManager.shared.locationTrackingDisabledByUser() }
         }
-        }*!/
-    })*/
+        }*/
+    })
 });
 context.installer.install(context, "");
 
