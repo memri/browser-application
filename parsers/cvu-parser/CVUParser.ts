@@ -150,10 +150,10 @@ export class CVUParser {
             }
 
             var dsl = this.parseViewDSL();
-            if (dsl["sessions"]) {//TODO:
+            if (dsl.get("sessions") != undefined) {
                 dsl = new CVUParsedSessionsDefinition(dsl.selector ?? "", dsl.name,
                     dsl.domain, dsl.parsed)
-            } else if (dsl["views"]) {
+            } else if (dsl.get("views") != undefined) {
                 dsl = new CVUParsedSessionDefinition(dsl.selector ?? "", dsl.name,
                     dsl.domain, dsl.parsed)
             }

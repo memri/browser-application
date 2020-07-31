@@ -17,7 +17,7 @@ import {settings} from "../model/Settings";
 export class Sessions /*: ObservableObject, Equatable*/ {
     /// TBD
     get currentSessionIndex() {
-        return Number(this.parsed? this.parsed["currentSessionIndex"] ?? 0: 0);
+        return Number(this.parsed? this.parsed.get("currentSessionIndex") ?? 0: 0);
     }
 
     set currentSessionIndex(value) {

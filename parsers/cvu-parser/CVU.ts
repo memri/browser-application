@@ -32,7 +32,7 @@ export class CVU {
         else {
             let lexer = new CVULexer(this.code);
             let parser = new CVUParser(lexer.tokenize(), this.context, this.lookup, this.execFunc)
-            this.parsed =  parser.parse()
+            this.parsed = parser.parse()
             return this.parsed != null ? this.parsed : []
         }
         

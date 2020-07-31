@@ -529,8 +529,8 @@ export class Views {
 			if (!parsed) {
 				throw "Unable to parse state definition"
 			}
-			let list = parsed["views"];
-			let p = list[parsed["currentViewIndex"] ?? 0]; //TODO:
+			let list = parsed.get("views");
+			let p = list[parsed.get("currentViewIndex") ?? 0]; //TODO:
 			if
 			(Array.isArray(list) && list[0]?.constructor?.name == "CVUParsedViewDefinition" && p && typeof p == "number") {
 				view = CVUStateDefinition.fromCVUParsedDefinition(p)
@@ -566,7 +566,7 @@ export class Views {
 						// TODO: Should this first search for the first renderer everywhere
 						//       before trying the second renderer?
 						if (def.name == name) {
-							if (def["children"] != undefined) {
+							if (def.get("children") != undefined) {
 								cascadeStack.push(def)
 								return true
 							}
@@ -585,7 +585,7 @@ export class Views {
 					if (viewDefinition.type == "renderer") {
 						let parsed = context.views.parseDefinition(viewDefinition)
 						if (parsed && parsed?.constructor?.name == "CVUParsedRendererDefinition") {
-							if (parsed["children"] != undefined) { cascadeStack.push(parsed) }
+							if (parsed.get("children") != undefined) { cascadeStack.push(parsed) }
 							else {
 								throw `Exception: Specified view does not contain any UI elements: ${viewOverride}`
 							}
@@ -619,9 +619,9 @@ export class Views {
 					for (var key of ["user", "defaults"]) {
 						let viewDefinition = context.views.fetchDefinitions(name, "renderer", key)[0]
 						if (viewDefinition) {
-							let parsed =  context.views.parseDefinition(viewDefinition)
+							let parsed = context.views.parseDefinition(viewDefinition)
 							if (parsed?.constructor?.name == "CVUParsedRendererDefinition") {
-								if (parsed["children"] != undefined) { cascadeStack.push(parsed) }
+								if (parsed.get("children") != undefined) { cascadeStack.push(parsed) }
 							}
 						}
 					}
