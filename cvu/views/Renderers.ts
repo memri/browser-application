@@ -143,14 +143,14 @@ export class CascadingRenderConfig extends Cascadable {
  
     render(item, group =  "*", argumentsJs =  null) {
         
-        function doRender(renderGroup, item) {
+        let doRender = (renderGroup, item) => {
             let body = renderGroup.body
             if (body) {
                 let s = this;//TODO
-                if (s?.constructor?.name == "CascadingRendererDefaults") {
+                if (s.setDefaultValues && typeof s.setDefaultValues === "function") {//TODO
                     s.setDefaultValues(body)
                 }
-                let uiElement = new UIElementView({gui: body, dataItem: item, viewArguments: argumentsJs ?? viewArguments});
+                let uiElement = new UIElementView({gui: body, dataItem: item, viewArguments: argumentsJs/* ?? viewArguments*/});
                 //(body, item, argumentsJs ?? viewArguments)
                 return uiElement.render();
             }

@@ -75,7 +75,6 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     get activeRenderer(): string {
         let s = this.cascadeProperty("defaultRenderer")
         if (s) { return s }
-        return "list"
         debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
         return ""
     }
@@ -547,7 +546,9 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         }
 
         // TODO: is this needed for anything or should the tail property be removed?
-        this.tail = [this.cascadeStack[this.cascadeStack.length - 1]];
+        this.tail = []
+        Object.assign(this.tail, this.cascadeStack);
+        this.tail.shift()
         this.localCache = {} // Reset local cache again since it was filled when we fetched datasource
     }
 

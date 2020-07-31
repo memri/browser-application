@@ -131,7 +131,7 @@ export class ExprVariableNode implements ExprNode{
         for (var i in ExprVariableType) {
             var varType = ExprVariableType[i];
             if (this.name.indexOf(varType) === 0) {//TODO starts?
-                this.type = i
+                this.type = varType
                 this.name = this.name.substring(varType.length)//TODO suffix?
                 break
             }
