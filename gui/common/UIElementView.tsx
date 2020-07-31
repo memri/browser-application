@@ -132,224 +132,20 @@ export class UIElementView extends MainUI {
             return new CVUStateDefinition()
         } //TODO: ();
 
-
-        return (
-            <Group>
-                {!this.has("show") || this.get("show") == true ?
-                    (this.from.type == UIElementFamily.VStack) ?
-                        <VStack alignment={this.get("alignment") ?? Alignment.leading}
-                                spacing={this.get("spacing") ?? 0} clipped
-                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                            {this.renderChildren}
-                        </VStack> :
-                        (this.from.type == UIElementFamily.HStack) ?
-                            <HStack alignment={this.get("alignment") ?? Alignment.top}
-                                    spacing={this.get("spacing") ?? 0} clipped
-                                    setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                {this.renderChildren}
-                            </HStack> :
-                            (this.from.type == UIElementFamily.ZStack) ?
-                                <ZStack alignment={this.get("alignment") ?? Alignment.top}
-                                        spacing={this.get("spacing") ?? 0} clipped
-                                        setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                    {this.renderChildren}
-                                </ZStack> :
-                                ((this.from.type == UIElementFamily.EditorSection) ?
-                                    <ZStack alignment={this.get("alignment") ?? Alignment.top}
-                                            spacing={this.get("spacing") ?? 0} clipped
-                                            setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                        {this.renderChildren}
-                                    </ZStack> :
-                                    ((this.has("title")) ?
-                                        <Section header={(this.get("title") ?? "").toUpperCase()} generalEditorHeader
-                                                 clipped
-                                                 setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                            <MemriDivider/>
-                                            {this.renderChildren}
-                                            <MemriDivider/>
-                                        </Section> :
-                                        <VStack spacing={0} clipped
-                                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                            {this.renderChildren}
-                                        </VStack>)) :
-                    (this.from.type == UIElementFamily.EditorRow) ?
-                        <VStack spacing={0}>
-                            <VStack alignment={Alignment.leading} spacing={4} fullWidth
-                                    padding={padding({
-                                        bottom: this.get("nopadding") != true ? 10 : 0,
-                                        leading: this.get("nopadding") != true ? 36 : 0,
-                                        trailing: this.get("nopadding") != true ? 36 : 0
-                                    })} clipped
-                                    setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}
-                                    background={this.get("readOnly") ?? this.viewArguments.get("readOnly") ?? false
-                                        ? "#f9f9f9"
-                                        : "#f7fcf5"}>
-                                {(this.has("title") && this.get("nopadding") != true) &&
-                                <MemriText generalEditorLabel>
-                                    {this.get("title") ?? ""
-                                        /*.camelCaseToWords()
-                                        .lowercased()
-                                        .capitalizingFirst()*/}
-                                </MemriText>
-                                }
-                                {this.renderChildren.generalEditorCaption()}
-                            </VStack>
-                            {(this.has("title")) &&
-                            <MemriDivider padding={padding({leading: 35})}/>
-                            }
-                        </VStack> :
-                        (this.from.type == UIElementFamily.EditorLabel) ?
-                            <HStack alignment={Alignment.center} spacing={15} frame={frame({minWidth: 130, maxWidth: 130, maxHeight: ".infinity", alignment: Alignment.leading})} padding={padding(10)} border={border({width: [0, 0, 1, 1], color: "#eee"})}>
-                                <MemriButton onClick={editorLabelAction}>
-                                    <MemriImage foregroundColor="red" font={font({size: 22})} lineLimit={1}>
-                                        minus.circle.fill
-                                    </MemriImage>
-                                </MemriButton>
-                                {(this.has("title")) &&
-                                <MemriButton>
-                                    <HStack>
-                                        <MemriText foregroundColor="blue" font={font({size: 15})}>
-                                            {this.get("title") ?? ""}
-                                        </MemriText>
-                                        <Spacer/>
-                                        <MemriImage foregroundColor="gray" font={font({size: 14, weight: Font.Weight.bold})}>
-                                            chevron.right
-                                        </MemriImage>
-                                    </HStack>
-                                </MemriButton>
-                                }
-                            </HStack> :
-                            (this.from.type == UIElementFamily.Button) ?
-                                <MemriButton action={buttonAction} setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                    {this.renderChildren}
-                                </MemriButton> :
-                                (this.from.type == UIElementFamily.FlowStack) ?
-                                    <FlowStack setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                       {/* FlowStack(getList("list")) { listItem in
-                                    ForEach(0 ..< self.from.children.count) { index in
-                                        UIElementView(self.from.children[index], listItem, self.viewArguments)
-                                        .environmentObject(self.context)
-                                        }
-                                        }*/}
-                                    </FlowStack> :
-                                    (this.from.type == UIElementFamily.Text) ?
-                                        (this.from.processText(this.get("text"))
-                                            ?? this.get("nilText")
-                                            ?? (this.get("allowNil", false) ? "" : undefined)).map((text) => {
-                                                return <MemriText setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                                    {text}
-                                                    {/*.if(from.getBool("bold")) { $0.bold() }
-                                                    .if(from.getBool("italic")) { $0.italic() }
-                                                    .if(from.getBool("underline")) { $0.underline() }
-                                                    .if(from.getBool("strikethrough")) { $0.strikethrough() }
-                                                    .fixedSize(horizontal: false, vertical: true)*/}
-                                                </MemriText>
-                                            }
-                                        ) :
-                                        (this.from.type == UIElementFamily.Textfield) ?
-                                            <this.renderTextfield setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                            </this.renderTextfield> :
-                                            (this.from.type == UIElementFamily.RichTextfield) ?
-                                                <this.renderRichTextfield setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                </this.renderRichTextfield> :
-                                                (this.from.type == UIElementFamily.ItemCell) ?
-                                                    <>
-                                                    </>:
-                                                    (this.from.type == UIElementFamily.SubView) ?
-                                                        (this.has("viewName")) ?
-                                                            <SubView context={this.context}
-                                                                     viewName={this.from.getString("viewName")}
-                                                                     item={this.item}
-                                                                     viewArguments={new ViewArguments(this.get("arguments"))}
-                                                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                            </SubView> :
-
-                                                            <SubView context={this.context}
-                                                                     view={setView}
-                                                                     item={this.item}
-                                                                     viewArguments={new ViewArguments(this.get("arguments"))}
-                                                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                            </SubView> :
-                                                        (this.from.type == UIElementFamily.Map) ?
-                                                            <>
-                                                               {/* MapView(
-                                                                useMapBox: context.settings
-                                                                .get("/user/general/gui/useMapBox", type: Bool.self) ?? false,
-                                                                config: .init(dataItems: [self.item],
-                                                                locationResolver: { _ in
-                                                            self
-                                                                .get("location", type: Location.self) ??
-                                                                (self
-                                                                .get("location",
-                                                                type: Results<Item>.self) as Any?)
-
-                                                            },
-                                                                addressResolver: {
-                                                                _ in
-                                                                (
-                                                                    self.get("address", type: Address.self) as Any?
-                                                                ) ??
-                                                                (self
-                                                                .get("address", type: Results<Item>.self) as Any?)
-
-                                                            },
-                                                                labelResolver: { _ in self.get("label") })
-                                                                )
-                                                                .background(Color(.secondarySystemBackground))
-                                                                .setProperties(from.properties, self.item, context, self.viewArguments)*/}
-                                                            </> :
-                                                            (this.from.type == UIElementFamily.Picker) ?
-                                                                <this.renderPicker setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                </this.renderPicker> :
-                                                                (this.from.type == UIElementFamily.SecureField) ?
-                                                                    <>
-                                                                    </> :
-                                                                    (this.from.type == UIElementFamily.Action) ?
-                                                                        <ActionButton
-                                                                            action={this.get("press") ?? new Action(this.context, "noop")}
-                                                                            item={this.item}
-                                                                            setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                        </ActionButton> :
-                                                                        (this.from.type == UIElementFamily.MemriButton) ?
-                                                                            <MemriButton
-                                                                                item={this.item}
-                                                                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                            </MemriButton> :
-                                                                            (this.from.type == UIElementFamily.TimelineItem) ?
-                                                                                <>
-                                                                                    {/*TimelineItemView(icon: Image(systemName: get("icon") ?? "arrowtriangle.right"),
-                                                                                    title: from.processText(get("title")) ?? "-",
-                                                                                    subtitle: from.processText(get("text")),
-                                                                                    backgroundColor: ItemFamily(rawValue: item.genericType)?
-                                                                                    .backgroundColor ?? .gray)
-                                                                                    .setProperties(from.properties, self.item, context, self.viewArguments)*/}
-                                                                                </> :
-                                                                                (this.from.type == UIElementFamily.MessageBubble) ?
-                                                                                    <>
-                                                                                        {/*MessageBubbleView(timestamp: get("dateTime"),
-                                                                                              sender: get("sender"),
-                                                                                              content: from.processText(get("content")) ?? "",
-                                                                                              outgoing: get("isOutgoing") ?? false)
-                                                                                .setProperties(from.properties, self.item, context, self.viewArguments)*/}
-                                                                                    </> :
-                                                                                    (this.from.type == UIElementFamily.Image) ?
-                                                                                            (this.has("systemName")) ?
-                                                                                                <MemriImage setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                                                                                    {this.get("systemName") ?? "exclamationmark.bubble"}
-                                                                                                    {/*.if(from.has("resizable")) { self.resize($0) }*/}
-                                                                                                </MemriImage> :
-                                                                                                (this.has("bundleImage")) ?
-                                                                                                    <this.getbundleImage renderingMode="original" setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}/> :
-                                                                                                    <MemriImage setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                                                                                        {this.get("systemName") ?? "exclamationmark.bubble"}
-                                                                                                        {/*Image(uiImage: getImage("image"))
+        if (!this.has("show") || this.get("show") == true) {
+            switch (this.from.type) {
+                case UIElementFamily.Image:
+                    return (
+                        (this.has("systemName")) ?
+                            <MemriImage setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                {this.get("systemName") ?? "exclamationmark.bubble"}
+                                {/*.if(from.has("resizable")) { self.resize($0) }*/}
+                            </MemriImage> :
+                            (this.has("bundleImage")) ?
+                                <this.getbundleImage renderingMode="original" setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}/> :
+                                <MemriImage setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                    {this.get("systemName") ?? "exclamationmark.bubble"}
+                                    {/*Image(uiImage: getImage("image"))
                                                                                                         .renderingMode(.original)
                                                                                                         .if(from.has("resizable")) { view in
                                                                                                             GeometryReader { geom in
@@ -359,43 +155,62 @@ export class UIElementView extends MainUI {
                                                                                                             }
                                                                                                         }
                                                                                                         .setProperties(from.properties, self.item, context, self.viewArguments)*/}
-                                                                                                    </MemriImage> :
-                                                                                        (this.from.type == UIElementFamily.Circle) ?
-                                                                                            <>
-                                                                                            </> :
-                                                                                            (this.from.type == UIElementFamily.HorizontalLine) ?
-                                                                                                <HorizontalLine setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                </MemriImage>
+                    )
+                case UIElementFamily.HStack:
+                    return (
+                        <HStack alignment={this.get("alignment") ?? Alignment.top}
+                                spacing={this.get("spacing") ?? 0} clipped
+                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                            {this.renderChildren}
+                        </HStack>
+                    )
+                case UIElementFamily.VStack:
+                    return (
+                        <VStack alignment={this.get("alignment") ?? Alignment.leading}
+                                spacing={this.get("spacing") ?? 0} clipped
+                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                            {this.renderChildren}
+                        </VStack>
+                    )
+                case UIElementFamily.ZStack:
+                    return (
+                        <ZStack alignment={this.get("alignment") ?? Alignment.top}
+                                spacing={this.get("spacing") ?? 0} clipped
+                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                            {this.renderChildren}
+                        </ZStack>
+                    )
+                case UIElementFamily.Text:
+                    return (
+                        (this.from.processText(this.get("text")
+                            ?? this.get("nilText")
+                            ?? (this.get("allowNil", false) ? "" : undefined)))?.map((text) => {
+                                return <MemriText setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                    {text}
+                                    {/*.if(from.getBool("bold")) { $0.bold() }
+                                                    .if(from.getBool("italic")) { $0.italic() }
+                                                    .if(from.getBool("underline")) { $0.underline() }
+                                                    .if(from.getBool("strikethrough")) { $0.strikethrough() }
+                                                    .fixedSize(horizontal: false, vertical: true)*/}
+                                </MemriText>
+                            }
+                        )
+                    )
+                default:
+                    return (
+                        <VStack alignment={this.get("alignment") ?? Alignment.leading}
+                                spacing={this.get("spacing") ?? 0} clipped
+                                setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                            {this.renderChildren}
+                        </VStack>
+                    )
+            }
+        }
 
-                                                                                                </HorizontalLine> :
-                                                                                                (this.from.type == UIElementFamily.Rectangle) ?
-                                                                                                    <Rectangle setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                                                    </Rectangle> :
-                                                                                                    (this.from.type == UIElementFamily.RoundedRectangle) ?
-                                                                                                        <RoundedRectangle setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                                                        </RoundedRectangle> :
-                                                                                                        (this.from.type == UIElementFamily.Spacer) ?
-                                                                                                            <Spacer setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                                                            </Spacer> :
-                                                                                                            (this.from.type == UIElementFamily.Divider) ?
-                                                                                                                <MemriDivider setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                                                                </MemriDivider> :
-                                                                                                                (this.from.type == UIElementFamily.Empty) ?
-                                                                                                                    <Empty setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-
-                                                                                                                    </Empty> :
-                                                                                                                    <>
-                                                                                                                    {this.logWarning("Warning: Unknown UI element type '\(from.type)'")}
-                                                                                                                    </>
+        return null;
 
 
-
-                }
-            </Group>
-        )
     }
 
     logWarning(message: string) {

@@ -62,7 +62,7 @@ export class ResultSet {
 	/// Get the only item from the resultset if the set has size 1, else return nil. Note that
 	///  [singleton](https://en.wikipedia.org/wiki/Singleton_(mathematics)) is here in the mathematical sense.
 	get singletonItem() {
-		if (!this.isList && this.count > 0) { return this.items[0] }
+		if (this.isList && this.count > 0) { return this.items[0] }
 		else { return null }
 	}
 

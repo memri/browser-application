@@ -53,7 +53,7 @@ export class UIElement /*extends CVUToString */{
 			let expr = propValue
 			if (expr?.constructor?.name == "Expression") {
 				try {
-					//if (T.self == [DataItem].self) {//TODO
+					/*//if (T.self == [DataItem].self) {//TODO
 						let x =  expr.execute(args)
 
 						var result = []
@@ -70,9 +70,9 @@ export class UIElement /*extends CVUToString */{
 						}
 
 						return (result)
-					/*} else {
-						let x =  expr.execForReturnType(T.self/!*TODO*!/, viewArguments); return x
-					}*/
+					} else {*/
+						let x =  expr.execForReturnType(viewArguments); return x
+					//}
 				} catch (error) {
 					// TODO: Refactor error handling
 					debugHistory.error(`Could note compute ${propName}\n`
@@ -117,12 +117,12 @@ export class UIElement /*extends CVUToString */{
 		var outText = text
 		if (!outText) { return null }
 		outText = (this.get("removeWhiteSpace") ?? false) ? this.removeWhiteSpace(outText) : outText
-		outText = (this.get("maxChar")).map(function (item) {
+		/*outText = (this.get("maxChar"))?.map(function (item) {
 			String(outText.substring(parseInt(item)))//TODO
-		}) ?? outText
-		if (/\s*/.test(outText))
+		}) ?? outText*/
+		if (/^\s*$/.test(outText))
 			return null; // Return nil if blank
-		return outText
+		return [outText]
 	}
 
 	removeWhiteSpace(text: string) {//TODO
