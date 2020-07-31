@@ -1290,7 +1290,7 @@ export class ActionLink extends Action {
             throw "Exception: selected data item is not passed"
         }
 
-        let distinct = arguments["distinct"] ?? false;
+        let distinct = argumentsJs["distinct"] ?? false;
 
         subject.link(selected, edgeType, distinct)
 
@@ -1328,7 +1328,7 @@ export class ActionUnlink extends Action {
             throw "Exception: selected data item is not passed"
         }
 
-        let all = arguments["all"] ?? false
+        let all = argumentsJs["all"] ?? false
 
         subject.unlink(selected, edgeType, all)
 
