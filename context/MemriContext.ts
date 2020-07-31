@@ -293,7 +293,7 @@ export class MemriContext {
 
 	aliases = {}
 
-	getSubscript(propName) {
+	get (propName) {
 		let alias = this.aliases[propName]
 		if (alias) {
 			let value = this.settings.get(alias.key)
@@ -314,7 +314,7 @@ export class MemriContext {
 		return null
 	}
 
-	setSubscript(propName, newValue) {
+	set (propName, newValue) {
 		let alias = this.aliases[propName]
 		if (alias) {
 			this.settings.set(alias.key, newValue)//TODO
@@ -330,11 +330,11 @@ export class MemriContext {
 
 
 	get showSessionSwitcher() {
-		return /*this["showSessionSwitcher"]*/false
+		return this.get("showSessionSwitcher") == true
 	}
 
 	set showSessionSwitcher(value) {
-		this["showSessionSwitcher"] = value
+		this.set("showSessionSwitcher", value)
 	}
 
 	/*get showNavigationBinding() {
@@ -347,13 +347,12 @@ export class MemriContext {
 		// [weak self] in self?.showNavigation = $0//TODO
 	}*/
 
-	_showNavigation = true;
 	get showNavigation() {
-		return this._showNavigation;
+		return this.get("showNavigation") == true;
 	}
 
 	set showNavigation(value) {
-		this._showNavigation = value
+		this.set("showNavigation", value)
 	}
 
 	setSelection(selection: Item[]) {
