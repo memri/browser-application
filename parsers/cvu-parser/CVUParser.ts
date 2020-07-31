@@ -345,7 +345,7 @@ export class CVUParser {
 
         function addUIElement(type, properties) {//TODO:
             var children = dict["children"] || [];
-            let subChildren = Object.assign({},properties.children);
+            let subChildren = Object.assign([], properties.children);
             delete properties.children;
             children.push(new UIElement(type,
                 subChildren || [],
