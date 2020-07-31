@@ -4,7 +4,8 @@
 
 import * as React from "react";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
-import {ActionButton, font, HStack, MainUI, MemriDivider, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
+import {font, HStack, MainUI, MemriDivider, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
+import {ActionButton} from "../ActionView";
 
 export class Search extends MainUI{
 	init() {

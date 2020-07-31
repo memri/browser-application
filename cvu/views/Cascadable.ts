@@ -71,7 +71,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
     }
 
     setState(propName: string, value?) {
-        this.head[propName] = value
+        this.head.set(propName, value);
         delete this.localCache[propName]
     }
 
@@ -98,14 +98,14 @@ export class Cascadable/* extends CustomStringConvertible*/{
         }
 
         for (var def of this.cascadeStack) {
-            let expr = def[name]
+            let expr = def.get(name);
             if (expr?.constructor?.name == "Expression") {
                 this.localCache[name] = expr
                 return this.cascadeProperty(name)
             }
-            if (def[name] != null) {
-                this.localCache[name] = def[name]
-                return this.transformActionArray(def[name])
+            if (expr != undefined) {
+                this.localCache[name] = expr
+                return this.transformActionArray(expr)
             }
         }
 
@@ -124,7 +124,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
             var result = []
             var lut = [];
             for (let def of this.cascadeStack) {
-                let list = def[name];
+                let list: CVUParsedDefinition = def.get(name); //TODO:
                 if (Array.isArray(list)) {
                     for (let item of list) {
                         let key = uniqueKey(item);
@@ -163,7 +163,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
 
             var result = [];
             for (let def of this.cascadeStack) {
-                let x = def[name];
+                let x: CVUParsedDefinition = def.get(name);
                 if (Array.isArray(x)) {
                     if (!uniqueKey) {
                         this.localCache[name] = x
@@ -199,7 +199,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         if (forceArray) {
             for (var def of this.cascadeStack) {
                 let x = def[name]
-                if (typeof x === "object") {
+                if (typeof x.isCVUObject === "function") {
                     for (let [key, value] of Object.entries(x)) {
                         if (value) {
                             result[key] = value
@@ -237,14 +237,14 @@ export class Cascadable/* extends CustomStringConvertible*/{
         type = Cascadable
     ) {
         let x = this.localCache[propName]
-        if (x?.constructor?.name == type.toString()) { return x }
+        if (x?.constructor?.name == type.name) { return x }
 
-        let head = this.head.parsed[lookupName] ?? new parsedType();
-        this.head[lookupName] = head
+        let head = (this.head.get(lookupName)?.constructor.name == parsedType.name)? this.head.get(lookupName) : new parsedType();
+        this.head.set(lookupName, head);
 
-        let tail = this.tail.map((item) => { return (item[lookupName]?.constructor?.name == parsedType.constructor.name)? item[lookupName]: undefined }).filter((item) => item != undefined)
+        let tail = this.tail.map((item) => { return (item.get(lookupName)?.constructor?.name == parsedType.name)? item.get(lookupName): undefined }).filter((item) => item != undefined)
 
-        let cascadable = new type(head.parsed, tail, this);
+        let cascadable = new type(head, tail, this);
         this.localCache[propName] = cascadable
         return cascadable
     }

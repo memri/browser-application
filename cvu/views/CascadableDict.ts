@@ -83,7 +83,7 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 		let parsed = other.head.parsed
 		if (parsed) {
 			for (let [key, value] of Object.entries(parsed)) {
-				this.head[key] = value
+				this.head.set(key, value);
 			}
 		}
 
@@ -101,7 +101,7 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 		let merge = (parsed?) => {
 			if (!parsed) { return }
 			for (let [key, value] of Object.entries(parsed)) {
-				this.head[key] = value
+				this.head.set(key, value)
 			}
 		}
 

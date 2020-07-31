@@ -116,8 +116,8 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                     }
                 }
                 // Or if the sessions are encoded in the definition
-                else if (Array.isArray(p["sessionDefinitions"]) && p["sessionDefinitions"].length > 0 && p["sessionDefinitions"][0]?.constructor?.name == "CVUParsedSessionDefinition") {
-                    let parsedSessions = p["sessionDefinitions"];
+                else if (Array.isArray(p.get("sessionDefinitions")) && p.get("sessionDefinitions").length > 0 && p.get("sessionDefinitions")[0]?.constructor?.name == "CVUParsedSessionDefinition") {
+                    let parsedSessions = p.get("sessionDefinitions");
                     DatabaseController.tryWriteSync((realm) => {
                         for (let parsed of parsedSessions) {
                             let sessionState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
@@ -126,7 +126,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                         }
                     });
 
-                    this.parsed["sessionDefinitions"] = undefined;
+                    this.parsed.set("sessionDefinitions", undefined);
                 } else {
                     throw "CVU state definition is missing sessions"
                 }
@@ -140,7 +140,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     
     setState(name:string, value?) {
         if (this.parsed == undefined) { this.parsed = new CVUParsedSessionsDefinition() }
-        this.parsed[name] = value;
+        this.parsed.set(name, value);
         this.schedulePersist()
     }
     
@@ -218,7 +218,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                 throw "Installation is corrupt. Cannot recover."
             }
             
-            let defs = (parsed.parsed["sessionDefinitions"] ?? {}) //
+            let defs = (parsed.get("sessionDefinitions") ?? {}) //TODO:
             let allSessions = defs.map((item) => {
                 return CVUStateDefinition.fromCVUParsedDefinition(item)
             })

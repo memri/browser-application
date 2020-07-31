@@ -2,11 +2,12 @@
 // SubView.swift
 // Copyright © 2020 memri. All rights reserved.
 
+import * as React from "react";
 import {MainUI} from "../swiftUI";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {Browser} from "../browser/Browser";
-import * as React from "react";
+
 
 export class SubView extends MainUI {
     context: MemriContext
@@ -16,7 +17,7 @@ export class SubView extends MainUI {
     searchbar: boolean = true
     showCloseButton: boolean = false
 
-    init(context: MemriContext, viewName: string | CVUStateDefinition, item?: Item, viewArguments?: ViewArguments) {
+    /*init(context: MemriContext, viewName: string | CVUStateDefinition, item?: Item, viewArguments?: ViewArguments) {
         viewArguments = viewArguments ?? new ViewArguments();
         try {
             let args = viewArguments.resolve(item)
@@ -48,16 +49,14 @@ export class SubView extends MainUI {
             // TODO: Refactor: error handling
             debugHistory.error(`Error: cannot init subview: ${error}`)
         }
-    }
+    }*/
 
     render() {
-        this.context = this.props.context;
-        this.init(this.context, this.props.viewName, this.props.item, this.props.viewArguments);
+        //this.init(undefined, this.props?.viewName, this.props?.item, this.props?.viewArguments);
 
         return (
             <Browser inSubView={true} showCloseButton={this.showCloseButton} fullHeight context={this.proxyMain}>
                 {this.props.children}
             </Browser>
-        )
-    }
+        )    }
 }

@@ -26,11 +26,12 @@ export class CVUParsedDefinition {
         this.parsed = parsed
     }
     
-    subscript(propName:string) {
+    get(propName:string) {
+        //return [].concat(...this.parsed[propName]);
         return this.parsed && this.parsed[propName]
     }
 
-    setSubscript(propName:string, value) {
+    set(propName:string, value) {
         if (this.parsed == undefined) { this.parsed = {} }
         this.parsed[propName] = value
     }

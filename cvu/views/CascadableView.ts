@@ -238,7 +238,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         if (x?.constructor?.name == "CascadingRenderConfig") { return x }
 
         let getConfig = function(a: CVUParsedDefinition) {
-            let definitions = (a["rendererDefinitions"] ?? [])
+            let definitions = (a.get("rendererDefinitions") ?? [])
             // Prefer a perfectly matched definition
             return definitions.find((item) => item.name == this.activeRenderer )
                 // Else get the one from the parent renderer
@@ -247,7 +247,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
 
         let head = getConfig(this.head) ?? function(){
             let head = new CVUParsedRendererDefinition(`[renderer = ${this.activeRenderer}]`)
-            this.head["rendererDefinitions"] = [head]
+            this.head.set("rendererDefinitions", [head])
             return head
         }.bind(this)()
 
@@ -443,7 +443,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
             if (parsed != this.head) { this.tail.push(parsed) }
 
             let doInherit = (parsed: CVUParsedDefinition) => {
-                let inheritFrom = parsed["inherit"];
+                let inheritFrom = parsed.get("inherit");
                 if (inheritFrom) {
                     delete parsed.parsed["inherit"] //TODO:
 

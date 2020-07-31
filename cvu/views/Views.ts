@@ -530,7 +530,7 @@ export class Views {
 				throw "Unable to parse state definition"
 			}
 			let list = parsed["views"];
-			let p = list[parsed["currentViewIndex"] ?? 0];
+			let p = list[parsed["currentViewIndex"] ?? 0]; //TODO:
 			if
 			(Array.isArray(list) && list[0]?.constructor?.name == "CVUParsedViewDefinition" && p && typeof p == "number") {
 				view = CVUStateDefinition.fromCVUParsedDefinition(p)
@@ -545,7 +545,7 @@ export class Views {
 	}
 
 	// TODO: Refactor: Consider caching cascadingView based on the type of the item
-	renderItemCell(item?: Item,
+	renderItemCell(item?: Item, //TODO:
 							   rendererNames = [],
 							   viewOverride?,
 							   viewArguments?) {

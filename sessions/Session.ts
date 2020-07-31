@@ -112,7 +112,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                 .sorted("sequence")
                 .items("CVUStateDefinition")
 
-            let parsedViews = this.parsed.parsed["viewDefinitions"] //tODO:
+            let parsedViews = this.parsed.get("viewDefinitions")
 
             if (storedViewStates && storedViewStates.length > 0) {
                 for (let viewState of storedViewStates) {
@@ -193,7 +193,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
     
     setState(name: string, value?) {
         if (this.parsed == undefined) { this.parsed = new CVUParsedSessionDefinition() }
-        this.parsed[name] = value
+        this.parsed.set(name, value);
         this.schedulePersist()
     }
     
