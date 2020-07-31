@@ -16,20 +16,20 @@ import {CVUStateDefinition, EdgeSequencePosition} from "../model/items/Item";
 
 export class Session  /*extends Equatable, Subscriptable*/ {
     /// The name of the item.
-    get name() { return this.parsed["name"] }
+    get name() { return this.parsed.get("name") }
     set name(value) { this.setState("name", value) }
     /// TBD
-    get currentViewIndex(){ return Number(this.parsed["currentViewIndex"] ?? 0) }
+    get currentViewIndex(){ return Number(this.parsed.get("currentViewIndex") ?? 0) }
     set currentViewIndex(value) { this.setState("currentViewIndex", Number(value)) }
     /// TBD
-    get editMode(){ return Boolean(this.parsed["editMode"]) ?? false }
+    get editMode(){ return Boolean(this.parsed.get("editMode")) ?? false }
     set editMode(value) { this.setState("editMode", value) }
     /// TBD
 
-    get showContextPane(){ return Boolean(this.parsed["showContextPane"]) ?? false }
+    get showContextPane(){ return Boolean(this.parsed.get("showContextPane")) ?? false }
     set showContextPane(value) { this.setState("showContextPane", value) }
     /// TBD
-    get showFilterPanel(){ return Boolean(this.parsed["showFilterPanel"]) ?? false }
+    get showFilterPanel(){ return Boolean(this.parsed.get("showFilterPanel")) ?? false }
     set showFilterPanel(value) { this.setState("showFilterPanel", value) }
 
     /// TBD
@@ -130,7 +130,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                     }
                 })
                 
-                delete this.parsed?.parsed["viewDefinitions"]
+                delete this.parsed?.get("viewDefinitions")
             }
             else {
                 throw "CVU state definition is missing views"
@@ -141,31 +141,42 @@ export class Session  /*extends Equatable, Subscriptable*/ {
         }
     }
 
-    /*getSubscript {
-        switch propName {
-            case "name": return name
-            case "editMode": return editMode
-            case "showContextPane": return showContextPane
-            case "showFilterPanel": return showFilterPanel
-            case "screenshot": return screenshot
-            default: return nil
+    get(propName) {
+        switch (propName) {
+            case "name": return this.name;
+            case "editMode": return this.editMode
+            case "showContextPane": return this.showContextPane
+            case "showFilterPanel": return this.showFilterPanel
+            case "screenshot": return this.screenshot
+            default: return undefined;
         }
     }
-    set(value) {
-        switch propName {
-            case "name": name = value as? String
-            case "editMode": editMode = value as? Bool ?? false
-            case "showContextPane": showContextPane = value as? Bool ?? false
-            case "showFilterPanel": showFilterPanel = value as? Bool ?? false
-            case "screenshot": screenshot = value as? File
+
+    set(propName, value) {
+        switch (propName) {
+            case "name":
+                this.name = value;
+                break;
+            case "editMode":
+                this.editMode = value ?? false
+                break;
+            case "showContextPane":
+                this.showContextPane = value ?? false
+                break;
+            case "showFilterPanel":
+                this.showFilterPanel = value ?? false
+                break;
+            case "screenshot":
+                this.screenshot = value
+                break;
             default:
                 // Do nothing
-                debugHistory.warn("Unable to set property: \(propName)")
+                debugHistory.warn(`Unable to set property: ${propName}`)
                 return
         }
     }
-    
-    subscript(propName: String) -> Any? {
+/*
+subscript(propName: String) -> Any? {
         get {
             switch propName {
             case "name": return name
@@ -189,7 +200,9 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                 return
             }
         }
-    }*/
+    }
+
+ */
     
     setState(name: string, value?) {
         if (this.parsed == undefined) { this.parsed = new CVUParsedSessionDefinition() }
@@ -222,7 +235,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
             let stateViewEdges = state?.edges("view")?.sorted("sequence")
             if (stateViewEdges) {
                 var i = 0
-                for (let edge in stateViewEdges) {
+                for (let edge of stateViewEdges) {
                     if (edge.targetItemID == this.views[i].uid) {
                         i += 1
                         continue
