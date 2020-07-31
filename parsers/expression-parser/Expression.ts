@@ -72,7 +72,7 @@ export class Expression {
                         return
                     }
                     else if (typeof obj.subscript == "function") {
-                        obj[lastProperty.name] = !(obj[lastProperty.name] ?? false)
+                        obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
                         return
                     }
                 }

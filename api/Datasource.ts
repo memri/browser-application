@@ -111,7 +111,7 @@ export class CascadingDatasource extends Cascadable/*  implements UniqueString, 
 		result.push((this.query ?? "")) //TODO: .sha256()
 		result.push(this.sortProperty ?? "")
 
-		let sortAsc = this.sortAscending.value ?? true
+		let sortAsc = this.sortAscending ?? true
 		result.push(String(sortAsc))
 
 		return result.join(":")
@@ -125,7 +125,7 @@ export class CascadingDatasource extends Cascadable/*  implements UniqueString, 
 		) //TODO:
 	}
 
-	getSubscript(propName: string) {
+	get (propName: string) {
 		switch (propName) {
 			case "query":
 				return this.query
@@ -138,7 +138,7 @@ export class CascadingDatasource extends Cascadable/*  implements UniqueString, 
 		}
 	}
 
-	setSubscript(propName: string, value) {
+	set (propName: string, value) {
 		switch (propName) {
 			case "query":
 				return this.query = value ?? ""

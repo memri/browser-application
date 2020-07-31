@@ -348,7 +348,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         super(head, tail, host)
     }*/
 
-    getSubscript(propName) {
+    get (propName) {
         switch (propName) {
             case "name": return name
             case "datasource": return this.datasource
@@ -374,7 +374,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         }
     }
 
-    setSubscript (propName, value) {
+    set (propName, value) {
         switch (propName) {
             case "name": this.name = String(value) ?? ""; break
             // case "datasource": this.datasource = value; break
@@ -552,7 +552,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
     }
 
     reload() {
-        this.resultSet.load( (error) => {
+        this.resultSet.load(true, (error) => {
             if (error) {
             // TODO: Refactor: Log warning to user
                 debugHistory.error(`Exception: could not load result: ${error}`)
@@ -597,7 +597,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
                 // Load the cascade list of views
                 this.cascade(resultSet)
 
-                this.resultSet.load((error) => {
+                this.resultSet.load(true, (error) => {
                     if (error) {
                         // TODO: Refactor: Log warning to user
                         debugHistory.error(`Exception: could not load result: ${error}`)
@@ -620,7 +620,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
         }
         // Otherwise let's execute the query first to be able to read the type from the data
         else {
-            resultSet.load((error) => {
+            resultSet.load(true, (error) => {
                 if (error) {
                     // TODO: Error handling
                     debugHistory.error(`Exception: could not load result: ${error}`)
