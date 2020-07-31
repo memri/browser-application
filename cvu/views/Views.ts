@@ -408,6 +408,8 @@ export class Views {
 						} else {
 							value = v[node] // How to handle errors?
 						}
+					} else if (typeof v == "object") {//Subscriptable
+						value = v[node.name]
 					}
 				}
 			}

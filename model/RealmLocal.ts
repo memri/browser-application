@@ -2,6 +2,13 @@ import * as DB from "./defaults/default_database.json";
 /*let fs = require("fs");
 var DB = fs.readFileSync("./defaults/default_database.json");*/
 
+DB.forEach(function(x, i) {
+    if (!x.uid)
+        x.uid = (i + 1) + 1000000
+    else
+        console.log(x.uid)
+})
+
 export class Realm {
     db;
 
@@ -56,9 +63,7 @@ export class RealmObjects extends Array {
     filtered(query: string) {
         //TODO: we need parse query, not eval it... "selector = '[sessions = defaultSessions]'"
         let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)(\w+)\s*=\s*(\w+|('[^']*'))/g,"item['$1'] == $2").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
-        return this.filter((item)=>{
-            return eval(newquery);
-        });
+        return this.filter(new Function("item", "return " + newquery));
         //return this;
     }
 

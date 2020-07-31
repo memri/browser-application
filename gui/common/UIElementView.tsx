@@ -88,7 +88,7 @@ export class UIElementView extends MainUI {
         }*/ //TODO:
     }
 
-    render() {
+    render(){
         var x = this.render1()
         if (x === undefined) debugger
         return x || null
@@ -138,7 +138,7 @@ export class UIElementView extends MainUI {
             return new CVUStateDefinition()
         } //TODO: ();
 
-        //if (!this.has("show") || this.get("show") == true) {
+        if (!this.has("show") || this.get("show") == true) {
             switch (this.from.type) {
                 case UIElementFamily.Image:
                     return (
@@ -212,7 +212,7 @@ export class UIElementView extends MainUI {
                         </VStack>
                     )
             }
-       // }
+        }
 
         return null;
 

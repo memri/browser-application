@@ -1,42 +1,8 @@
 "use strict";
 
+var defaults = require("../cvu/cvulist");
+var example = require("text-loader!../playground/example.view"),
 
-var defaults = {
-    example: require("text-loader!../playground/example.view"),
-    /*require("text-loader!../cvu/defaults/default_user_views.json"),*/
-    /*require("text-loader!../cvu/defaults/macro_views.json"),*/
-    "All-items-with-label": require("text-loader!../cvu/defaults/named/All-items-with-label.cvu"),
-    "Choose-item-by-query": require("text-loader!../cvu/defaults/named/Choose-item-by-query.cvu"),
-    "Filter-starred": require("text-loader!../cvu/defaults/named/Filter-starred.cvu"),
-    /*require("text-loader!../cvu/defaults/named_sessions.json"),*/
-    /*require("text-loader!../cvu/defaults/named_views.json",)*/
-    generalEditor: require("text-loader!../cvu/defaults/renderer/generalEditor.cvu"),
-    chart: require("text-loader!../cvu/defaults/renderer/chart.cvu"),
-    list: require("text-loader!../cvu/defaults/renderer/list.cvu"),
-    thumbnail: require("text-loader!../cvu/defaults/renderer/thumbnail.cvu"),
-    Sessions: require("text-loader!../cvu/defaults/Session/Sessions.cvu"),
-    defaults: require("text-loader!../cvu/defaults/styles/defaults.cvu"),
-    /*require("text-loader!../cvu/defaults/template_views.json"),*/
-    Address: require("text-loader!../cvu/defaults/type/Address.cvu"),
-    Any: require("text-loader!../cvu/defaults/type/Any.cvu"),
-    AuditItem: require("text-loader!../cvu/defaults/type/AuditItem.cvu"),
-    Country: require("text-loader!../cvu/defaults/type/Country.cvu"),
-    Importer: require("text-loader!../cvu/defaults/type/Importer.cvu"),
-    ImporterInstance: require("text-loader!../cvu/defaults/type/ImporterInstance.cvu"),
-    Indexer: require("text-loader!../cvu/defaults/type/Indexer.cvu"),
-    IndexerInstance: require("text-loader!../cvu/defaults/type/IndexerInstance.cvu"),
-    Label: require("text-loader!../cvu/defaults/type/Label.cvu"),
-    Mixed: require("text-loader!../cvu/defaults/type/Mixed.cvu"),
-    Note: require("text-loader!../cvu/defaults/type/Note.cvu"),
-    /*require("text-loader!../cvu/defaults/type/Person-markup.ml"),*/
-    Person: require("text-loader!../cvu/defaults/type/Person.cvu"),
-    Photo: require("text-loader!../cvu/defaults/type/Photo.cvu"),
-    Session: require("text-loader!../cvu/defaults/type/Session.cvu"),
-    /*require("text-loader!../cvu/defaults/type/Session.json"),*/
-    SessionView: require("text-loader!../cvu/defaults/type/SessionView.cvu"),
-    UserNote: require("text-loader!../cvu/defaults/user/UserNote.cvu-disabled"),
-    /*require("text-loader!../cvu/defaults/views_from_server.json"),*/
-};
 
 var all = {}
 var selectors = {}
