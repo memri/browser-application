@@ -320,7 +320,7 @@ export class MemriContext {
 			this.settings.set(alias.key, newValue)//TODO
 
 			let x = newValue
-			if (typeof x === "boolean") { x ? alias.on() : alias.off() }
+			if (typeof x === "boolean") { x ? (alias.on && alias.on()) : (alias.off && alias.off()) }
 
 			this.scheduleUIUpdate(true)
 		} else {
