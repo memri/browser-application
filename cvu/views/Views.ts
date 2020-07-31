@@ -440,6 +440,7 @@ export class Views {
 
 		return value
 	}
+	lookupValueOfVariables = this.lookupValueOfVariables.bind(this)
 
 	executeFunction(lookup, args, viewArguments?) {
 		let f = this.lookupValueOfVariables(lookup,
@@ -457,6 +458,7 @@ export class Views {
 		let x = undefined;
 		return x
 	}
+	executeFunction = this.executeFunction.bind(this)
 
 	fetchDefinitions(selector?: string, name?: string, type?: string, query?: string, domain?: string) {
 		var filter = [];
