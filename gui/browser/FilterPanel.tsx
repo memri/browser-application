@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
-import {allRenderers, FilterPanelRendererButton} from "../../cvu/views/Renderers";
+import {allRenderers} from "../../cvu/views/Renderers";
 import {
 	ASTableView, font,
 	frame,

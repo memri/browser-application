@@ -335,7 +335,7 @@ subscript(propName: String) -> Any? {
     }
 
     takeScreenShot(immediate: boolean = false) {
-        let view = UIApplication.shared.windows[0].rootViewController?.view
+        /*let view = UIApplication.shared.windows[0].rootViewController?.view
 		if (view) {
             let uiImage = view.takeScreenShot()
 			if (uiImage) {
@@ -364,7 +364,7 @@ subscript(propName: String) -> Any? {
 			}
 		}
 
-		debugHistory.error("Unable to create screenshot")
+		debugHistory.error("Unable to create screenshot")*/
 	}
 
 	/*public static func == (lt: Session, rt: Session) -> Bool {

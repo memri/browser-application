@@ -51,16 +51,18 @@ export class ActionButton extends MainUI {
 		let action = this.action ?? new ActionNoop(this.context);
 
 		// NOTE: Allowed force unwrappings (logic)
-		switch (action.getRenderAs(this.context.currentView?.viewArguments)) {
-			case RenderType.popup:
-				return <ActionPopupButton action={action} item={this.item}/>
-			case RenderType.button:
-				return <ActionButtonView action={action} context={this.context}/>
-			/* {
-				self.context.executeAction(action)
-            })*/
-			default:
-				return <ActionButtonView action={action}/>
+		if (this.context) { //TODO:
+			switch (action.getRenderAs(this.context.currentView?.viewArguments)) {
+				case RenderType.popup:
+					return <ActionPopupButton action={action} item={this.item}/>
+				case RenderType.button:
+					return <ActionButtonView action={action} context={this.context}/>
+				/* {
+                    self.context.executeAction(action)
+                })*/
+				default:
+					return <ActionButtonView action={action}/>
+			}
 		}
 	}
 }

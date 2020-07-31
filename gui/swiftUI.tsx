@@ -231,8 +231,10 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         }
         var fixedProps = {}
         if (this.props.setProperties) {
+            //this.context = this.props.setProperties.context;
             fixedProps = this.setProperties(this.props.setProperties.properties, undefined, undefined , this.props.setProperties.viewArguments);
         }
+
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
         return styles;
     }
