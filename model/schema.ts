@@ -1339,7 +1339,7 @@ export function dataItemListToArray(object) {
     else if (object[0]?.constructor?.name == "Device") { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0]?.constructor?.name == "Diet") { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0]?.constructor?.name == "Downloader") { object.forEach(function (item) {collection.push(item)}) }
-    //else if (object[0]?.constructor?.name == "Edge") { return object.itemsArray() }
+    else if (object[0]?.constructor?.name == "Edge") { return object.itemsArray() }
     else if (object[0]?.constructor?.name == "File") { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0]?.constructor?.name == "Importer") { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0]?.constructor?.name == "ImporterRun") { object.forEach(function (item) {collection.push(item)}) }

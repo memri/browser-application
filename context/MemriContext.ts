@@ -56,6 +56,10 @@ class Alias {
 }
 
 export class MemriContext {
+	subscript() {
+		//mock function;
+	}
+
 	realm = new Realm();
 	name = ""
 

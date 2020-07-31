@@ -8,6 +8,10 @@ import {ItemReference} from "../../model/DatabaseController";
 import {CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 
 export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptable*/ {
+	subscript() {
+		//mock function;
+	}
+
 	get(name: string, type = CascadableDict) {
 		let value = this.cascadeProperty(name)
 		if (!value) {

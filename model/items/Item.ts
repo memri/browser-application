@@ -824,29 +824,27 @@ Object.assign(RealmObjects.prototype, {
     items(type) { return this.lookup(type) },
     targets(type) { return this.lookup(type) },
     sources(type) { return this.lookup(type, Direction.source) },
-    /*itemsArray(type _: T.Type? = T.self) -> [T] {
-    var result = [T]()
+    itemsArray() {
+        var result = [];
 
-    for edge in self {
-        if let target = edge.target() as? T {
-            result.append(target)
+        for (let edge of this) {
+            let target = edge.target();
+            if (target) {
+                result.push(target)
+            }
         }
-    }
 
-    return result
-}
-func edgeArray() -> [Edge] {
-        var result = [Edge]()
+        return result
+    },
+    edgeArray() {
+        var result = [];
 
-        for edge in self {
-            result.append(edge)
+        for (let edge of this) {
+            result.push(edge)
         }
 
         return result
     }
-*/
-
-
 })
 
 enum Direction {

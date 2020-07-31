@@ -15,6 +15,10 @@ import {ActionFamily} from "../cvu/views/Action";
 import {CVUStateDefinition, EdgeSequencePosition} from "../model/items/Item";
 
 export class Session  /*extends Equatable, Subscriptable*/ {
+    subscript() {
+        //mock function;
+    }
+
     /// The name of the item.
     get name() { return this.parsed.get("name") }
     set name(value) { this.setState("name", value) }

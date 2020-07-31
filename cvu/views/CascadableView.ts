@@ -23,7 +23,11 @@ import {allRenderers, CascadingRenderConfig} from "./Renderers";
 
 
 
-export class CascadableView extends Cascadable/*, ObservableObject*/ {//TODO
+export class CascadableView extends Cascadable/*, ObservableObject*/ {
+    subscript() {
+        //mock function;
+    }
+
     context?: MemriContext
     session?: Session
 
