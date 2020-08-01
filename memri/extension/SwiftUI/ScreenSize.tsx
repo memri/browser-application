@@ -19,7 +19,7 @@
 
 import * as React from 'react';
 import {frame, MainUI} from "../../gui/swiftUI";
-import {geom} from "../../demo-react";
+import {geom} from "../../../demo-react";
 interface ScreenSizerProps { background?: string; colorScheme?: string; content? }
 
 export class ScreenSizer extends MainUI {

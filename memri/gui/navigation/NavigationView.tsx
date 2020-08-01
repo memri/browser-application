@@ -20,7 +20,7 @@ import {
 	MemriButton,
 	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI
 } from "../swiftUI";
-import {geom} from "../../demo-react";
+import {geom} from "../../../demo-react";
 import {List, ListItem} from "@material-ui/core";
 
 

@@ -110,7 +110,7 @@ export class CVUParser {
     lookup;
     execFunc;
 
-    constructor(tokens, context, lookup, execFunc) {
+    constructor(tokens, context?, lookup?, execFunc?) {
         this.context = context;
         this.tokens = tokens;
         this.lookup = lookup;

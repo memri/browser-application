@@ -1,6 +1,6 @@
 "use strict";
 
-var defaults = require("../cvu/cvulist");
+var defaults = require("../memri/cvu/cvulist");
 var example = require("text-loader!../playground/example.view"),
 
 

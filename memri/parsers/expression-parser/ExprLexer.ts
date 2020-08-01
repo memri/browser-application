@@ -306,7 +306,7 @@ export class ExprLexer {
     input
     startInStringMode
 
-    constructor(input, startInStringMode) {
+    constructor(input: string, startInStringMode?: boolean) {
         this.input = input
         this.startInStringMode = startInStringMode
     }

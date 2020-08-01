@@ -6,8 +6,8 @@ importScripts(require("file-loader?esModule=false!ace-builds/src-noconflict/work
 
 
 
-import {ExprParser} from "./parsers/expression-parser/ExprParser"
-import {ExprLexer} from "./parsers/expression-parser/ExprLexer"
+import {ExprParser} from "./memri/parsers/expression-parser/ExprParser"
+import {ExprLexer} from "./memri/parsers/expression-parser/ExprLexer"
 
 
 
@@ -16,14 +16,14 @@ var tokens = new ExprLexer("true ? x : false").tokenize()
 new ExprParser(tokens).parse()
 
 
-import {CVUValidator} from "./parsers/cvu-parser/CVUValidator"
-import {CVUParser} from "./parsers/cvu-parser/CVUParser"
-import {CVULexer} from "./parsers/cvu-parser/CVULexer"
-import {CVUSerializer} from "./parsers/cvu-parser/CVUToString";
+import {CVUValidator} from "./memri/parsers/cvu-parser/CVUValidator"
+import {CVUParser} from "./memri/parsers/cvu-parser/CVUParser"
+import {CVULexer} from "./memri/parsers/cvu-parser/CVULexer"
+import {CVUSerializer} from "./memri/parsers/cvu-parser/CVUToString";
 
 
-import {parseCVU} from "./parsers/editor/cvu";
-import {getCompletions} from "./parsers/editor/completions";
+import {parseCVU} from "./playground/parser/cvu";
+import {getCompletions} from "./playground/parser/completions";
 
 
 var validate = function(input, doc) { 
