@@ -33,7 +33,7 @@ function parse() {
             }
         })
     })
-}   
+}
  
 
 
@@ -46,31 +46,32 @@ export var mockApi = {
         if (path == "search_by_fields" || path == "items_with_edges" && method == "POST") {
             return callback(null, JSON.parse(JSON.stringify(mockdata)));
         }
-        if (path == "items" && method == "POST") {
-            mockdata.push(JSON.parse(body))
-            return callback()
-        }
-        var uid, item, index;
-        if (path.startsWith("items/"))
-            uid = parseInt(path.slice(6))
-        
-        mockdata.some(function(x, i) {
-            if (x.uid == uid) {
-                item = x
-                index = i;
-                return true
-            };
-        })
-        if (!uid || !item)
-            return callback(new Error());
-        
-        if (method == "PUT") {
-            mockdata[index] = JSON.parse(body)
-            return callback(null, uid)
-        }
-        if (method == "DELETE") {
-            mockdata.splice(index, 1);
-            return callback(null, uid)
+        if (method == "POST") {
+            var payload = JSON.parse(body);
+            if (path == "create_item") {
+                mockdata.push(payload)
+                return callback()
+            }
+            var uid = typeof payload == "object" ? payload?.uid : payload
+            
+            mockdata.some(function(x, i) {
+                if (x.uid == uid) {
+                    item = x
+                    index = i;
+                    return true
+                };
+            })
+            if (!uid || !item)
+                return callback(new Error());
+            
+            if (path == "update_item") {
+                mockdata[index] = payload
+                return callback(null, uid)
+            }
+            if (path == "delete_item") {
+                mockdata.splice(index, 1);
+                return callback(null, uid)
+            }
         }
     }
 }

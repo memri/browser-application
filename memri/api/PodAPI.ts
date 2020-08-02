@@ -1,5 +1,6 @@
 import {settings} from "../model/Settings"
 import {debugHistory} from "../cvu/views/ViewDebugger";
+import {Authentication} from "./Authentication";
 
 export class PodAPI {
     key;
@@ -16,11 +17,18 @@ export class PodAPI {
         this.mockApi = mockApi
     }
     
-    async http({method = "GET", path = "", body, data}, callback) {
+    async http({method = "POST", path = "", payload}, callback) {
+        await Authentication.getOwnerAndDBKey((error, ownerKey, databaseKey) => {
+            this.httpWithKeys({method, path, payload, ownerKey, databaseKey}, callback);
+        });
+    } 
+    
+    async httpWithKeys({method = "POST", path = "", payload, ownerKey, databaseKey}, callback) {
 
         let podhost = this.host ?? settings.get("user/pod/host")
         if (podhost == "mock") {
-            return this.mockApi.http({method, path, body, data}, callback);
+            let body = JSON.stringify(payload);
+            return this.mockApi.http({method, path, body}, callback);
         }
         
         if (podhost && !/^http/.test(podhost)) podhost = "http://" + podhost;
@@ -32,21 +40,12 @@ export class PodAPI {
             return
         }
 
-        url.pathname += "v1/" + path
+        url.pathname += `v2/${ownerKey}/${path}`
         
-        let username = this.username ?? settings.get("user/pod/username");
-        let password = this.password ?? settings.get("user/pod/password");
-        
-        let loginString = undefined;
-        if (username && password) {
-            loginString = btoa(`${username}:${password}`)
-            loginString = `Basic ${loginString}`;
-        }
         let headers = {
             "Content-Type": "application/json"
-        }
-        if (loginString)
-            headers.Authorization = loginString
+        };
+        let body = JSON.stringify({ databaseKey, payload });
         
         var result, error
         try {
@@ -313,7 +312,7 @@ export class PodAPI {
     ///   - callback: Function that is called when the task is completed either with the new uid, or an error
     create(item, callback, uid) {
     
-        this.http({method: "POST", path: "items", body: this.toJSON(item, true)}, function(error, data) {
+        this.http({path: "create_item", payload: item}, function(error, data) {
             callback(error, data)
         })
     }
@@ -323,7 +322,7 @@ export class PodAPI {
     ///   - item: The data item to update on the pod
     ///   - callback: Function that is called when the task is completed either with the new version number, or an error
     update(item, callback, uid) {
-        this.http({method: "PUT", path: `items/${item.uid}`, body: this.toJSON(item, true)}, function(error, data) {
+        this.http({path: `update_item`, payload: item}, function(error, data) {
             callback(error, data)
         })
     }
@@ -334,7 +333,7 @@ export class PodAPI {
     ///   - callback: Function that is called when the task is completed either with a result, or  an error
     /// - Remark: Note that data items that are marked as deleted are by default not returned when querying
     remove(memriID, callback, uid) {
-        this.http({method: "DELETE", path: `items/${memriID}`}, function(error, data) {
+        this.http({ path: "delete_item", payload: memriID}, function(error, data) {
             callback(error, data)
         })
     } 
@@ -357,32 +356,26 @@ export class PodAPI {
         let query = queryOptions.query || ""
         let matches = query.match(/^(\w+) AND uid = '(.+)'$/)
 
+        let payload = {}
+        
         if (matches) {
             let type = matches[1]
             let uid = matches[2]
 
-            data = `
-            {
-                "_type": "${type}",
-                "uid": ${uid}
-            }
-            `/*.data(using: .utf8)*///TODO
+            payload._type = type
+            payload.uid = uid
         } else {
             let type = query.match(/^(\w+)$/)[1]//TODO
             if (type) {
-                console.log(`Requesting query result of ${type}: ${queryOptions.query ?? ""}`)
-                data = `
-                {
-                    "_type": "${type}"
-                }
-                `/*.data(.utf8)*///TODO
+                console.log(`Requesting query result of ${type}: ${queryOptions.query || ""}`)
+                payload._type = type
             } else {
                 callback("Not implemented yet", null)
                 return
             }
         }
 
-        this.http({method: "POST", path: "search_by_fields", body: data}, function (error, items) {
+        this.http({ path: "search_by_fields", payload }, function (error, items) {
             if (error) {
                 console.error(`Could not load data from pod: \n${error}`)
                 callback(error, null)
@@ -441,105 +434,4 @@ export class PodAPI {
     
     
     
-//    queryNLP(query, callback, result) {}
-//
-//    queryDSL(query, callback, result) {}
-//
-//    queryRAW(query, callback, result) {}
-
-//    import() {}
-//    export() {}
-//    sync() {}
-//    index() {}
-//    convert() {}
-//    augment() {}
-//    automate() {}
-//
-//    streamResource(URI, options, callback, stream) {}
 }
-
-/*
-{
-          item(func: eq(isPartiallyLoaded, true)) {
-            uid
-            ~syncState {
-              expand(_all_) {
-                uid
-                name
-                comment
-                color
-                isPartiallyLoaded
-                version
-              }
-            }
-          }
-        }
-        
-        {
-          get(func: type(note)) @filter(NOT anyofterms(title, "3") OR eq(starred, false)) @recurse {
-            uid
-            type : dgraph.type
-            expand(note)
-          }
-        }
-        This will give you the uid and type of both note node and the label nodes that are linked to it via labels edge, and all properties of note. If you want more properties of the linked label, you can either specify it e.g. name under expand(note) , or if you want all of them, do query like this:
-        {
-          get(func: type(note)) @filter(NOT anyofterms(title, "3") OR eq(starred, false)) @recurse {
-            uid
-            type : dgraph.type
-            expand(_all_)
-          }
-        }
-        @recurse(depth:2)
-        
-        
-        {
-          get(func: anyofterms(title, "5")) @recurse {
-            uid
-            type : dgraph.type
-            expand(note)
-          }
-        }
-        The expand() trick as I wrote in the last post also applies here, so if you want only uid and type of 2nd layer nodes, you use expand(note) (all properties of the 1st layer node). I give the result here:
-        {
-          "data": {
-            "get": [
-              {
-                "uid": "0x2",
-                "dgraph.type": [
-                  "note"
-                ],
-                "title": "Shopping list 5",
-                "content": "- tomatoes\n- icecream"
-                "labels": [
-                  {
-                    "uid": "0x1",
-                    "dgraph.type": [
-                      "label"
-                    ]
-                  },
-                  {
-                    "uid": "0x6",
-                    "dgraph.type": [
-                      "label"
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-            
-            
-            {
-              item(func: anyofterms(name, "Home"))  {
-                ~labels {
-                  uid
-                  dgraph.type
-                  expand(note) {
-                    uid
-                }
-                }
-              }
-            }
-*/
-

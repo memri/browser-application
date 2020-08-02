@@ -22,7 +22,7 @@ import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
-import {PodAPI} from "../api/api";
+import {PodAPI} from "../api/PodAPI";
 import {Expression} from "../parsers/expression-parser/Expression";
 import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
 import {Sessions} from "../sessions/Sessions";
