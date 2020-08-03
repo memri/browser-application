@@ -38,11 +38,10 @@
 /// Based on a query, Sync checks whether it still has the latest version of the resulting Items. It does this asynchronous and in the
 /// background, items are updated automatically.
 import {Datasource} from "../api/Datasource";
-import {Edge} from "./items/Item";
+import {Edge,AuditItem, getItemType, ItemFamily} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "./Cache";
 import {DatabaseController, ItemReference} from "./DatabaseController";
-import {AuditItem, getItemType, ItemFamily} from "./schema";
 
 export class Sync {
 	/// PodAPI Object to use for executing queries

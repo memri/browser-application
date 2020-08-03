@@ -81,7 +81,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         })*/
     }
 
-    load(context: MemriContext, state?) {//TODO: added this for JS
+    load(context: MemriContext) {//TODO: added this for JS
         if (this.isDefault && this.uid == undefined) {
             this.uid = settings.get("device/sessions/uid")
             if (this.uid == undefined) {
@@ -94,11 +94,8 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
         DatabaseController.tryRead((realm) => {
             console.log(realm.objects("CVUStateDefinition"));
-            if (!state)
-                state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
+            let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
             if (state) {
-                if (!(state?.constructor?.name == "CVUStateDefinition"))
-                    state = new CVUStateDefinition(state);
                 let p = context.views.parseDefinition(state);
                 if (!(p?.constructor?.name == "CVUParsedSessionsDefinition")) {
                     throw "Unable to parse state definition"
@@ -213,8 +210,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
             let templateQuery = "selector = '[sessions = defaultSessions]'";
             let template = realm.objects("CVUStoredDefinition").filtered(templateQuery)[0];
             let parsed = context.views.parseDefinition(template);
-            //let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid);
-            if (!template || !parsed /*|| !state*/) {
+            if (!template || !parsed) {
                 throw "Installation is corrupt. Cannot recover."
             }
             
@@ -223,7 +219,6 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                 return CVUStateDefinition.fromCVUParsedDefinition(item)
             })
             let state = CacheMemri.createItem("CVUStateDefinition")
-            state = new CVUStateDefinition(state); //TODO: should be a better way
             for (let session of allSessions) {
                 state.link(session, "session", EdgeSequencePosition.last)
             }
@@ -234,10 +229,10 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
             this.parsed = parsed /*as? CVUParsedSessionsDefinition*/
             console.log(realm.objects("CVUStoredDefinition"));
-            //delete this.parsed?.parsed["sessionDefinitions"]; //TODO:
+            delete this.parsed?.parsed["sessionDefinitions"]; //TODO:
             
-            state = this.persist(state)
-            this.load(context, state)
+            this.persist(state)
+            this.load(context)
         })
 	}
 

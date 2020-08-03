@@ -25,7 +25,7 @@
  Display any errors in the console
  */
 
-import {UUID} from "../../model/items/Item";
+//import {UUID} from "../../model/items/Item";
 
 enum InfoType {//TODO
 	info, warn, error
@@ -50,7 +50,7 @@ enum InfoType {//TODO
 import {settings} from "../../model/Settings";
 
 class InfoState /*extends Hashable*/ {
-	id = UUID()
+	id /*= UUID()*/
 
 /*	static function == (lhs: InfoState, rhs: InfoState) -> Bool {//TODO
 		lhs.id == rhs.id

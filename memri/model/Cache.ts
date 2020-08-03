@@ -9,12 +9,11 @@ import * as DB from "./defaults/default_database.json";
 import {getItem} from "../gui/util";
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Item, Edge} from "./items/Item";
+import {Item, Edge, getItemType, ItemFamily} from "./items/Item";
 import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "./DatabaseController";
 import {Realm} from "./RealmLocal";
 import {Sync} from "./Sync";
-import {getItemType, ItemFamily} from "./schema";
 export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
@@ -568,7 +567,6 @@ export class CacheMemri {
 				item["_action"] = "create"
 			}
 
-			item = new Item(item);
 			if (item && type != "AuditItem") {
 				let auditItem = CacheMemri.createItem("AuditItem", {"action": "create"})
 				item.link(auditItem, "changelog");

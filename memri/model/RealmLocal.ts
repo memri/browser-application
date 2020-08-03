@@ -1,12 +1,13 @@
 import * as DB from "./defaults/default_database.json";
+import {getItemType} from "./items/Item";
 /*let fs = require("fs");
 var DB = fs.readFileSync("./defaults/default_database.json");*/
 
 DB.forEach(function(x, i) {
     if (!x.uid)
         x.uid = (i + 1) + 1000000
-    else
-        console.log(x.uid)
+    /*else
+        console.log(x.uid)*/
 })
 
 export class Realm {
@@ -19,17 +20,19 @@ export class Realm {
     objects(type?) {
         let realmObjects = new RealmObjects();
         if (type) {
-            realmObjects.push(...this.db.filter((item) => item["_type"] == type));
-            //new RealmObjects(this.db.filter((item) => item["_type"] == type));
+            realmObjects.push(...this.db.filter((item) => item["_type"] == type).map((item) => new (getItemType(item["_type"]))(item)));
             return realmObjects
         }
-        realmObjects.push(...this.db);
+        realmObjects.push(...this.db.map((item) => new (getItemType(item["_type"]))(item)));
         return realmObjects;
     }
 
     objectForPrimaryKey(type, key) {
         let obj = this.db.filter((item) => item["_type"] == type && item["uid"] && item["uid"] == key);
-        return (obj.length > 0) ? obj[0] : undefined;
+        if (obj.length > 0) {
+            let objType = obj[0]["_type"];
+            return new (getItemType(objType))(obj[0]);
+        }
     }
 
     create(type, properties) {
@@ -37,7 +40,7 @@ export class Realm {
             _type: type,
             ...properties
         }
-        this.db.push(obj);
+        this.db.push(new (getItemType(obj["_type"]))(obj));
         return this.db[this.db.length - 1];
     }
 
@@ -63,7 +66,7 @@ export class RealmObjects extends Array {
     filtered(query: string) {
         //TODO: we need parse query, not eval it... "selector = '[sessions = defaultSessions]'"
         let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)(\w+)\s*=\s*(\w+|('[^']*'))/g,"item['$1'] == $2").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
-        return this.filter(new Function("item", "return " + newquery));
+        return this.filter(new Function("item", "return " + newquery))
         //return this;
     }
 

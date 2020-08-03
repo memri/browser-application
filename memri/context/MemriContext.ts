@@ -17,7 +17,7 @@
  */
 
 // TODO: Remove this and find a solution for Edges
-import {CVUStateDefinition, Item} from "../model/items/Item";
+import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {settings} from "../model/Settings";
@@ -32,7 +32,6 @@ import {MainNavigation} from "../gui/navigation/MainNavigation";
 import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
 import {Realm} from "../model/RealmLocal";
-import {getItemType, ItemFamily} from "../model/schema";
 import {ViewArguments} from "../cvu/views/CascadableDict";
 
 export var globalCache
@@ -493,10 +492,10 @@ export class MemriContext {
 				if (action.argumentTypes[argName] == ViewArguments.constructor) {
 					finalValue = new ViewArguments(dict).resolve(item, viewArgs)
 				}
-				else if (action.argumentTypes[argName] == ItemFamily.constructor) {
+				/*else if (action.argumentTypes[argName] == ItemFamily.constructor) {
 					finalValue = this.getItem(Expression.resolve(dict, viewArguments), item)
-				}
-				else if (action.argumentTypes[argName] == CVUStateDefinition.constructor) {
+				}*/ //TODO:
+				else if (action.argumentTypes[argName]?.constructor?.name == "CVUStateDefinition") {
 					let viewDef = new CVUParsedViewDefinition("[view]")
 					viewDef.parsed = dict
 					finalValue = CVUStateDefinition.fromCVUParsedDefinition(viewDef)
@@ -647,7 +646,7 @@ export class RootContext extends MemriContext {
 			// Reload for easy adjusting
 			this.views.context = this
 			this.views.install()
-			this.sessions.install(this);
+			//this.sessions.install(this);
 		}
 		//	#endif*/
 

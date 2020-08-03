@@ -13,9 +13,8 @@ import {getItem} from "../../gui/util";
 import {Languages} from "./Languages";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
-import {dataItemListToArray} from "../../model/schema";
-import {RealmObjects} from "../../model/RealmLocal";
-import {CVUStateDefinition} from "../../model/items/Item";
+//import {RealmObjects} from "../../model/RealmLocal";
+import {CVUStateDefinition, dataItemListToArray} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
 import {CascadingRenderConfig} from "./Renderers";
 

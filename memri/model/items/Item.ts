@@ -1,12 +1,16 @@
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
-import {Views} from "../../cvu/views/Views";
 import {decodeEdges, jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, unserialize} from "../../gui/util";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {DatabaseController, ItemReference} from "../DatabaseController";
-import {getItemType, ItemFamily} from "../schema";
 import {RealmObjects, Realm} from "../RealmLocal";
+import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {Datasource} from "../../api/Datasource";
+import {Person} from "./Other";
+import {Session} from "../../sessions/Session";
+import {Sessions} from "../../sessions/Sessions";
+import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
@@ -122,14 +126,14 @@ export class Item extends SchemaItem {
         }
 
         this.functions["describeChangelog"] = function () {
-            let dateCreated = Views.formatDate(this.dateCreated);
+            let dateCreated = this.dateCreate//Views.formatDate(this.dateCreated); //TODO:
             let views = this.changelog?.filter(item => {
                 return item.action == "read"
             }).length ?? 0;
             let edits = this.changelog?.filter(item => {
                 return item.action == "update"
             }).length ?? 0
-            let timeSinceCreated = Views.formatDateSinceCreated(this.dateCreated);
+            let timeSinceCreated = this.dateCreated //Views.formatDateSinceCreated(this.dateCreated); //TODO:
             return `You created this ${this.genericType} ${dateCreated} and viewed it ${views} times and edited it ${edits} times over the past ${timeSinceCreated}`
         }.bind(this)
 
@@ -701,8 +705,6 @@ export class Item extends SchemaItem {
                 return
             }
 
-            item = new Item(item);
-
             let previousModified = item.dateModified
             item.dateModified = new Date()
             if (!item["_updated"]) {
@@ -1071,15 +1073,22 @@ export class Edge {
 
     constructor(type: string = "edge", source, target,
         sequence?: number, label?: string, action?: string) {
-
-        this.type = type
-        this.sourceItemType = source[0]
-        this.sourceItemID.value = source[1]
-        this.targetItemType = target[0]
-        this.targetItemID.value = target[1]
-        this.sequence.value = sequence
-        this.edgeLabel = label
-        this._action = action
+        if (typeof type != "string") {
+            if (type) {
+                for (let key in type) {
+                    this[key] = type[key];
+                }
+            }
+        } else {
+            this.type = type
+            this.sourceItemType = source[0]
+            this.sourceItemID.value = source[1]
+            this.targetItemType = target[0]
+            this.targetItemID.value = target[1]
+            this.sequence.value = sequence
+            this.edgeLabel = label
+            this._action = action
+        }
     }
 }
 
@@ -1136,4 +1145,1017 @@ export class CVUStateDefinition extends CVUStoredDefinition {
             this[key] = objectFromRealm[key];
         }
     }
+}
+
+//----------------------------------------------------schema.ts
+
+export enum ItemFamily {
+    typeAuditItem = "AuditItem",
+    typeCompany = "Company",
+    typeCreativeWork = "CreativeWork",
+    typeDigitalDocument = "DigitalDocument",
+    typeComment = "Comment",
+    typeNote = "Note",
+    typeMediaObject = "MediaObject",
+    typeAudio = "Audio",
+    typePhoto = "Photo",
+    typeVideo = "Video",
+    typeCVUStoredDefinition = "CVUStoredDefinition",
+    typeCVUStateDefinition = "CVUStateDefinition",
+    typeDatasource = "Datasource",
+    typeDevice = "Device",
+    typeDiet = "Diet",
+    typeDownloader = "Downloader",
+    typeEdge = "Edge",
+    typeFile = "File",
+    typeImporter = "Importer",
+    typeImporterRun = "ImporterRun",
+    typeIndexer = "Indexer",
+    typeIndexerRun = "IndexerRun",
+    typeLabel = "Label",
+    typeLocation = "Location",
+    typeAddress = "Address",
+    typeCountry = "Country",
+    typeMedicalCondition = "MedicalCondition",
+    typeNavigationItem = "NavigationItem",
+    typeOnlineProfile = "OnlineProfile",
+    typePerson = "Person",
+    typePhoneNumber = "PhoneNumber",
+    typePublicKey = "PublicKey",
+    typeSession = "Session",
+    typeSessions = "Sessions",
+    typeSessionView = "SessionView",
+    typeSetting = "Setting",
+    typeSyncState = "SyncState",
+    typeUserState = "UserState",
+    typeViewArguments = "ViewArguments",
+    typeWebsite = "Website",
+}
+
+//export var discriminator = Discriminator._type //TODO:
+
+export var backgroundColor = function(name) {
+    switch (name) {
+        case ItemFamily.typeAuditItem: return new Color("#93c47d")
+        case ItemFamily.typeCompany: return new Color("#93c47d")
+        case ItemFamily.typeCreativeWork: return new Color("#93c47d")
+        case ItemFamily.typeDigitalDocument: return new Color("#93c47d")
+        case ItemFamily.typeComment: return new Color("#93c47d")
+        case ItemFamily.typeNote: return new Color("#ccb94b ")
+        case ItemFamily.typeMediaObject: return new Color("#93c47d")
+        case ItemFamily.typeAudio: return new Color("#93c47d")
+        case ItemFamily.typePhoto: return new Color("#93c47d")
+        case ItemFamily.typeVideo: return new Color("#93c47d")
+        case ItemFamily.typeCVUStoredDefinition: return new Color("#93c47d")
+        case ItemFamily.typeCVUStateDefinition: return new Color("#93c47d");
+        case ItemFamily.typeDatasource: return new Color("#93c47d")
+        case ItemFamily.typeDevice: return new Color("#93c47d")
+        case ItemFamily.typeDiet: return new Color("#37af1c")
+        case ItemFamily.typeDownloader: return new Color("#93c47d")
+        case ItemFamily.typeEdge: return new Color("#93c47d")
+        case ItemFamily.typeFile: return new Color("#93c47d")
+        case ItemFamily.typeImporter: return new Color("#93c47d")
+        case ItemFamily.typeImporterRun: return new Color("#93c47d")
+        case ItemFamily.typeIndexer: return new Color("#93c47d")
+        case ItemFamily.typeIndexerRun: return new Color("#93c47d")
+        case ItemFamily.typeLabel: return new Color("#93c47d")
+        case ItemFamily.typeLocation: return new Color("#93c47d")
+        case ItemFamily.typeAddress: return new Color("#93c47d")
+        case ItemFamily.typeCountry: return new Color("#93c47d")
+        case ItemFamily.typeMedicalCondition: return new Color("#3dc8e2")
+        case ItemFamily.typeNavigationItem: return new Color("#93c47d")
+        case ItemFamily.typeOnlineProfile: return new Color("#93c47d")
+        case ItemFamily.typePerson: return new Color("#3a5eb2")
+        case ItemFamily.typePhoneNumber: return new Color("#eccf23")
+        case ItemFamily.typePublicKey: return new Color("#93c47d")
+        case ItemFamily.typeSetting: return new Color("#93c47d")
+        case ItemFamily.typeUserState: return new Color("#93c47d")
+        case ItemFamily.typeViewArguments: return new Color("#93c47d")
+        case ItemFamily.typeWebsite: return new Color("#3d57e2")
+    }
+}
+
+export var foregroundColor = function(name) {
+    switch (name) {
+        case ItemFamily.typeAuditItem: return new Color("#ffffff")
+        case ItemFamily.typeCompany: return new Color("#ffffff")
+        case ItemFamily.typeCreativeWork: return new Color("#ffffff")
+        case ItemFamily.typeDigitalDocument: return new Color("#ffffff")
+        case ItemFamily.typeComment: return new Color("#ffffff")
+        case ItemFamily.typeNote: return new Color("#ffffff")
+        case ItemFamily.typeMediaObject: return new Color("#ffffff")
+        case ItemFamily.typeAudio: return new Color("#ffffff")
+        case ItemFamily.typePhoto: return new Color("#ffffff")
+        case ItemFamily.typeVideo: return new Color("#ffffff")
+        case ItemFamily.typeCVUStoredDefinition: return new Color("#ffffff")
+        case ItemFamily.typeCVUStateDefinition: return new Color("#ffffff")
+        case ItemFamily.typeDatasource: return new Color("#ffffff")
+        case ItemFamily.typeDevice: return new Color("#ffffff")
+        case ItemFamily.typeDiet: return new Color("#ffffff")
+        case ItemFamily.typeDownloader: return new Color("#ffffff")
+        case ItemFamily.typeEdge: return new Color("#ffffff")
+        case ItemFamily.typeFile: return new Color("#ffffff")
+        case ItemFamily.typeImporter: return new Color("#ffffff")
+        case ItemFamily.typeImporterRun: return new Color("#ffffff")
+        case ItemFamily.typeIndexer: return new Color("#ffffff")
+        case ItemFamily.typeIndexerRun: return new Color("#ffffff")
+        case ItemFamily.typeLabel: return new Color("#ffffff")
+        case ItemFamily.typeLocation: return new Color("#ffffff")
+        case ItemFamily.typeAddress: return new Color("#ffffff")
+        case ItemFamily.typeCountry: return new Color("#ffffff")
+        case ItemFamily.typeMedicalCondition: return new Color("#ffffff")
+        case ItemFamily.typeNavigationItem: return new Color("#ffffff")
+        case ItemFamily.typeOnlineProfile: return new Color("#ffffff")
+        case ItemFamily.typePerson: return new Color("#ffffff")
+        case ItemFamily.typePhoneNumber: return new Color("#ffffff")
+        case ItemFamily.typePublicKey: return new Color("#ffffff")
+        case ItemFamily.typeSetting: return new Color("#ffffff")
+        case ItemFamily.typeUserState: return new Color("#ffffff")
+        case ItemFamily.typeViewArguments: return new Color("#ffffff")
+        case ItemFamily.typeWebsite: return new Color("#ffffff")
+    }
+}
+
+export var getPrimaryKey = function(name) {
+    return new (getItemType(name))().primaryKey() ?? ""
+}
+
+export var getItemType = function(name) {
+    switch (name) {
+        case ItemFamily.typeAuditItem: return AuditItem
+        case ItemFamily.typeCompany: return Company
+        case ItemFamily.typeCreativeWork: return CreativeWork
+        case ItemFamily.typeDigitalDocument: return DigitalDocument
+        case ItemFamily.typeComment: return Comment
+        case ItemFamily.typeNote: return Note
+        case ItemFamily.typeMediaObject: return MediaObject
+        case ItemFamily.typeAudio: return Audio
+        case ItemFamily.typePhoto: return Photo
+        case ItemFamily.typeVideo: return Video
+        case ItemFamily.typeCVUStoredDefinition: return CVUStoredDefinition
+        case ItemFamily.typeCVUStateDefinition: return CVUStateDefinition
+        case ItemFamily.typeDatasource: return Datasource
+        case ItemFamily.typeDevice: return Device
+        case ItemFamily.typeDiet: return Diet
+        case ItemFamily.typeDownloader: return Downloader
+        case ItemFamily.typeEdge: return Edge
+        case ItemFamily.typeFile: return File
+        case ItemFamily.typeImporter: return Importer
+        case ItemFamily.typeImporterRun: return ImporterRun
+        case ItemFamily.typeIndexer: return Indexer
+        case ItemFamily.typeIndexerRun: return IndexerRun
+        case ItemFamily.typeLabel: return Label
+        case ItemFamily.typeLocation: return Location
+        case ItemFamily.typeAddress: return Address
+        case ItemFamily.typeCountry: return Country
+        case ItemFamily.typeMedicalCondition: return MedicalCondition
+        case ItemFamily.typeNavigationItem: return NavigationItem
+        case ItemFamily.typeOnlineProfile: return OnlineProfile
+        case ItemFamily.typePerson: return Person
+        case ItemFamily.typePhoneNumber: return PhoneNumber
+        case ItemFamily.typePublicKey: return PublicKey
+        case ItemFamily.typeSession: return Session
+        case ItemFamily.typeSessions: return Sessions
+        case ItemFamily.typeSessionView: return SessionView
+        case ItemFamily.typeSetting: return Setting
+        case ItemFamily.typeSyncState: return SyncState
+        case ItemFamily.typeUserState: return UserState
+        case ItemFamily.typeViewArguments: return ViewArguments
+        case ItemFamily.typeWebsite: return Website
+    }
+}
+
+
+/// TBD
+export class AuditItem extends Item {
+    /// Date of death.
+    date: Date
+    /// TBD
+    content
+    /// TBD
+    action
+
+    /// TBD
+    get appliesTo() {
+        return this.edges("appliesTo")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder);
+
+
+
+        /*
+                jsonErrorHandling(function () {
+                    this.date = decoder.decodeIfPresent("date") ?? this.date
+                    this.content = decoder.decodeIfPresent("content") ?? this.content
+                    this.action = decoder.decodeIfPresent("action") ?? this.action
+
+                    this.superDecode(decoder)
+                }.bind(this))*/
+    }
+}
+
+/// A business corporation.
+export class Company extends Item {
+    /// TBD
+    type
+    /// The name of the item.
+    name
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// The most generic kind of creative work, including books, movies, photographs, software
+/// programs, etc.
+export class CreativeWork extends Item{
+    /// An abstract is a short description that summarizes a CreativeWork.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// A license document that applies to this content, typically indicated by URL.
+    license
+    /// A text that belongs to this item.
+    text
+
+    /// A media object that encodes this CreativeWork. This property is a synonym for encoding.
+    get associatedMedia() {
+        return this.edges("associatedMedia")?.items(MediaObject)
+    }
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the CreativeWork was created, which may not be the same as the
+    /// location depicted in the CreativeWork.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this content or rating.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// An electronic file or document.
+export class DigitalDocument extends Item {
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// A comment.
+export class Comment extends Item{
+    /// TBD
+    content
+    /// TBD
+    textContent
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// A file containing a note.
+export class Note extends Item {
+    /// TBD
+    title
+    /// TBD
+    content
+    /// TBD
+    textContent
+
+    /// TBD
+    get comment() {
+        return this.edges("comment")?.items(Comment)
+    }
+
+    constructor(objectFromRealm?) {
+        super(objectFromRealm);
+
+        if (objectFromRealm) {
+            for (let key in objectFromRealm) {
+                this[key] = objectFromRealm[key];
+            }
+        }
+        /*jsonErrorHandling(function () {
+            this.title = decoder.decodeIfPresent("title") ?? this.title
+            this.content = decoder.decodeIfPresent("content") ?? this.content
+            this.textContent = decoder.decodeIfPresent("textContent") ?? this.textContent
+
+            this.superDecode(decoder)
+        }.bind(this))*/
+    }
+}
+
+/// A media object, such as an image, video, or audio object embedded in a web page or a
+/// downloadable dataset i.e. DataDownload. Note that a creative work may have many media objects
+/// associated with it on the same web page. For example, a page about a single song (MusicRecording)
+/// may have a music video (VideoObject), and a high and low bandwidth audio stream (2 AudioObject's).
+export class MediaObject extends Item {
+    /// The endTime of something. For a reserved event or service, the time that it is expected
+    /// to end. For actions that span a period of time, when the action was performed. e.g. John wrote a
+    /// book from January to December. For media, including audio and video, it's the time offset of the
+    /// end of a clip within a larger file.
+    endTime: Date
+    /// Location of the actual bytes of the media object, for example the image file or video
+    /// file.
+    fileLocation
+    /// Size of the application / package (e.g. 18MB). In the absence of a unit (MB, KB etc.),
+    /// KB will be assumed.
+    fileSize
+    /// The startTime of something. For a reserved event or service, the time that it is
+    /// expected to start. For actions that span a period of time, when the action was performed. e.g.
+    /// John wrote a book from January to December. For media, including audio and video, it's the time
+    /// offset of the start of a clip within a larger file.
+    startTime: Date
+    /// The bitrate of the media object.
+    bitrate
+    /// TBD
+    duration
+    /// The height of the item.
+    height
+    /// The width of the item.
+    width
+
+    /// TBD
+    get file() {
+        return this.edge("file")?.target(File)
+    }
+
+    /// TBD
+    get includes() {
+        return this.edges("includes")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// An audio file.
+export class Audio extends Item {
+    /// The caption for this object. For downloadable machine formats (closed caption, subtitles
+    /// etc.) use MediaObject and indicate the encodingFormat.
+    caption
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The name of the item.
+    name
+    /// The bitrate of the media object.
+    bitrate
+    /// TBD
+    duration
+
+    /// TBD
+    get file() {
+        return this.edge("file")?.target(File)
+    }
+
+    /// TBD
+    get includes() {
+        return this.edges("includes")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// An image file.
+export class Photo extends Item{
+    /// The caption for this object. For downloadable machine formats (closed caption, subtitles
+    /// etc.) use MediaObject and indicate the encodingFormat.
+    caption
+    /// Exif data for this object.
+    exifData
+    /// The name of the item.
+    name
+    /// The width of the item.
+    width
+    /// The height of the item.
+    height
+
+    /// Thumbnail image for an image or video.
+    get thumbnail() {
+        return this.edge("thumbnail")?.target(File)
+    }
+
+    /// TBD
+    get file() {
+        return this.edge("file")?.target(File)
+    }
+
+    /// TBD
+    get includes() {
+        return this.edges("includes")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// A video file.
+export class Video extends Item{
+    /// The caption for this object. For downloadable machine formats (closed caption, subtitles
+    /// etc.) use MediaObject and indicate the encodingFormat.
+    caption
+    /// Exif data for this object.
+    exifData
+    /// The name of the item.
+    name
+    /// The width of the item.
+    width
+    /// The height of the item.
+    height
+    /// TBD
+    duration
+
+    /// Thumbnail image for an image or video.
+    get thumbnail() {
+        return this.edges("thumbnail")?.items(File)
+    }
+
+    /// TBD
+    get file() {
+        return this.edge("file")?.target(File)
+    }
+
+    /// TBD
+    get includes() {
+        return this.edges("includes")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// A business corporation.
+export class Device extends Item{
+    /// TBD
+    deviceID
+    /// TBD
+    make
+    /// TBD
+    manufacturer
+    /// TBD
+    model
+    /// The name of the item.
+    name
+    /// TBD
+    dateAquired: Date
+    /// TBD
+    dateLost: Date
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class Diet extends Item {
+    /// TBD
+    type
+    /// TBD
+    addition
+    /// The name of the item.
+    name
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class Downloader extends Item{
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class File extends Item{
+    /// The uri property represents the Uniform Resource Identifier (URI) of a resource.
+    uri
+
+    /// TBD
+    get usedBy() {
+        return this.edges("usedBy")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class Importer extends Item{
+    /// The name of the item.
+    name
+    /// TBD
+    dataType
+    /// TBD
+    icon
+    /// TBD
+    bundleImage
+
+    /// TBD
+    get importerRun() {
+        return this.edges("importerRun")?.items(ImporterRun)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class ImporterRun extends Item {
+    /// The name of the item.
+    name
+    /// TBD
+    dataType
+
+    /// TBD
+    get importer() {
+        return this.edge("importer")?.target(Importer)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// An indexer enhances your personal data by inferring facts over existing data and adding those
+/// to the database.
+export class Indexer extends Item{
+    /// The name of the item.
+    name
+    /// TBD
+    icon
+    /// TBD
+    query
+    /// TBD
+    bundleImage
+    /// TBD
+    runDestination
+
+    /// TBD
+    get indexerRun() {
+        return this.edges("indexerRun")?.items(IndexerRun)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// A run of a certain Indexer.
+export class IndexerRun extends Item{
+    /// The name of the item.
+    name
+    /// TBD
+    query
+    /// TBD
+    progress
+
+    /// TBD
+    get indexer() {
+        return this.edge("indexer")?.target(Indexer)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class Label extends Item{
+    /// The color of this thing.
+    color
+    /// The name of the item.
+    name
+
+    /// TBD
+    get comment() {
+        return this.edges("comment")?.items(Comment)
+    }
+
+    /// TBD
+    get appliesTo() {
+        return this.edges("appliesTo")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// The location of something.
+export class Location extends Item{
+    /// TBD
+    latitude
+    /// TBD
+    longitude
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// A postal address.
+export class Address extends Item{
+    /// A city or town.
+    city
+    /// The postal code. For example, 94043.
+    postalCode
+    /// A state or province of a country.
+    state
+    /// The street address. For example, 1600 Amphitheatre Pkwy.
+    street
+    /// TBD
+    type
+
+    /// TBD
+    get country() {
+        return this.edge("country")?.target(Country)
+    }
+
+    /// The location of for example where the event is happening, an organization is located, or
+    /// where an action takes place.
+    get location() {
+        return this.edge("location")?.target(Location)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class Country extends Item{
+    /// The name of the item.
+    name
+
+    /// TBD
+    get flag() {
+        return this.edge("flag")?.target(File)
+    }
+
+    /// The location of for example where the event is happening, an organization is located, or
+    /// where an action takes place.
+    get location() {
+        return this.edge("location")?.target(Location)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class MedicalCondition extends Item{
+    /// TBD
+    type
+    /// The name of the item.
+    name
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class NavigationItem extends Item{
+    /// TBD
+    title
+    /// TBD
+    sessionName
+    /// TBD
+    type
+    /// TBD
+    sequence
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class OnlineProfile extends Item{
+    /// TBD
+    type
+    /// TBD
+    handle
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// A person (alive, dead, undead, or fictional).
+export class SchemaPerson extends Item{
+    /// Date of birth.
+    birthDate: Date
+    /// Email address.
+    email
+    /// Date of death.
+    deathDate: Date
+    /// Family name. In the U.S., the last name of an Person. This can be used along with
+    /// givenName instead of the name property.
+    firstName
+    /// Given name. In the U.S., the first name of a Person. This can be used along with
+    /// familyName instead of the name property.
+    lastName
+    /// The sexual orientation of a person.
+    gender
+    /// The gender of a person.
+    sexualOrientation
+    /// The height of the item.
+    height
+    /// TBD
+    shoulderWidth
+    /// TBD
+    armLength
+
+    /// Physical address of the event or place.
+    get address() {
+        return this.edges("address")?.items(Address)
+    }
+
+    /// The place where the person was born.
+    get birthPlace() {
+        return this.edge("birthPlace")?.target(Location)
+    }
+
+    /// The place where the person died.
+    get deathPlace() {
+        return this.edge("deathPlace")?.target(Location)
+    }
+
+    /// TBD
+    get profilePicture() {
+        return this.edge("profilePicture")?.target(Photo)
+    }
+
+    /// A relation between two persons.
+    get relationship() {
+        return this.edges("relationship")?.items(Person)
+    }
+
+    /// A phone number.
+    get hasPhoneNumber() {
+        return this.edges("hasPhoneNumber")?.items(PhoneNumber)
+    }
+
+    /// TBD
+    get website() {
+        return this.edges("website")?.items(Website)
+    }
+
+    /// TBD
+    get company() {
+        return this.edges("company")?.items(Company)
+    }
+
+    /// TBD
+    get publicKey() {
+        return this.edges("publicKey")?.items(PublicKey)
+    }
+
+    /// TBD
+    get onlineProfile() {
+        return this.edges("onlineProfile")?.items(OnlineProfile)
+    }
+
+    /// TBD
+    get diet() {
+        return this.edges("diet")?.items(Diet)
+    }
+
+    /// TBD
+    get medicalCondition() {
+        return this.edges("medicalCondition")?.items(MedicalCondition)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class PhoneNumber extends Item{
+    /// A phone number with an area code.
+    phoneNumber
+    /// TBD
+    type
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class PublicKey  extends Item {
+    /// TBD
+    type
+    /// TBD
+    key
+    /// The name of the item.
+    name
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class SchemaSession extends Item {
+    /// TBD
+    currentViewIndex: number = 0
+    /// TBD
+    editMode: boolean = false
+    /// The name of the item.
+    name
+    /// TBD
+    showContextPane: boolean = false
+    /// TBD
+    showFilterPanel: boolean = false
+
+    /// TBD
+    get screenshot() {
+        return this.edge("screenshot")?.target(File)
+    }
+
+    /// TBD
+    get views() {
+        return this.edges("view")?.sorted("sequence").items(SessionView)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class SchemaSessions extends Item{
+    /// TBD
+    currentSessionIndex: number = 0
+
+    /// TBD
+    get sessions() {
+        return this.edges("session")?.sorted("sequence").items(Session)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class SessionView extends Item {
+    /// The name of the item.
+    name
+
+    /// TBD
+    get datasource() {
+        return this.edge("datasource")?.target(Datasource)
+    }
+
+    /// TBD
+    get session() {
+        return this.edge("session")?.target(Session)
+    }
+
+    /// TBD
+    get userState() {
+        return this.edge("userState")?.target(UserState)
+    }
+
+    /// TBD
+    get viewDefinition() {
+        return this.edge("viewDefinition")?.target(CVUStoredDefinition)
+    }
+
+    /// TBD
+    get viewArguments() {
+        return this.edge("viewArguments")?.target(ViewArguments)
+    }
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class Setting extends Item {
+    /// TBD
+    key
+    /// TBD
+    json
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class SyncState extends Item{
+    updatedFields = []
+    /// TBD
+    isPartiallyLoaded: boolean = false
+    /// TBD
+    actionNeeded
+    /// TBD
+    changedInThisSession: boolean = false
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+/// TBD
+export class Website  extends Item{
+    /// TBD
+    type
+    /// URL of the item.
+    url
+
+    constructor(decoder) {
+        super(decoder);
+    }
+}
+
+export function dataItemListToArray(object) {
+    var collection = []
+    if (!Array.isArray(object) || !object.length) return
+    if (object[0]?.constructor?.name == "Item") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "AuditItem") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Company") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "CreativeWork") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "DigitalDocument") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Comment") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Note") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "MediaObject") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Audio") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Photo") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Video") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "CVUStoredDefinition") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Device") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Diet") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Downloader") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Edge") { return object.itemsArray() }
+    else if (object[0]?.constructor?.name == "File") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Importer") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "ImporterRun") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Indexer") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "IndexerRun") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Label") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Location") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Address") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Country") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "MedicalCondition") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "NavigationItem") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "OnlineProfile") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Person") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "PhoneNumber") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "PublicKey") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Session") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Sessions") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "SessionView") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Setting") { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0]?.constructor?.name == "Website") { object.forEach(function (item) {collection.push(item)}) }
+
+    return collection
 }

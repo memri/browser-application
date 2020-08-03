@@ -15,7 +15,6 @@ import {
 } from "../../parsers/cvu-parser/CVUParser";
 import {debugHistory} from "./ViewDebugger";
 import {UUID} from "../../model/items/Item";
-import {dataItemListToArray} from "../../model/schema";
 import {ViewArguments} from "./CascadableDict";
 
 export class UIElement /*extends CVUToString */{
