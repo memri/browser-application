@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import * as DB from "./defaults/default_database.json";
-import {getItem} from "../gui/util";
+import {getItem, serialize} from "../gui/util";
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Item, Edge, getItemType, ItemFamily} from "./items/Item";
@@ -50,10 +50,17 @@ export class CacheMemri {
 		try {
 			//let jsonData = jsonDataFromFile(dbName)
 			let dicts = DB;//require("text-loader!./defaults/default_database.json"); //MemriJSONDecoder(jsonData)
-			let items = {}
+			dicts.forEach(function(x, i) {
+				if (!x.uid)
+					x.uid = (i + 1) + 1000000
+				/*else
+                    console.log(x.uid)*/
+			})
+
+			let items = new Map();
 			var lut = {}
 
-			/*function recur(dict) {
+			function recur(dict) {
 				var values = {}
 				let type = dict["_type"];
 				let itemType = getItemType(type);
@@ -77,19 +84,19 @@ export class CacheMemri {
 							continue
 						}
 
-						/!*if (realm.schema[type][key]?.type == "date") {//TODO
+						/*if (realm.schema[type][key]?.type == "date") {//TODO
 							values[key] = new Date(
 								Number((value ?? 0) / 1000))
-						} else {*!/
+						} else {*/
 							values[key] = value
 						//}
 					}
 				}
 
-				let obj = CacheMemri.createItem(itemType, values);
+				let obj = CacheMemri.createItem(type, values);
 				let item = obj, allEdges = dict["allEdges"]
-				if (item?.constructor?.name == "Item" && allEdges) {//TODO: isCvuObject?
-					items[item] = allEdges
+				if (Array.isArray(allEdges)) {//TODO: isCvuObject?
+					items.set(item, allEdges);
 				}
 
 				return obj
@@ -112,7 +119,7 @@ export class CacheMemri {
 
 					var edge: Edge;
 					let targetDict = edgeDict["target"];
-					if (typeof targetDict == "string") {
+					if (typeof targetDict == "object") {
 						let target = recur(targetDict);
 						edge = CacheMemri.createEdge(
 							item,
@@ -142,7 +149,7 @@ export class CacheMemri {
 						item.allEdges.push(edge)
 					})
 				}
-			}*/
+			}
 
 		} catch (error) {
 			console.log(`Failed to Install: ${error}`)

@@ -7,7 +7,6 @@ import {DatabaseController, ItemReference} from "../DatabaseController";
 import {RealmObjects, Realm} from "../RealmLocal";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {Datasource} from "../../api/Datasource";
-import {Person} from "./Other";
 import {Session} from "../../sessions/Session";
 import {Sessions} from "../../sessions/Sessions";
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
@@ -89,14 +88,14 @@ export class Item extends SchemaItem {
     get toString() {
         var str = `${this.genericType} ${this.realm == undefined ? "[UNMANAGED] " : ""}{\n`
             + `    uid: ${this.uid == undefined ? "null" : String(this.uid ?? 0)}\n`
-            + `    _updated: ${this["_updated"].length == 0 ? "[]" : `[${this["_updated"].join(", ")}]`}\n`
-            + "    " + this.objectSchema.properties
+            + `    _updated: ${!this["_updated"] || this["_updated"].length == 0 ? "[]" : `[${this["_updated"].join(", ")}]`}\n`
+            + "    " + Object.keys(this)
                 .filter(item => {
-                    return this[item.name] != undefined && item.name != "allEdges"
-                        && item.name != "uid" && item.name != "_updated"
+                    return this[item] != undefined && item != "allEdges"
+                        && item != "uid" && item != "_updated"
                 })
                 .map(item => {
-                    `${item.name}: ${CVUSerializer.valueToString(this[item.name])}`
+                    `${item}: ${CVUSerializer.valueToString(this[item])}`
                 })
                 .join("\n    ");
 
@@ -104,7 +103,7 @@ export class Item extends SchemaItem {
         str += (this.allEdges.length > 0 ? "\n\n    " : "")
             + this.allEdges
                 .map(item => {
-                    item.toString()
+                    return item.toString
                 })
                 .join("\n    ")
             + "\n}"
@@ -1768,9 +1767,13 @@ export class Label extends Item{
     name
 
     /// TBD
-    get comment() {
+   /* get comment() {
         return this.edges("comment")?.items(Comment)
     }
+
+    set comment(value) {
+        this.set("comment", value);
+    }*/
 
     /// TBD
     get appliesTo() {
@@ -2158,4 +2161,24 @@ export function dataItemListToArray(object) {
     else if (object[0]?.constructor?.name == "Website") { object.forEach(function (item) {collection.push(item)}) }
 
     return collection
+}
+
+export class Person extends SchemaPerson {
+    get computedTitle(): string {
+        return `${this.firstName ?? ""} ${this.lastName ?? ""}`
+    }
+
+    /// Age in years
+    get age(): number {
+        if (this.birthDate) {
+            return //Calendar.current.dateComponents([.year], from: birthDate, to: Date()).year //TODO:
+        }
+        return undefined;
+    }
+
+    constructor(decoder) {
+        super(decoder)
+
+        //this.functions["age"] = () => { return this.age }
+    }
 }

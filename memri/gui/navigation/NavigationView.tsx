@@ -22,6 +22,7 @@ import {
 } from "../swiftUI";
 import {geom} from "../../../demo-react";
 import {List, ListItem} from "@material-ui/core";
+import {MainNavigation} from "./MainNavigation";
 
 
 interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}
@@ -141,6 +142,7 @@ class Navigation extends MainUI {
 	}
 
 	getNavigationItems() {
+		this.context.navigation = new MainNavigation(); //TODO:
 		let navigationItems = this.context.navigation.getItems();
 		return navigationItems.map((navItem) => {
 			switch (navItem.type) {

@@ -12,6 +12,7 @@ import {debugHistory} from "../cvu/views/ViewDebugger";
 
 //import * as path from "path";
 import {Realm} from "./RealmLocal";
+var realm;
 
 export class ItemReference {
     uid: number
@@ -104,7 +105,10 @@ export class DatabaseController {
 	
 	/// This function returns a Realm for the current thread
 	static getRealm() {
-		return new Realm()
+		if (!realm) {
+			realm = new Realm();
+		}
+		return realm;
 	}
 	
 	static get realmQueue() {

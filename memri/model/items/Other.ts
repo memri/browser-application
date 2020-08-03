@@ -69,29 +69,7 @@ extension MedicalCondition {
 		type ?? ""
 	}
 }*/
-import {Item} from "./Item";
-import {CacheMemri} from "../Cache";
 
-
-export class Person /*extends SchemaPerson*/ {
-	get computedTitle(): string {
-		return `${this.firstName ?? ""} ${this.lastName ?? ""}`
-	}
-
-	/// Age in years
-	get age(): number {
-		if (this.birthDate) {
-			return //Calendar.current.dateComponents([.year], from: birthDate, to: Date()).year //TODO:
-		}
-		return undefined;
-	}
-
-	constructor() {
-		//super()
-
-		this.functions["age"] = () => { return this.age }
-	}
-}
 
 /*extension AuditItem {
 	override var computedTitle: String {

@@ -1,26 +1,28 @@
-import * as DB from "./defaults/default_database.json";
+//import * as DB from "./defaults/default_database.json";
 import {getItemType} from "./items/Item";
 /*let fs = require("fs");
 var DB = fs.readFileSync("./defaults/default_database.json");*/
 
-DB.forEach(function(x, i) {
+/*DB.forEach(function(x, i) {
     if (!x.uid)
         x.uid = (i + 1) + 1000000
-    /*else
-        console.log(x.uid)*/
-})
+    /!*else
+        console.log(x.uid)*!/
+})*/
 
 export class Realm {
     db;
 
     constructor() {
-        this.db = DB;
+        if (!Array.isArray(this.db))
+            this.db = [];
     }
 
     objects(type?) {
         let realmObjects = new RealmObjects();
         if (type) {
-            realmObjects.push(...this.db.filter((item) => item["_type"] == type).map((item) => new (getItemType(item["_type"]))(item)));
+            realmObjects.push(...this.db.filter((item) => item["_type"] == type).map((item) => {
+                return new (getItemType(item["_type"]))(item)}));
             return realmObjects
         }
         realmObjects.push(...this.db.map((item) => new (getItemType(item["_type"]))(item)));

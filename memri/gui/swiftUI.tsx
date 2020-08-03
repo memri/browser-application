@@ -43,7 +43,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             "zindex",
         ]
 
-        var view = [];
+        var view = {};
 
         function setProperty(name: string, value?) {
             switch (name) {
@@ -94,7 +94,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                     break;
                 case "color":
                     if (value) {
-                        view["color"] = value // TODO: named colors do not work
+                        view["color"] = value.value // TODO: named colors do not work
                     }
                     break;
                 case "background":
@@ -164,17 +164,17 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
 
                     if (Array.isArray(value)) {
                         let name = value[0];
-                        if (name) {
-                            fontV = font({family: name, size: value[1] ?? 12.0});
+                        if (typeof name == "string") {
+                            fontV = font({family: name, size: value[1] + "px" ?? 12 + "px"});
                         } else {
                             fontV = font({
-                                family: "system", size: value[0] ?? 12.0,
+                                family: "system", size: value[0] +"px" ?? 12+"px",
                                 weight: value[1],
                                 design: "default"
                             });
                         }
                     } else if (value) {
-                        fontV = font({family: "system", size: value});
+                        fontV = font({family: "system", size: value + "px"});
                     } else if (Font.Weight[value]) {
                         fontV = font({family: "system", size: 12, weight: value});
                     } else {
@@ -198,7 +198,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             return view
         }
 
-        for (let name in ViewPropertyOrder) {
+        for (let name of ViewPropertyOrder) {
             var value = properties[name];
             if (value) {
                 let expr = value;
@@ -220,19 +220,19 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     }
 
     setStyles() {
-        let styles = {
-            color: this.props.foregroundColor ?? this.props.textColor ?? "black",
-            margin: this.props.spacing ?? undefined,
-            offset: this.props.offset,
-            zIndex: this.props.zIndex,
-            backgroundColor: this.props.background,
-            borderRadius: this.props.cornerRadius,
-            opacity: this.props.opacity
-        }
         var fixedProps = {}
         if (this.props.setProperties) {
             //this.context = this.props.setProperties.context;
             fixedProps = this.setProperties(this.props.setProperties.properties, undefined, undefined , this.props.setProperties.viewArguments);
+        }
+        let styles = {
+            color: this.props.foregroundColor ?? this.props.textColor ?? fixedProps?.color,
+            margin: this.props.spacing ?? fixedProps?.margin,
+            offset: this.props.offset ?? fixedProps?.offset,
+            zIndex: this.props.zIndex ?? fixedProps?.zIndex,
+            backgroundColor: this.props.background ?? fixedProps?.backgroundColor,
+            borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
+            opacity: this.props.opacity ?? fixedProps?.opacity
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
