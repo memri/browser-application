@@ -391,8 +391,8 @@ window.onbeforeunload = function() {
     saveMetadata();
 }
 
-import {settings} from "./model/Settings"
-import {PodAPI} from "./api/api"
+import {settings} from "./memri/model/Settings"
+import {PodAPI} from "./memri/api/api"
 
 refs.podAddress.addEventListener("input", function() {
     settings.set("user/pod/host", refs.podAddress.value);

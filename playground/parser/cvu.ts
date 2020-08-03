@@ -1,14 +1,14 @@
 var tree = require('./treehugger/tree');
 var traverse = require("./treehugger/traverse");
 
-import {ActionFamily, UIElementFamily} from "../cvu-parser/CVUParser";
-import {CVULexer} from "../cvu-parser/CVULexer";
-import {Expression} from "../expression-parser/Expression";
-import {CVUToken, CVUOperator} from "../cvu-parser/CVULexer";
-import {CVUParseErrors} from "../cvu-parser/CVUParseErrors";
+import {ActionFamily, UIElementFamily} from "../../memri/parsers/cvu-parser/CVUParser";
+import {CVULexer} from "../../memri/parsers/cvu-parser/CVULexer";
+import {Expression} from "../../memri/parsers/expression-parser/Expression";
+import {CVUToken, CVUOperator} from "../../memri/parsers/cvu-parser/CVULexer";
+import {CVUParseErrors} from "../../memri/parsers/cvu-parser/CVUParseErrors";
 
 
-exports.parseCVU = function(text) {
+export var parseCVU = function(text) {
     var tokens = new CVULexer(text, true).tokenize();
     var ast = new CVUParser(tokens).parse()
     return ast
@@ -22,7 +22,7 @@ export class CVUParser {
     index = 0;
     lastToken;
 
-    constructor(tokens, context, lookup, execFunc) {
+    constructor(tokens, context?, lookup?, execFunc?) {
         this.context = context;
         this.tokens = tokens;
         this.lookup = lookup;

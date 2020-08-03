@@ -57,11 +57,11 @@ export class ListRendererView extends MainUI {
 
 	getItems() {
 		let items = this.context.items;
-		return items.map((dataItem) =>
-			<ListItem>
+		return items.map((dataItem) => {
+			return <ListItem key={dataItem.uid}>
 				{this.renderConfig.render(dataItem)}
 			</ListItem>
-		)
+		})
 		/*<ASSection id={0} data={context.items} dataID={this.uid.value} selectedItems={this.selectedIndices} onSwipeToDelete={onSwipeToDelete} alwaysBounce >
 
 		</ASSection>*/
