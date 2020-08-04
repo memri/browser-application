@@ -5,7 +5,7 @@
 import * as React from 'react';
 import {allRenderers, CascadingListConfig} from "../../cvu/views/Renderers";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
-import {ActionDelete} from "../../cvu/views/Action";
+import {ActionDelete, ActionOpenView} from "../../cvu/views/Action";
 import {ASTableView, font, HStack, MainUI, MemriText, padding, Spacer, VStack} from "../swiftUI";
 import {ListItem} from "@material-ui/core";
 
@@ -55,10 +55,20 @@ export class ListRendererView extends MainUI {
 		return this.context.currentView?.renderConfig ?? new CascadingListConfig()
 	}
 
+	executeAction = (dataItem) => () => {
+		let press = this.renderConfig.press
+		// press = new ActionOpenView()
+		if (press) {
+			this.context.executeAction(press, dataItem)
+		}
+	}
+
 	getItems() {
 		let items = this.context.items;
 		return items.map((dataItem) => {
-			return <ListItem key={dataItem.uid}>
+			return <ListItem key={dataItem.uid} onClick={
+				this.executeAction(dataItem)
+			}>
 				{this.renderConfig.render(dataItem)}
 			</ListItem>
 		})
@@ -90,7 +100,7 @@ export class ListRendererView extends MainUI {
 				);
 		} else {//TODO:actions
 			innerContent = (
-				<ASTableView editMode={context.currentSession?.editMode ?? false} onSelectSingle={}>
+				<ASTableView editMode={context.currentSession?.editMode ?? false}>
 					{this.getItems()}
 				</ASTableView>
 			);
@@ -98,9 +108,11 @@ export class ListRendererView extends MainUI {
 
 
 		return (
-			<VStack>
-				{innerContent}
-			</VStack>
+			<div className={"ListRendererView"}>
+				<VStack>
+					{innerContent}
+				</VStack>
+			</div>
 		)
 	}
 }
