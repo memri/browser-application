@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BaseTextFieldProps, Button, Divider, Icon, List, TextField} from "@material-ui/core";
+import {BaseTextFieldProps, Box, Button, Divider, Icon, List, TextField} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
 
@@ -94,17 +94,17 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                     break;
                 case "color":
                     if (value) {
-                        view["color"] = value.value // TODO: named colors do not work
+                        view["color"] = value.value ?? value // TODO: named colors do not work
                     }
                     break;
                 case "background":
                     if (value) {
-                        view["backgroundColor"] = value;
+                        view["backgroundColor"] = value.value ?? value;
                     }
                     break;
                 case "rowbackground":
                     if (value) {
-                        view["listRowBackground"] = value; //TODO:
+                        view["listRowBackground"] = value.value ?? value; //TODO:
                     }
                     break;
                 case "border":
@@ -226,11 +226,11 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             fixedProps = this.setProperties(this.props.setProperties.properties, undefined, undefined , this.props.setProperties.viewArguments);
         }
         let styles = {
-            color: this.props.foregroundColor ?? this.props.textColor ?? fixedProps?.color,
+            color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor ?? fixedProps?.color,
             margin: this.props.spacing ?? fixedProps?.margin,
             offset: this.props.offset ?? fixedProps?.offset,
             zIndex: this.props.zIndex ?? fixedProps?.zIndex,
-            backgroundColor: this.props.background ?? fixedProps?.backgroundColor,
+            backgroundColor: this.props.background?.value ?? this.props.background ?? fixedProps?.backgroundColor,
             borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
             opacity: this.props.opacity ?? fixedProps?.opacity
         }
@@ -238,15 +238,41 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
         return styles;
     }
+
+    setAlignment() {//justifyContent={}
+        if (this.props.alignment) {
+            switch (this.props.alignment) {
+                case Alignment.top:
+                    return {alignItems: "flex-start"};
+                case Alignment.center:
+                    return {alignItems: "center", justifyContent: "center"};
+                case Alignment.bottom:
+                    return {alignItems: "flex-end"};
+                case Alignment.leading:
+                    return {justifyContent: "flex-start"};
+                case Alignment.trailing:
+                    return {justifyContent: "flex-end"};
+                case Alignment.topLeading:
+                    return {alignItems: "flex-start", justifyContent: "flex-start"};
+                case Alignment.topTrailing:
+                    return {alignItems: "flex-start", justifyContent: "flex-end"};
+                case Alignment.bottomLeading:
+                    return {alignItems: "flex-end", justifyContent: "flex-start"};
+                case Alignment.bottomTrailing:
+                    return {alignItems: "flex-end", justifyContent: "flex-end"};
+            }
+        }
+        return
+    }
 }
 
 export class VStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <div style={this.setStyles()} className="VStack" {...other}>
+            <Box display="flex" {...this.setAlignment()} flexDirection="column" style={this.setStyles()} className="VStack" {...other}>
                 {this.props.children}
-            </div>
+            </Box>
         )
     }
 }
@@ -255,9 +281,9 @@ export class ZStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <div style={this.setStyles()} className="ZStack" {...other}>
+            <Box {...this.setAlignment()} style={this.setStyles()} className="ZStack" {...other}>
                 {this.props.children}
-            </div>
+            </Box>
         )
     }
 }
@@ -266,9 +292,9 @@ export class HStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <div style={this.setStyles()} className="HStack" {...other}>
+            <Box display="flex" flexDirection="row" {...this.setAlignment()} style={this.setStyles()} className="HStack" {...other}>
                 {this.props.children}
-            </div>
+            </Box>
         )
     }
 }

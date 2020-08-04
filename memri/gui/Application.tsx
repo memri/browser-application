@@ -41,11 +41,10 @@ export class Application extends MainUI {
 	}
 
 	showNavigationBinding = () => {
-		this.context.showNavigation = !this.context.showNavigation
 		this.setState({isVisible: this.context.showNavigation});
 	}
 
-	render() {
+	render() {//(this.context.showSessionSwitcher) ? <SessionSwitcher/>:
 		this.context = this.props.context;
 		this.context.showNavigationBinding = this.showNavigationBinding;
 		return (
@@ -54,7 +53,7 @@ export class Application extends MainUI {
 				<VStack spacing={0}>
 					{(this.context.installer.isInstalled && !this.context.installer.debugMode) ?
 					<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
-						{(this.context.showSessionSwitcher) ? <SessionSwitcher/>: <Browser
+						{<Browser
 							context={this.context}/>
 						}
 					</NavigationWrapper> :

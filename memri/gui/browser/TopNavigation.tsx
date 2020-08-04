@@ -10,9 +10,10 @@ import {
 	ActionBackAsSession, ActionClosePopup,
 	ActionForward,
 	ActionForwardToFront,
-	ActionOpenViewByName, ActionShowNavigation
+	ActionOpenViewByName, ActionShowNavigation, ActionShowSessionSwitcher
 } from "../../cvu/views/Action";
 import {
+	ColorArea,
 	font,
 	frame,
 	HStack,
@@ -147,6 +148,22 @@ export class TopNavigation extends MainUI {
 				>
 					{inside}
 					{buttonToShow}
+					<ColorArea layoutPriority={5}>
+						<MemriButton>
+							<MemriText foregroundColor="#333" truncationMode={"tail"} font={font({family: "headline"})}>
+								{context.currentView?.title ?? ""}
+							</MemriText>
+						</MemriButton>
+					</ColorArea>
+					{context.item != undefined || context.items.length > 0 &&
+					context.settings.get("user/general/gui/showEditButton") != false &&
+					context.currentView?.editActionButton != undefined &&
+					<ActionButton action={context.currentView?.editActionButton} font={font({size: 19, weight: Font.Weight.semibold})} context={this.context}/>
+					}
+					<ActionButton action={context.currentView?.actionButton} font={font({size: 22, weight: Font.Weight.semibold})} context={this.context}/>
+					{!(this.inSubView) &&
+					<ActionButton action={new ActionShowSessionSwitcher(context)} font={font({size: 20, weight: Font.Weight.semibold})} context={this.context} /*rotationEffect(.degrees(90)*//>
+					}
 				</HStack>
 				<MemriDivider/>
 			</VStack>

@@ -489,13 +489,13 @@ export class MemriContext {
 				finalValue = dataItem
 			} else if (typeof argValue.isCVUObject === "function") {
 				let dict = argValue;
-				if (action.argumentTypes[argName] == ViewArguments.constructor) {
+				if (action.argumentTypes[argName] == "ViewArguments") {
 					finalValue = new ViewArguments(dict).resolve(item, viewArgs)
 				}
-				/*else if (action.argumentTypes[argName] == ItemFamily.constructor) {
+				else if (action.argumentTypes[argName] == "ItemFamily") {
 					finalValue = this.getItem(Expression.resolve(dict, viewArguments), item)
-				}*/ //TODO:
-				else if (action.argumentTypes[argName]?.constructor?.name == "CVUStateDefinition") {
+				} //TODO:
+				else if (action.argumentTypes[argName] == "CVUStateDefinition") {
 					let viewDef = new CVUParsedViewDefinition("[view]")
 					viewDef.parsed = dict
 					finalValue = CVUStateDefinition.fromCVUParsedDefinition(viewDef)
@@ -504,7 +504,7 @@ export class MemriContext {
 					throw `Exception: Unknown argument type specified in action definition ${argName}`
 				}
 			}
-			else if (action.argumentTypes[argName] == ViewArguments.constructor) {
+			else if (action.argumentTypes[argName] == "ViewArguments") {
 				if (argValue?.constructor?.name == "ViewArguments") {
 					let viewArgs = argValue;
 					// We explicitly don't copy here. The caller is responsible for uniqueness
@@ -516,15 +516,15 @@ export class MemriContext {
 				} else {
 					throw `Exception: Could not parse ${argName}`
 				}
-			} else if (typeof action.argumentTypes[argName] == "boolean") {
+			} else if (action.argumentTypes[argName] == "Bool") {
 				finalValue = ExprInterpreter.evaluateBoolean(argValue)
-			} else if (typeof action.argumentTypes[argName] == "string") {
+			} else if (action.argumentTypes[argName] == "String") {
 				finalValue = ExprInterpreter.evaluateString(argValue)
-			} else if (typeof action.argumentTypes[argName] == "number") {
+			} else if (action.argumentTypes[argName] == "Int" || action.argumentTypes[argName] == "Double") {
 				finalValue = ExprInterpreter.evaluateNumber(argValue)
-			} else if (action.argumentTypes[argName] == [Action].constructor) {
+			} else if (action.argumentTypes[argName] == "[Action]") {
 				finalValue = argValue ?? []
-			} else if (action.argumentTypes[argName] == AnyObject.self) {
+			} else if (action.argumentTypes[argName] == "AnyObject") {
 				finalValue = argValue ?? undefined
 			} else if (argValue == undefined) {
 				finalValue = undefined;
@@ -547,12 +547,12 @@ export class MemriContext {
 		if (typeof stringType != "string") {
 			throw "Missing type attribute to indicate the type of the data item"
 		}
-		let family = ItemFamily[stringType];
+		let family = ItemFamily["type" + stringType];
 		if (!family) {
 			throw `Cannot find find family ${stringType}`
 		}
 		let ItemType = new (getItemType(family))();
-		if (ItemType) {
+		if (!ItemType) {
 			throw `Cannot find family ${stringType}`
 		}
 		var values = dict ?? {}

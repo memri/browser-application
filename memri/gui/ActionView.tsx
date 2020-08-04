@@ -84,10 +84,11 @@ class ActionButtonView extends MainUI {
 	render() {//{this.props.children}
 		this.action = this.props.action;
 		this.context = this.props.context;
+		this.execute  = this.props.execute;
 		let icon = this.action.getString("icon");
 		let title = this.action.get("title");
 		return (
-			<MemriButton onClick={this.action.exec ? this.action.exec.bind(this) : undefined}>
+			<MemriButton onClick={() => this.context.executeAction(this.action)}>
 				{(icon || title == undefined) &&
 				<MemriImage fixedSize padding={padding({
 					horizontal: 5,

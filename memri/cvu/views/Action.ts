@@ -161,14 +161,6 @@ export class Action/* : HashableClass, CVUToString*/ {
         }
     }
 
-    getArguments(item?: Item) {
-        try { return this.context.buildArguments(this, item) }
-        catch (error) {
-            debugHistory.warn(`Could not parse arguments for popup: ${error}`)
-            return {}
-        }
-    }
-
     toCVUString(depth:number, tab:string):string {
         let tabs = tab.repeat(depth + 1);
         let tabsEnd = depth > 0 ? tab.repeat(depth) : "";
@@ -381,7 +373,7 @@ protocol ActionExec {
 
 export class ActionBack extends Action {
     defaultValues = {
-        "icon": "chevron.left",
+        "icon": "chevron_left", //chevron.left
         "opensView": true,
         "color": new Color("#434343"),//TODO
         "inactiveColor": new Color("#434343"),//TODO
@@ -413,8 +405,8 @@ export class ActionBack extends Action {
 
 export class ActionAddItem extends Action {
     defaultValues = {
-        "icon": "plus",
-        //"argumentTypes": {"template": ItemFamily.constructor},//TODO
+        "icon": "add",//plus
+        "argumentTypes": {"template": "ItemFamily"},//TODO
         "opensView": true,
         "color": new Color("#6aa84f"),
         "inactiveColor": new Color("#434343")
@@ -448,7 +440,7 @@ export class ActionAddItem extends Action {
 
 export class ActionOpenView extends Action {
     defaultValues = {
-        //"argumentTypes": {"view": CVUStateDefinition, "viewArguments": ViewArguments},
+        "argumentTypes": {"view": "CVUStateDefinition", "viewArguments": "ViewArguments"},
         "withAnimation": false,
         "opensView": true
     };
@@ -513,7 +505,7 @@ export class ActionOpenView extends Action {
 
 export class ActionOpenViewByName extends Action {
     defaultValues = {
-        //"argumentTypes": {"viewName": String.constructor, "viewArguments": ViewArguments.constructor},//TODO
+        "argumentTypes": {"viewName": "String", "viewArguments": "ViewArguments"},//TODO
         "withAnimation": false,
         "opensView": true
     };
@@ -551,7 +543,7 @@ export class ActionOpenViewByName extends Action {
 
 export class ActionOpenViewWithUIDs extends Action {
     defaultValues = {
-        "argumentTypes": {"view": CVUStateDefinition, "viewArguments": ViewArguments},
+        "argumentTypes": {"view": "CVUStateDefinition", "viewArguments": "ViewArguments"},
         "withAnimation": false,
         "opensView": true,
     }
@@ -621,7 +613,7 @@ export class ActionOpenViewWithUIDs extends Action {
 
 export class ActionToggleEditMode extends Action {
     defaultValues = {
-        "icon": "pencil",
+        "icon": "edit",//pencil
         "binding": new Expression("currentSession.editMode"),//TODO:
         "activeColor": new Color("#6aa84f"),
         "inactiveColor": new Color("#434343"),
@@ -735,7 +727,7 @@ export class ActionShowStarred extends Action {
 
 export class ActionShowContextPane extends Action {
     defaultValues = {
-        "icon": "ellipsis",
+        "icon": "more_vert",//ellipsis
         "binding": new Expression("currentSession.showContextPane")//TODO
     };
 
@@ -794,7 +786,7 @@ export class ActionSchedule extends Action {
 
 export class ActionShowSessionSwitcher extends Action {
     defaultValues = {
-        "icon": "ellipsis",
+        "icon": "more_vert",//ellipsis
         "binding": new Expression("context.showSessionSwitcher"),
         "color": new Color("#CCC")
     }
@@ -910,7 +902,7 @@ export class ActionBackAsSession extends Action {
 
 export class ActionOpenSession extends Action {
     defaultValues = {
-        //"argumentTypes": {"session": CVUStateDefinition, "viewArguments": ViewArguments},
+        "argumentTypes": {"session": "CVUStateDefinition", "viewArguments": "ViewArguments"},
         "opensView": true,
         "withAnimation": false
     };
@@ -970,7 +962,7 @@ export class ActionOpenSession extends Action {
 // TODO How to deal with viewArguments in sessions
 export class ActionOpenSessionByName extends Action {
     defaultValues = {
-        //"argumentTypes": {"sessionName": String.constructor, "viewArguments": ViewArguments.constructor},//TODO:
+        "argumentTypes": {"sessionName": "String", "viewArguments": "ViewArguments"},//TODO:
         "opensView": true,
             "withAnimation": false
     };
@@ -1047,7 +1039,7 @@ export class ActionDelete extends Action {
 
 export class ActionDuplicate extends Action {
     defaultValues = {
-        //"argumentTypes": ["item": ItemFamily.self],
+        "argumentTypes": {"item": "ItemFamily"}
         }
     constructor(context: MemriContext, values = {}) {
         super(context, "duplicate", values);
@@ -1077,7 +1069,7 @@ export class ActionDuplicate extends Action {
 
 export class ActionRunImporter extends Action {
     defaultValues = {
-        "argumentTypes": ["importer"],
+        "argumentTypes": {"importer": "ItemFamily"},
     }
 
     constructor(context: MemriContext, values = {}) {
@@ -1208,7 +1200,7 @@ export class ActionClosePopup extends Action {
 
 export class ActionSetProperty extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": "ItemFamily", "property": "string", "value": "AnyObject"},//TODO
+        "argumentTypes": {"subject": "ItemFamily", "property": "String", "value": "AnyObject"},//TODO
     }
 
     constructor(context: MemriContext, values = {}) {
@@ -1239,7 +1231,7 @@ export class ActionSetProperty extends Action {
 
 class ActionSetSetting extends Action{
     defaultValues = {
-        //"argumentTypes": ["path": String.self, "value": Any.self]
+        "argumentTypes": {"path": "String", "value": "Any"}
     }
 
     constructor(context: MemriContext, values = {}) {
@@ -1267,7 +1259,7 @@ class ActionSetSetting extends Action{
 
 export class ActionLink extends Action {
     defaultValues = {
-        //"argumentTypes": {"subject": ItemFamily.constructor, "edgeType": String.constructor, "distinct": Bool.self}//TODO:
+        "argumentTypes": {"subject": "ItemFamily", "edgeType": "String", "distinct": "Bool"}//TODO:
     }
 
     constructor(context: MemriContext, values = {}) {
@@ -1305,7 +1297,7 @@ export class ActionLink extends Action {
 
 export class ActionUnlink extends Action {
     defaultValues = {
-        "argumentTypes": {"subject": "ItemFamily", "edgeType": "String", "all": "Boolean"},//TODO
+        "argumentTypes": {"subject": "ItemFamily", "edgeType": "String", "all": "Bool"},//TODO
     }
 
     constructor(context: MemriContext, values = {}) {
@@ -1344,7 +1336,7 @@ export class ActionUnlink extends Action {
 
 export class ActionMultiAction extends Action {
     defaultValues = {
-        //"argumentTypes": {"actions": [Action].constructor},//TODO:?
+        "argumentTypes": {"actions": "[Action]"},//TODO:?
         "opensView": true
     }
 

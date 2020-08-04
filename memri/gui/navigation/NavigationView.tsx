@@ -147,7 +147,7 @@ class Navigation extends MainUI {
 		return navigationItems.map((navItem) => {
 			switch (navItem.type) {
 				case "item":
-					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigationBinding()}/>/*(navItem, hide: {
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>/*(navItem, hide: {
 					withAnimation {
 						self.context.showNavigation = false
 					}
@@ -157,7 +157,7 @@ class Navigation extends MainUI {
 				case "line":
 					return <NavigationLineView/>
 				default:
-					return <NavigationItemView item={navItem} context={this.context} hide={()=>this.context.showNavigationBinding()}/>/*(item: navItem, hide: {
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>/*(item: navItem, hide: {
 					withAnimation {
 						self.context.showNavigation = false
 					}
