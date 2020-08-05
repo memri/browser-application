@@ -276,7 +276,7 @@ export class CacheMemri {
 			// this.cancellables.push(resultSet.objectWillChange.sink(function () {
 				// TODO: Error handling
 				this.scheduleUIUpdate(function (context) {//TODO
-					return context.cascadingView.resultSet.datasource == resultSet.datasource
+					return context.currentView.resultSet.datasource == resultSet.datasource
 				})
 			// }.bind(this)))
 

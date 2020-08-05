@@ -130,11 +130,11 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                     for (let parsed of parsedViews) {
                         let viewState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
                         state.link(viewState, "view", EdgeSequencePosition.last)
-                        this.views.push(new CascadableView(new CVUStateDefinition(viewState), this))
+                        this.views.push(new CascadableView(viewState, this))
                     }
                 })
                 
-                delete this.parsed?.get("viewDefinitions")
+                delete this.parsed["viewDefinitions"] //TODO:
             }
             else {
                 throw "CVU state definition is missing views"

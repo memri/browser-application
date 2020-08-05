@@ -450,7 +450,7 @@ export class ActionOpenView extends Action {
     }
 
     openView(context: MemriContext, view: CVUStateDefinition|Item, argumentsJs = null) {
-        if (view instanceof Item) {
+        if (!(view instanceof CVUStateDefinition)) {
             let item = view;
             let uid = item.uid;
             if (!uid) {
@@ -519,9 +519,9 @@ export class ActionOpenViewByName extends Action {
         let name = argumentsJs["viewName"];
         if (typeof name == "string") {
             // Fetch a dynamic view based on its name
-            let stored = this.context.views.fetchDefinitions(name, "view")[0];//TODO?
+            let stored = this.context.views.fetchDefinitions(undefined, name, "view")[0];//TODO?
             if (!stored) {
-                throw "No view found with the name \(name)"
+                throw `No view found with the name ${name}`
             }
             try {
                 let view = this.context.views.getViewStateDefinition(stored)

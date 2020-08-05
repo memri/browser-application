@@ -226,7 +226,7 @@ export class Views {
 			case "currentSession":
 			case "session": return this.context?.currentSession
 			case "currentView":
-			case "view": return this.context?.cascadingView
+			case "view": return this.context?.currentView
 			case "singletonItem":
 				let itemRef = viewArguments?.get(".");
 				let item = this.context?.currentView?.resultSet.singletonItem
