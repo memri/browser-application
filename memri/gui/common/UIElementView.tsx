@@ -13,7 +13,7 @@ import {
     MemriDivider,
     MemriImage,
     MemriText,
-    padding,
+    padding, RoundedRectangle,
     Section,
     setProperties,
     Spacer,
