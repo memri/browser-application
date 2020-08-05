@@ -67,7 +67,8 @@ export class FilterPanel extends MainUI {
 		let item = this.context.currentView?.resultSet.items[0]
 		if (!item) { return [] }
 
-		var excludeList = this.context.currentView?.sortFields ?? []
+		var excludeList = []
+		Object.assign(excludeList, this.context.currentView?.sortFields ?? [])
 		excludeList.push(this.context.currentView?.datasource.sortProperty ?? "")
 		excludeList.push("uid", "deleted", "externalId")
 
@@ -105,6 +106,8 @@ export class FilterPanel extends MainUI {
 		if (rendererCategories.length) segmentedRendererCategories.push(rendererCategories)
 		// let segmentedRendererCategories = this.getRendererCategories().segments(ofSize: 5).indexed()
 		//TODO segments function?
+
+		let currentSortProperty = cascadableView?.datasource.sortProperty ?? ""//TODO
 
 		return (
 			<div className="FilterPanel">
@@ -182,33 +185,31 @@ export class FilterPanel extends MainUI {
 						</MemriText>
 
 					</SectionHeader>
-					{cascadableView?.datasource.sortProperty?.map((currentSortProperty) =>
-						<MemriButton onClick={this.toggleAscending}>
-							<HStack>
-								<MemriText foregroundColor={"#6aa84f"}
-										   font={font({size: 16, weight: Font.Weight.semibold,
-											   design: "default"})}
-										   frame={frame({
-											   minWidth: 0,
-											   maxWidth: "infinity",
-											   alignment: Alignment.leading
-										   })}
-								>
-									{currentSortProperty}
-								</MemriText>
-								<Spacer/>
-								<MemriImage resizable={true}
-											aspectRatio={"fit"}
-											foregroundColor={"#6aa84f"}
-											frame={frame({minWidth: 10, maxWidth: 10})}
-								>
-									{cascadableView.datasource.sortAscending === false
-									? "arrow_down"
-									: "arrow_up"}
-								</MemriImage>
-							</HStack>
-						</MemriButton>
-					)}
+					<MemriButton onClick={() => this.toggleAscending()}>
+						<HStack>
+							<MemriText foregroundColor={"#6aa84f"}
+									   font={font({size: 16, weight: Font.Weight.semibold,
+										   design: "default"})}
+									   frame={frame({
+										   minWidth: 0,
+										   maxWidth: "infinity",
+										   alignment: Alignment.leading
+									   })}
+							>
+								{currentSortProperty}
+							</MemriText>
+							<Spacer/>
+							<MemriImage resizable={"true"}//TODO
+										// aspectRatio={"fit"}//TODO
+										foregroundColor={"#6aa84f"}
+										frame={frame({minWidth: 10/*, maxWidth: 10*/})}
+							>
+								{cascadableView.datasource.sortAscending === false
+								? "arrow_downward"
+								: "arrow_upward"}
+							</MemriImage>
+						</HStack>
+					</MemriButton>
 					{cascadableView?.sortFields.filter (($0) =>
 						cascadableView?.datasource.sortProperty != $0
 					).map ((fieldName) =>
