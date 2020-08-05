@@ -501,7 +501,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
                 debugHistory.error("Could not parse definition")
             }
         } catch (error) {
-            if (error?.constructor?.name == "CVUParseErrors") {
+            if (typeof error.toErrorString == "function") {
                 debugHistory.error(`${error.toErrorString(def?.definition ?? "")}`)
             } else {
                 debugHistory.error(`${error}`)

@@ -192,7 +192,7 @@ export class CacheMemri {
 
 			// Parse query
 			let [typeName, filter] = this.parseQuery(q)
-			let type = ItemFamily["type"+typeName]
+			let type = ItemFamily[typeName]
 			if (typeName == "*") {
 				var returnValue = []
 
@@ -250,9 +250,9 @@ export class CacheMemri {
 		if (query.indexOf(" ") >= 0) {
 			let splits = query.split(" ")
 			let type = String(splits[0])
-			return [type, String(splits.shift().join(" "))]
+			return [type, String(splits.slice(1).join(" "))]
 		} else {
-			return [query, null]
+			return [query, undefined]
 		}
 	}
 
@@ -618,7 +618,7 @@ export class CacheMemri {
 				throw "Cannot link target, no .uid set"
 			}
 
-			return CacheMemri.createEdge(source, ["type" + target["_type"], targetUID],
+			return CacheMemri.createEdge(source, [target["_type"], targetUID],
 				edgeType, label, sequence)
 		}
 	}

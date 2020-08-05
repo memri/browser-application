@@ -26,7 +26,7 @@ export function UUID() {
 /// Item is the baseclass for all of the data classes.
 export class SchemaItem {
     get genericType() {
-        return 'type'+this?.constructor?.name;
+        return this?.constructor?.name;
     }
     /// A collection of all edges this Item is connected to.
     allEdges: RealmObjects = new RealmObjects();
@@ -208,7 +208,7 @@ export class Item extends SchemaItem {
     /// Get the type of Item
     /// - Returns: type of the Item
     getType() {
-        let type = ItemFamily["type" + this["_type"]];
+        let type = ItemFamily[this["_type"]];
         if (type) {
             let T = getItemType(type)
             // NOTE: allowed forced downcast
@@ -1149,129 +1149,129 @@ export class CVUStateDefinition extends CVUStoredDefinition {
 //----------------------------------------------------schema.ts
 
 export enum ItemFamily {
-    typeAuditItem = "AuditItem",
-    typeCompany = "Company",
-    typeCreativeWork = "CreativeWork",
-    typeDigitalDocument = "DigitalDocument",
-    typeComment = "Comment",
-    typeNote = "Note",
-    typeMediaObject = "MediaObject",
-    typeAudio = "Audio",
-    typePhoto = "Photo",
-    typeVideo = "Video",
-    typeCVUStoredDefinition = "CVUStoredDefinition",
-    typeCVUStateDefinition = "CVUStateDefinition",
-    typeDatasource = "Datasource",
-    typeDevice = "Device",
-    typeDiet = "Diet",
-    typeDownloader = "Downloader",
-    typeEdge = "Edge",
-    typeFile = "File",
-    typeImporter = "Importer",
-    typeImporterRun = "ImporterRun",
-    typeIndexer = "Indexer",
-    typeIndexerRun = "IndexerRun",
-    typeLabel = "Label",
-    typeLocation = "Location",
-    typeAddress = "Address",
-    typeCountry = "Country",
-    typeMedicalCondition = "MedicalCondition",
-    typeNavigationItem = "NavigationItem",
-    typeOnlineProfile = "OnlineProfile",
-    typePerson = "Person",
-    typePhoneNumber = "PhoneNumber",
-    typePublicKey = "PublicKey",
-    typeSession = "Session",
-    typeSessions = "Sessions",
-    typeSessionView = "SessionView",
-    typeSetting = "Setting",
-    typeSyncState = "SyncState",
-    typeUserState = "UserState",
-    typeViewArguments = "ViewArguments",
-    typeWebsite = "Website",
+    AuditItem = "AuditItem",
+    Company = "Company",
+    CreativeWork = "CreativeWork",
+    DigitalDocument = "DigitalDocument",
+    Comment = "Comment",
+    Note = "Note",
+    MediaObject = "MediaObject",
+    Audio = "Audio",
+    Photo = "Photo",
+    Video = "Video",
+    CVUStoredDefinition = "CVUStoredDefinition",
+    CVUStateDefinition = "CVUStateDefinition",
+    Datasource = "Datasource",
+    Device = "Device",
+    Diet = "Diet",
+    Downloader = "Downloader",
+    Edge = "Edge",
+    File = "File",
+    Importer = "Importer",
+    ImporterRun = "ImporterRun",
+    Indexer = "Indexer",
+    IndexerRun = "IndexerRun",
+    Label = "Label",
+    Location = "Location",
+    Address = "Address",
+    Country = "Country",
+    MedicalCondition = "MedicalCondition",
+    NavigationItem = "NavigationItem",
+    OnlineProfile = "OnlineProfile",
+    Person = "Person",
+    PhoneNumber = "PhoneNumber",
+    PublicKey = "PublicKey",
+    Session = "Session",
+    Sessions = "Sessions",
+    SessionView = "SessionView",
+    Setting = "Setting",
+    SyncState = "SyncState",
+    UserState = "UserState",
+    ViewArguments = "ViewArguments",
+    Website = "Website",
 }
 
 //export var discriminator = Discriminator._type //TODO:
 
 export var backgroundColor = function(name) {
     switch (name) {
-        case ItemFamily.typeAuditItem: return new Color("#93c47d")
-        case ItemFamily.typeCompany: return new Color("#93c47d")
-        case ItemFamily.typeCreativeWork: return new Color("#93c47d")
-        case ItemFamily.typeDigitalDocument: return new Color("#93c47d")
-        case ItemFamily.typeComment: return new Color("#93c47d")
-        case ItemFamily.typeNote: return new Color("#ccb94b ")
-        case ItemFamily.typeMediaObject: return new Color("#93c47d")
-        case ItemFamily.typeAudio: return new Color("#93c47d")
-        case ItemFamily.typePhoto: return new Color("#93c47d")
-        case ItemFamily.typeVideo: return new Color("#93c47d")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#93c47d")
-        case ItemFamily.typeCVUStateDefinition: return new Color("#93c47d");
-        case ItemFamily.typeDatasource: return new Color("#93c47d")
-        case ItemFamily.typeDevice: return new Color("#93c47d")
-        case ItemFamily.typeDiet: return new Color("#37af1c")
-        case ItemFamily.typeDownloader: return new Color("#93c47d")
-        case ItemFamily.typeEdge: return new Color("#93c47d")
-        case ItemFamily.typeFile: return new Color("#93c47d")
-        case ItemFamily.typeImporter: return new Color("#93c47d")
-        case ItemFamily.typeImporterRun: return new Color("#93c47d")
-        case ItemFamily.typeIndexer: return new Color("#93c47d")
-        case ItemFamily.typeIndexerRun: return new Color("#93c47d")
-        case ItemFamily.typeLabel: return new Color("#93c47d")
-        case ItemFamily.typeLocation: return new Color("#93c47d")
-        case ItemFamily.typeAddress: return new Color("#93c47d")
-        case ItemFamily.typeCountry: return new Color("#93c47d")
-        case ItemFamily.typeMedicalCondition: return new Color("#3dc8e2")
-        case ItemFamily.typeNavigationItem: return new Color("#93c47d")
-        case ItemFamily.typeOnlineProfile: return new Color("#93c47d")
-        case ItemFamily.typePerson: return new Color("#3a5eb2")
-        case ItemFamily.typePhoneNumber: return new Color("#eccf23")
-        case ItemFamily.typePublicKey: return new Color("#93c47d")
-        case ItemFamily.typeSetting: return new Color("#93c47d")
-        case ItemFamily.typeUserState: return new Color("#93c47d")
-        case ItemFamily.typeViewArguments: return new Color("#93c47d")
-        case ItemFamily.typeWebsite: return new Color("#3d57e2")
+        case ItemFamily.AuditItem: return new Color("#93c47d")
+        case ItemFamily.Company: return new Color("#93c47d")
+        case ItemFamily.CreativeWork: return new Color("#93c47d")
+        case ItemFamily.DigitalDocument: return new Color("#93c47d")
+        case ItemFamily.Comment: return new Color("#93c47d")
+        case ItemFamily.Note: return new Color("#ccb94b ")
+        case ItemFamily.MediaObject: return new Color("#93c47d")
+        case ItemFamily.Audio: return new Color("#93c47d")
+        case ItemFamily.Photo: return new Color("#93c47d")
+        case ItemFamily.Video: return new Color("#93c47d")
+        case ItemFamily.CVUStoredDefinition: return new Color("#93c47d")
+        case ItemFamily.CVUStateDefinition: return new Color("#93c47d");
+        case ItemFamily.Datasource: return new Color("#93c47d")
+        case ItemFamily.Device: return new Color("#93c47d")
+        case ItemFamily.Diet: return new Color("#37af1c")
+        case ItemFamily.Downloader: return new Color("#93c47d")
+        case ItemFamily.Edge: return new Color("#93c47d")
+        case ItemFamily.File: return new Color("#93c47d")
+        case ItemFamily.Importer: return new Color("#93c47d")
+        case ItemFamily.ImporterRun: return new Color("#93c47d")
+        case ItemFamily.Indexer: return new Color("#93c47d")
+        case ItemFamily.IndexerRun: return new Color("#93c47d")
+        case ItemFamily.Label: return new Color("#93c47d")
+        case ItemFamily.Location: return new Color("#93c47d")
+        case ItemFamily.Address: return new Color("#93c47d")
+        case ItemFamily.Country: return new Color("#93c47d")
+        case ItemFamily.MedicalCondition: return new Color("#3dc8e2")
+        case ItemFamily.NavigationItem: return new Color("#93c47d")
+        case ItemFamily.OnlineProfile: return new Color("#93c47d")
+        case ItemFamily.Person: return new Color("#3a5eb2")
+        case ItemFamily.PhoneNumber: return new Color("#eccf23")
+        case ItemFamily.PublicKey: return new Color("#93c47d")
+        case ItemFamily.Setting: return new Color("#93c47d")
+        case ItemFamily.UserState: return new Color("#93c47d")
+        case ItemFamily.ViewArguments: return new Color("#93c47d")
+        case ItemFamily.Website: return new Color("#3d57e2")
     }
 }
 
 export var foregroundColor = function(name) {
     switch (name) {
-        case ItemFamily.typeAuditItem: return new Color("#ffffff")
-        case ItemFamily.typeCompany: return new Color("#ffffff")
-        case ItemFamily.typeCreativeWork: return new Color("#ffffff")
-        case ItemFamily.typeDigitalDocument: return new Color("#ffffff")
-        case ItemFamily.typeComment: return new Color("#ffffff")
-        case ItemFamily.typeNote: return new Color("#ffffff")
-        case ItemFamily.typeMediaObject: return new Color("#ffffff")
-        case ItemFamily.typeAudio: return new Color("#ffffff")
-        case ItemFamily.typePhoto: return new Color("#ffffff")
-        case ItemFamily.typeVideo: return new Color("#ffffff")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#ffffff")
-        case ItemFamily.typeCVUStateDefinition: return new Color("#ffffff")
-        case ItemFamily.typeDatasource: return new Color("#ffffff")
-        case ItemFamily.typeDevice: return new Color("#ffffff")
-        case ItemFamily.typeDiet: return new Color("#ffffff")
-        case ItemFamily.typeDownloader: return new Color("#ffffff")
-        case ItemFamily.typeEdge: return new Color("#ffffff")
-        case ItemFamily.typeFile: return new Color("#ffffff")
-        case ItemFamily.typeImporter: return new Color("#ffffff")
-        case ItemFamily.typeImporterRun: return new Color("#ffffff")
-        case ItemFamily.typeIndexer: return new Color("#ffffff")
-        case ItemFamily.typeIndexerRun: return new Color("#ffffff")
-        case ItemFamily.typeLabel: return new Color("#ffffff")
-        case ItemFamily.typeLocation: return new Color("#ffffff")
-        case ItemFamily.typeAddress: return new Color("#ffffff")
-        case ItemFamily.typeCountry: return new Color("#ffffff")
-        case ItemFamily.typeMedicalCondition: return new Color("#ffffff")
-        case ItemFamily.typeNavigationItem: return new Color("#ffffff")
-        case ItemFamily.typeOnlineProfile: return new Color("#ffffff")
-        case ItemFamily.typePerson: return new Color("#ffffff")
-        case ItemFamily.typePhoneNumber: return new Color("#ffffff")
-        case ItemFamily.typePublicKey: return new Color("#ffffff")
-        case ItemFamily.typeSetting: return new Color("#ffffff")
-        case ItemFamily.typeUserState: return new Color("#ffffff")
-        case ItemFamily.typeViewArguments: return new Color("#ffffff")
-        case ItemFamily.typeWebsite: return new Color("#ffffff")
+        case ItemFamily.AuditItem: return new Color("#ffffff")
+        case ItemFamily.Company: return new Color("#ffffff")
+        case ItemFamily.CreativeWork: return new Color("#ffffff")
+        case ItemFamily.DigitalDocument: return new Color("#ffffff")
+        case ItemFamily.Comment: return new Color("#ffffff")
+        case ItemFamily.Note: return new Color("#ffffff")
+        case ItemFamily.MediaObject: return new Color("#ffffff")
+        case ItemFamily.Audio: return new Color("#ffffff")
+        case ItemFamily.Photo: return new Color("#ffffff")
+        case ItemFamily.Video: return new Color("#ffffff")
+        case ItemFamily.CVUStoredDefinition: return new Color("#ffffff")
+        case ItemFamily.CVUStateDefinition: return new Color("#ffffff")
+        case ItemFamily.Datasource: return new Color("#ffffff")
+        case ItemFamily.Device: return new Color("#ffffff")
+        case ItemFamily.Diet: return new Color("#ffffff")
+        case ItemFamily.Downloader: return new Color("#ffffff")
+        case ItemFamily.Edge: return new Color("#ffffff")
+        case ItemFamily.File: return new Color("#ffffff")
+        case ItemFamily.Importer: return new Color("#ffffff")
+        case ItemFamily.ImporterRun: return new Color("#ffffff")
+        case ItemFamily.Indexer: return new Color("#ffffff")
+        case ItemFamily.IndexerRun: return new Color("#ffffff")
+        case ItemFamily.Label: return new Color("#ffffff")
+        case ItemFamily.Location: return new Color("#ffffff")
+        case ItemFamily.Address: return new Color("#ffffff")
+        case ItemFamily.Country: return new Color("#ffffff")
+        case ItemFamily.MedicalCondition: return new Color("#ffffff")
+        case ItemFamily.NavigationItem: return new Color("#ffffff")
+        case ItemFamily.OnlineProfile: return new Color("#ffffff")
+        case ItemFamily.Person: return new Color("#ffffff")
+        case ItemFamily.PhoneNumber: return new Color("#ffffff")
+        case ItemFamily.PublicKey: return new Color("#ffffff")
+        case ItemFamily.Setting: return new Color("#ffffff")
+        case ItemFamily.UserState: return new Color("#ffffff")
+        case ItemFamily.ViewArguments: return new Color("#ffffff")
+        case ItemFamily.Website: return new Color("#ffffff")
     }
 }
 
@@ -1281,46 +1281,46 @@ export var getPrimaryKey = function(name) {
 
 export var getItemType = function(name) {
     switch (name) {
-        case ItemFamily.typeAuditItem: return AuditItem
-        case ItemFamily.typeCompany: return Company
-        case ItemFamily.typeCreativeWork: return CreativeWork
-        case ItemFamily.typeDigitalDocument: return DigitalDocument
-        case ItemFamily.typeComment: return Comment
-        case ItemFamily.typeNote: return Note
-        case ItemFamily.typeMediaObject: return MediaObject
-        case ItemFamily.typeAudio: return Audio
-        case ItemFamily.typePhoto: return Photo
-        case ItemFamily.typeVideo: return Video
-        case ItemFamily.typeCVUStoredDefinition: return CVUStoredDefinition
-        case ItemFamily.typeCVUStateDefinition: return CVUStateDefinition
-        case ItemFamily.typeDatasource: return Datasource
-        case ItemFamily.typeDevice: return Device
-        case ItemFamily.typeDiet: return Diet
-        case ItemFamily.typeDownloader: return Downloader
-        case ItemFamily.typeEdge: return Edge
-        case ItemFamily.typeFile: return File
-        case ItemFamily.typeImporter: return Importer
-        case ItemFamily.typeImporterRun: return ImporterRun
-        case ItemFamily.typeIndexer: return Indexer
-        case ItemFamily.typeIndexerRun: return IndexerRun
-        case ItemFamily.typeLabel: return Label
-        case ItemFamily.typeLocation: return Location
-        case ItemFamily.typeAddress: return Address
-        case ItemFamily.typeCountry: return Country
-        case ItemFamily.typeMedicalCondition: return MedicalCondition
-        case ItemFamily.typeNavigationItem: return NavigationItem
-        case ItemFamily.typeOnlineProfile: return OnlineProfile
-        case ItemFamily.typePerson: return Person
-        case ItemFamily.typePhoneNumber: return PhoneNumber
-        case ItemFamily.typePublicKey: return PublicKey
-        case ItemFamily.typeSession: return Session
-        case ItemFamily.typeSessions: return Sessions
-        case ItemFamily.typeSessionView: return SessionView
-        case ItemFamily.typeSetting: return Setting
-        case ItemFamily.typeSyncState: return SyncState
-        case ItemFamily.typeUserState: return UserState
-        case ItemFamily.typeViewArguments: return ViewArguments
-        case ItemFamily.typeWebsite: return Website
+        case ItemFamily.AuditItem: return AuditItem
+        case ItemFamily.Company: return Company
+        case ItemFamily.CreativeWork: return CreativeWork
+        case ItemFamily.DigitalDocument: return DigitalDocument
+        case ItemFamily.Comment: return Comment
+        case ItemFamily.Note: return Note
+        case ItemFamily.MediaObject: return MediaObject
+        case ItemFamily.Audio: return Audio
+        case ItemFamily.Photo: return Photo
+        case ItemFamily.Video: return Video
+        case ItemFamily.CVUStoredDefinition: return CVUStoredDefinition
+        case ItemFamily.CVUStateDefinition: return CVUStateDefinition
+        case ItemFamily.Datasource: return Datasource
+        case ItemFamily.Device: return Device
+        case ItemFamily.Diet: return Diet
+        case ItemFamily.Downloader: return Downloader
+        case ItemFamily.Edge: return Edge
+        case ItemFamily.File: return File
+        case ItemFamily.Importer: return Importer
+        case ItemFamily.ImporterRun: return ImporterRun
+        case ItemFamily.Indexer: return Indexer
+        case ItemFamily.IndexerRun: return IndexerRun
+        case ItemFamily.Label: return Label
+        case ItemFamily.Location: return Location
+        case ItemFamily.Address: return Address
+        case ItemFamily.Country: return Country
+        case ItemFamily.MedicalCondition: return MedicalCondition
+        case ItemFamily.NavigationItem: return NavigationItem
+        case ItemFamily.OnlineProfile: return OnlineProfile
+        case ItemFamily.Person: return Person
+        case ItemFamily.PhoneNumber: return PhoneNumber
+        case ItemFamily.PublicKey: return PublicKey
+        case ItemFamily.Session: return Session
+        case ItemFamily.Sessions: return Sessions
+        case ItemFamily.SessionView: return SessionView
+        case ItemFamily.Setting: return Setting
+        case ItemFamily.SyncState: return SyncState
+        case ItemFamily.UserState: return UserState
+        case ItemFamily.ViewArguments: return ViewArguments
+        case ItemFamily.Website: return Website
     }
 }
 

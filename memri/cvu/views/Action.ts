@@ -10,7 +10,7 @@ import {debugHistory} from "./ViewDebugger";
 import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {CacheMemri} from "../../model/Cache";
-import {CVUStateDefinition} from "../../model/items/Item";
+import {CVUStateDefinition, Item} from "../../model/items/Item";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -418,7 +418,7 @@ export class ActionAddItem extends Action {
 
     exec(argumentsJs) {
         let dataItem = argumentsJs["template"]
-        if (dataItem?.constructor?.name == "Item") {//TODO
+        if (dataItem instanceof Item) {//TODO
             // Copy template
             //let copy = this.context.cache.duplicate(dataItem);
             //#warning("Test that this creates a unique node")
@@ -450,7 +450,7 @@ export class ActionOpenView extends Action {
     }
 
     openView(context: MemriContext, view: CVUStateDefinition|Item, argumentsJs = null) {
-        if (view?.constructor?.name == "Item") {
+        if (view instanceof Item) {
            let item = view;
             let uid = item.uid;
             if (!uid) {
@@ -463,7 +463,7 @@ export class ActionOpenView extends Action {
                 "definition":
 `[view] {
     [datasource = pod] {
-        query: "\(item.genericType) AND uid = \(uid)"
+        query: "${item.genericType} AND uid = ${uid}"
     }
 }`,
             })

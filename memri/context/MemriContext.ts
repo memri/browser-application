@@ -547,21 +547,21 @@ export class MemriContext {
 		if (typeof stringType != "string") {
 			throw "Missing type attribute to indicate the type of the data item"
 		}
-		let family = ItemFamily["type" + stringType];
+		let family = ItemFamily[stringType];
 		if (!family) {
 			throw `Cannot find find family ${stringType}`
 		}
-		let ItemType = new (getItemType(family))();
+		/*let ItemType = new (getItemType(family))();
 		if (!ItemType) {
 			throw `Cannot find family ${stringType}`
-		}
+		}*/
 		var values = dict ?? {}
 		if (typeof dict["uid"] != "number") {
 			delete values["uid"]
 		}
 		delete values["_type"]
 
-		return CacheMemri.createItem(ItemType, values)
+		return CacheMemri.createItem(family, values)
 	}
 }
 

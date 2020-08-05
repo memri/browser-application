@@ -51,7 +51,7 @@ export class ResultSet {
 		let type = ItemFamily[typeName]
 
 		if (type) {
-			if ((filter ?? "").match("^AND uid = .*?$").length > 0) {//TODO match
+			if ((filter ?? "").match("^AND uid = .*?$")?.length > 0) {//TODO match
 				return false
 			}
 		}
