@@ -1403,6 +1403,6 @@ export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
 
     exec(argumentsJs) {
         this.context.currentView.activeRenderer = this.rendererName
-        this.context.scheduleUIUpdate()/*{ _ in true }*///TODO // scheduleCascadableViewUpdate() // TODO why are userState not kept?
+        this.context.scheduleUIUpdate(true)/*{ _ in true }*///TODO // scheduleCascadableViewUpdate() // TODO why are userState not kept?
     }
 }

@@ -157,11 +157,11 @@ export class MemriContext {
 				// TODO: Error Handling
 				debugHistory.error(`Could not update CascadableView: ${error}`)
 			}
-			this.showNavigationBinding()
 			return
 		} else {
 			//this.cascadableViewUpdateSubject.send() TODO
 		}
+		this.showNavigationBinding()
 	}
 
 	/*updateCascadingView() {

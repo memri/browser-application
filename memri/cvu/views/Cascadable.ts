@@ -122,7 +122,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
             }
 
             var result = []
-            var lut = [];
+            var lut = {};
             for (let def of this.cascadeStack) {
                 let list: CVUParsedDefinition = def.get(name); //TODO:
                 if (Array.isArray(list)) {
@@ -169,7 +169,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
                         this.localCache[name] = x
                         return x
                     } else {
-                        result.push(x)
+                        result.push(...x)
                     }
                 } else if (def[name]) {
                     if (!uniqueKey) {
@@ -180,6 +180,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
                     }
                 }
             }
+            result = Array.from(new Set(result))//TODO
         }
 
 

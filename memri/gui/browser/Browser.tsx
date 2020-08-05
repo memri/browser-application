@@ -62,9 +62,9 @@ export class Browser extends MainUI {
 
 							{currentView.showSearchbar && !currentView.fullscreen &&
 								<>
-									{/*<Search context={this.context}/>
+									{/*<Search context={this.context}/>*/}
 									{this.context.currentSession?.showFilterPanel ||
-										<FilterPanel context={this.context}/>}*/}
+										<FilterPanel context={this.context}/>}
 								</>
 							}
 						</VStack>
