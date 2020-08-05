@@ -635,7 +635,7 @@ export class ActionToggleEditMode extends Action {
 
 export class ActionToggleFilterPanel extends Action {
     defaultValues = {
-        "icon": "rhombus.fill",
+        "icon": "filter_list",//rhombus.fill
         "binding": new Expression("currentSession.showFilterPanel"),//TODO
         "activeColor": new Color("#6aa84f")
     };

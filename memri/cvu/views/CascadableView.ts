@@ -299,7 +299,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     set filterText(newFilter) {
         // Don't update the filter when it's already set
-        if (newFilter.length > 0 && this._titleTemp != null &&
+        if (newFilter && newFilter.length > 0 && this._titleTemp != null &&
             this.userState.get("filterText") == newFilter) {
             return
         }
@@ -323,20 +323,21 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
         }
 
         if (this.userState.get("filterText") == "") {
-            this._titleTemp
-            this._subtitleTemp
-            this._emptyResultTextTemp
+            this._titleTemp = undefined
+            this._subtitleTemp = undefined
+            this._emptyResultTextTemp = undefined
         } else {
             // Set the title to an appropriate message
-            if (this.resultSet.length == 0) { this._titleTemp = "No results" }
-            else if (this.resultSet.length == 1) { this._titleTemp = "1 item found" }
-            else { this._titleTemp = `${this.resultSet.length} items found` }
+            if (this.resultSet.count == 0) { this._titleTemp = "No results" }
+            else if (this.resultSet.count == 1) { this._titleTemp = "1 item found" }
+            else { this._titleTemp = `${this.resultSet.count} items found` }
 
             // Temporarily hide the subtitle
             // _subtitleTemp = " " // TODO how to clear the subtitle ??
 
             this._emptyResultTextTemp = `No results found using '${this.userState.get("filterText") ?? ""}'`
         }
+        this.context.scheduleUIUpdate(true);
     }
 
     get searchMatchText() { return this.userState.get("searchMatchText") ?? "" }

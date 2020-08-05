@@ -25,7 +25,7 @@ export class Search extends MainUI{
 					<MemriTextField value={this.context.currentView?.filterText ?? "" }
 									placeholder={this.context.currentView?.searchHint ?? ""}
 									showPrevNextButtons={false}
-									layoutPriority={-1}
+									layoutPriority={-1} onChange={(e) => this.context.currentView.filterText = e.target.value}
 					>
 					</MemriTextField>
 
@@ -33,7 +33,7 @@ export class Search extends MainUI{
 
 					{(this.context.currentView?.filterButtons ?? []).map((filterButton) =>
 						<ActionButton action={filterButton}
-							font={font({size: 20, weight: "medium"})}/>
+							font={font({size: 20, weight: "medium"})} context={this.context}/>
 					)}
 
 				</HStack>

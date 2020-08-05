@@ -225,10 +225,10 @@ export class Item extends SchemaItem {
     hasProperty(propName: string) {
         for (let prop in this) {
             if (this.hasOwnProperty(prop)) {
-                if (this[prop] == propName) {
+                if (prop == propName) {
                     return true
                 }
-                let haystack = this[prop.name];
+                let haystack = prop;
                 if (typeof haystack == "string") {
                     if (haystack.toLowerCase().indexOf(propName.toLowerCase()) > -1) {
                         return true
