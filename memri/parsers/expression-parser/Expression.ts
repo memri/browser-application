@@ -87,7 +87,7 @@ export class Expression {
 
         let node = this.ast
         if (node?.constructor?.name == "ExprLookupNode") {
-            var sequence = node.sequence
+            var sequence = Object.assign([], node.sequence)
             let lastProperty = sequence.pop()
             if (lastProperty?.constructor?.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence)
