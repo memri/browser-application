@@ -462,7 +462,6 @@ export class CVUParser {
                                 properties = this.parseDict();
                             }
                             stack.push(new CVUParsedObjectDefinition(properties));//TODO:
-                            continue;
                         } else if (CVUToken.CurlyBracketOpen == nextToken.constructor) {
                             // Do nothing
                         } else if (lastKey == undefined) {
