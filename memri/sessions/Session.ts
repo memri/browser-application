@@ -260,7 +260,7 @@ subscript(propName: String) -> Any? {
 
                 let s = view.state
                 if (s) {
-                    state?.link(s, "view", ".last", false)
+                    state?.link(s, "view", EdgeSequencePosition.last, undefined,false, false)
                 }
                 else {
                     debugHistory.warn("Unable to store view. Missing state CVU")

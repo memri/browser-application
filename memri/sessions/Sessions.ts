@@ -194,7 +194,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                 session.persist()
                 let s = session.state;
                 if (s) {
-                    state?.link(s, "session", EdgeSequencePosition.last, false);
+                    state?.link(s, "session", EdgeSequencePosition.last, undefined,false,false);
                 }
                 else {
                     debugHistory.warn("Unable to store session. Missing stored CVU")

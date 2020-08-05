@@ -10,7 +10,7 @@ import {debugHistory} from "./ViewDebugger";
 import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {CacheMemri} from "../../model/Cache";
-import {CVUStateDefinition, Item} from "../../model/items/Item";
+import {CVUStateDefinition, EdgeSequencePosition, Item} from "../../model/items/Item";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -878,7 +878,7 @@ export class ActionBackAsSession extends Action {
                         let state = view.state
                         let viewCopy = this.context.cache.duplicate(state)
                         if (state && viewCopy?.constructor?.name == "CVUStateDefinition") {
-                            copy.link(viewCopy, "view", ".last")
+                            copy.link(viewCopy, "view", EdgeSequencePosition.last)
                         }
                     }
 
@@ -1283,7 +1283,7 @@ export class ActionLink extends Action {
 
         let distinct = argumentsJs["distinct"] ?? false;
 
-        subject.link(selected, edgeType, distinct)
+        subject.link(selected,  edgeType, undefined, distinct)
 
         // TODO refactor
         ((this.context /*instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:?

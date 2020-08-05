@@ -269,7 +269,7 @@ export class Item extends SchemaItem {
                 }
             } else {
                 let obj = value;
-                this.link(obj, name, true)
+                this.link(obj, name, undefined,undefined,true)
             }
             this.dateModified = new Date() // Update DateModified
         })
@@ -359,11 +359,11 @@ export class Item extends SchemaItem {
 
         switch (sequence) {
             case EdgeSequencePosition.numberOne:
-                orderNumber = sequence.value; //TODO
+                orderNumber = sequence; //TODO
                 break;
             case EdgeSequencePosition.first:
                 var sorted = edges.sorted("sequence", false) //TODO:
-                let firstOrderNumber = sorted[0]?.sequence.value;
+                let firstOrderNumber = sorted[0]?.sequence;
                 if (firstOrderNumber) {
                     orderNumber = Math.round(firstOrderNumber / 2) //TODO:
 
@@ -375,17 +375,17 @@ export class Item extends SchemaItem {
                 break;
             case EdgeSequencePosition.last:
                 var sorted = edges.sorted("sequence", true) //TODO:
-                let lastOrderNumber = sorted[0]?.sequence.value;
+                let lastOrderNumber = sorted[0]?.sequence;
                 if (lastOrderNumber) {
                     orderNumber = lastOrderNumber + 1000
                 }
                 break;
             case EdgeSequencePosition.before:
-                let beforeEdge = sequence.value;
+                let beforeEdge = sequence;
                 if (!this.allEdges.indexOf(beforeEdge) > -1 || beforeEdge.type != edgeType) {
                     throw "Edge is not part of this set"
                 }
-                let beforeNumber = beforeEdge.sequence.value;
+                let beforeNumber = beforeEdge.sequence;
                 if (!beforeNumber) { //TODO
                     throw "Before edge is not part of an ordered list"
                 }
@@ -394,7 +394,7 @@ export class Item extends SchemaItem {
                     .filtered(`deleted = false AND sequence < ${beforeNumber}`)
                     .sorted("sequence", true)[0];
 
-                let previousNumber = (beforeBeforeEdge?.sequence.value ?? 0)
+                let previousNumber = (beforeBeforeEdge?.sequence ?? 0)
                 if (beforeNumber - previousNumber > 1000) {
                     orderNumber = beforeNumber - 1000
                 } else if (beforeNumber - previousNumber > 1) {
@@ -405,11 +405,11 @@ export class Item extends SchemaItem {
                 }
                 break;
             case EdgeSequencePosition.after:
-                let afterEdge = sequence.value;
+                let afterEdge = sequence;
                 if (!this.allEdges.indexOf(afterEdge) > -1 || afterEdge.type != edgeType) {
                     throw "Edge is not part of this set"
                 }
-                let afterNumber = afterEdge.sequence.value;
+                let afterNumber = afterEdge.sequence;
                 if (!afterNumber) {
                     throw "Before edge is not part of an ordered list"
                 }
@@ -418,7 +418,7 @@ export class Item extends SchemaItem {
                     .filtered(`deleted = false AND sequence < ${afterNumber}`)
                     .sorted("sequence", true)[0] //TODO:
 
-                let nextNumber = (afterAfterEdge?.sequence.value ?? 0)
+                let nextNumber = (afterAfterEdge?.sequence ?? 0)
                 if (afterNumber - nextNumber > 1000) {
                     orderNumber = afterNumber - 1000
                 } else if (afterNumber - nextNumber > 1) {
@@ -455,7 +455,7 @@ export class Item extends SchemaItem {
         let query = `deleted = false and type = '${edgeType}'` //
             + (distinct ? "" : ` and targetItemID = ${targetID}`)
         var edge = this.allEdges.filtered(query)[0] //TODO
-        //let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
+        let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
         DatabaseController.writeSync(function () {
             if (item.realm == undefined && item?.constructor?.name == "Item") {
@@ -469,7 +469,7 @@ export class Item extends SchemaItem {
                     item,
                     edgeType,
                     label,
-                    undefined //sequenceNumber
+                    sequenceNumber
                 );
                 if (edge) {
                     this.allEdges.push(edge);
@@ -477,7 +477,7 @@ export class Item extends SchemaItem {
             } else if (overwrite && edge) {
                 edge.targetItemID= targetID
                 edge.targetItemType = item.genericType
-                edge.sequence = undefined //sequenceNumber
+                edge.sequence = sequenceNumber
                 edge.edgeLabel = label
 
                 if (edge["_action"] == undefined) {
