@@ -199,13 +199,13 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     insertRenderDefs(tail: CVUParsedRendererDefinition[]) {
         var renderDef: CVUStoredDefinition[] = this.context?.views
-            .fetchDefinitions(this.activeRenderer, "renderer") ?? []
+            .fetchDefinitions(null, this.activeRenderer, "renderer") ?? []
 
         if (this.activeRenderer.includes(".")) {
             let name = this.activeRenderer.split(".")[0]
             if (name) {
                 renderDef.push(this.context?.views
-                    .fetchDefinitions(String(name), "renderer") ?? [])
+                    .fetchDefinitions(null, String(name), "renderer") ?? [])
             }
         }
 
