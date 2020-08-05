@@ -14,6 +14,7 @@ import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Item} from "../../model/items/Item";
 import {FilterPanelRendererButton} from "./Action";
 import {UIElementView} from "../../gui/common/UIElementView";
+import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
 
 export class Renderers {
     all = {}
@@ -38,7 +39,7 @@ export class Renderers {
     constructor() {
         //if (allRenderers == null) { allRenderers = this }
         
-        //registerCustomRenderer()//TODO
+        registerCustomRenderer()//TODO
         registerListRenderer()
         //registerGeneralEditorRenderer()
         //registerThumbnailRenderer()
@@ -173,14 +174,25 @@ export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRende
     type = "list"
 
     get longPress() { return this.cascadeProperty("longPress") }
+    set longPress(value) { this.setState("longPress", value) }
+
     get press() { return this.cascadeProperty("press") }
+    set press(value) { this.setState("press", value) }
 
     get slideLeftActions() { return this.cascadeList("slideLeftActions") }
+    set slideLeftActions(value) { this.setState("slideLeftActions", value) }
+
     get slideRightActions() { return this.cascadeList("slideRightActions") }
+    set slideRightActions(value) { this.setState("slideRightActions", value) }
 
     setDefaultValues(element: UIElement) {
         if (element.properties["padding"] == undefined) {
             element.properties["padding"] = [10, 10, 10, 20]
         }
     }
+}
+
+//CascadingCustomConfig moved from CustomRenderer.tsx
+export class CascadingCustomConfig extends CascadingRenderConfig {
+    type = "custom"
 }
