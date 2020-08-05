@@ -228,7 +228,7 @@ export class Item extends SchemaItem {
                 if (prop == propName) {
                     return true
                 }
-                let haystack = prop;
+                let haystack = this[prop];
                 if (typeof haystack == "string") {
                     if (haystack.toLowerCase().indexOf(propName.toLowerCase()) > -1) {
                         return true

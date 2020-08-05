@@ -655,7 +655,7 @@ export class ActionToggleFilterPanel extends Action {
 }
 export class ActionStar extends Action {
     defaultValues = {
-        "icon": "star.fill",
+        "icon": "star",//star.fill
         "binding": new Expression("dataItem.starred")//TODO
     };
 
@@ -693,7 +693,7 @@ export class ActionStar extends Action {
 
 export class ActionShowStarred extends Action {
     defaultValues = {
-        "icon": "star.fill",
+        "icon": "star", ///star.fill
         "binding": new Expression("view.userState.showStarred"),//TODO
         "opensView": true,
         "activeColor": new Color("#ffdb00"),
