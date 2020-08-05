@@ -451,7 +451,7 @@ export class ActionOpenView extends Action {
 
     openView(context: MemriContext, view: CVUStateDefinition|Item, argumentsJs = null) {
         if (view instanceof Item) {
-           let item = view;
+            let item = view;
             let uid = item.uid;
             if (!uid) {
                 throw "Uninitialized item"
@@ -472,6 +472,7 @@ export class ActionOpenView extends Action {
         if (session) {
             // Add view to session
             session.setCurrentView(view, argumentsJs)
+            this.context.showNavigationBinding()
         } else {
             // TODO: Error Handling
             debugHistory.error("No session is active on context")

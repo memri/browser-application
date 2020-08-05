@@ -57,7 +57,6 @@ export class ListRendererView extends MainUI {
 
 	executeAction = (dataItem) => () => {
 		let press = this.renderConfig.press
-		// press = new ActionOpenView()
 		if (press) {
 			this.context.executeAction(press, dataItem)
 		}

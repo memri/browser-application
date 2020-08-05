@@ -5,7 +5,7 @@
 
 import {allRenderers, CascadingCustomConfig} from "../../cvu/views/Renderers";
 import {MainUI, VStack} from "../swiftUI";
-import React from "react";
+import * as React from "react";
 import {Item} from "../../model/items/Item";
 
 export var registerCustomRenderer = function () {

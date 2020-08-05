@@ -200,7 +200,7 @@ export class CacheMemri {
 					// NOTE: Allowed forced cast
 					let objects = realm.objects(getItemType(dtype)?.constructor?.name)
 						.filtered("deleted = false " + (filter ?? "")) //TODO
-					for (var item of objects) { returnValue.push(new Item(item)) }
+					for (var item of objects) { returnValue.push(item) }
 				}
 
 				callback && callback(null, returnValue)
@@ -230,7 +230,7 @@ export class CacheMemri {
 				var returnValue = []
 				for (var item of result) {
 					//if (item?.constructor?.name == "Item") {
-						returnValue.push(new Item(item))
+						returnValue.push(item)
 					//}
 				}
 
