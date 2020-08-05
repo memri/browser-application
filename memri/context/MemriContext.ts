@@ -130,6 +130,7 @@ export class MemriContext {
 
 	scheduleUIUpdate(immediate =  false, check?) { // Update UI
 		if (immediate) {
+			this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
 			// #warning("@Toby how can we prevent the uiUpdateSubject from firing immediate after this?")
 
 			// Do this straight away, usually for the sake of correct animation
@@ -156,6 +157,7 @@ export class MemriContext {
 				// TODO: Error Handling
 				debugHistory.error(`Could not update CascadableView: ${error}`)
 			}
+			this.showNavigationBinding()
 			return
 		} else {
 			//this.cascadableViewUpdateSubject.send() TODO

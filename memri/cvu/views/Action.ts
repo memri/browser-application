@@ -472,7 +472,6 @@ export class ActionOpenView extends Action {
         if (session) {
             // Add view to session
             session.setCurrentView(view, argumentsJs)
-            this.context.showNavigationBinding()
         } else {
             // TODO: Error Handling
             debugHistory.error("No session is active on context")
@@ -758,7 +757,6 @@ export class ActionShowNavigation extends Action {
     }
 
     exec(argumentsJs) {
-        this.context.showNavigationBinding();
         // Hide Keyboard
         //dismissCurrentResponder()//TODO
     }

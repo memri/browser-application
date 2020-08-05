@@ -30,6 +30,7 @@ import {Action, ActionUnlink} from "../../cvu/views/Action";
 import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
+import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
 
 //import {SubView} from "./SubView";
 
@@ -317,11 +318,15 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.RichTextfield:
                     //TODO:
-                    return (
-                        <this.renderRichTextfield
+                    /*
+                    <this.renderRichTextfield
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </this.renderRichTextfield>
+                     */
+                    return (<>
+                        {this.renderRichTextfield()}
+                        </>
                     );
                 case UIElementFamily.ItemCell:
                     //TODO:
@@ -453,11 +458,11 @@ export class UIElementView extends MainUI {
     }
 
     renderRichTextfield() {
-        let [_, contentDataItem, contentPropertyName] = this.getType("htmlValue", this.item, this.viewArguments)
-        let [__, plainContentDataItem, plainContentPropertyName] = this.getType("value", this.item, this.viewArguments)
-        if (!contentDataItem.hasProperty(contentPropertyName) || !plainContentDataItem.hasProperty(plainContentPropertyName)) {
+        let [_, contentDataItem, contentPropertyName] = this.from.getType("htmlValue", this.item, this.viewArguments)
+        let [__, plainContentDataItem, plainContentPropertyName] = this.from.getType("value", this.item, this.viewArguments)
+        /*if (!contentDataItem.hasProperty(contentPropertyName) || !plainContentDataItem.hasProperty(plainContentPropertyName)) {
             return <MemriText>Invalid property value set on RichTextEditor</MemriText>
-        }
+        }*/
 
         // CONTENT
         /*let contentBinding = Binding<String?>(
@@ -473,19 +478,27 @@ export class UIElementView extends MainUI {
         let fontSize = this.get("fontSize")
 
         // TITLE
-        let [___, titleDataItem, titlePropertyName] = this.getType("title", this.item, this.viewArguments)
+        let [___, titleDataItem, titlePropertyName] = this.from.getType("title", this.item, this.viewArguments)
         /*let titleBinding = titleDataItem.hasProperty(titlePropertyName) ? Binding<String?>(
             get: { (titleDataItem[titlePropertyName] as? String)?.nilIfBlank },
             set: { titleDataItem.set(titlePropertyName, $0) }
-        ) : nil // Only pass a title binding if the property exists (otherwise pass nil)
-        let titleHint = get("titleHint", type: String.self)
-        let titleFontSize = get("titleFontSize", type: CGFloat.self)
+        ) : nil // Only pass a title binding if the property exists (otherwise pass nil)*/
+        let titleHint = this.get("titleHint")
+        let titleFontSize = this.get("titleFontSize")
 
         // Filter (unimplemented)
-        let filterTextBinding = Binding<String>(
+        /* let filterTextBinding = Binding<String>(
             get: { self.context.currentView?.filterText ?? "" },
             set: { self.context.currentView?.filterText = $0 }
         )*/
+
+        return (
+            <RichTextEditor htmlContentBinding={contentDataItem[contentPropertyName]}
+                            titleBinding={titleDataItem[titlePropertyName]}
+                            titleHint={titleHint} headingFontSize={titleFontSize ?? 26}
+                            fontSize={fontSize ?? 18}
+            />
+        )
 
         /*return _RichTextEditor(htmlContentBinding: contentBinding,
                                plainContentBinding: plainContentBinding,

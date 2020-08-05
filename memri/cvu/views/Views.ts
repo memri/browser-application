@@ -395,7 +395,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node} on list`)
 								break
 						}
-					} else if (typeof v.subscript == "function") {//Subscriptable
+					} else if (v && typeof v.subscript == "function") {//Subscriptable
 						value = v[node.name]
 					}
 					// CascadingRenderer??

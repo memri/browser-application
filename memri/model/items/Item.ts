@@ -1447,11 +1447,11 @@ export class Comment extends Item{
 /// A file containing a note.
 export class Note extends Item {
     /// TBD
-    title
+    title = ""
     /// TBD
-    content
+    content = ""
     /// TBD
-    textContent
+    textContent = ""
 
     /// TBD
     get comment() {

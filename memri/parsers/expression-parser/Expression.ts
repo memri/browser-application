@@ -91,13 +91,11 @@ export class Expression {
             let lastProperty = sequence.pop()
             if (lastProperty?.constructor?.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence)
-                let dataItem = this.lookup(lookupNode, viewArguments)//TODO
-                if (dataItem?.constructor?.name == "DataItem") {
-                    let propType = dataItem.objectSchema[lastProperty.name]?.type;
-                    if (propType) {
-                        let propType = property.type
-                        return (propType, dataItem, lastProperty.name)//TODO
-                    } else  {
+                let dataItem = this.lookup(lookupNode, viewArguments)
+                if (dataItem) {//TODO: this is completely different in js
+
+                    return [undefined, dataItem, lastProperty.name]//TODO
+                    /*} else  {
                         let propType = PropertyType(7)
                         if (propType) {
                             //warning("This requires a local version a browsable schema that describes the types of edges")
@@ -105,7 +103,7 @@ export class Expression {
                             return (propType, dataItem, lastProperty.name)
                             //
                         }
-                    }
+                    }*/
                 }
             }
         }

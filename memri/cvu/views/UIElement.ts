@@ -109,7 +109,7 @@ export class UIElement /*extends CVUToString */{
 		}
 
 		// TODO: Refactor: Error Handling
-		//return (.any, item, "")//TODO
+		return [undefined, item, ""]//TODO
 	}
 
 	processText(text) {
