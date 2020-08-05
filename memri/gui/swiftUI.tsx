@@ -505,6 +505,17 @@ export class UIImage extends MainUI {
     }
 }
 
+export class RoundedRectangle extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="RoundedRectangle" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
 
 
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
