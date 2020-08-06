@@ -42,7 +42,7 @@ export class Renderers {
         registerCustomRenderer()//TODO
         registerListRenderer()
         //registerGeneralEditorRenderer()
-        //registerThumbnailRenderer()
+        // registerThumbnailRenderer()
         //registerThumbGridRenderer()
         //registerThumbHorizontalGridRenderer()
         //registerThumbWaterfallRenderer()
@@ -195,4 +195,84 @@ export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRende
 //CascadingCustomConfig moved from CustomRenderer.tsx
 export class CascadingCustomConfig extends CascadingRenderConfig {
     type = "custom"
+}
+
+//CascadingThumbnailConfig moved from ThumbnailRendererView.tsx
+export class CascadingThumbnailConfig extends CascadingRenderConfig {
+    type = "thumbnail"
+
+    get longPress() { return this.cascadeProperty("longPress") }
+    set longPress(value) { this.setState("longPress", value) }
+
+    get press() { return this.cascadeProperty("press") }
+    set press(value) { this.setState("press", value) }
+
+    get columns() { return this.cascadeProperty("columns") ?? 3 }
+    set columns(value) { this.setState("columns", value) }
+
+    get edgeInset() {
+        let edgeInset = this.cascadePropertyAsCGFloat("edgeInset")
+        if (edgeInset) {
+            return new UIEdgeInsets(
+                edgeInset,
+                edgeInset,
+                edgeInset,
+                edgeInset
+            )
+        } else {
+            let x = this.cascadeProperty("edgeInset")
+            if (x) {
+                let insetArray = x.filter((item) => item != undefined/*TODO???*/).map(($0) => $0.map (($0) => Number($0) ))
+                switch (insetArray.length) {
+                    case 2: return new UIEdgeInsets(
+                        insetArray[1],
+                        insetArray[0],
+                        insetArray[1],
+                        insetArray[0]
+                    )
+                    case 4: return UIEdgeInsets(
+                        insetArray[0],
+                        insetArray[3],
+                        insetArray[2],
+                        insetArray[1]
+                    )
+                    default: return this.init()
+                }
+            }
+        }
+
+        return this.init()
+    }
+    set edgeInset(value) { this.setState("edgeInset", value) }
+
+    get nsEdgeInset(): NSDirectionalEdgeInsets {
+        let edgeInset = this.edgeInset
+        return new NSDirectionalEdgeInsets(
+            edgeInset.top,
+            edgeInset.left,
+            edgeInset.bottom,
+            edgeInset.right
+        )
+    }
+
+    // Calculated
+    get spacing() {
+        let spacing = this.cascadePropertyAsCGFloat("spacing")
+        if (spacing) {
+            return [spacing, spacing]
+        }
+        else {
+            let x = this.cascadeProperty("spacing")
+            if (x) {
+                let spacingArray = x.filter((item) => item != undefined/*TODO???*/).map(($0) => $0.map(($0) => Number($0)))
+
+                if (spacingArray.length != 2) {
+                    return [0, 0]
+                }
+                return [spacingArray[0], spacingArray[1]]
+            }
+        }
+        return [0, 0]
+    }
+    set(value) { this.setState("spacing", value) }
 }
