@@ -536,7 +536,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
         // Find views based on datatype
         for (let domain of ["user", "defaults"]) {
             for (let needle of needles) {
-                let def = this.context?.views.fetchDefinitions(needle, domain)[0];
+                let def = this.context?.views.fetchDefinitions(needle, null, null, null, domain)[0];
                 if (def) {
                     this.parse(def, domain)
                 } else if (domain != "user") {
