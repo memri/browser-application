@@ -14,7 +14,7 @@ import {Languages} from "./Languages";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 //import {RealmObjects} from "../../model/RealmLocal";
-import {CVUStateDefinition, dataItemListToArray} from "../../model/items/Item";
+import {CVUStateDefinition, dataItemListToArray, Item} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
 import {CascadingRenderConfig} from "./Renderers";
 
@@ -293,7 +293,7 @@ export class Views {
 					throw error
 				}
 			} else
-			if (isFunction && i == lookup.sequence.length && value && value?.constructor?.name == "Item") {
+			if (isFunction && i == lookup.sequence.length && value && value instanceof Item) {
 				value = value.functions[node.name]
 				if (value == undefined) {
 					// TODO: parse [blah]
@@ -305,7 +305,7 @@ export class Views {
 			} else {
 					let dataItem = value
 					let v = value
-					if (dataItem?.constructor?.name == "Item") {
+					if (dataItem instanceof Item) {
 						switch (node.name) {
 							case "genericType": value = dataItem.genericType;
 								break;
@@ -396,7 +396,7 @@ export class Views {
 								break
 						}
 					} else if (v && typeof v.subscript == "function") {//Subscriptable
-						value = v[node.name]
+						value = v.get(node.name)
 					}
 					// CascadingRenderer??
 					else if (v?.constructor?.name == "RealmObject") {//TODO:
