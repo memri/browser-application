@@ -3,9 +3,10 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import {allRenderers, CascadingThumbnailConfig} from "../../../cvu/views/Renderers";
-import {font, HStack, MainUI, MemriText, padding, Spacer, VStack} from "../../swiftUI";
+import {ASCollectionView, font, HStack, MainUI, MemriText, padding, Spacer, VStack, ZStack} from "../../swiftUI";
 import * as React from "react";
 import {Alignment, Font} from "../../../parsers/cvu-parser/CVUParser";
+import {Grid, ListItem} from "@material-ui/core";
 
 export var registerThumbnailRenderer = function () {
     if (allRenderers) {
@@ -13,7 +14,7 @@ export var registerThumbnailRenderer = function () {
             "thumbnail",
             "Default",
             100,
-            "square.grid.3x2.fill",
+            "apps", //square.grid.3x2.fill
             new ThumbnailRendererView(),
             CascadingThumbnailConfig,
             function() { return true }
@@ -33,13 +34,20 @@ export class ThumbnailRendererView extends MainUI {
         )
     }*/
 
+    executeAction = (dataItem) => () => {
+        let press = this.renderConfig.press
+        if (press) {
+            this.context.executeAction(press, dataItem)
+        }
+    }
+
     name = "thumbnail"
 
     get renderConfig(): CascadingThumbnailConfig {
         return this.context.currentView?.renderConfig ?? new CascadingThumbnailConfig()
     }
 
-    get layout() {
+    /*get layout() {
         return (
             <ASCollectionLayout scrollDirection={"vertical"} interSectionSpacing={0}>
 
@@ -77,6 +85,20 @@ export class ThumbnailRendererView extends MainUI {
                 return section
             }
         }
+    }*/
+
+    get section() {
+        let items = this.context.items;
+        return items.map((dataItem) => {
+            return <Grid item key={dataItem.uid} xs={12/this.renderConfig.columns} onClick={
+                this.executeAction(dataItem)
+            }>
+                <ZStack alignment={Alignment.bottomTrailing}>
+                    {this.renderConfig.render(dataItem)}
+                </ZStack>
+
+            </Grid>
+        })
     }
 
     /*var section: ASCollectionViewSection<Int> {
@@ -112,6 +134,7 @@ export class ThumbnailRendererView extends MainUI {
     }*/
 
     render() {
+        this.context = this.props.context;
         return (
             <VStack>
                 {this.context.currentView?.resultSet.length == 0
@@ -130,7 +153,7 @@ export class ThumbnailRendererView extends MainUI {
                         <Spacer/>
                     </>
                     :
-                    <ASCollectionView layout={this.layout} alwaysBounceVertical={true} >
+                    <ASCollectionView alwaysBounceVertical={true} >
                         {this.section}
 
                     </ASCollectionView>}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BaseTextFieldProps, Box, Button, Divider, Icon, List, TextField} from "@material-ui/core";
+import {BaseTextFieldProps, Box, Button, Divider, Grid, Icon, List, TextField} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
 
@@ -382,9 +382,9 @@ export class MemriText extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <span style={this.setStyles()} {...other}>
+            <div style={this.setStyles()} {...other}>
                 {this.props.children}
-            </span>
+            </div>
         )
     }
 }
@@ -478,9 +478,9 @@ export class Group extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <List style={this.setStyles()} className="Group" {...other}>
+            <div style={this.setStyles()} className="Group" {...other}>
                 {this.props.children}
-            </List>
+            </div>
         )
     }
 }
@@ -516,6 +516,16 @@ export class RoundedRectangle extends MainUI {
     }
 }
 
+export class ASCollectionView extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <Grid container style={this.setStyles()} className="ASCollectionView" {...other}>
+                {this.props.children}
+            </Grid>
+        )
+    }
+}
 
 
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:

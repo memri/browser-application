@@ -15,6 +15,7 @@ import {Item} from "../../model/items/Item";
 import {FilterPanelRendererButton} from "./Action";
 import {UIElementView} from "../../gui/common/UIElementView";
 import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
+import {registerThumbnailRenderer} from "../../gui/renderers/GridRenderers/ThumbnailRendererView";
 
 export class Renderers {
     all = {}
@@ -42,7 +43,7 @@ export class Renderers {
         registerCustomRenderer()//TODO
         registerListRenderer()
         //registerGeneralEditorRenderer()
-        // registerThumbnailRenderer()
+        registerThumbnailRenderer()
         //registerThumbGridRenderer()
         //registerThumbHorizontalGridRenderer()
         //registerThumbWaterfallRenderer()
@@ -213,35 +214,35 @@ export class CascadingThumbnailConfig extends CascadingRenderConfig {
     get edgeInset() {
         let edgeInset = this.cascadePropertyAsCGFloat("edgeInset")
         if (edgeInset) {
-            return new UIEdgeInsets(
+            return [
                 edgeInset,
                 edgeInset,
                 edgeInset,
                 edgeInset
-            )
+            ]
         } else {
             let x = this.cascadeProperty("edgeInset")
             if (x) {
                 let insetArray = x.filter((item) => item != undefined/*TODO???*/).map(($0) => $0.map (($0) => Number($0) ))
                 switch (insetArray.length) {
-                    case 2: return new UIEdgeInsets(
+                    case 2: return [
                         insetArray[1],
                         insetArray[0],
                         insetArray[1],
                         insetArray[0]
-                    )
-                    case 4: return UIEdgeInsets(
+                    ]
+                    case 4: return [
                         insetArray[0],
                         insetArray[3],
                         insetArray[2],
                         insetArray[1]
-                    )
-                    default: return this.init()
+                    ]
+                    default: return
                 }
             }
         }
 
-        return this.init()
+        return
     }
     set edgeInset(value) { this.setState("edgeInset", value) }
 
