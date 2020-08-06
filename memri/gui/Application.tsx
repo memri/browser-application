@@ -11,6 +11,7 @@ import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./navigation/NavigationView";
 import {MainUI, Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
+import {SessionSwitcher} from "./SessionSwitcher";
 
 /*class View {
 	fullHeight(): View {
@@ -44,7 +45,7 @@ export class Application extends MainUI {
 		this.setState({isVisible: this.context.showNavigation});
 	}
 
-	render() {//(this.context.showSessionSwitcher) ? <SessionSwitcher/>:
+	render() {
 		this.context = this.props.context;
 		this.context.showNavigationBinding = this.showNavigationBinding;
 		return (
@@ -53,8 +54,9 @@ export class Application extends MainUI {
 				<VStack spacing={0}>
 					{(this.context.installer.isInstalled && !this.context.installer.debugMode) ?
 					<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
-						{<Browser
-							context={this.context}/>
+						{this.context.showSessionSwitcher
+							? <SessionSwitcher context={this.context}/>
+							: <Browser context={this.context}/>
 						}
 					</NavigationWrapper> :
 					<SetupWizard/>
