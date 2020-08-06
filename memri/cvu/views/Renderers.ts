@@ -16,6 +16,7 @@ import {FilterPanelRendererButton} from "./Action";
 import {UIElementView} from "../../gui/common/UIElementView";
 import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
 import {registerThumbnailRenderer} from "../../gui/renderers/GridRenderers/ThumbnailRendererView";
+import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/ThumbGridRendererView";
 
 export class Renderers {
     all = {}
@@ -44,7 +45,7 @@ export class Renderers {
         registerListRenderer()
         //registerGeneralEditorRenderer()
         registerThumbnailRenderer()
-        //registerThumbGridRenderer()
+        registerThumbGridRenderer()
         //registerThumbHorizontalGridRenderer()
         //registerThumbWaterfallRenderer()
         //registerMapRenderer()

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BaseTextFieldProps, Box, Button, Divider, Grid, Icon, List, TextField} from "@material-ui/core";
+import {BaseTextFieldProps, Box, Button, Divider, Grid, GridList, Icon, List, TextField} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
 
@@ -266,6 +266,15 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     }
 }
 
+export class RenderersMemri extends MainUI {
+    executeAction = (dataItem) => () => {
+        let press = this.renderConfig.press
+        if (press) {
+            this.context.executeAction(press, dataItem)
+        }
+    }
+}
+
 export class VStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
@@ -518,12 +527,20 @@ export class RoundedRectangle extends MainUI {
 
 export class ASCollectionView extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
-        return (
-            <Grid container style={this.setStyles()} className="ASCollectionView" {...other}>
-                {this.props.children}
-            </Grid>
-        )
+        let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        if (images == true) {
+            return (
+                <GridList style={this.setStyles()} className="ASCollectionView" {...other}>
+                    {this.props.children}
+                </GridList>
+            )
+        } else {
+            return (
+                <Grid container style={this.setStyles()} className="ASCollectionView" {...other}>
+                    {this.props.children}
+                </Grid>
+            )
+        }
     }
 }
 

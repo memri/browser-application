@@ -3,10 +3,20 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import {allRenderers, CascadingThumbnailConfig} from "../../../cvu/views/Renderers";
-import {ASCollectionView, font, HStack, MainUI, MemriText, padding, Spacer, VStack, ZStack} from "../../swiftUI";
+import {
+    ASCollectionView,
+    font,
+    HStack,
+    MemriText,
+    padding,
+    RenderersMemri,
+    Spacer,
+    VStack,
+    ZStack
+} from "../../swiftUI";
 import * as React from "react";
 import {Alignment, Font} from "../../../parsers/cvu-parser/CVUParser";
-import {Grid, ListItem} from "@material-ui/core";
+import {Grid} from "@material-ui/core";
 
 export var registerThumbnailRenderer = function () {
     if (allRenderers) {
@@ -24,7 +34,7 @@ export var registerThumbnailRenderer = function () {
 
 //CascadingThumbnailConfig moved to Renderers.ts
 
-export class ThumbnailRendererView extends MainUI {
+export class ThumbnailRendererView extends RenderersMemri {
     /*var selectedIndices: Binding<Set<Int>> {
         Binding<Set<Int>>(
             get: { [] },
@@ -33,13 +43,6 @@ export class ThumbnailRendererView extends MainUI {
             }
         )
     }*/
-
-    executeAction = (dataItem) => () => {
-        let press = this.renderConfig.press
-        if (press) {
-            this.context.executeAction(press, dataItem)
-        }
-    }
 
     name = "thumbnail"
 
