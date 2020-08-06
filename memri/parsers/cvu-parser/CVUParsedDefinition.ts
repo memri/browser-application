@@ -135,7 +135,7 @@ export class CVUParsedDefinition {
                 let cascadableDict = this.parsed[key];
                 if (cascadableDict?.constructor?.name == "CascadableDict") {
                     cascadableDict.deepMerge(value);
-                } else {
+                } else if (value?.constructor?.name == "CascadableDict") {//TODO???
                     this.parsed[key] = (value)?.copy() //CascadablaDict
                 }
             } else if (this.parsed[key] == undefined) {
