@@ -17,6 +17,7 @@ import {UIElementView} from "../../gui/common/UIElementView";
 import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
 import {registerThumbnailRenderer} from "../../gui/renderers/GridRenderers/ThumbnailRendererView";
 import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/ThumbGridRendererView";
+import {registerMessageRenderer} from "../../gui/renderers/MessageRenderer";
 
 export class Renderers {
     all = {}
@@ -51,7 +52,7 @@ export class Renderers {
         //registerMapRenderer()
         //registerChartRenderer()
         // registerCalendarRenderer()
-        // registerMessageRenderer()
+        registerMessageRenderer()
         //registerPhotoViewerRenderer()
     }
     
@@ -277,4 +278,14 @@ export class CascadingThumbnailConfig extends CascadingRenderConfig {
         return [0, 0]
     }
     set(value) { this.setState("spacing", value) }
+}
+
+export class CascadingMessageRendererConfig extends CascadingRenderConfig {
+    type = "messages"
+
+    get press() { return this.cascadeProperty("press") }
+
+    get isOutgoing(): Expression {
+        return this.cascadeProperty("isOutgoing");
+    }
 }

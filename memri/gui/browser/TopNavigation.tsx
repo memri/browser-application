@@ -104,37 +104,18 @@ export class TopNavigation extends MainUI {
 
 	render() {
 		this.init()
-		let backButton = this.context.currentSession?.hasHistory ?? false ? new ActionBack(this.context) : null
+		let backButton = this.context.currentSession?.hasHistory ?? false ? new ActionBack(this.context) : undefined
 		let context = this.context
-		let inside, buttonToShow;//this.context.showNavigationBinding
-		if (!this.inSubView /*&& !memri_shouldUseLargeScreenLayout*/) {
-			inside = <ActionButton action={new ActionShowNavigation(this.context)} font={font({size: 20, weight: Font.Weight.semibold})} context={this.context}/>
-		} else if (this.showCloseButton) {
-			inside = <MemriButton action={function () {
-				context.executeAction(new ActionClosePopup(context))
-			}} font={font({size: 19, weight: Font.Weight.semibold})}><MemriText font={font({size: 16, weight: Font.Weight.regular})} padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close</MemriText></MemriButton>
-		}
+		let backButtonAction;
 		if (backButton) {
-			let backButtonAction = function () {
+			backButtonAction = () => {
 				if (!this.showingBackActions && backButton) {
 					context.executeAction(backButton)
 				}
-			}.bind(this)
-			buttonToShow = <MemriButton action={backButtonAction}
-										font={font({size: 19, weight: Font.Weight.semibold})}
-				/*onLongPressGesture*/ /*actionSheet={}*/>
-				{<MemriImage padding={padding({horizontal: 5, vertical: 5})} foregroundColor={backButton?.color ?? "white"}>{backButton?.getString("icon") ?? ""}</MemriImage>}
-			</MemriButton>
+			}
 		} else {
-			let backButtonAction = function () {
-				this.showingBackActions = true
-			}.bind(this)
-			buttonToShow = <MemriButton action={backButtonAction}
-										font={font({size: 19, weight: Font.Weight.semibold})}
-				/*actionSheet={}*/
-			><MemriImage foregroundColor="#434343" padding={padding({horizontal: 5, vertical: 8})} font={font({size: 10, weight: Font.Weight.bold})}>adjust</MemriImage></MemriButton>
+			backButtonAction = () => this.showingBackActions = true
 		}
-
 
 		return (
 			<div className="TopNavigation">
@@ -146,8 +127,38 @@ export class TopNavigation extends MainUI {
 						padding={padding({top: 15, bottom: 10, leading: 15, trailing: 15})}
 						frame={frame({height: 50, alignment: Alignment.top})}
 				>
-					{inside}
-					{buttonToShow}
+					{(!this.inSubView) ?
+						<ActionButton action={new ActionShowNavigation(this.context)}
+									  font={font({size: 20, weight: Font.Weight.semibold})} context={this.context}/> :
+						(this.showCloseButton) &&
+						<MemriButton action={function () {
+							context.executeAction(new ActionClosePopup(context))
+						}} font={font({size: 19, weight: Font.Weight.semibold})}>
+							<MemriText
+								font={font({size: 16, weight: Font.Weight.regular})}
+								padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close
+							</MemriText>
+						</MemriButton>
+					}
+					{(backButton != undefined) ?
+						<MemriButton action={backButtonAction}
+									 font={font({size: 19, weight: Font.Weight.semibold})}
+							/*onLongPressGesture*/ /*actionSheet={}*/>
+							<MemriImage padding={padding({horizontal: 5, vertical: 5})}
+										foregroundColor={backButton?.color ?? "white"}>
+								{backButton?.getString("icon") ?? ""}
+							</MemriImage>
+						</MemriButton> :
+						<MemriButton action={backButtonAction}
+									 font={font({size: 19, weight: Font.Weight.semibold})}
+							/*actionSheet={}*/
+						>
+							<MemriImage foregroundColor="#434343" padding={padding({horizontal: 5, vertical: 8})}
+										font={font({size: 10, weight: Font.Weight.bold})}>
+								adjust
+							</MemriImage>
+						</MemriButton>
+					}
 					<ColorArea layoutPriority={5}>
 						<MemriButton>
 							<MemriText foregroundColor="#333" truncationMode={"tail"} font={font({family: "headline"})}>

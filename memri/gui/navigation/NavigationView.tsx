@@ -174,7 +174,7 @@ class Navigation extends MainUI {
 		this.showSettings = this.props.showSettings ?? false;
 		this.context = this.props.context //{/*separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}*/}
 
-		return (
+		return (<div className="Navigation"  style={{position: "absolute", top: 0}}>
 		<VStack frame={frame({alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
 				<MemriButton onClick={function () {
@@ -199,7 +199,7 @@ class Navigation extends MainUI {
 				{this.getNavigationItems()}
 			</ASTableView>
 
-		</VStack>
+		</VStack></div>
 			) //TODO: logic in ASSection
 	}
 

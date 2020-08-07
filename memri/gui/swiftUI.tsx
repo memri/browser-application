@@ -332,9 +332,9 @@ export class Content extends MainUI {
 
 export class MemriButton extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
+        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
         return (
-            <Button style={this.setStyles()} {...other}>
+            <Button onClick={action} style={this.setStyles()} {...other}>
                 {this.props.children}
             </Button>
         )
@@ -443,9 +443,9 @@ export class ASTableView extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <List style={this.setStyles()} className="ASTableView" {...other}>
+            <div style={this.setStyles()} className="ASTableView" {...other}>
                 {this.props.children}
-            </List>
+            </div>
         )
     }
 }

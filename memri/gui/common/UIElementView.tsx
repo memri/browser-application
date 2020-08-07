@@ -31,6 +31,7 @@ import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinit
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
 import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
+import {MessageBubbleView} from "../renderers/MessageRenderer";
 
 //import {SubView} from "./SubView";
 
@@ -95,7 +96,7 @@ export class UIElementView extends MainUI {
 
     render(){
         var x = this.render1()
-        if (x === undefined) debugger
+        //if (x === undefined) debugger
         return x || null
     }
 
@@ -388,8 +389,12 @@ export class UIElementView extends MainUI {
                     //TODO:
                     return (<></>)
                 case UIElementFamily.MessageBubble:
-                    //TODO:
-                    return (<></>)
+                    return (<MessageBubbleView timestamp={this.get("dateTime")}
+                                               sender={this.get("sender")}
+                                               content={this.from.processText(this.get("content")) ?? ""}
+                                               outgoing={this.get("isOutgoing") ?? false}
+                                               setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}
+                    />)
                 case UIElementFamily.Circle:
                     //TODO:
                     return (<></>)

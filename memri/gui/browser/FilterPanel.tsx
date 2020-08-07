@@ -52,7 +52,7 @@ export class FilterPanel extends MainUI {
 
 	getRenderersAvailable(category) {
 		if (!category) { return [] }
-		return Object.entries(this.context.renderers.all)
+		return Object.entries(allRenderers.all)
 			.map ((arg0) => {//TODO
 				let [key, value] = arg0
 				return [key, value(this.context)]
