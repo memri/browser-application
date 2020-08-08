@@ -60,10 +60,10 @@ export class UIElementView extends MainUI {
     getImage(propName: string) {
         let file = this.get(propName);
         if (file && file.file) {
-            return "Resources/DemoAssets/" + file.file.uri + ".jpg"
+            return "memri/Resources/DemoAssets/" + file.file.uri + ".jpg"
         }
         if (file) {
-            return "Resources/DemoAssets/" + file.uri + ".jpg"
+            return "memri/Resources/DemoAssets/" + file.uri + ".jpg"
         }
 
         return "";

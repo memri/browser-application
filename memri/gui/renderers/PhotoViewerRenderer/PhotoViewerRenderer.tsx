@@ -15,7 +15,7 @@ export var registerPhotoViewerRenderer = function () {
             "photoViewer",
             "Default",
             10,
-            "camera",
+            "photo_camera",//camera
             new PhotoViewerRenderer(),
             PhotoViewerRendererConfig,
             function(items) { return items[0].genericType == "Photo"}
@@ -41,21 +41,22 @@ export class PhotoViewerRenderer extends RenderersMemri {
     get initialIndex() {
         //Little optimization
         let initialItem = this.renderConfig.initialItem;
-
-        return this.context.items.findIndex((item)=>
-        {return item.uid == initialItem.uid})/*.flatMap { context.items.firstIndex(of: $0) }*/ ?? 0 //TODO:
+        if (initialItem) {
+            return this.context.items.findIndex((item)=> item.uid == initialItem.uid) ?? 0 //TODO:
+        } else
+            return 0
     }
 
     photoItemProvider(index)  {
         let item = this.context.items[index];
-        let file = this.renderConfig.imageFile.uri//this.resolveExpression(this.renderConfig.imageFile, undefined, item);
-        //let url = file.url
+        let file = this.renderConfig.imageFile//this.resolveExpression(this.renderConfig.imageFile, undefined, item);
         if (!item || !file /*|| !url*/) {
             return undefined;
         }
+        let url = file.uri
         let overlay = this.renderConfig.render(item);
         return (<>
-            <UIImage src={"Resources/DemoAssets/" + file + ".jpg"}></UIImage>
+            <UIImage src={"memri/Resources/DemoAssets/" + url + ".jpg"}></UIImage>
             {overlay}
             </>
         )
