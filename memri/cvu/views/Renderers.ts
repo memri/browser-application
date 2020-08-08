@@ -18,6 +18,7 @@ import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
 import {registerThumbnailRenderer} from "../../gui/renderers/GridRenderers/ThumbnailRendererView";
 import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/ThumbGridRendererView";
 import {registerMessageRenderer} from "../../gui/renderers/MessageRenderer";
+import {registerPhotoViewerRenderer} from "../../gui/renderers/PhotoViewerRenderer/PhotoViewerRenderer";
 
 export class Renderers {
     all = {}
@@ -53,7 +54,7 @@ export class Renderers {
         //registerChartRenderer()
         // registerCalendarRenderer()
         registerMessageRenderer()
-        //registerPhotoViewerRenderer()
+        registerPhotoViewerRenderer()
     }
     
     get tuples() {
@@ -288,4 +289,11 @@ export class CascadingMessageRendererConfig extends CascadingRenderConfig {
     get isOutgoing(): Expression {
         return this.cascadeProperty("isOutgoing");
     }
+}
+
+export class PhotoViewerRendererConfig extends CascadingRenderConfig {
+    type = "photoViewer"
+
+    get imageFile() { return this.cascadeProperty("file") }
+    get initialItem() { return this.cascadeProperty("initialItem") }
 }
