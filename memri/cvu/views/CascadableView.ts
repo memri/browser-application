@@ -204,8 +204,10 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
         if (this.activeRenderer.includes(".")) {
             let name = this.activeRenderer.split(".")[0]
             if (name) {
-                renderDef.push(this.context?.views
-                    .fetchDefinitions(null, String(name), "renderer") ?? [])
+                Object.assign(renderDef, this.context?.views
+                    .fetchDefinitions(null, String(name), "renderer"))
+                /*renderDef.push(this.context?.views
+                    .fetchDefinitions(null, String(name), "renderer") ?? [])*/
             }
         }
 

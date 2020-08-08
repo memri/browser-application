@@ -59,9 +59,14 @@ export class UIElementView extends MainUI {
 
     getImage(propName: string) {
         let file = this.get(propName);
-        if (file) {
-            return file.asUIImage ?? <UIImage/> //TODO:
+        if (file && file.file) {
+            return "Resources/DemoAssets/" + file.file.uri + ".jpg"
         }
+        if (file) {
+            return "Resources/DemoAssets/" + file.uri + ".jpg"
+        }
+
+        return "";
      /*   if let photo: Photo? = get(propName), let file = photo?.file {
             return file.asUIImage ?? UIImage()
         }
@@ -157,9 +162,9 @@ export class UIElementView extends MainUI {
                             (this.has("bundleImage")) ?
                                 <this.getbundleImage renderingMode="original"
                                                      setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}/> :
-                                <MemriImage
+                                <UIImage src={this.getImage("image")}
                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                    {this.get("systemName") ?? "exclamationmark.bubble"}
+
                                     {/*Image(uiImage: getImage("image"))
                                                                                                         .renderingMode(.original)
                                                                                                         .if(from.has("resizable")) { view in
@@ -170,7 +175,7 @@ export class UIElementView extends MainUI {
                                                                                                             }
                                                                                                         }
                                                                                                         .setProperties(from.properties, self.item, context, self.viewArguments)*/}
-                                </MemriImage>
+                                </UIImage>
                     )
                 case UIElementFamily.HStack:
                     return (

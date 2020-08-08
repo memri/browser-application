@@ -19,7 +19,7 @@
 // TODO: Remove this and find a solution for Edges
 import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/api";
@@ -511,7 +511,7 @@ export class MemriContext {
 					let viewArgs = argValue;
 					// We explicitly don't copy here. The caller is responsible for uniqueness
 					finalValue = viewArgs.resolve(item)
-				} else if (argValue?.constructor?.name == "CVUParsedDefinition") {
+				} else if (argValue instanceof CVUParsedDefinition) {
 					// #warning("This seems to not set the head properly")
 					let parsedDef = argValue
 					finalValue = new ViewArguments(parsedDef).resolve(item, viewArgs)

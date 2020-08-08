@@ -152,10 +152,11 @@ export class Expression {
         let value = this.interpreter?.execute(args)
 
         if (value == null) { return null}
-        //if (typeof value == "object") { return value }
+        //
         if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value) }
         if (typeof value == "number") { return ExprInterpreter.evaluateNumber(value) }
         if (typeof value == "string") { return ExprInterpreter.evaluateString(value) }
+        if (typeof value == "object") { return value }
         //TODO: dateTime
         //TODO: this should be quite the same
         return null;

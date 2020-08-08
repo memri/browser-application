@@ -508,8 +508,10 @@ export class MemriList extends MainUI {
 export class UIImage extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {maxWidth: "100%", maxHeight: "100%"})
         return (
-            <img style={this.setStyles()} className="UIImage" {...other}/>
+            <img style={style} className="UIImage" {...other}/>
         )
     }
 }
