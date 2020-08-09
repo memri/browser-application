@@ -848,86 +848,11 @@ Object.assign(RealmObjects.prototype, {
     }
 })
 
-enum Direction {
+export enum Direction {
     source, target
 }
 
-
-/*extension RealmSwift.Results where Element == Edge {
-    private enum Direction {
-        case source, target
-}
-enum Direction {
-    source, target
-}
-
-function lookup(type?, dir: Direction = Direction.target) {
-
-        guard count > 0 else {
-            return nil
-        }
-
-        var listType = type
-        if listType == nil {
-        let strType = dir == .target ? first?.targetItemType : first?.sourceItemType
-        if let strType = strType, let itemType = ItemFamily(rawValue: strType) {
-        listType = itemType.getType() as? T.Type
-    }
-}
-
-    guard let finalType = listType else {
-        return nil
-    }
-
-    do {
-        let realm = try Realm()
-        let filter = "uid = "
-            + compactMap {
-            if let value = (dir == .target ? $0.targetItemID.value : $0.sourceItemID.value) {
-                return String(value)
-            }
-            return nil
-        }.joined(separator: " or uid = ")
-        return realm.objects(finalType).filter(filter)
-    } catch {
-        debugHistory.error("\(error)")
-        return nil
-    }
-}
-
-    // TODO: support for heterogenous edge lists
-
-    func items<T: Item>(type: T.Type? = nil) -> Results<T>? { lookup(type: type) }
-        func targets<T: Item>(type: T.Type? = nil) -> Results<T>? { lookup(type: type) }
-        func sources<T: Item>(type: T.Type? = nil) -> Results<T>? { lookup(type: type, dir: .source) }
-
-    func itemsArray<T: Item>(type _: T.Type? = T.self) -> [T] {
-        var result = [T]()
-
-        for edge in self {
-            if let target = edge.target() as? T {
-                result.append(target)
-            }
-        }
-
-        return result
-    }
-
-    //    #warning("Toby, how do Ranges work exactly?")
-    //    #warning("@Ruben I think this achieves what you want")
-    //    // TODO: views.removeSubrange((currentViewIndex + 1)...)
-    //    func removeEdges(ofType type: String, withOrderMatchingBounds orderBounds: PartialRangeFrom<Int>) {
-    //        edges(type)?.filter("order > \(orderBounds.lowerBound)").forEach { edge in
-    //            do {
-    //                try self.unlink(edge)
-    //            } catch {
-    //                // log errors in unlinking here
-    //            }
-    //        }
-    //    }
-}*/
-
-class first {
+export class first {
     value;
     type;
 
@@ -936,7 +861,7 @@ class first {
     }
 }
 
-class last {
+export class last {
     value;
     type;
 
@@ -945,7 +870,7 @@ class last {
     }
 }
 
-class before {
+export class before {
     value;
     type = "before";
 
@@ -954,7 +879,7 @@ class before {
     }
 }
 
-class after {
+export class after {
     value;
     type = "after";
 
@@ -963,7 +888,7 @@ class after {
     }
 }
 
-class numberOne {
+export class numberOne {
     value;
     type = "number";
 
@@ -1011,7 +936,7 @@ export class Edge {
             return DatabaseController.tryRead((item) => {
                 let itemType = this.targetType;
                 if (itemType) {
-                    return item.objectForPrimaryKey(itemType, this.targetItemID);
+                    return item.objectForPrimaryKey(itemType.name, this.targetItemID);
                 } else {
                     throw `Could not resolve edge target: ${this}`
                 }
@@ -1028,7 +953,7 @@ export class Edge {
             return DatabaseController.tryRead((item) => {
                 let itemType = this.sourceType;
                 if (itemType) {
-                    return item.objectForPrimaryKey(itemType, this.sourceItemID);
+                    return item.objectForPrimaryKey(itemType.name, this.sourceItemID);
                 } else {
                     throw `Could not resolve edge source: ${this}`
                 }
