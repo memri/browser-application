@@ -23,17 +23,17 @@ export class Session  /*extends Equatable, Subscriptable*/ {
     get name() { return this.parsed.get("name") }
     set name(value) { this.setState("name", value) }
     /// TBD
-    get currentViewIndex(){ return Number(this.parsed.get("currentViewIndex") ?? 0) }
+    get currentViewIndex(){ return Number(this?.parsed?.get("currentViewIndex") ?? 0) }
     set currentViewIndex(value) { this.setState("currentViewIndex", Number(value)) }
     /// TBD
-    get editMode(){ return Boolean(this.parsed.get("editMode")) ?? false }
+    get editMode(){ return Boolean(this?.parsed?.get("editMode")) ?? false }
     set editMode(value) { this.setState("editMode", value) }
     /// TBD
 
-    get showContextPane(){ return Boolean(this.parsed.get("showContextPane")) ?? false }
+    get showContextPane(){ return Boolean(this?.parsed?.get("showContextPane")) ?? false }
     set showContextPane(value) { this.setState("showContextPane", value) }
     /// TBD
-    get showFilterPanel(){ return Boolean(this.parsed.get("showFilterPanel")) ?? false }
+    get showFilterPanel(){ return Boolean(this?.parsed?.get("showFilterPanel")) ?? false }
     set showFilterPanel(value) { this.setState("showFilterPanel", value) }
 
     /// TBD

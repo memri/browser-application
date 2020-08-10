@@ -14,7 +14,7 @@ import {
 	VerticalAlignment
 } from "../../parsers/cvu-parser/CVUParser";
 import {debugHistory} from "./ViewDebugger";
-import {UUID} from "../../model/items/Item";
+import {dataItemListToArray, UUID} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
 
 export class UIElement /*extends CVUToString */{
@@ -52,7 +52,7 @@ export class UIElement /*extends CVUToString */{
 			let expr = propValue
 			if (expr?.constructor?.name == "Expression") {
 				try {
-					/*//if (T.self == [DataItem].self) {//TODO
+					/*if (propName == "list") {//TODO T.self == [DataItem].self
 						let x =  expr.execute(args)
 
 						var result = []

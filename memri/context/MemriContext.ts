@@ -130,7 +130,8 @@ export class MemriContext {
 
 	scheduleUIUpdate(immediate =  false, check?) { // Update UI
 		if (immediate) {
-			this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
+			if (typeof this.showNavigationBinding == "function")
+				this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
 			// #warning("@Toby how can we prevent the uiUpdateSubject from firing immediate after this?")
 
 			// Do this straight away, usually for the sake of correct animation
@@ -161,7 +162,8 @@ export class MemriContext {
 		} else {
 			//this.cascadableViewUpdateSubject.send() TODO
 		}
-		this.showNavigationBinding()
+		if (typeof this.showNavigationBinding == "function")
+			this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
 	}
 
 	/*updateCascadingView() {
@@ -584,7 +586,7 @@ export class SubContext extends MemriContext {
 			context.renderers,
 			context.indexerAPI
 		)
-
+		this.parent = context;
 		this.closeStack = context.closeStack
 
 		views.context = this
@@ -638,6 +640,8 @@ export class RootContext extends MemriContext {
 
 	createSubContext(state?: CVUStateDefinition) {
 		let subContext = new SubContext("Proxy", this, state)
+		if (!this.subContexts)
+			this.subContexts = []
 		this.subContexts.push(subContext)
 		return subContext
 	}

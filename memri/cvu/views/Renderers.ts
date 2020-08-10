@@ -19,6 +19,7 @@ import {registerThumbnailRenderer} from "../../gui/renderers/GridRenderers/Thumb
 import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/ThumbGridRendererView";
 import {registerMessageRenderer} from "../../gui/renderers/MessageRenderer";
 import {registerPhotoViewerRenderer} from "../../gui/renderers/PhotoViewerRenderer/PhotoViewerRenderer";
+import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "../../gui/renderers/GeneralEditorView";
 
 export class Renderers {
     all = {}
@@ -45,7 +46,7 @@ export class Renderers {
         
         registerCustomRenderer()//TODO
         registerListRenderer()
-        //registerGeneralEditorRenderer()
+        registerGeneralEditorRenderer()
         registerThumbnailRenderer()
         registerThumbGridRenderer()
         //registerThumbHorizontalGridRenderer()
@@ -155,12 +156,12 @@ export class CascadingRenderConfig extends Cascadable {
                 if (s.setDefaultValues && typeof s.setDefaultValues === "function") {//TODO
                     s.setDefaultValues(body)
                 }
-                let uiElement = new UIElementView({gui: body, dataItem: item, viewArguments: argumentsJs/* ?? viewArguments*/});
+                let uiElement = new UIElementView({context: this.host.context, gui: body, dataItem: item, viewArguments: argumentsJs/* ?? viewArguments*/});
                 //(body, item, argumentsJs ?? viewArguments)
                 return uiElement.render();
             }
 
-            return new UIElementView({gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
+            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
         }
 
         let renderGroup = this.getRenderGroup(group)
@@ -168,7 +169,7 @@ export class CascadingRenderConfig extends Cascadable {
             return doRender(renderGroup, item)
         }
         else {
-            return new UIElementView({gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
+            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
         }
     }
 }
@@ -296,4 +297,35 @@ export class PhotoViewerRendererConfig extends CascadingRenderConfig {
 
     get imageFile() { return this.cascadeProperty("file") }
     get initialItem() { return this.cascadeProperty("initialItem") }
+}
+
+export class CascadingGeneralEditorConfig extends CascadingRenderConfig {
+    type = "generalEditor"
+
+    get layout() {
+        return this.cascadeList(
+            "layout",
+            (item) => {
+                return String(item["section"]) ?? ""
+            },
+            (old, newJs) => {
+                var result = old;
+                for (let [key, value] of Object.entries(newJs)) { //TODO: need to check
+                    if (old[key] == undefined) {
+                        result[key] = value
+                    } else if (key == "exclude") {
+                        var dict = old[key];
+                        if (Array.isArray(dict)) {
+                            result[key] = dict.push(...(newJs[key] ?? []))
+                        }
+                    }
+                }
+
+                return result
+            }
+        )
+            .map((dict) => {
+                return new GeneralEditorLayoutItem(dict, this.viewArguments)
+            })
+    }
 }

@@ -17,13 +17,13 @@ export class SubView extends MainUI {
     searchbar: boolean = true
     showCloseButton: boolean = false
 
-    /*init(context: MemriContext, viewName: string | CVUStateDefinition, item?: Item, viewArguments?: ViewArguments) {
+    init(context: MemriContext, viewName: string | CVUStateDefinition, item?: Item, viewArguments?: ViewArguments) {
         viewArguments = viewArguments ?? new ViewArguments();
         try {
             let args = viewArguments.resolve(item)
 
             this.showCloseButton = args.get("showCloseButton") ?? this.showCloseButton
-            if (context?.constructor?.name == "RootContext") {
+            if (context?.constructor?.name != "RootContext") {
                 throw "Exception: Too much nesting"
             }
 
@@ -49,10 +49,11 @@ export class SubView extends MainUI {
             // TODO: Refactor: error handling
             debugHistory.error(`Error: cannot init subview: ${error}`)
         }
-    }*/
+    }
 
     render() {
-        //this.init(undefined, this.props?.viewName, this.props?.item, this.props?.viewArguments);
+        this.context = this.props.context;
+        this.init(this.props?.context, this.props?.viewName ?? this.props?.view, this.props?.item, this.props?.viewArguments);
 
         return (
             <Browser inSubView={true} showCloseButton={this.showCloseButton} fullHeight context={this.proxyMain}>

@@ -928,7 +928,7 @@ export class Edge {
     }
 
     item(type) {
-        this.target(type)
+        return this.target(type)
     }
 
     target() {

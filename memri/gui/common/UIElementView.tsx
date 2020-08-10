@@ -4,6 +4,7 @@
 
 
 import {
+    ASCollectionView,
     border, Empty,
     frame,
     Group,
@@ -33,7 +34,7 @@ import {ActionButton} from "../ActionView";
 import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
 import {MessageBubbleView} from "../renderers/MessageRenderer";
 
-//import {SubView} from "./SubView";
+import {SubView} from "./SubView";
 
 export class UIElementView extends MainUI {
     context: MemriContext
@@ -106,6 +107,7 @@ export class UIElementView extends MainUI {
     }
 
     render1(){
+        this.context = this.props.context;
         this.init(this.props.gui, this.props.dataItem, this.props.viewArguments);
         let editorLabelAction = () => {
             let args = {
@@ -124,7 +126,7 @@ export class UIElementView extends MainUI {
             }
         }
 
-        let setView = () => {
+        let setView = function () {
             let parsed = this.get("view");
             if (parsed) {
                 let def = new CVUParsedViewDefinition(
@@ -147,7 +149,7 @@ export class UIElementView extends MainUI {
                     )
             }
             return new CVUStateDefinition()
-        } //TODO: ();
+        }.bind(this)() //TODO: ();
 
         if (!this.has("show") || this.get("show") == true) {
             switch (this.from.type) {
@@ -258,7 +260,7 @@ export class UIElementView extends MainUI {
                                         .capitalizingFirst()*/}
                                 </MemriText>
                                 }
-                                {this.renderChildren.generalEditorCaption()}
+                                {this.renderChildren /*//TODO: .generalEditorCaption()*/}
                             </VStack>
                             {(this.has("title")) &&
                             <MemriDivider padding={padding({leading: 35})}/>
@@ -302,17 +304,24 @@ export class UIElementView extends MainUI {
                         </MemriButton>
                     );
                 case UIElementFamily.FlowStack:
-                    //TODO:
+                    //TODO: FlowStack component
                     return (
-                        <FlowStack
+                        <ASCollectionView
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                            {this.getList("list").map((listItem) => {
+                                return this.from.children.forEach((child) => {
+                                        return <UIElementView context={this.context} gui={child} dataItem={listItem}
+                                                              viewArguments={this.viewArguments}/>
+                                    }
+                                )
+                            })}
                             {/* FlowStack(getList("list")) { listItem in
                                     ForEach(0 ..< self.from.children.count) { index in
                                         UIElementView(self.from.children[index], listItem, self.viewArguments)
                                         .environmentObject(self.context)
                                         }
                                         }*/}
-                        </FlowStack>
+                        </ASCollectionView>
                     );
                 case UIElementFamily.Textfield:
                     //TODO:
