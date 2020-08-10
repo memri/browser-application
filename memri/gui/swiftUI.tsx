@@ -1,5 +1,16 @@
 import * as React from "react";
-import {BaseTextFieldProps, Box, Button, Divider, Grid, GridList, Icon, List, TextField} from "@material-ui/core";
+import {
+    BaseTextFieldProps,
+    Box,
+    Button,
+    Divider,
+    Grid,
+    GridList,
+    Icon,
+    List,
+    Switch,
+    TextField
+} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
 
@@ -543,6 +554,15 @@ export class ASCollectionView extends MainUI {
                 </Grid>
             )
         }
+    }
+}
+
+export class Toggle extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, isOn, ...other} = this.props;
+        return (
+            <Switch checked={isOn} style={this.setStyles()} {...other}/>
+        )
     }
 }
 

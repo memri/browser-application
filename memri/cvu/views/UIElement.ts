@@ -52,12 +52,12 @@ export class UIElement /*extends CVUToString */{
 			let expr = propValue
 			if (expr?.constructor?.name == "Expression") {
 				try {
-					/*if (propName == "list") {//TODO T.self == [DataItem].self
+					if (propName == "list") {//TODO T.self == [DataItem].self
 						let x =  expr.execute(args)
 
 						var result = []
 						let list = x
-						if (Array.isArray(list)) {//TODO
+						if (Array.isArray(list) && list.length > 0 && list[0]?.constructor?.name == "Edge") {//TODO
 							for (var edge of list) {
 								let d = edge.item()
 								if (d) {
@@ -69,13 +69,13 @@ export class UIElement /*extends CVUToString */{
 						}
 
 						return (result)
-					} else {*/
+					} else {
 						let x =  expr.execForReturnType(viewArguments); return x
-					//}
+					}
 				} catch (error) {
 					// TODO: Refactor error handling
 					debugHistory.error(`Could note compute ${propName}\n`
-						+ `Arguments: [${args.toString()}]\n`
+						+ `Arguments: [${args.toString}]\n`
 						+ (expr.startInStringMode
 							? `Expression: \"${expr.code}\"\n`
 							: `Expression: ${expr.code}\n`)

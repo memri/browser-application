@@ -90,7 +90,7 @@ export class Action/* : HashableClass, CVUToString*/ {
         }
     }
 
-    get description(): string {
+    get toString(): string {
         return this.toCVUString(0, "    ")
     }
 

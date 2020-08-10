@@ -17,7 +17,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
     get viewArguments() { return this.host?.viewArguments }
     set viewArguments(value) { this.host?.viewArguments = value }
 
-    get description() {
+    get toString() {
         var merged = {}
 
         function recur(dict: {}) {

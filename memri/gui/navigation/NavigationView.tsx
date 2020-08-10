@@ -233,7 +233,7 @@ class NavigationItemView extends MainUI {
 				console.log(this.context)
 			}
 		}
-		return(<ListItem>
+		return(<ListItem key={this.item.uid}>
 			<MemriButton onClick={action}>
 				<MemriText font={font({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: "infinity", alignment: Alignment.leading})} >
 					{this.item.title ?? ""}

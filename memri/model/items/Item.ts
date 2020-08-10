@@ -794,10 +794,10 @@ Object.assign(RealmObjects.prototype, {
 
         var listType = type
         if (listType == undefined) {
-            let strType = dir == Direction.target ? this?.targetItemType : this?.sourceItemType;
+            let strType = dir == Direction.target ? this[0]?.targetItemType : this[0]?.sourceItemType;
             let itemType = ItemFamily[strType];
             if (strType && itemType) {
-                listType = getItemType(itemType)?.constructor?.name;
+                listType = strType;
             }
         }
         let finalType = listType;
