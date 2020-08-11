@@ -33,6 +33,7 @@ import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
 import {Realm} from "../model/RealmLocal";
 import {ViewArguments} from "../cvu/views/CascadableDict";
+import {MemriDictionary} from "../model/MemriDictionary";
 
 export var globalCache
 
@@ -149,7 +150,7 @@ export class MemriContext {
 		//this.uiUpdateSubject.send() TODO
 	}
 
-	scheduleCascadableViewUpdate(immediate =  false) {
+	scheduleCascadableViewUpdate(immediate =  true) {
 		if (immediate) {
 			// Do this straight away, usually for the sake of correct animation
 			try { this.currentSession?.setCurrentView() }
@@ -474,7 +475,7 @@ export class MemriContext {
 			.merge(viewArguments)
 			.resolve(item)
 
-		var args = {}
+		var args = new MemriDictionary()
 		for (let [argName, inputValue] of Object.entries(action.values)) {
 			if (action.argumentTypes[argName] == undefined) { continue }
 
@@ -491,7 +492,7 @@ export class MemriContext {
 			let dataItem = argValue;
 			if (dataItem?.constructor?.name == "Item") {
 				finalValue = dataItem
-			} else if (typeof argValue.isCVUObject === "function") {
+			} else if (argValue?.constructor?.name === "MemriDictionary") {
 				let dict = argValue;
 				if (action.argumentTypes[argName] == "ViewArguments") {
 					finalValue = new ViewArguments(dict).resolve(item, viewArgs)

@@ -17,6 +17,7 @@ import {CacheMemri} from "../../model/Cache";
 import {CVUStateDefinition, dataItemListToArray, Item} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
 import {CascadingRenderConfig} from "./Renderers";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Views {
 	///
@@ -103,10 +104,10 @@ export class Views {
 			DatabaseController.tryWriteSync(() => { // Start write transaction outside loop for performance reasons
 				// Loop over lookup table with named views
 				for (let def of parsedDefinitions) {
-					var values = {
+					var values = new MemriDictionary({
 						"domain": "defaults",
 						"definition": def.toString(),//TODO
-					}
+					})
 
 					if (def.selector != undefined) { values["selector"] = def.selector }
 					if (def.name != undefined) { values["name"] = def.name }

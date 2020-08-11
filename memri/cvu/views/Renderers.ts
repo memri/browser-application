@@ -20,6 +20,9 @@ import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/Thumb
 import {registerMessageRenderer} from "../../gui/renderers/MessageRenderer";
 import {registerPhotoViewerRenderer} from "../../gui/renderers/PhotoViewerRenderer/PhotoViewerRenderer";
 import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "../../gui/renderers/GeneralEditorView";
+//import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRenderers/ThumbHorizontalGridRendererView";
+//import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Renderers {
     all = {}
@@ -68,10 +71,10 @@ export var allRenderers = new Renderers();
 //FilterPanelRendererButton moved to Action.ts
 
 class RenderGroup {
-    options = {}
+    options = new MemriDictionary()
     body: UIElement = null
     
-    constructor(dict) {
+    constructor(dict: MemriDictionary) {
         if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
         delete dict["children"]
         this.options = dict
@@ -117,7 +120,7 @@ export class CascadingRenderConfig extends Cascadable {
         if (renderGroup) {
             return renderGroup.options
         }
-        return {}
+        return new MemriDictionary()
     }
     
     getRenderGroup(group) {
@@ -128,14 +131,14 @@ export class CascadingRenderConfig extends Cascadable {
         else if (group == "*" && this.cascadeProperty("*") == null) {
             let list = this.cascadeProperty("children")
             if (list) {
-                var dict = {"children": list}
+                var dict = new MemriDictionary({"children": list})
                 let renderGroup = new RenderGroup(dict)
                 this.localCache[group] = renderGroup
                 return renderGroup
             }
         }
         else {
-            var dict = this.cascadeProperty(group)
+            var dict: MemriDictionary = this.cascadeProperty(group)
             if (dict) {
                 let renderGroup = new RenderGroup(dict)
                 this.localCache[group] = renderGroup

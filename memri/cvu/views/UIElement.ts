@@ -16,18 +16,19 @@ import {
 import {debugHistory} from "./ViewDebugger";
 import {dataItemListToArray, UUID} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class UIElement /*extends CVUToString */{
 	id = UUID()
 	type: UIElementFamily
 	children = []
-	properties = {} // TODO: ViewParserDefinitionContext
+	properties: MemriDictionary // TODO: ViewParserDefinitionContext
 
-	constructor(type, children?, properties = {}) {
+	constructor(type, children?, properties?) {
 		//super()
 		this.type = type
 		this.children = children ?? this.children
-		this.properties = properties
+		this.properties = properties ?? new MemriDictionary()
 	}
 
 	has(propName) {
@@ -290,8 +291,8 @@ export var validateUIElementProperties = function (key, value) {
 		case UIElementProperties.image: return value?.constructor?.name == "File" || typeof value == "string";
 		case UIElementProperties.press: return value?.constructor?.name == "Action" || Array.isArray(value) && value[0]?.constructor?.name == "Action"
 		case UIElementProperties.list: return Array.isArray(value) && value[0]?.constructor?.name == "Item"
-		case UIElementProperties.view: return value?.constructor?.name == "CVUParsedDefinition" || typeof value.isCVUObject === "function"
-		case UIElementProperties.arguments: return typeof value.isCVUObject === "function"
+		case UIElementProperties.view: return value?.constructor?.name == "CVUParsedDefinition" || value.constructor.name === "MemriDictionary"
+		case UIElementProperties.arguments: return value.constructor.name === "MemriDictionary"
 		case UIElementProperties.location: return value?.constructor?.name == "Location"
 		case UIElementProperties.address: return value?.constructor?.name == "Address"
 		case UIElementProperties.value: return true

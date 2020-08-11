@@ -1,4 +1,5 @@
 import {CVUSerializer} from "./CVUToString";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export enum CompileScope {
     all="all",
@@ -37,7 +38,7 @@ export class CVUParsedDefinition {
     }
 
     
-    parsed: {};
+    parsed = new MemriDictionary();
 
     get description(): string {
         return this.toCVUString(0, "    ")
@@ -85,7 +86,7 @@ export class CVUParsedDefinition {
                 return scope == CompileScope.all
                     ? notnil.execute(viewArguments)
                     : notnil.compile(viewArguments)
-            } else if (typeof notnil.isCVUObject == "function") {
+            } else if (notnil.constructor.name == "MemriDictionary") {
                 for (let [key, value] of Object.entries(notnil)) {
                     notnil[key] = recur(value)
                 }
@@ -200,7 +201,7 @@ export class CVUParsedViewDefinition extends CVUParsedDefinition {
     query?: ExprNode
     get definitionType() {return "view" }
 
-    constructor(selector, name, type?, query?, domain: string = "user", parsed?) {//TODO
+    constructor(selector, name, type?, query?, domain: string = "user", parsed?: MemriDictionary) {//TODO
         super(selector, name, domain, parsed)
 
         this.type = type

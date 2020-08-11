@@ -10,6 +10,7 @@ const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {ExprInterpreter} from "./ExprInterpreter";
 import {DatabaseController, ItemReference} from "../../model/DatabaseController";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Expression {
     code: string;
@@ -170,7 +171,7 @@ export class Expression {
 
     static resolve(object?, viewArguments?: ViewArguments, dontResolveItems: boolean = false) { //TODO:
         var dict = object;
-        if (typeof dict?.isCVUObject == "function") {
+        if (dict?.constructor.name === "MemriDictionary") {
             for (let [key, value] of Object.entries(dict)) {
                 dict[key] = this.resolve(value, viewArguments, dontResolveItems)
             }

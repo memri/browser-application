@@ -84,9 +84,17 @@ export class RealmObjects extends Array {
 
     sorted(descriptor: string, reverse?: boolean) {
         //TODO:
-        return this;/*.sort((a, b) => {
-
-        })     */
+        return this.sort((a, b) => {
+            let res
+            if (a[descriptor] > b[descriptor]) {
+                res = 1
+            } else if (a[descriptor] < b[descriptor]) {
+                res = -1
+            } else {
+                res = 0
+            }
+            return reverse ? res : -res
+        })
     }
 }
 

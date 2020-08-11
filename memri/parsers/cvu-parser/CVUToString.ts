@@ -4,6 +4,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import {HorizontalAlignment, Alignment, Color, VerticalAlignment, TextAlignment, Font, CGFloat} from "./CVUParser";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 //function UIElement() {}
 
@@ -46,7 +47,7 @@ export class CVUSerializer {
                 return `"${p.replace("\"", "\\\"")}"`;
             } else if (Array.isArray(p)) {
                 return this.arrayToString(p, depth + 1, tab)
-            } else if (typeof p.isCVUObject === "function") {//TODO:
+            } else if (p.constructor.name === "MemriDictionary") {//TODO:
                 return this.dictToString(p, depth + 1, tab)
             } else if (typeof p.toCVUString === "function") {//TODO:
                 return p.toCVUString(depth, tab)
@@ -97,7 +98,7 @@ export class CVUSerializer {
             : str.join((extraNewLine ? "\n" : "") + `\n${tabs}`)
     }
 
-    static dictToString(dict, depth: number = 0, tab: string = "    ",
+    static dictToString(dict: MemriDictionary, depth: number = 0, tab: string = "    ",
                  withDef: boolean = true, extraNewLine: boolean = false,
                  sortFunc?): string {
         var keys: string[];
@@ -140,7 +141,7 @@ export class CVUSerializer {
 
                 if (!isDef || dict1 != undefined && Object.entries(dict1)?.length > 0) {
                     let p = value;
-                    if (p && typeof p.isCVUObject === "function") {
+                    if (p && p.constructor.name === "MemriDictionary") {
                         str.push((extraNewLine ? "\n" + (withDef ? tabs : tabsEnd) : "")
                             + `${key}: ${this.valueToString(p, depth, tab)}`);
                     } else if (value !== undefined) {

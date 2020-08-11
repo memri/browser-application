@@ -14,6 +14,7 @@ import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "./DatabaseController";
 import {Realm} from "./RealmLocal";
 import {Sync} from "./Sync";
+import {MemriDictionary} from "./MemriDictionary";
 export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
@@ -61,7 +62,7 @@ export class CacheMemri {
 			var lut = {}
 
 			function recur(dict) {
-				var values = {}
+				var values = new MemriDictionary()
 				let type = dict["_type"];
 				let itemType = getItemType(type);
 				if (typeof type != "string" || !itemType) {
@@ -411,7 +412,7 @@ export class CacheMemri {
 
 		let itemType = item.getType()
 		if (itemType) {
-			var dict= {};
+			var dict= new MemriDictionary();
 
 			for (var prop in item) {
 				if (item.hasOwnProperty(prop)) {
@@ -490,7 +491,7 @@ export class CacheMemri {
 	}
 
 	//#warning("This doesnt trigger syncToPod()")
-	static createItem(type, values = {}, unique?: string) {
+	static createItem(type, values = new MemriDictionary(), unique?: string) {
 		var item
 		DatabaseController.tryWriteSync((realm: Realm) => {
 			var dict = values
@@ -594,7 +595,7 @@ export class CacheMemri {
 				// TODO: find item in DB & merge
 				// Uniqueness based on also not primary key
 
-				let values = {
+				let values = new MemriDictionary({
 					"targetItemType": target[0],
 					"targetItemID": target[1],
 					"sourceItemType": source.genericType,
@@ -604,7 +605,7 @@ export class CacheMemri {
 					"sequence": sequence,
 					"dateCreated": new Date(),
 					"_action": "create"
-				}
+				})
 
 				edge = realm.create("Edge", values)
 			});

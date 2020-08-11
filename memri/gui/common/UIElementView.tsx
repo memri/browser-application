@@ -35,6 +35,7 @@ import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
 import {MessageBubbleView} from "../renderers/MessageRenderer";
 
 import {SubView} from "./SubView";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class UIElementView extends MainUI {
     context: MemriContext
@@ -110,10 +111,10 @@ export class UIElementView extends MainUI {
         this.context = this.props.context;
         this.init(this.props.gui, this.props.dataItem, this.props.viewArguments);
         let editorLabelAction = () => {
-            let args = {
+            let args = new MemriDictionary({
                 "subject": this.context.item, // self.item,
                 "edgeType": this.viewArguments.get("name")
-            }
+            })
             let action = new ActionUnlink(this.context, args)
             this.context.executeAction(action, this.item, this.viewArguments
             )

@@ -21,6 +21,7 @@ import {
 } from "./CVUParsedDefinition"
 import {ActionFamily, getActionType} from "../../cvu/views/Action";
 import {UIElement, UIElementFamily} from "../../cvu/views/UIElement";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Color {
     value;
@@ -315,7 +316,7 @@ export class CVUParser {
     }
 
     parseDict(uiElementName?) {
-        var dict = {};
+        var dict = new MemriDictionary();
         var stack = [];
 
         let forUIElement = this.knownUIElements[uiElementName?.toLowerCase() ?? ""] != undefined;//TODO:
@@ -343,7 +344,7 @@ export class CVUParser {
             }
         }
 
-        function addUIElement(type, properties) {//TODO:
+        function addUIElement(type, properties: MemriDictionary) {//TODO:
             var children = dict["children"] || [];
             let subChildren = Object.assign([], properties.children);
             delete properties.children;
@@ -447,7 +448,7 @@ export class CVUParser {
                         let lvalue = v.toLowerCase();
                         let type = this.knownUIElements[lvalue];
                         if (lastKey == null && type) {
-                            var properties = {};
+                            var properties = new MemriDictionary();
                             if (CVUToken.CurlyBracketOpen == this.peekCurrentToken().constructor) {
                                 this.popCurrentToken();
                                 properties = this.parseDict(v);
@@ -456,7 +457,7 @@ export class CVUParser {
                             addUIElement(type, properties);//TODO
                             continue;
                         } else if (lvalue == "userstate" || lvalue == "viewarguments" || lvalue == "contextpane") {
-                            var properties = {};
+                            var properties = new MemriDictionary();
                             if (CVUToken.CurlyBracketOpen == this.peekCurrentToken().constructor) {
                                 this.popCurrentToken();
                                 properties = this.parseDict();
@@ -472,7 +473,7 @@ export class CVUParser {
                     } else {
                         let name = this.knownActions[v.toLowerCase()];
                         if (name) {
-                            var options = {};
+                            var options = new MemriDictionary();
                             outerLoop: while (true) {
                                 switch (this.peekCurrentToken().constructor) {
                                     case CVUToken.Comma:
@@ -702,7 +703,7 @@ export class CVUParser {
         }
     };
 
-    processCompoundProperties(dict) {
+    processCompoundProperties(dict: MemriDictionary) {
         for (let name in this.frameProperties) {
             if (dict[name]) {
 

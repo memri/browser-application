@@ -43,7 +43,7 @@ export var registerGeneralEditorRenderer = function () {
 
 export class GeneralEditorLayoutItem {
     id = UUID()
-    dict //future Dictionary
+    dict: MemriDictionary
     viewArguments
 
     constructor(dict, viewArguments?) {
