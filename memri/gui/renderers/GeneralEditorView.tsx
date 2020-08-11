@@ -218,7 +218,7 @@ export class GeneralEditorSection extends MainUI {
             .length == 0 && !editMode
         let hasGroup = renderConfig.hasGroup(groupKey)
 
-        let title = (hasGroup ? sectionStyle.title : undefined) ?? groupKey/*.camelCaseToWords()
+        let title = (hasGroup ? sectionStyle.title : undefined) ?? groupKey.toUpperCase()/*.camelCaseToWords()
             .uppercased()*/ //TODO:
         let dividers = sectionStyle.dividers ?? !(sectionStyle.showTitle ?? false)
         let showTitle = sectionStyle.showTitle ?? true
@@ -239,7 +239,7 @@ export class GeneralEditorSection extends MainUI {
                         {title}
                     </MemriText>
                     {(action != undefined) &&
-                    <ActionButton action={action} item={item} foregroundColor="#777"
+                    <ActionButton context={this.context} action={action} item={item} foregroundColor="#777"
                                   font={font({family: "system", size: 18, weight: Font.Weight.semibold})}
                                   padding={padding({bottom: 10})}/>
                     }
@@ -332,7 +332,7 @@ export class GeneralEditorSection extends MainUI {
         return (
             <Section>
                 {header}
-                {!isEmpty && content}
+                {!isEmpty ? content: ""}
             </Section>
 
         )
@@ -355,7 +355,7 @@ export class GeneralEditorSection extends MainUI {
             {
                 "subject": item,
                 "readOnly": !(this.context.currentSession?.editMode ?? false),
-                "title": groupKey/*.camelCaseToWords().uppercased()*/,
+                "title": groupKey.toUpperCase()/*.camelCaseToWords().uppercased()*/,
                 "displayName": name/*.camelCaseToWords().capitalizingFirst()*/, //TODO:
                 "name": name,
                 "edge": edge,
@@ -390,7 +390,7 @@ export class GeneralEditorSection extends MainUI {
         let allPadding = this.getValue(groupKey, s["padding"], "CGFloat") ?? 0
 
         return new SectionStyle(
-            this.getValue(groupKey, s["title"], "String")/*?.uppercased()*/,
+            this.getValue(groupKey, s["title"], "String")?.toUpperCase()/*?.uppercased()*/,
             this.getValue(groupKey, s["dividers"], "Bool"),
             this.getValue(groupKey, s["showTitle"], "Bool"),
             this.getValue(groupKey, s["action"], "Action"),

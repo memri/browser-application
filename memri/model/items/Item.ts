@@ -1691,6 +1691,10 @@ export class Label extends Item{
     /// The name of the item.
     name
 
+    get computedTitle() {
+        return this.name ?? ""
+    }
+
     /// TBD
    /* get comment() {
         return this.edges("comment")?.items(Comment)

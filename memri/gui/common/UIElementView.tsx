@@ -5,7 +5,7 @@
 
 import {
     ASCollectionView,
-    border, Empty,
+    border, Empty, font,
     frame,
     Group,
     HStack,
@@ -26,7 +26,7 @@ import {CVUStateDefinition, Item} from "../../model/items/Item";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import * as React from "react";
 import {UIElementFamily} from "../../cvu/views/UIElement";
-import {Alignment} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {Action, ActionUnlink} from "../../cvu/views/Action";
 import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
@@ -35,6 +35,7 @@ import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
 import {MessageBubbleView} from "../renderers/MessageRenderer";
 
 import {SubView} from "./SubView";
+import {Grid} from "@material-ui/core";
 import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class UIElementView extends MainUI {
@@ -150,7 +151,7 @@ export class UIElementView extends MainUI {
                     )
             }
             return new CVUStateDefinition()
-        }.bind(this)() //TODO: ();
+        }.bind(this) //TODO: ();
 
         if (!this.has("show") || this.get("show") == true) {
             switch (this.from.type) {
@@ -299,7 +300,7 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.Button:
                     return (
-                        <MemriButton action={buttonAction}
+                        <MemriButton context={this.context} action={buttonAction}
                                      setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                             {this.renderChildren}
                         </MemriButton>
@@ -310,9 +311,9 @@ export class UIElementView extends MainUI {
                         <ASCollectionView
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                             {this.getList("list").map((listItem) => {
-                                return this.from.children.forEach((child) => {
-                                        return <UIElementView context={this.context} gui={child} dataItem={listItem}
-                                                              viewArguments={this.viewArguments}/>
+                                return this.from.children.map((child) => {
+                                        return <Grid item key={listItem.uid}><UIElementView context={this.context} gui={child} dataItem={listItem}
+                                                              viewArguments={this.viewArguments}/></Grid>
                                     }
                                 )
                             })}
@@ -359,7 +360,7 @@ export class UIElementView extends MainUI {
                             </SubView> :
 
                             <SubView context={this.context}
-                                     view={setView}
+                                     view={setView()}
                                      item={this.item}
                                      viewArguments={new ViewArguments(this.get("arguments"))}
                                      setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
@@ -385,7 +386,7 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.Action:
                     return (
-                        <ActionButton
+                        <ActionButton context={this.context}
                             action={this.get("press") ?? new Action(this.context, "noop")}
                             item={this.item}
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
@@ -394,7 +395,7 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.MemriButton:
                     return (
-                        <MemriButton
+                        <MemriButton context={this.context}
                             item={this.item}
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
