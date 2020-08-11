@@ -24,7 +24,7 @@ export class CVUParsedDefinition {
         this.selector = selector
         this.name = name
         this.domain = domain;
-        this.parsed = parsed
+        this.parsed = parsed ?? new MemriDictionary()
     }
     
     get(propName:string) {
@@ -201,7 +201,7 @@ export class CVUParsedViewDefinition extends CVUParsedDefinition {
     query?: ExprNode
     get definitionType() {return "view" }
 
-    constructor(selector, name, type?, query?, domain: string = "user", parsed?: MemriDictionary) {//TODO
+    constructor(selector, name?, type?, query?, domain: string = "user", parsed?: MemriDictionary) {//TODO
         super(selector, name, domain, parsed)
 
         this.type = type

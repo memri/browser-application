@@ -240,14 +240,14 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     get renderConfig(): CascadingRenderConfig {
         let x = this.localCache[this.activeRenderer]
-        if (x?.constructor?.name == "CascadingRenderConfig") { return x }
+        if (x && x instanceof CascadingRenderConfig) { return x }
 
         let getConfig = function(a: CVUParsedDefinition) {
             let definitions = (a.get("rendererDefinitions") ?? [])
             // Prefer a perfectly matched definition
             return definitions.find((item) => item.name == this.activeRenderer )
                 // Else get the one from the parent renderer
-                ?? definitions.find((item) => item.name == this.activeRenderer.split(".").splice(-1,1).join("."))
+                ?? definitions.find((item) => item.name == this.activeRenderer.split(".").slice(0, -1).join("."))
         }.bind(this)
 
         let head = getConfig(this.head) ?? function(){
