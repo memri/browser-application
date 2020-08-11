@@ -33,8 +33,6 @@ export var registerThumbGridRenderer = function () {
 }
 
 export class ThumbGridRendererView extends RenderersMemri {
-    context: MemriContext
-
     name: string = "thumbnail_grid"
 
   /*  var selectedIndices: Binding<Set<Int>> {

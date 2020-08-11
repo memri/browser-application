@@ -20,8 +20,8 @@ import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/Thumb
 import {registerMessageRenderer} from "../../gui/renderers/MessageRenderer";
 import {registerPhotoViewerRenderer} from "../../gui/renderers/PhotoViewerRenderer/PhotoViewerRenderer";
 import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "../../gui/renderers/GeneralEditorView";
-//import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRenderers/ThumbHorizontalGridRendererView";
-//import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
+import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRenderers/ThumbHorizontalGridRendererView";
+import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
 import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Renderers {
@@ -52,8 +52,8 @@ export class Renderers {
         registerGeneralEditorRenderer()
         registerThumbnailRenderer()
         registerThumbGridRenderer()
-        //registerThumbHorizontalGridRenderer()
-        //registerThumbWaterfallRenderer()
+        registerThumbHorizontalGridRenderer()
+        registerThumbWaterfallRenderer()
         //registerMapRenderer()
         //registerChartRenderer()
         // registerCalendarRenderer()
