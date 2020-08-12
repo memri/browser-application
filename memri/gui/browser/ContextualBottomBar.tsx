@@ -6,7 +6,7 @@
 import * as React from 'react';
 import {MemriContext} from "../../context/MemriContext";
 import {Item} from "../../model/items/Item";
-import {HStack, MainUI, MemriButton, MemriDivider, MemriImage, padding, Spacer, VStack} from "../swiftUI";
+import {HStack, MainUI, MemriRealButton, MemriDivider, MemriImage, padding, Spacer, VStack} from "../swiftUI";
 import {ActionDelete} from "../../cvu/views/Action";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 
@@ -33,8 +33,8 @@ export class ContextualBottomBar extends MainUI {
 					<HStack padding={padding({horizontal: 5, vertical: 5})}>
 						<Spacer/>
 						{this.context.currentSession?.editMode ||
-							<MemriButton onClick={() => {this.context.executeAction(new ActionDelete(this.context))}}
-										 disabled={!this.nonEmptySelection()}
+							<MemriRealButton onClick={() => {this.context.executeAction(new ActionDelete(this.context))}}
+                                             disabled={!this.nonEmptySelection()}
 							>
 								<MemriImage
 									/*fixedSize*/
@@ -43,7 +43,7 @@ export class ContextualBottomBar extends MainUI {
 									/*font={"body"}*/
 								>delete</MemriImage>
 
-							</MemriButton>
+							</MemriRealButton>
 						}
 					</HStack>
 				</VStack>

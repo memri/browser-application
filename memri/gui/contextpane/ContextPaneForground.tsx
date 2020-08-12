@@ -7,7 +7,7 @@ import {
 	font,
 	frame,
 	HStack, MainUI,
-	MemriButton, MemriDivider,
+	MemriRealButton, MemriDivider,
 	MemriText,
 	padding,
 	ScrollView, Spacer,
@@ -74,14 +74,14 @@ export class ContextPaneForeground extends MainUI {
 					</HStack>
 					<VStack alignment={Alignment.leading} spacing={0} padding={padding({horizontal: this.paddingLeft})}>
 						{(context.currentView?.contextPane.actions ?? []).map((actionItem) =>
-							<MemriButton action={context.executeAction(actionItem)}>
+							<MemriRealButton action={context.executeAction(actionItem)}>
 								<MemriText
 									foregroundColor={"black"}
 									opacity={0.6}
 									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 									padding={padding({vertical: 10})}
 								>{actionItem.getString("title")}</MemriText>{/*TODO*/}
-							</MemriButton>
+							</MemriRealButton>
 						)}
 					</VStack>
 					<MemriDivider/>
@@ -94,14 +94,14 @@ export class ContextPaneForeground extends MainUI {
 					</HStack>
 					<VStack alignment={Alignment.leading} spacing={0}>
 						{(context.currentView?.contextPane.navigate ?? []).map((navigateItem) =>
-							<MemriButton action={context.executeAction(navigateItem)}>
+							<MemriRealButton action={context.executeAction(navigateItem)}>
 								<MemriText
 									foregroundColor={"black"}
 									opacity={0.6}
 									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 									padding={padding({vertical: 10, horizontal: this.paddingLeft})}
 								>{navigateItem.getString("title")}</MemriText>{/*TODO*/}{/*LocalizedStringKey(navigateItem.getString("title"))*/}
-							</MemriButton>
+							</MemriRealButton>
 						)}
 					</VStack>
 					<MemriDivider/>
@@ -115,10 +115,10 @@ export class ContextPaneForeground extends MainUI {
 					</HStack>
 					<VStack alignment={Alignment.leading} spacing={10}>
 						{(labels).map((labelItem) =>
-							<MemriButton action={context.executeAction(addLabelAction, labelItem)}
-										 background={labelItem.color ?? "#ffd966ff"}
-										 cornerRadius={5}
-										 padding={padding({horizontal: this.paddingLeft})}
+							<MemriRealButton action={context.executeAction(addLabelAction, labelItem)}
+                                             background={labelItem.color ?? "#ffd966ff"}
+                                             cornerRadius={5}
+                                             padding={padding({horizontal: this.paddingLeft})}
 							>
 								<MemriText
 									foregroundColor={"black"}
@@ -127,10 +127,10 @@ export class ContextPaneForeground extends MainUI {
 									padding={padding({vertical: 5, horizontal: 15})}
 									frame={frame({minWidth: 150, alignment: Alignment.leading})}
 								>{labelItem.name ?? ""}</MemriText>
-							</MemriButton>
+							</MemriRealButton>
 						)}
-						{<MemriButton action={context.executeAction(new ActionNoop(context))}
-									  padding={padding({horizontal: this.paddingLeft})}
+						{<MemriRealButton action={context.executeAction(new ActionNoop(context))}
+                                          padding={padding({horizontal: this.paddingLeft})}
 						>
 							<MemriText
 								foregroundColor={"black"}
@@ -138,7 +138,7 @@ export class ContextPaneForeground extends MainUI {
 								font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 								padding={padding({vertical: 10})}
 							>{addLabelAction.getString("title")}</MemriText>
-						</MemriButton>}
+						</MemriRealButton>}
 						<Spacer/>
 					</VStack>
 

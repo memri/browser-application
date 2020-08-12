@@ -1252,6 +1252,9 @@ export var getItemType = function(name) {
 
 /// TBD
 export class AuditItem extends Item {
+    get computedTitle() {
+        return `Logged ${this.action ?? "unknown action"} on ${this.date ?? ""}`
+    }
     /// Date of death.
     date: Date
     /// TBD
@@ -1282,6 +1285,9 @@ export class AuditItem extends Item {
 
 /// A business corporation.
 export class Company extends Item {
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// TBD
     type
     /// The name of the item.
@@ -1448,6 +1454,9 @@ export class MediaObject extends Item {
 
 /// An audio file.
 export class Audio extends Item {
+    get computedTitle() {
+        return this.caption ?? ""
+    }
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -1477,6 +1486,9 @@ export class Audio extends Item {
 
 /// An image file.
 export class Photo extends Item{
+    get computedTitle() {
+        return this.caption ?? ""
+    }
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -1511,6 +1523,9 @@ export class Photo extends Item{
 
 /// A video file.
 export class Video extends Item{
+    get computedTitle() {
+        return this.caption ?? ""
+    }
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -1569,6 +1584,9 @@ export class Device extends Item{
 
 /// TBD
 export class Diet extends Item {
+    get computedTitle() {
+        return this.type ?? ""
+    }
     /// TBD
     type
     /// TBD
@@ -1605,6 +1623,9 @@ export class File extends Item{
 
 /// TBD
 export class Importer extends Item{
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// The name of the item.
     name
     /// TBD
@@ -1644,6 +1665,9 @@ export class ImporterRun extends Item {
 /// An indexer enhances your personal data by inferring facts over existing data and adding those
 /// to the database.
 export class Indexer extends Item{
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// The name of the item.
     name
     /// TBD
@@ -1728,6 +1752,13 @@ export class Location extends Item{
 
 /// A postal address.
 export class Address extends Item{
+    get computedTitle() {
+        return `${this.street ?? ""}
+		${this.city ?? ""}
+		${this.postalCode == undefined ? "" : this.postalCode! + ","} ${this.state ?? ""}
+		${this.edge("country")?.item()?.computedTitle ?? ""}
+        `
+    }
     /// A city or town.
     city
     /// The postal code. For example, 94043.
@@ -1757,6 +1788,9 @@ export class Address extends Item{
 
 /// TBD
 export class Country extends Item{
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// The name of the item.
     name
 
@@ -1778,6 +1812,9 @@ export class Country extends Item{
 
 /// TBD
 export class MedicalCondition extends Item{
+    get computedTitle() {
+        return this.type ?? ""
+    }
     /// TBD
     type
     /// The name of the item.
@@ -1806,6 +1843,9 @@ export class NavigationItem extends Item{
 
 /// TBD
 export class OnlineProfile extends Item{
+    get computedTitle() {
+        return this.handle ?? ""
+    }
     /// TBD
     type
     /// TBD
@@ -1908,6 +1948,9 @@ export class SchemaPerson extends Item{
 
 /// TBD
 export class PhoneNumber extends Item{
+    get computedTitle() {
+        return this.phoneNumber ?? ""
+    }
     /// A phone number with an area code.
     phoneNumber
     /// TBD
@@ -2039,6 +2082,9 @@ export class SyncState extends Item{
 
 /// TBD
 export class Website  extends Item{
+    get computedTitle() {
+        return this.url ?? ""
+    }
     /// TBD
     type
     /// URL of the item.

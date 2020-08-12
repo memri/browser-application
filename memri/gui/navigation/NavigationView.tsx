@@ -17,7 +17,7 @@ import {
 	padding,
 	ColorArea,
 	Content,
-	MemriButton,
+	MemriRealButton,
 	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI
 } from "../swiftUI";
 import {geom} from "../../../demo-react";
@@ -177,23 +177,23 @@ class Navigation extends MainUI {
 		return (<div className="Navigation"  style={{position: "absolute", top: 0}}>
 		<VStack frame={frame({alignment: Alignment.leading})} background = "#543184">
 			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
-				<MemriButton onClick={function () {
+				<MemriRealButton onClick={function () {
 					this.showSettings = true
 				}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
 					SettingsPane().environmentObject(this.context)
 				}.bind(this))}*/>
 					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>settings</MemriImage>}
-				</MemriButton>
+				</MemriRealButton>
 				<MemriTextField value={this.context.navigation.filterText} placeholder="Search"
 								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
 								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
 								accentColor="white" background="#341e51" cornerRadius={5}/>
-				<MemriButton>
+				<MemriRealButton>
 					{<MemriImage font={font({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9">create</MemriImage>}
-				</MemriButton>
-				<MemriButton>
+				</MemriRealButton>
+				<MemriRealButton>
 					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>add</MemriImage>}
-				</MemriButton>
+				</MemriRealButton>
 			</HStack>
 			<ASTableView separatorsEnabled={false} contentInsets={contentInsets({top: 10, left: 0, bottom: 0, right: 0})}>
 				{this.getNavigationItems()}
@@ -234,11 +234,11 @@ class NavigationItemView extends MainUI {
 			}
 		}
 		return(<ListItem key={this.item.uid}>
-			<MemriButton onClick={action}>
+			<MemriRealButton onClick={action}>
 				<MemriText font={font({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: "infinity", alignment: Alignment.leading})} >
 					{this.item.title ?? ""}
 				</MemriText>
-			</MemriButton>
+			</MemriRealButton>
 			</ListItem>
 		)//?.firstUppercased buttonStyle={NavigationButtonStyle()} contentShape={Rectangle()}
 	}

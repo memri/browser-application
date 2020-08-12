@@ -132,8 +132,8 @@ export class ThumbGridRendererView extends RenderersMemri {
 
     get section() {
         let items = this.context.items;
-        return items.map((dataItem) => {
-            return <GridListTile key={dataItem.uid} cols={1} onClick={
+        return items.map((dataItem) => { //TODO: cols now setted for test purposes
+            return <GridListTile key={dataItem.uid} cols={Math.floor(Math.random() * 3)} onClick={
                 this.executeAction(dataItem)
             }>
                 <ZStack alignment={Alignment.bottomTrailing}>

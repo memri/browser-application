@@ -10,7 +10,7 @@ import {
     Group,
     HStack,
     MainUI,
-    MemriButton,
+    MemriRealButton,
     MemriDivider,
     MemriImage,
     MemriText,
@@ -37,6 +37,7 @@ import {MessageBubbleView} from "../renderers/MessageRenderer";
 import {SubView} from "./SubView";
 import {Grid} from "@material-ui/core";
 import {MemriDictionary} from "../../model/MemriDictionary";
+import {MemriButton} from "./MemriButton";
 
 export class UIElementView extends MainUI {
     context: MemriContext
@@ -242,6 +243,7 @@ export class UIElementView extends MainUI {
                         )
                     }
                 case UIElementFamily.EditorRow:
+                    //return (<div></div>)
                     return (
                         <VStack spacing={0}>
                             <VStack alignment={Alignment.leading} spacing={4} fullWidth
@@ -277,13 +279,13 @@ export class UIElementView extends MainUI {
                             maxHeight: ".infinity",
                             alignment: Alignment.leading
                         })} padding={padding(10)} border={border({width: [0, 0, 1, 1], color: "#eee"})}>
-                            <MemriButton onClick={editorLabelAction}>
+                            <MemriRealButton action={editorLabelAction}>
                                 <MemriImage foregroundColor="red" font={font({size: 22})} lineLimit={1}>
                                     minus.circle.fill
                                 </MemriImage>
-                            </MemriButton>
+                            </MemriRealButton>
                             {(this.has("title")) &&
-                            <MemriButton>
+                            <MemriRealButton>
                                 <HStack>
                                     <MemriText foregroundColor="blue" font={font({size: 15})}>
                                         {this.get("title") ?? ""}
@@ -294,16 +296,16 @@ export class UIElementView extends MainUI {
                                         chevron.right
                                     </MemriImage>
                                 </HStack>
-                            </MemriButton>
+                            </MemriRealButton>
                             }
                         </HStack>
                     )
                 case UIElementFamily.Button:
                     return (
-                        <MemriButton context={this.context} action={buttonAction}
-                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                        <MemriRealButton context={this.context} action={buttonAction}
+                                         setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                             {this.renderChildren}
-                        </MemriButton>
+                        </MemriRealButton>
                     );
                 case UIElementFamily.FlowStack:
                     //TODO: FlowStack component
@@ -326,12 +328,15 @@ export class UIElementView extends MainUI {
                         </ASCollectionView>
                     );
                 case UIElementFamily.Textfield:
-                    //TODO:
-                    return (
-                        <this.renderTextfield
+                    /*
+                    <this.renderTextfield
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </this.renderTextfield>
+                     */
+                    //TODO:
+                    return (
+                        <div className="renderTextfield"></div>
                     )
                 case UIElementFamily.RichTextfield:
                     //TODO:
@@ -347,7 +352,7 @@ export class UIElementView extends MainUI {
                     );
                 case UIElementFamily.ItemCell:
                     //TODO:
-                    return (<></>);
+                    return (<div className="ItemCell"></div>)
                 case UIElementFamily.SubView:
                     return (
                         (this.has("viewName")) ?
@@ -369,21 +374,19 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.Map:
                     //TODO:
-                    return (<></>)
+                    return (<div className="Map"></div>)
                 case UIElementFamily.Picker:
                     //TODO:
-                    return (
+                    return (<div className="Picker"></div>)
+                    /*return (
                         <this.renderPicker
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </this.renderPicker>
-                    )
+                    )*/
                 case UIElementFamily.SecureField:
                     //TODO:
-                    return (
-                        <>
-                        </>
-                    )
+                    return (<div className="SecureField"></div>)
                 case UIElementFamily.Action:
                     return (
                         <ActionButton context={this.context}
@@ -396,14 +399,14 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.MemriButton:
                     return (
                         <MemriButton context={this.context}
-                            item={this.item}
-                            setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                         item={this.item}
+                                         setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </MemriButton>
                     )
                 case UIElementFamily.TimelineItem:
                     //TODO:
-                    return (<></>)
+                    return (<div className="TimelineItem"></div>)
                 case UIElementFamily.MessageBubble:
                     return (<MessageBubbleView timestamp={this.get("dateTime")}
                                                sender={this.get("sender")}
@@ -413,23 +416,25 @@ export class UIElementView extends MainUI {
                     />)
                 case UIElementFamily.Circle:
                     //TODO:
-                    return (<></>)
+                    return (<div className="Circle"></div>)
                 case UIElementFamily.HorizontalLine:
-                    //TODO:
-                    return (
-                        <HorizontalLine
+                    /*
+                    <HorizontalLine
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </HorizontalLine>
-                    )
+                     */
+                    //TODO:
+                    return (<div className="HorizontalLine"></div>)
                 case UIElementFamily.Rectangle:
                     //TODO:
-                    return (
+                    /*return (
                         <Rectangle
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </Rectangle>
-                    )
+                    )*/
+                    return (<div className="Rectangle"></div>)
                 case UIElementFamily.RoundedRectangle:
                     //TODO:
                     return (

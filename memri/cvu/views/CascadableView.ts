@@ -462,7 +462,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
                     let viewName = result;
                     if (typeof viewName == "string") {
-                        let view = this.context?.views.fetchDefinitions(viewName)[0];
+                        let view = this.context?.views.fetchDefinitions(undefined, viewName)[0];
                         if (view) {
                             this.parse(view, domain)
                         } else {

@@ -68,7 +68,7 @@ export class Views {
 	setCurrentLanguage(language) {
 		this.languages.currentLanguage = language
 
-		let definitions = this.fetchDefinitions("language")
+		let definitions = this.fetchDefinitions(undefined, undefined, "language")
 			.map(function (item) {
 				this.parseDefinition(item)
 			}.bind(this)).filter(function (item) {
@@ -566,7 +566,7 @@ export class Views {
 
 			function searchForRenderer(viewDefinition) {
 				let parsed = context.views.parseDefinition(viewDefinition)
-				for (var def of parsed["rendererDefinitions"]) {//TODO
+				for (var def of parsed.get("rendererDefinitions")) {//TODO
 					for (var name of rendererNames) {
 						// TODO: Should this first search for the first renderer everywhere
 						//       before trying the second renderer?
@@ -608,8 +608,8 @@ export class Views {
 			} else {
 				// Find views based on datatype
 				outerloop: for (var needle of [`${item.genericType}[]`, "*[]"]) {
-					for (var key in ["user", "defaults"]) {
-						let viewDefinition = context.views.fetchDefinitions(needle, key)[0]
+					for (var key of ["user", "defaults"]) {
+						let viewDefinition = context.views.fetchDefinitions(needle, undefined, undefined, undefined, key)[0]
 						if (viewDefinition) {
 							if (searchForRenderer(viewDefinition)) { break outerloop}
 						}
@@ -641,7 +641,7 @@ export class Views {
 			let cascadingRenderConfig = new CascadingRenderConfig(undefined, cascadeStack, context.currentView) //TODO:
 
 			// Return the rendered UIElements in a UIElementView
-			return cascadingRenderConfig.render(item, viewArguments)
+			return cascadingRenderConfig.render(item, "*", viewArguments)
 		} catch (error) {
 			debugHistory.error(`Unable to render ItemCell: ${error}`)
 

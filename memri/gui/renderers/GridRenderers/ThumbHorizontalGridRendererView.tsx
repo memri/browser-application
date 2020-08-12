@@ -124,7 +124,7 @@ export class ThumbHorizontalGridRendererView extends RenderersMemri {
                         <Spacer/>
                     </>
                     :
-                    <ASCollectionView>
+                    <ASCollectionView images={true}>
                         {this.section}
                     </ASCollectionView>
                 }

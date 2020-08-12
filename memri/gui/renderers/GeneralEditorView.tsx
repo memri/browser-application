@@ -10,7 +10,7 @@ import {
     frame,
     Group,
     HStack,
-    MainUI, MemriButton, MemriDivider,
+    MainUI, MemriRealButton, MemriDivider,
     MemriText, MemriTextField,
     padding,
     RenderersMemri,
@@ -25,6 +25,7 @@ import {ItemCell} from "../common/ItemCell";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import {ActionOpenViewByName, RenderType} from "../../cvu/views/Action";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
+import {MemriButton} from "../common/MemriButton";
 
 export var registerGeneralEditorRenderer = function () {
     if (allRenderers) {

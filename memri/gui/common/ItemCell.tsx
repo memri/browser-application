@@ -19,7 +19,7 @@ export class ItemCell extends MainUI {
         this.argumentsJs = this.props.argumentsJs;
         return (
             <>
-                {this.context.views.renderItemCell(this.item, this.rendererNames, this.argumentsJs)}
+                {this.context.views.renderItemCell(this.item, this.rendererNames, undefined, this.argumentsJs)}
             </>
         )
     }

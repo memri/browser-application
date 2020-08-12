@@ -18,7 +18,7 @@ import {
 	frame,
 	HStack,
 	MainUI,
-	MemriButton, MemriDivider,
+	MemriRealButton, MemriDivider,
 	MemriImage,
 	MemriText,
 	padding,
@@ -131,40 +131,40 @@ export class TopNavigation extends MainUI {
 						<ActionButton action={new ActionShowNavigation(this.context)}
 									  font={font({size: 20, weight: Font.Weight.semibold})} context={this.context}/> :
 						(this.showCloseButton) &&
-						<MemriButton action={function () {
+						<MemriRealButton action={function () {
 							context.executeAction(new ActionClosePopup(context))
 						}} font={font({size: 19, weight: Font.Weight.semibold})}>
 							<MemriText
 								font={font({size: 16, weight: Font.Weight.regular})}
 								padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close
 							</MemriText>
-						</MemriButton>
+						</MemriRealButton>
 					}
 					{(backButton != undefined) ?
-						<MemriButton action={backButtonAction}
-									 font={font({size: 19, weight: Font.Weight.semibold})}
+						<MemriRealButton action={backButtonAction}
+                                         font={font({size: 19, weight: Font.Weight.semibold})}
 							/*onLongPressGesture*/ /*actionSheet={}*/>
 							<MemriImage padding={padding({horizontal: 5, vertical: 5})}
 										foregroundColor={backButton?.color ?? "white"}>
 								{backButton?.getString("icon") ?? ""}
 							</MemriImage>
-						</MemriButton> :
-						<MemriButton action={backButtonAction}
-									 font={font({size: 19, weight: Font.Weight.semibold})}
+						</MemriRealButton> :
+						<MemriRealButton action={backButtonAction}
+                                         font={font({size: 19, weight: Font.Weight.semibold})}
 							/*actionSheet={}*/
 						>
 							<MemriImage foregroundColor="#434343" padding={padding({horizontal: 5, vertical: 8})}
 										font={font({size: 10, weight: Font.Weight.bold})}>
 								adjust
 							</MemriImage>
-						</MemriButton>
+						</MemriRealButton>
 					}
 					<ColorArea layoutPriority={5}>
-						<MemriButton>
+						<MemriRealButton>
 							<MemriText foregroundColor="#333" truncationMode={"tail"} font={font({family: "headline"})}>
 								{context.currentView?.title ?? ""}
 							</MemriText>
-						</MemriButton>
+						</MemriRealButton>
 					</ColorArea>
 					{(context.item != undefined || context.items.length > 0 &&
 					context.settings.get("user/general/gui/showEditButton") != false &&

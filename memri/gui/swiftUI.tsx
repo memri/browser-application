@@ -341,7 +341,7 @@ export class Content extends MainUI {
     }
 }
 
-export class MemriButton extends MainUI {
+export class MemriRealButton extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
         return (
@@ -541,9 +541,11 @@ export class RoundedRectangle extends MainUI {
 export class ASCollectionView extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {maxHeight: "400px"})
         if (images == true) {
             return (
-                <GridList style={this.setStyles()} className="ASCollectionView" {...other}>
+                <GridList style={style} className="ASCollectionView" {...other} cols={3}>
                     {this.props.children}
                 </GridList>
             )
