@@ -339,9 +339,9 @@ export class Views {
 						switch (node.name) {
 							case "uppercased": value = v.toUpperCase(); break
 							case "lowercased": value = v.toLowerCase(); break
-							case "camelCaseToWords": value = v.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()); break//TODO
+							case "camelCaseToWords": value = v.camelCaseToWords(); break//TODO
 							case "plural": value = v + "s"; break;
-							case "firstUppercased": value = v.charAt(0).toUpperCase() + v.slice(1); break
+							case "firstUppercased": value = v.firstUppercased(); break
 							case "plainString": value = v/*.strippingHTMLtags()*/; //TODO: strip html tags
 							default:
 								// TODO: Warn

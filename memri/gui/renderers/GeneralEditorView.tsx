@@ -26,6 +26,7 @@ import {ViewArguments} from "../../cvu/views/CascadableDict";
 import {ActionOpenViewByName, RenderType} from "../../cvu/views/Action";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {MemriButton} from "../common/MemriButton";
+require("../../extension/common/string");
 
 export var registerGeneralEditorRenderer = function () {
     if (allRenderers) {
@@ -219,8 +220,7 @@ export class GeneralEditorSection extends MainUI {
             .length == 0 && !editMode
         let hasGroup = renderConfig.hasGroup(groupKey)
 
-        let title = (hasGroup ? sectionStyle.title : undefined) ?? groupKey.toUpperCase()/*.camelCaseToWords()
-            .uppercased()*/ //TODO:
+        let title = (hasGroup ? sectionStyle.title : undefined) ?? groupKey.camelCaseToWords().toUpperCase()
         let dividers = sectionStyle.dividers ?? !(sectionStyle.showTitle ?? false)
         let showTitle = sectionStyle.showTitle ?? true
         let action = editMode
@@ -284,8 +284,9 @@ export class GeneralEditorSection extends MainUI {
                                     targetItem,
                                     groupKey,
                                     this._args(groupKey,
+                                        "",
                                         targetItem,
-                                        targetItem, undefined,
+                                        targetItem,
                                         edge)
                                 )
                             })
@@ -299,7 +300,7 @@ export class GeneralEditorSection extends MainUI {
                             <DefaultGeneralEditorRow context={this.context} item={this.item} prop={field}
                                                      readOnly={!editMode || readOnly} isLast={fields.last == field}
                                                      renderConfig={renderConfig} argumentsJs=
-                                                         {this._args(field, undefined, this.item.get(field), this.item)}>
+                                                         {this._args("", field, this.item.get(field), this.item)}>
 
                             </DefaultGeneralEditorRow>
                         )
@@ -356,8 +357,8 @@ export class GeneralEditorSection extends MainUI {
             {
                 "subject": item,
                 "readOnly": !(this.context.currentSession?.editMode ?? false),
-                "title": groupKey.toUpperCase()/*.camelCaseToWords().uppercased()*/,
-                "displayName": name/*.camelCaseToWords().capitalizingFirst()*/, //TODO:
+                "title": groupKey.camelCaseToWords().toUpperCase(),
+                "displayName": name.camelCaseToWords().capitalizingFirst(),
                 "name": name,
                 "edge": edge,
                 ".": item,
@@ -466,10 +467,10 @@ class DefaultGeneralEditorRow extends MainUI {
                 <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10, horizontal: 36})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
                     <MemriText>
                         {this.prop
-                           /* .camelCaseToWords()
-                            .lowercased()
-                            .capitalizingFirst())
-                            .generalEditorLabel()*/
+                            .camelCaseToWords()
+                            .toLowerCase()
+                            .capitalizingFirst()
+                            // .generalEditorLabel()
                         }
                     </MemriText>
                     {this.renderConfig.hasGroup(this.prop) ?
@@ -527,7 +528,7 @@ class DefaultGeneralEditorRow extends MainUI {
         /*Toggle(isOn: binding) {
             Text(prop
                 .camelCaseToWords()
-                .lowercased()
+                .toLowerCase()
                 .capitalizingFirst())
         }
         .toggleStyle(MemriToggleStyle())
@@ -584,7 +585,7 @@ class DefaultGeneralEditorRow extends MainUI {
 
     defaultRow(caption?: string) {
         return <MemriText>{caption ?? this.prop}</MemriText>
-        /*Text(caption ?? prop.camelCaseToWords().lowercased().capitalizingFirst())
+        /*Text(caption ?? prop.camelCaseToWords().toLowerCase().capitalizingFirst())
             .generalEditorCaption()*/
     }
 }
