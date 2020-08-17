@@ -1,14 +1,4 @@
-//import * as DB from "./defaults/default_database.json";
 import {getItemType} from "./items/Item";
-/*let fs = require("fs");
-var DB = fs.readFileSync("./defaults/default_database.json");*/
-
-/*DB.forEach(function(x, i) {
-    if (!x.uid)
-        x.uid = (i + 1) + 1000000
-    /!*else
-        console.log(x.uid)*!/
-})*/
 
 export class Realm {
     db;
