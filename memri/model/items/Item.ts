@@ -10,6 +10,7 @@ import {Datasource} from "../../api/Datasource";
 import {Session} from "../../sessions/Session";
 import {Sessions} from "../../sessions/Sessions";
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
+import {MemriDictionary} from "../MemriDictionary";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
@@ -734,7 +735,7 @@ export class Item extends SchemaItem {
                 }
             }*/
 
-            var dict = {}
+            var dict = new MemriDictionary()
             for (let field of updatedFields) {
                 /*if (item.objectSchema[field] == undefined) {
                     throw "Invalid update call"

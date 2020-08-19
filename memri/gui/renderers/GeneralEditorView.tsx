@@ -26,6 +26,7 @@ import {ViewArguments} from "../../cvu/views/CascadableDict";
 import {ActionOpenViewByName, RenderType} from "../../cvu/views/Action";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {MemriButton} from "../common/MemriButton";
+import {MemriDictionary} from "../../model/MemriDictionary";
 require("../../extension/common/string");
 
 export var registerGeneralEditorRenderer = function () {
@@ -354,7 +355,7 @@ export class GeneralEditorSection extends MainUI {
         item?: Item,
         edge?: Edge) {
         return new ViewArguments(
-            {
+            new MemriDictionary({
                 "subject": item,
                 "readOnly": !(this.context.currentSession?.editMode ?? false),
                 "title": groupKey.camelCaseToWords().toUpperCase(),
@@ -362,7 +363,7 @@ export class GeneralEditorSection extends MainUI {
                 "name": name,
                 "edge": edge,
                 ".": item,
-            },
+            }),
             this.renderConfig.viewArguments?.cascadeStack
         )
     }

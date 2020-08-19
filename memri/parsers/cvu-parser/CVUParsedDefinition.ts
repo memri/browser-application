@@ -33,7 +33,7 @@ export class CVUParsedDefinition {
     }
 
     set(propName:string, value) {
-        if (this.parsed == undefined) { this.parsed = {} }
+        if (this.parsed == undefined) { this.parsed = new MemriDictionary() }
         this.parsed[propName] = value
     }
 
