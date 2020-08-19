@@ -279,13 +279,13 @@ export class UIElementView extends MainUI {
                             maxHeight: ".infinity",
                             alignment: Alignment.leading
                         })} padding={padding(10)} border={border({width: [0, 0, 1, 1], color: "#eee"})}>
-                            <MemriButton onClick={editorLabelAction}>
+                            <MemriRealButton action={editorLabelAction}>
                                 <MemriImage foregroundColor="red" font={font({size: 22})} lineLimit={1}>
                                     minus.circle.fill
                                 </MemriImage>
-                            </MemriButton>
+                            </MemriRealButton>
                             {(this.has("title")) &&
-                            <MemriButton>
+                            <MemriRealButton>
                                 <HStack>
                                     <MemriText foregroundColor="blue" font={font({size: 15})}>
                                         {this.get("title") ?? ""}
@@ -296,16 +296,16 @@ export class UIElementView extends MainUI {
                                         chevron.right
                                     </MemriImage>
                                 </HStack>
-                            </MemriButton>
+                            </MemriRealButton>
                             }
                         </HStack>
                     )
                 case UIElementFamily.Button:
                     return (
-                        <MemriButton context={this.context} action={buttonAction}
-                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                        <MemriRealButton context={this.context} action={buttonAction}
+                                         setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                             {this.renderChildren}
-                        </MemriButton>
+                        </MemriRealButton>
                     );
                 case UIElementFamily.FlowStack:
                     //TODO: FlowStack component
@@ -328,12 +328,15 @@ export class UIElementView extends MainUI {
                         </ASCollectionView>
                     );
                 case UIElementFamily.Textfield:
-                    //TODO:
-                    return (
-                        <this.renderTextfield
+                    /*
+                    <this.renderTextfield
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </this.renderTextfield>
+                     */
+                    //TODO:
+                    return (
+                        <div className="renderTextfield"></div>
                     )
                 case UIElementFamily.RichTextfield:
                     //TODO:
@@ -349,7 +352,7 @@ export class UIElementView extends MainUI {
                     );
                 case UIElementFamily.ItemCell:
                     //TODO:
-                    return (<></>);
+                    return (<div className="ItemCell"></div>)
                 case UIElementFamily.SubView:
                     return (
                         (this.has("viewName")) ?
@@ -371,9 +374,8 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.Map:
                     //TODO:
-                    return (<></>)
+                    return (<div className="Map"></div>)
                 case UIElementFamily.Picker:
-                    //TODO:
                     return (
                         <this.renderPicker
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
@@ -382,10 +384,7 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.SecureField:
                     //TODO:
-                    return (
-                        <>
-                        </>
-                    )
+                    return (<div className="SecureField"></div>)
                 case UIElementFamily.Action:
                     return (
                         <ActionButton context={this.context}
@@ -398,14 +397,14 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.MemriButton:
                     return (
                         <MemriButton context={this.context}
-                            item={this.item}
-                            setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                                         item={this.item}
+                                         setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </MemriButton>
                     )
                 case UIElementFamily.TimelineItem:
                     //TODO:
-                    return (<></>)
+                    return (<div className="TimelineItem"></div>)
                 case UIElementFamily.MessageBubble:
                     return (<MessageBubbleView timestamp={this.get("dateTime")}
                                                sender={this.get("sender")}
@@ -415,23 +414,25 @@ export class UIElementView extends MainUI {
                     />)
                 case UIElementFamily.Circle:
                     //TODO:
-                    return (<></>)
+                    return (<div className="Circle"></div>)
                 case UIElementFamily.HorizontalLine:
-                    //TODO:
-                    return (
-                        <HorizontalLine
+                    /*
+                    <HorizontalLine
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </HorizontalLine>
-                    )
+                     */
+                    //TODO:
+                    return (<div className="HorizontalLine"></div>)
                 case UIElementFamily.Rectangle:
                     //TODO:
-                    return (
+                    /*return (
                         <Rectangle
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </Rectangle>
-                    )
+                    )*/
+                    return (<div className="Rectangle"></div>)
                 case UIElementFamily.RoundedRectangle:
                     //TODO:
                     return (
@@ -518,7 +519,6 @@ export class UIElementView extends MainUI {
         return (
             <RichTextEditor htmlContentBinding={contentDataItem[contentPropertyName]}
                             titleBinding={titleDataItem[titlePropertyName]}
-                            onChange={(e) => titleDataItem.set(titlePropertyName, e.target.value)}
                             titleHint={titleHint} headingFontSize={titleFontSize ?? 26}
                             fontSize={fontSize ?? 18}
             />
@@ -579,22 +579,27 @@ export class UIElementView extends MainUI {
     }
 
     renderPicker() {
-        /*let dataItem: Item? = get("value")
-        let (_, propItem, propName) = from.getType("value", item, viewArguments)
-        let emptyValue = get("empty") ?? "Pick a value"
-        let query = get("query", type: String.self)
-        let renderer = get("renderer", type: String.self)
-
-        return Picker(
-            item: item,
-            selected: dataItem ?? get("defaultValue"),
-            title: get("title") ?? "Select a \(emptyValue)",
-            emptyValue: emptyValue,
-            propItem: propItem,
-            propName: propName,
-            renderer: renderer,
-            query: query ?? ""
-        )*/
+        return (<div className="Picker">Testpicker</div>)
+        // let dataItem = this.get("value")
+        // let [_, propItem, propName] = this.from.getType("value", this.item, this.viewArguments)
+        // let emptyValue = this.get("empty") ?? "Pick a value"
+        // let query = this.get("query")
+        // let renderer = this.get("renderer")
+        //
+        // return <Picker>
+        //
+        // </Picker>
+        //
+        // return Picker(
+        //     item: item,
+        //     selected: dataItem ?? get("defaultValue"),
+        //     title: get("title") ?? "Select a \(emptyValue)",
+        //     emptyValue: emptyValue,
+        //     propItem: propItem,
+        //     propName: propName,
+        //     renderer: renderer,
+        //     query: query ?? ""
+        // )
     }
 
     get renderChildren() {
