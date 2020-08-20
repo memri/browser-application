@@ -131,8 +131,6 @@ export class NavigationWrapper extends MainUI {
 interface NavigationProps { context?; keyboardResponder?; showSettings?; frame?; edgesIgnoringSafeArea?; offset?; simultaneousGesture?; transition?; zIndex?}
 
 class Navigation extends MainUI {
-	context: MemriContext
-
 	keyboardResponder;
 
 	showSettings: boolean;
@@ -142,7 +140,8 @@ class Navigation extends MainUI {
 	}
 
 	getNavigationItems() {
-		this.context.navigation = new MainNavigation(); //TODO:
+		// this.context.navigation = new MainNavigation(); //TODO:??
+		this.context.navigation.load()//TODO:??
 		let navigationItems = this.context.navigation.getItems();
 		return navigationItems.map((navItem) => {
 			switch (navItem.type) {
@@ -187,7 +186,9 @@ class Navigation extends MainUI {
 				<MemriTextField value={this.context.navigation.filterText} placeholder="Search"
 								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
 								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
-								accentColor="white" background="#341e51" cornerRadius={5}/>
+								accentColor="white" background="#341e51" cornerRadius={5}
+								onChange={(e) => this.context.navigation.filterText = e.target.value}
+				/>
 				<MemriRealButton>
 					{<MemriImage font={font({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9">create</MemriImage>}
 				</MemriRealButton>
