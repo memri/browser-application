@@ -72,15 +72,15 @@ export class FilterPanel extends MainUI {
 		excludeList.push(this.context.currentView?.datasource.sortProperty ?? "")
 		excludeList.push("uid", "deleted", "externalId")
 
-		let properties = Object.keys(item)
+		let properties = Object.entries(item)
 
 		return properties.map((prop) => {
-			if (!excludeList.includes(prop) && !prop.startsWith("_")) {
-					return prop
-				}
-				else {
-					return undefined
-				}
+			if (!excludeList.includes(prop[0]) && !prop[0].startsWith("_") && typeof prop[1] !== "object") {
+				return prop[0]
+			}
+			else {
+				return undefined
+			}
 		}).filter((item) => item != undefined)
 	}
 
