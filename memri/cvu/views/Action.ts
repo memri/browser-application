@@ -1246,10 +1246,10 @@ class ActionSetSetting extends Action{
 
         let value = argumentsJs["value"]
 
-        settings./*shared. TODO*/set(path, value);
+        settings.set(path, value);/*shared. TODO*/
 
             // TODO: refactor
-            ((this.context/*?.constructor?.name == "SubContext"*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
+            ((this.context?.constructor?.name == "SubContext")? this.context?.parent : this.context).scheduleUIUpdate() //TODO:
     }
 
     /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {

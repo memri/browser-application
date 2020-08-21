@@ -107,7 +107,11 @@ export class Sync {
                     if (auditable) {
                         // We no longer need to process this log item
                         DatabaseController.writeAsync(() => {
-                            if (safeRef) safeRef.resolve()._action = undefined;
+                            let func = safeRef && safeRef.resolve()
+                            if (func) {
+                                safeRef.resolve()._action = undefined;
+                            }
+
                         })
                     }
 

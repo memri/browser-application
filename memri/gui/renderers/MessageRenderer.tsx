@@ -132,7 +132,6 @@ export class MessageBubbleView extends MainUI {
                              fixedSize={{horizontal: false, vertical: true}}
                              padding={padding(10)} foregroundColor={this.outgoing ? "white" : new Color("label")}
                              background={this.outgoing ? "blue" : new Color("secondarySystemBackground")}
-                             mask={}
                   >
                       {this.content}
                   </MemriText>

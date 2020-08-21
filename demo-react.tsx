@@ -75,9 +75,9 @@ const useStylesList = makeStyles((theme: Theme) =>
 function ListItemLink(props: ListItemProps<'a', { button?: true }>) {
     return <ListItem button component="a" {...props} />;
 }
- 
 
-let example = require("text-loader!./playground/example.view")
+
+//let example = require("text-loader!./playground/example.view")
 
 
 

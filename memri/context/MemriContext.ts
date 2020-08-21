@@ -392,8 +392,12 @@ export class MemriContext {
 		this.indexerAPI = indexerAPI
 
 		// TODO: FIX
-		this.currentView.context = this
-		this.indexerAPI.context = this
+		if (this.currentView) {
+			this.currentView.context = this
+		}
+		if (this.indexerAPI) {
+			this.indexerAPI.context = this
+		}
 
         // Setup update publishers //TODO
 		/*this.uiUpdateCancellable = uiUpdateSubject
@@ -625,7 +629,9 @@ export class RootContext extends MemriContext {
 			new IndexerAPI()
 		)
 
-		this.currentView.context = this
+		if (this.currentView) {
+			this.currentView.context = this
+		}
 
 		// TODO: Refactor: This is a mess. Create a nice API, possible using property wrappers
 		// Optimize by only doing this when a property in session/view/dataitem has changed

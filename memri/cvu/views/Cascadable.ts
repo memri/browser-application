@@ -16,7 +16,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
     localCache = new MemriDictionary()
 
     get viewArguments() { return this.host?.viewArguments }
-    set viewArguments(value) { this.host.viewArguments = value }
+    set viewArguments(value) { if (this.host) this.host.viewArguments = value }
 
     get toString() {
         var merged = new MemriDictionary()
