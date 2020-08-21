@@ -3,7 +3,7 @@ import {decodeEdges, jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, unser
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
-import {DatabaseController, ItemReference} from "../DatabaseController";
+import {DatabaseController, ItemReference} from "../../storage/DatabaseController";
 import {RealmObjects, Realm} from "../RealmLocal";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {Datasource} from "../../api/Datasource";

@@ -11,7 +11,7 @@ import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {setInMemoryObjectCache} from "../../model/InMemoryObjectCache";
 import {getItem} from "../../gui/util";
 import {Languages} from "./Languages";
-import {DatabaseController} from "../../model/DatabaseController";
+import {DatabaseController} from "../../storage/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 //import {RealmObjects} from "../../model/RealmLocal";
 import {CVUStateDefinition, dataItemListToArray, Item} from "../../model/items/Item";

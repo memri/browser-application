@@ -8,7 +8,7 @@
 
 import {MemriContext, RootContext} from "../context/MemriContext";
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {DatabaseController} from "../model/DatabaseController";
+import {DatabaseController} from "../storage/DatabaseController";
 import {CacheMemri} from "../model/Cache";
 
 export class Installer {

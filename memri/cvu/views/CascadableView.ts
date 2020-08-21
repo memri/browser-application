@@ -14,7 +14,7 @@ import {
     CVUParsedRendererDefinition, CVUParsedViewDefinition
 } from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "./ViewDebugger";
-import {DatabaseController} from "../../model/DatabaseController";
+import {DatabaseController} from "../../storage/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {CascadableDict} from "./CascadableDict";
 import {CascadingDatasource} from "../../api/Datasource";

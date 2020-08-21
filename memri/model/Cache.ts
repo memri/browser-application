@@ -11,7 +11,7 @@ import {getItem, serialize} from "../gui/util";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Item, Edge, getItemType, ItemFamily} from "./items/Item";
 import {ResultSet} from "./ResultSet";
-import {DatabaseController} from "./DatabaseController";
+import {DatabaseController} from "../storage/DatabaseController";
 import {Realm} from "./RealmLocal";
 import {Sync} from "./Sync";
 import {MemriDictionary} from "./MemriDictionary";

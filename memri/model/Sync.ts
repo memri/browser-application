@@ -41,7 +41,7 @@ import {Datasource} from "../api/Datasource";
 import {Edge,AuditItem, getItemType, ItemFamily} from "./items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "./Cache";
-import {DatabaseController, ItemReference} from "./DatabaseController";
+import {DatabaseController, ItemReference} from "../storage/DatabaseController";
 
 export class Sync {
 	/// PodAPI Object to use for executing queries

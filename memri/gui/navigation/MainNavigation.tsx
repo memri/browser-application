@@ -13,7 +13,7 @@
 
 import {settings} from "../../model/Settings";
 import {jsonDataFromFile, jsonErrorHandling, MemriJSONDecoder, realmWriteIfAvailable} from "../util";
-import {DatabaseController} from "../../model/DatabaseController";
+import {DatabaseController} from "../../storage/DatabaseController";
 import {Realm} from "../../model/RealmLocal";
 
 export class MainNavigation {

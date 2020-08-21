@@ -4,7 +4,7 @@
 
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {Cascadable} from "./Cascadable";
-import {ItemReference} from "../../model/DatabaseController";
+import {ItemReference} from "../../storage/DatabaseController";
 import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Item} from "../../model/items/Item";
 import {MemriDictionary} from "../../model/MemriDictionary";
