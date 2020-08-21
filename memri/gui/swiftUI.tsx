@@ -345,9 +345,11 @@ export class MemriRealButton extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
         return (
+            <div className={"MemriRealButton"}>
             <Button onClick={action} style={this.setStyles()} {...other}>
                 {this.props.children}
             </Button>
+            </div>
         )
     }
 }

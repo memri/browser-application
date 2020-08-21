@@ -31,9 +31,11 @@ export class ActionButton extends MainUI {
 		this.item = item;
 		this.action = action;
 		return (
+			<div className={"ActionButton"}>
 			<VStack>
 				{this.getAction()}
 			</VStack>
+			</div>
 		)
 	}
 

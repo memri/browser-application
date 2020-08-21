@@ -56,8 +56,11 @@ export class SubView extends MainUI {
         this.init(this.props?.context, this.props?.viewName ?? this.props?.view, this.props?.item, this.props?.viewArguments);
 
         return (
+            <div className={"SubView"}>
             <Browser inSubView={true} showCloseButton={this.showCloseButton} fullHeight context={this.proxyMain}>
                 {this.props.children}
             </Browser>
-        )    }
+            </div>
+        )
+    }
 }

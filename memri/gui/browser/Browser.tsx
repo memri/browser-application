@@ -45,6 +45,7 @@ export class Browser extends MainUI {
 		this.currentView = currentView
 
 		return (
+			<div className={"Browser"}>
 			<ZStack>
 				{this.context.currentView == undefined ? "Loading..." :
 					<>
@@ -72,6 +73,7 @@ export class Browser extends MainUI {
 					</>
 				}
 			</ZStack>
+			</div>
 		);
 	}
 }
