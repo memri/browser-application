@@ -1,7 +1,6 @@
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {getItemType, ItemFamily} from "../model/items/Item";
 import {DatabaseController} from "../model/DatabaseController";
-//var fs = require("fs");
 
 export var MemriJSONEncoder = function (x) {
     return JSON.stringify(x);

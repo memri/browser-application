@@ -10,7 +10,8 @@ import {debugHistory} from "./ViewDebugger";
 import {settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {CacheMemri} from "../../model/Cache";
-import {CVUStateDefinition} from "../../model/items/Item";
+import {CVUStateDefinition, EdgeSequencePosition, Item} from "../../model/items/Item";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;
@@ -31,9 +32,9 @@ export class Action/* : HashableClass, CVUToString*/ {
         return (typeof this.defaultValues["argumentTypes"] == "object")? this.defaultValues["argumentTypes"]: {}
     }
 
-    defaultValues = {};
+    defaultValues = new MemriDictionary();//TODO this should be getter?
 
-    baseValues = {
+    baseValues = new MemriDictionary({
         "icon": "",
         "renderAs": RenderType.button,
         "showTitle": false,
@@ -45,9 +46,9 @@ export class Action/* : HashableClass, CVUToString*/ {
         "activeBackgroundColor": new Color("white"),
         "inactiveBackgroundColor": new Color("white"),
         "withAnimation": true
-    };
+    });
 
-    values = {};
+    values = new MemriDictionary();
 
     context: MemriContext;
 
@@ -90,11 +91,11 @@ export class Action/* : HashableClass, CVUToString*/ {
         }
     }
 
-    get description(): string {
+    get toString(): string {
         return this.toCVUString(0, "    ")
     }
 
-    constructor(context: MemriContext, name: string, values = {}) {
+    constructor(context: MemriContext, name: string, values?) {
         this.context = context;
 
         //super();//TODO:
@@ -106,7 +107,7 @@ export class Action/* : HashableClass, CVUToString*/ {
             this.name = ActionFamily.noop;
         } // TODO REfactor: Report error to user
 
-        this.values = values;
+        this.values = values ?? new MemriDictionary();
         let x = this.values["renderAs"];
         if (x && typeof x == "string") {
             this.values["renderAs"] = RenderType[x]
@@ -356,9 +357,9 @@ export var validateActionType = function (key: string, value): boolean {
         case ActionProperties.indexer:
         case ActionProperties.item:
             return value?.constructor?.name == "Item"
-        case ActionProperties.viewArguments: return value?.constructor?.name == "CVUParsedObjectDefinition" || typeof value.isCVUObject == "function"
-        case ActionProperties.view: return value?.constructor?.name == "CVUParsedViewDefinition" || typeof value.isCVUObject == "function"
-        case ActionProperties.session: return value?.constructor?.name == "CVUParsedSessionDefinition" || typeof value.isCVUObject == "function"
+        case ActionProperties.viewArguments: return value?.constructor?.name == "CVUParsedObjectDefinition" || value?.constructor?.name == "MemriDictionary"
+        case ActionProperties.view: return value?.constructor?.name == "CVUParsedViewDefinition" || value?.constructor?.name == "MemriDictionary"
+        case ActionProperties.session: return value?.constructor?.name == "CVUParsedSessionDefinition" || value?.constructor?.name == "MemriDictionary"
         case ActionProperties.actions: return Array.isArray(value) /*instanceof [Action]*/ //TODO:
         default:
             return false
@@ -372,15 +373,15 @@ protocol ActionExec {
 */
 
 export class ActionBack extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "icon": "chevron_left", //chevron.left
         "opensView": true,
         "color": new Color("#434343"),//TODO
         "inactiveColor": new Color("#434343"),//TODO
         "withAnimation": false
-    }
+    })
 
-    constructor(context, values = {}) {
+    constructor(context, values?) {
         super(context, "back", values)
     }
 
@@ -404,13 +405,13 @@ export class ActionBack extends Action {
 }
 
 export class ActionAddItem extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "icon": "add",//plus
         "argumentTypes": {"template": "ItemFamily"},//TODO
         "opensView": true,
         "color": new Color("#6aa84f"),
         "inactiveColor": new Color("#434343")
-    };
+    });
 
     constructor(context, values = {}) {
         super(context, "addItem", values);
@@ -418,7 +419,7 @@ export class ActionAddItem extends Action {
 
     exec(argumentsJs) {
         let dataItem = argumentsJs["template"]
-        if (dataItem?.constructor?.name == "Item") {//TODO
+        if (dataItem instanceof Item) {//TODO
             // Copy template
             //let copy = this.context.cache.duplicate(dataItem);
             //#warning("Test that this creates a unique node")
@@ -439,19 +440,19 @@ export class ActionAddItem extends Action {
 
 
 export class ActionOpenView extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"view": "CVUStateDefinition", "viewArguments": "ViewArguments"},
         "withAnimation": false,
         "opensView": true
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "openView", values);
     }
 
     openView(context: MemriContext, view: CVUStateDefinition|Item, argumentsJs = null) {
-        if (view?.constructor?.name == "Item") {
-           let item = view;
+        if (!(view instanceof CVUStateDefinition)) {
+            let item = view;
             let uid = item.uid;
             if (!uid) {
                 throw "Uninitialized item"
@@ -463,7 +464,7 @@ export class ActionOpenView extends Action {
                 "definition":
 `[view] {
     [datasource = pod] {
-        query: "\(item.genericType) AND uid = \(uid)"
+        query: "${item.genericType} AND uid = ${uid}"
     }
 }`,
             })
@@ -504,24 +505,24 @@ export class ActionOpenView extends Action {
 }
 
 export class ActionOpenViewByName extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"viewName": "String", "viewArguments": "ViewArguments"},//TODO
         "withAnimation": false,
         "opensView": true
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "openViewByName", values);
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let viewArguments = argumentsJs["viewArguments"]/*?.constructor?.name == "ViewArguments"*/;
         let name = argumentsJs["viewName"];
         if (typeof name == "string") {
             // Fetch a dynamic view based on its name
-            let stored = this.context.views.fetchDefinitions(name, "view")[0];//TODO?
+            let stored = this.context.views.fetchDefinitions(undefined, name, "view")[0];//TODO?
             if (!stored) {
-                throw "No view found with the name \(name)"
+                throw `No view found with the name ${name}`
             }
             try {
                 let view = this.context.views.getViewStateDefinition(stored)
@@ -542,13 +543,13 @@ export class ActionOpenViewByName extends Action {
 }
 
 export class ActionOpenViewWithUIDs extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"view": "CVUStateDefinition", "viewArguments": "ViewArguments"},
         "withAnimation": false,
         "opensView": true,
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "openView", values)
     }
 
@@ -593,7 +594,7 @@ export class ActionOpenViewWithUIDs extends Action {
         }
     }
 
-    exec(argumentsJs: {}) {
+    exec(argumentsJs: MemriDictionary) {
     //        let selection = context.cascadingView.userState.get("selection") as? [Item]
         let uids = argumentsJs["uids"]
         let itemType = argumentsJs["itemType"]
@@ -612,19 +613,19 @@ export class ActionOpenViewWithUIDs extends Action {
 }
 
 export class ActionToggleEditMode extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "icon": "edit",//pencil
         "binding": new Expression("currentSession.editMode"),//TODO:
         "activeColor": new Color("#6aa84f"),
         "inactiveColor": new Color("#434343"),
         "withAnimation": false
-    }
+    })
 
     constructor(context: MemriContext, values = {}) {
         super(context, "toggleEditMode", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         // Do Nothing
     }
 
@@ -634,17 +635,17 @@ export class ActionToggleEditMode extends Action {
 }
 
 export class ActionToggleFilterPanel extends Action {
-    defaultValues = {
-        "icon": "rhombus.fill",
+    defaultValues = new MemriDictionary({
+        "icon": "filter_list",//rhombus.fill
         "binding": new Expression("currentSession.showFilterPanel"),//TODO
         "activeColor": new Color("#6aa84f")
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "toggleFilterPanel", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         // Hide Keyboard
         //dismissCurrentResponder()//TODO:?
     }
@@ -654,17 +655,17 @@ export class ActionToggleFilterPanel extends Action {
         }*/
 }
 export class ActionStar extends Action {
-    defaultValues = {
-        "icon": "star.fill",
+    defaultValues = new MemriDictionary({
+        "icon": "star",//star.fill
         "binding": new Expression("dataItem.starred")//TODO
-    };
+    });
 
     constructor(context: MemriContext, values = {}) {
         super(context, "star", values)
     }
 
     // TODO selection handling for binding
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
 //        if let item = argumentsJs["item"] as? Item {
 //            var selection:[DataItem] = context.cascadableView.userState.get("selection") ?? []
 //            let toValue = !item.starred
@@ -692,19 +693,19 @@ export class ActionStar extends Action {
 }
 
 export class ActionShowStarred extends Action {
-    defaultValues = {
-        "icon": "star.fill",
+    defaultValues = new MemriDictionary({
+        "icon": "star", ///star.fill
         "binding": new Expression("view.userState.showStarred"),//TODO
         "opensView": true,
         "activeColor": new Color("#ffdb00"),
         "withAnimation": false
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "showStarred", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         try {
             let binding = this.binding;
             if (binding && !binding.isTrue()) {
@@ -726,16 +727,16 @@ export class ActionShowStarred extends Action {
 }
 
 export class ActionShowContextPane extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "icon": "more_vert",//ellipsis
         "binding": new Expression("currentSession.showContextPane")//TODO
-    };
+    });
 
     constructor(context: MemriContext, values = {}) {
         super(context, "showContextPane", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         // Hide Keyboard
         //dismissCurrentResponder()//TODO
     }
@@ -746,18 +747,17 @@ export class ActionShowContextPane extends Action {
 }
 
 export class ActionShowNavigation extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "icon": "menu",//line.horizontal.3
         "binding": new Expression("context.showNavigation"),
         "inactiveColor": new Color("#434343")//TODO:
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "showNavigation", values)
     }
 
-    exec(argumentsJs) {
-        this.context.showNavigationBinding();
+    exec(argumentsJs: MemriDictionary) {
         // Hide Keyboard
         //dismissCurrentResponder()//TODO
     }
@@ -767,15 +767,15 @@ export class ActionShowNavigation extends Action {
     }*/
 }
 export class ActionSchedule extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "icon": "alarm"
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "schedule", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
 //        ActionSchedule.exec(context, arguments:arguments)
     }
 
@@ -785,17 +785,17 @@ export class ActionSchedule extends Action {
 }
 
 export class ActionShowSessionSwitcher extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "icon": "more_vert",//ellipsis
         "binding": new Expression("context.showSessionSwitcher"),
         "color": new Color("#CCC")
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "showSessionSwitcher", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
 //        ActionShowSessionSwitcher.exec(context, arguments:arguments)
     }
 
@@ -804,11 +804,11 @@ export class ActionShowSessionSwitcher extends Action {
     }*/
 }
 export class ActionForward extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "opensView": true,
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "forward", values)
     }
 
@@ -832,15 +832,15 @@ export class ActionForward extends Action {
 }
 
 export class ActionForwardToFront extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "opensView": true,
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "forwardToFront", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let session = this.context.currentSession;
         if (session) {
             session.currentViewIndex = session.views.length - 1
@@ -857,12 +857,12 @@ export class ActionForwardToFront extends Action {
 }
 
 export class ActionBackAsSession extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "opensView": true,
         "withAnimation": false
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "backAsSession", values)
     }
 
@@ -879,7 +879,7 @@ export class ActionBackAsSession extends Action {
                         let state = view.state
                         let viewCopy = this.context.cache.duplicate(state)
                         if (state && viewCopy?.constructor?.name == "CVUStateDefinition") {
-                            copy.link(viewCopy, "view", ".last")
+                            copy.link(viewCopy, "view", EdgeSequencePosition.last)
                         }
                     }
 
@@ -901,13 +901,13 @@ export class ActionBackAsSession extends Action {
 }
 
 export class ActionOpenSession extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"session": "CVUStateDefinition", "viewArguments": "ViewArguments"},
         "opensView": true,
         "withAnimation": false
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "openSession", values)
     }
 
@@ -930,7 +930,7 @@ export class ActionOpenSession extends Action {
 
     /// Adds a view to the history of the currentSession and displays it. If the view was already part of the currentSession.views it
     /// reorders it on top
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let args = argumentsJs["viewArguments"]
 
         let item = argumentsJs["session"]
@@ -961,17 +961,17 @@ export class ActionOpenSession extends Action {
 
 // TODO How to deal with viewArguments in sessions
 export class ActionOpenSessionByName extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"sessionName": "String", "viewArguments": "ViewArguments"},//TODO:
         "opensView": true,
             "withAnimation": false
-    };
+    });
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "openSessionByName", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let viewArguments = argumentsJs["viewArguments"];
         let name = argumentsJs["sessionName"];
         if (typeof name != "string") {
@@ -1001,11 +1001,11 @@ export class ActionOpenSessionByName extends Action {
 }
 
 export class ActionDelete extends Action {
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "delete", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
 //
 //        // TODO this should happen automatically in ResultSet
 //        //        self.context.items.remove(atOffsets: indexSet)
@@ -1038,14 +1038,14 @@ export class ActionDelete extends Action {
 }
 
 export class ActionDuplicate extends Action {
-    defaultValues = {
-        "argumentTypes": {"item": "ItemFamily"}
-        }
-    constructor(context: MemriContext, values = {}) {
+    defaultValues = new MemriDictionary({
+        "argumentTypes": {"item": "ItemFamily"}//TODO MemriDictionary?
+    })
+    constructor(context: MemriContext, values?) {
         super(context, "duplicate", values);
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let selection: Item[] = this.context.currentView?.userState?.get("selection");
         if (selection && selection.length > 0) {
             selection.forEach(function (item) {
@@ -1068,15 +1068,15 @@ export class ActionDuplicate extends Action {
 }
 
 export class ActionRunImporter extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"importer": "ItemFamily"},
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "runImporter", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         // TODO: parse options
         let run = argumentsJs["importer"];
         if (run?.constructor?.name == "ImporterRun") {
@@ -1100,11 +1100,11 @@ export class ActionRunImporter extends Action {
 
 
 export class ActionRunIndexer extends Action {
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "runIndexer", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         // TODO: parse options
         let run = argumentsJs["indexerRun"]
         if (!(run?.constructor?.name == "IndexerRun")) {
@@ -1185,11 +1185,11 @@ export class ActionRunIndexer extends Action {
 }
 
 export class ActionClosePopup extends Action {
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "closePopup", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         this.context.closeLastInStack();
     }
 
@@ -1199,15 +1199,15 @@ export class ActionClosePopup extends Action {
 }
 
 export class ActionSetProperty extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"subject": "ItemFamily", "property": "String", "value": "AnyObject"},//TODO
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "setProperty", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let subject = argumentsJs["subject"];
         if (!(subject?.constructor?.name == "Item")) {
             throw "Exception: subject is not set"
@@ -1230,15 +1230,15 @@ export class ActionSetProperty extends Action {
 }
 
 class ActionSetSetting extends Action{
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"path": "String", "value": "Any"}
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "setSetting", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let path = argumentsJs["path"];
         if (typeof path != "string") {
             throw "Exception: missing path to set setting"
@@ -1258,15 +1258,15 @@ class ActionSetSetting extends Action{
 }
 
 export class ActionLink extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"subject": "ItemFamily", "edgeType": "String", "distinct": "Bool"}//TODO:
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "link", values);
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let subject = argumentsJs["subject"];
         if (!(subject?.constructor?.name == "Item")) {
             throw "Exception: subject is not set";
@@ -1284,7 +1284,7 @@ export class ActionLink extends Action {
 
         let distinct = argumentsJs["distinct"] ?? false;
 
-        subject.link(selected, edgeType, distinct)
+        subject.link(selected,  edgeType, undefined, distinct)
 
         // TODO refactor
         ((this.context /*instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:?
@@ -1296,15 +1296,15 @@ export class ActionLink extends Action {
 }
 
 export class ActionUnlink extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"subject": "ItemFamily", "edgeType": "String", "all": "Bool"},//TODO
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "unlink", values)
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         let subject = argumentsJs["subject"];
         if (!(subject?.constructor?.name == "Item")) {
             throw "Exception: subject is not set";
@@ -1335,12 +1335,12 @@ export class ActionUnlink extends Action {
 }
 
 export class ActionMultiAction extends Action {
-    defaultValues = {
+    defaultValues = new MemriDictionary({
         "argumentTypes": {"actions": "[Action]"},//TODO:?
         "opensView": true
-    }
+    })
 
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "multiAction", values)
     }
 
@@ -1361,7 +1361,7 @@ export class ActionMultiAction extends Action {
 }
 
 export class ActionNoop extends Action {
-    constructor(context: MemriContext, values = {}) {
+    constructor(context: MemriContext, values?) {
         super(context, "noop", values)
     }
 
@@ -1376,11 +1376,11 @@ export class ActionNoop extends Action {
 
 //FilterPanelRendererButton moved from Renderers.ts
 export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
-    defaults = {
+    defaults = new MemriDictionary({
         activeColor: new Color("#6aa84f"),
         activeBackgroundColor: new Color("#eee"),
         title: "Unnamed Renderer"
-    }
+    })
 
     order
     canDisplayResults
@@ -1402,8 +1402,8 @@ export class FilterPanelRendererButton extends Action/*, ActionExec*/ {
         return this.context.currentView?.activeRenderer == this.rendererName
     }
 
-    exec(argumentsJs) {
+    exec(argumentsJs: MemriDictionary) {
         this.context.currentView.activeRenderer = this.rendererName
-        this.context.scheduleUIUpdate()/*{ _ in true }*///TODO // scheduleCascadableViewUpdate() // TODO why are userState not kept?
+        this.context.scheduleUIUpdate(true)/*{ _ in true }*///TODO // scheduleCascadableViewUpdate() // TODO why are userState not kept?
     }
 }

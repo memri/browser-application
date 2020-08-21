@@ -10,6 +10,7 @@ import {Datasource} from "../../api/Datasource";
 import {Session} from "../../sessions/Session";
 import {Sessions} from "../../sessions/Sessions";
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
+import {MemriDictionary} from "../MemriDictionary";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
@@ -26,7 +27,7 @@ export function UUID() {
 /// Item is the baseclass for all of the data classes.
 export class SchemaItem {
     get genericType() {
-        return 'type'+this?.constructor?.name;
+        return this?.constructor?.name;
     }
     /// A collection of all edges this Item is connected to.
     allEdges: RealmObjects = new RealmObjects();
@@ -208,7 +209,7 @@ export class Item extends SchemaItem {
     /// Get the type of Item
     /// - Returns: type of the Item
     getType() {
-        let type = ItemFamily["type" + this["_type"]];
+        let type = ItemFamily[this["_type"]];
         if (type) {
             let T = getItemType(type)
             // NOTE: allowed forced downcast
@@ -225,10 +226,10 @@ export class Item extends SchemaItem {
     hasProperty(propName: string) {
         for (let prop in this) {
             if (this.hasOwnProperty(prop)) {
-                if (this[prop] == propName) {
+                if (prop == propName) {
                     return true
                 }
-                let haystack = this[prop.name];
+                let haystack = this[prop];
                 if (typeof haystack == "string") {
                     if (haystack.toLowerCase().indexOf(propName.toLowerCase()) > -1) {
                         return true
@@ -269,7 +270,7 @@ export class Item extends SchemaItem {
                 }
             } else {
                 let obj = value;
-                this.link(obj, name, true)
+                this.link(obj, name, undefined,undefined,true)
             }
             this.dateModified = new Date() // Update DateModified
         })
@@ -359,11 +360,11 @@ export class Item extends SchemaItem {
 
         switch (sequence) {
             case EdgeSequencePosition.numberOne:
-                orderNumber = sequence.value; //TODO
+                orderNumber = sequence; //TODO
                 break;
             case EdgeSequencePosition.first:
                 var sorted = edges.sorted("sequence", false) //TODO:
-                let firstOrderNumber = sorted[0]?.sequence.value;
+                let firstOrderNumber = sorted[0]?.sequence;
                 if (firstOrderNumber) {
                     orderNumber = Math.round(firstOrderNumber / 2) //TODO:
 
@@ -375,17 +376,17 @@ export class Item extends SchemaItem {
                 break;
             case EdgeSequencePosition.last:
                 var sorted = edges.sorted("sequence", true) //TODO:
-                let lastOrderNumber = sorted[0]?.sequence.value;
+                let lastOrderNumber = sorted[0]?.sequence;
                 if (lastOrderNumber) {
                     orderNumber = lastOrderNumber + 1000
                 }
                 break;
             case EdgeSequencePosition.before:
-                let beforeEdge = sequence.value;
+                let beforeEdge = sequence;
                 if (!this.allEdges.indexOf(beforeEdge) > -1 || beforeEdge.type != edgeType) {
                     throw "Edge is not part of this set"
                 }
-                let beforeNumber = beforeEdge.sequence.value;
+                let beforeNumber = beforeEdge.sequence;
                 if (!beforeNumber) { //TODO
                     throw "Before edge is not part of an ordered list"
                 }
@@ -394,7 +395,7 @@ export class Item extends SchemaItem {
                     .filtered(`deleted = false AND sequence < ${beforeNumber}`)
                     .sorted("sequence", true)[0];
 
-                let previousNumber = (beforeBeforeEdge?.sequence.value ?? 0)
+                let previousNumber = (beforeBeforeEdge?.sequence ?? 0)
                 if (beforeNumber - previousNumber > 1000) {
                     orderNumber = beforeNumber - 1000
                 } else if (beforeNumber - previousNumber > 1) {
@@ -405,11 +406,11 @@ export class Item extends SchemaItem {
                 }
                 break;
             case EdgeSequencePosition.after:
-                let afterEdge = sequence.value;
+                let afterEdge = sequence;
                 if (!this.allEdges.indexOf(afterEdge) > -1 || afterEdge.type != edgeType) {
                     throw "Edge is not part of this set"
                 }
-                let afterNumber = afterEdge.sequence.value;
+                let afterNumber = afterEdge.sequence;
                 if (!afterNumber) {
                     throw "Before edge is not part of an ordered list"
                 }
@@ -418,7 +419,7 @@ export class Item extends SchemaItem {
                     .filtered(`deleted = false AND sequence < ${afterNumber}`)
                     .sorted("sequence", true)[0] //TODO:
 
-                let nextNumber = (afterAfterEdge?.sequence.value ?? 0)
+                let nextNumber = (afterAfterEdge?.sequence ?? 0)
                 if (afterNumber - nextNumber > 1000) {
                     orderNumber = afterNumber - 1000
                 } else if (afterNumber - nextNumber > 1) {
@@ -455,7 +456,7 @@ export class Item extends SchemaItem {
         let query = `deleted = false and type = '${edgeType}'` //
             + (distinct ? "" : ` and targetItemID = ${targetID}`)
         var edge = this.allEdges.filtered(query)[0] //TODO
-        //let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
+        let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
         DatabaseController.writeSync(function () {
             if (item.realm == undefined && item?.constructor?.name == "Item") {
@@ -469,7 +470,7 @@ export class Item extends SchemaItem {
                     item,
                     edgeType,
                     label,
-                    undefined //sequenceNumber
+                    sequenceNumber
                 );
                 if (edge) {
                     this.allEdges.push(edge);
@@ -477,7 +478,7 @@ export class Item extends SchemaItem {
             } else if (overwrite && edge) {
                 edge.targetItemID= targetID
                 edge.targetItemType = item.genericType
-                edge.sequence = undefined //sequenceNumber
+                edge.sequence = sequenceNumber
                 edge.edgeLabel = label
 
                 if (edge["_action"] == undefined) {
@@ -734,7 +735,7 @@ export class Item extends SchemaItem {
                 }
             }*/
 
-            var dict = {}
+            var dict = new MemriDictionary()
             for (let field of updatedFields) {
                 /*if (item.objectSchema[field] == undefined) {
                     throw "Invalid update call"
@@ -794,10 +795,10 @@ Object.assign(RealmObjects.prototype, {
 
         var listType = type
         if (listType == undefined) {
-            let strType = dir == Direction.target ? this?.targetItemType : this?.sourceItemType;
+            let strType = dir == Direction.target ? this[0]?.targetItemType : this[0]?.sourceItemType;
             let itemType = ItemFamily[strType];
             if (strType && itemType) {
-                listType = getItemType(itemType)?.constructor?.name;
+                listType = strType;
             }
         }
         let finalType = listType;
@@ -848,86 +849,11 @@ Object.assign(RealmObjects.prototype, {
     }
 })
 
-enum Direction {
+export enum Direction {
     source, target
 }
 
-
-/*extension RealmSwift.Results where Element == Edge {
-    private enum Direction {
-        case source, target
-}
-enum Direction {
-    source, target
-}
-
-function lookup(type?, dir: Direction = Direction.target) {
-
-        guard count > 0 else {
-            return nil
-        }
-
-        var listType = type
-        if listType == nil {
-        let strType = dir == .target ? first?.targetItemType : first?.sourceItemType
-        if let strType = strType, let itemType = ItemFamily(rawValue: strType) {
-        listType = itemType.getType() as? T.Type
-    }
-}
-
-    guard let finalType = listType else {
-        return nil
-    }
-
-    do {
-        let realm = try Realm()
-        let filter = "uid = "
-            + compactMap {
-            if let value = (dir == .target ? $0.targetItemID.value : $0.sourceItemID.value) {
-                return String(value)
-            }
-            return nil
-        }.joined(separator: " or uid = ")
-        return realm.objects(finalType).filter(filter)
-    } catch {
-        debugHistory.error("\(error)")
-        return nil
-    }
-}
-
-    // TODO: support for heterogenous edge lists
-
-    func items<T: Item>(type: T.Type? = nil) -> Results<T>? { lookup(type: type) }
-        func targets<T: Item>(type: T.Type? = nil) -> Results<T>? { lookup(type: type) }
-        func sources<T: Item>(type: T.Type? = nil) -> Results<T>? { lookup(type: type, dir: .source) }
-
-    func itemsArray<T: Item>(type _: T.Type? = T.self) -> [T] {
-        var result = [T]()
-
-        for edge in self {
-            if let target = edge.target() as? T {
-                result.append(target)
-            }
-        }
-
-        return result
-    }
-
-    //    #warning("Toby, how do Ranges work exactly?")
-    //    #warning("@Ruben I think this achieves what you want")
-    //    // TODO: views.removeSubrange((currentViewIndex + 1)...)
-    //    func removeEdges(ofType type: String, withOrderMatchingBounds orderBounds: PartialRangeFrom<Int>) {
-    //        edges(type)?.filter("order > \(orderBounds.lowerBound)").forEach { edge in
-    //            do {
-    //                try self.unlink(edge)
-    //            } catch {
-    //                // log errors in unlinking here
-    //            }
-    //        }
-    //    }
-}*/
-
-class first {
+export class first {
     value;
     type;
 
@@ -936,7 +862,7 @@ class first {
     }
 }
 
-class last {
+export class last {
     value;
     type;
 
@@ -945,7 +871,7 @@ class last {
     }
 }
 
-class before {
+export class before {
     value;
     type = "before";
 
@@ -954,7 +880,7 @@ class before {
     }
 }
 
-class after {
+export class after {
     value;
     type = "after";
 
@@ -963,7 +889,7 @@ class after {
     }
 }
 
-class numberOne {
+export class numberOne {
     value;
     type = "number";
 
@@ -1003,7 +929,7 @@ export class Edge {
     }
 
     item(type) {
-        this.target(type)
+        return this.target(type)
     }
 
     target() {
@@ -1011,7 +937,7 @@ export class Edge {
             return DatabaseController.tryRead((item) => {
                 let itemType = this.targetType;
                 if (itemType) {
-                    return item.objectForPrimaryKey(itemType, this.targetItemID);
+                    return item.objectForPrimaryKey(itemType.name, this.targetItemID);
                 } else {
                     throw `Could not resolve edge target: ${this}`
                 }
@@ -1028,7 +954,7 @@ export class Edge {
             return DatabaseController.tryRead((item) => {
                 let itemType = this.sourceType;
                 if (itemType) {
-                    return item.objectForPrimaryKey(itemType, this.sourceItemID);
+                    return item.objectForPrimaryKey(itemType.name, this.sourceItemID);
                 } else {
                     throw `Could not resolve edge source: ${this}`
                 }
@@ -1149,129 +1075,129 @@ export class CVUStateDefinition extends CVUStoredDefinition {
 //----------------------------------------------------schema.ts
 
 export enum ItemFamily {
-    typeAuditItem = "AuditItem",
-    typeCompany = "Company",
-    typeCreativeWork = "CreativeWork",
-    typeDigitalDocument = "DigitalDocument",
-    typeComment = "Comment",
-    typeNote = "Note",
-    typeMediaObject = "MediaObject",
-    typeAudio = "Audio",
-    typePhoto = "Photo",
-    typeVideo = "Video",
-    typeCVUStoredDefinition = "CVUStoredDefinition",
-    typeCVUStateDefinition = "CVUStateDefinition",
-    typeDatasource = "Datasource",
-    typeDevice = "Device",
-    typeDiet = "Diet",
-    typeDownloader = "Downloader",
-    typeEdge = "Edge",
-    typeFile = "File",
-    typeImporter = "Importer",
-    typeImporterRun = "ImporterRun",
-    typeIndexer = "Indexer",
-    typeIndexerRun = "IndexerRun",
-    typeLabel = "Label",
-    typeLocation = "Location",
-    typeAddress = "Address",
-    typeCountry = "Country",
-    typeMedicalCondition = "MedicalCondition",
-    typeNavigationItem = "NavigationItem",
-    typeOnlineProfile = "OnlineProfile",
-    typePerson = "Person",
-    typePhoneNumber = "PhoneNumber",
-    typePublicKey = "PublicKey",
-    typeSession = "Session",
-    typeSessions = "Sessions",
-    typeSessionView = "SessionView",
-    typeSetting = "Setting",
-    typeSyncState = "SyncState",
-    typeUserState = "UserState",
-    typeViewArguments = "ViewArguments",
-    typeWebsite = "Website",
+    AuditItem = "AuditItem",
+    Company = "Company",
+    CreativeWork = "CreativeWork",
+    DigitalDocument = "DigitalDocument",
+    Comment = "Comment",
+    Note = "Note",
+    MediaObject = "MediaObject",
+    Audio = "Audio",
+    Photo = "Photo",
+    Video = "Video",
+    CVUStoredDefinition = "CVUStoredDefinition",
+    CVUStateDefinition = "CVUStateDefinition",
+    Datasource = "Datasource",
+    Device = "Device",
+    Diet = "Diet",
+    Downloader = "Downloader",
+    Edge = "Edge",
+    File = "File",
+    Importer = "Importer",
+    ImporterRun = "ImporterRun",
+    Indexer = "Indexer",
+    IndexerRun = "IndexerRun",
+    Label = "Label",
+    Location = "Location",
+    Address = "Address",
+    Country = "Country",
+    MedicalCondition = "MedicalCondition",
+    NavigationItem = "NavigationItem",
+    OnlineProfile = "OnlineProfile",
+    Person = "Person",
+    PhoneNumber = "PhoneNumber",
+    PublicKey = "PublicKey",
+    Session = "Session",
+    Sessions = "Sessions",
+    SessionView = "SessionView",
+    Setting = "Setting",
+    SyncState = "SyncState",
+    UserState = "UserState",
+    ViewArguments = "ViewArguments",
+    Website = "Website",
 }
 
 //export var discriminator = Discriminator._type //TODO:
 
 export var backgroundColor = function(name) {
     switch (name) {
-        case ItemFamily.typeAuditItem: return new Color("#93c47d")
-        case ItemFamily.typeCompany: return new Color("#93c47d")
-        case ItemFamily.typeCreativeWork: return new Color("#93c47d")
-        case ItemFamily.typeDigitalDocument: return new Color("#93c47d")
-        case ItemFamily.typeComment: return new Color("#93c47d")
-        case ItemFamily.typeNote: return new Color("#ccb94b ")
-        case ItemFamily.typeMediaObject: return new Color("#93c47d")
-        case ItemFamily.typeAudio: return new Color("#93c47d")
-        case ItemFamily.typePhoto: return new Color("#93c47d")
-        case ItemFamily.typeVideo: return new Color("#93c47d")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#93c47d")
-        case ItemFamily.typeCVUStateDefinition: return new Color("#93c47d");
-        case ItemFamily.typeDatasource: return new Color("#93c47d")
-        case ItemFamily.typeDevice: return new Color("#93c47d")
-        case ItemFamily.typeDiet: return new Color("#37af1c")
-        case ItemFamily.typeDownloader: return new Color("#93c47d")
-        case ItemFamily.typeEdge: return new Color("#93c47d")
-        case ItemFamily.typeFile: return new Color("#93c47d")
-        case ItemFamily.typeImporter: return new Color("#93c47d")
-        case ItemFamily.typeImporterRun: return new Color("#93c47d")
-        case ItemFamily.typeIndexer: return new Color("#93c47d")
-        case ItemFamily.typeIndexerRun: return new Color("#93c47d")
-        case ItemFamily.typeLabel: return new Color("#93c47d")
-        case ItemFamily.typeLocation: return new Color("#93c47d")
-        case ItemFamily.typeAddress: return new Color("#93c47d")
-        case ItemFamily.typeCountry: return new Color("#93c47d")
-        case ItemFamily.typeMedicalCondition: return new Color("#3dc8e2")
-        case ItemFamily.typeNavigationItem: return new Color("#93c47d")
-        case ItemFamily.typeOnlineProfile: return new Color("#93c47d")
-        case ItemFamily.typePerson: return new Color("#3a5eb2")
-        case ItemFamily.typePhoneNumber: return new Color("#eccf23")
-        case ItemFamily.typePublicKey: return new Color("#93c47d")
-        case ItemFamily.typeSetting: return new Color("#93c47d")
-        case ItemFamily.typeUserState: return new Color("#93c47d")
-        case ItemFamily.typeViewArguments: return new Color("#93c47d")
-        case ItemFamily.typeWebsite: return new Color("#3d57e2")
+        case ItemFamily.AuditItem: return new Color("#93c47d")
+        case ItemFamily.Company: return new Color("#93c47d")
+        case ItemFamily.CreativeWork: return new Color("#93c47d")
+        case ItemFamily.DigitalDocument: return new Color("#93c47d")
+        case ItemFamily.Comment: return new Color("#93c47d")
+        case ItemFamily.Note: return new Color("#ccb94b ")
+        case ItemFamily.MediaObject: return new Color("#93c47d")
+        case ItemFamily.Audio: return new Color("#93c47d")
+        case ItemFamily.Photo: return new Color("#93c47d")
+        case ItemFamily.Video: return new Color("#93c47d")
+        case ItemFamily.CVUStoredDefinition: return new Color("#93c47d")
+        case ItemFamily.CVUStateDefinition: return new Color("#93c47d");
+        case ItemFamily.Datasource: return new Color("#93c47d")
+        case ItemFamily.Device: return new Color("#93c47d")
+        case ItemFamily.Diet: return new Color("#37af1c")
+        case ItemFamily.Downloader: return new Color("#93c47d")
+        case ItemFamily.Edge: return new Color("#93c47d")
+        case ItemFamily.File: return new Color("#93c47d")
+        case ItemFamily.Importer: return new Color("#93c47d")
+        case ItemFamily.ImporterRun: return new Color("#93c47d")
+        case ItemFamily.Indexer: return new Color("#93c47d")
+        case ItemFamily.IndexerRun: return new Color("#93c47d")
+        case ItemFamily.Label: return new Color("#93c47d")
+        case ItemFamily.Location: return new Color("#93c47d")
+        case ItemFamily.Address: return new Color("#93c47d")
+        case ItemFamily.Country: return new Color("#93c47d")
+        case ItemFamily.MedicalCondition: return new Color("#3dc8e2")
+        case ItemFamily.NavigationItem: return new Color("#93c47d")
+        case ItemFamily.OnlineProfile: return new Color("#93c47d")
+        case ItemFamily.Person: return new Color("#3a5eb2")
+        case ItemFamily.PhoneNumber: return new Color("#eccf23")
+        case ItemFamily.PublicKey: return new Color("#93c47d")
+        case ItemFamily.Setting: return new Color("#93c47d")
+        case ItemFamily.UserState: return new Color("#93c47d")
+        case ItemFamily.ViewArguments: return new Color("#93c47d")
+        case ItemFamily.Website: return new Color("#3d57e2")
     }
 }
 
 export var foregroundColor = function(name) {
     switch (name) {
-        case ItemFamily.typeAuditItem: return new Color("#ffffff")
-        case ItemFamily.typeCompany: return new Color("#ffffff")
-        case ItemFamily.typeCreativeWork: return new Color("#ffffff")
-        case ItemFamily.typeDigitalDocument: return new Color("#ffffff")
-        case ItemFamily.typeComment: return new Color("#ffffff")
-        case ItemFamily.typeNote: return new Color("#ffffff")
-        case ItemFamily.typeMediaObject: return new Color("#ffffff")
-        case ItemFamily.typeAudio: return new Color("#ffffff")
-        case ItemFamily.typePhoto: return new Color("#ffffff")
-        case ItemFamily.typeVideo: return new Color("#ffffff")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#ffffff")
-        case ItemFamily.typeCVUStateDefinition: return new Color("#ffffff")
-        case ItemFamily.typeDatasource: return new Color("#ffffff")
-        case ItemFamily.typeDevice: return new Color("#ffffff")
-        case ItemFamily.typeDiet: return new Color("#ffffff")
-        case ItemFamily.typeDownloader: return new Color("#ffffff")
-        case ItemFamily.typeEdge: return new Color("#ffffff")
-        case ItemFamily.typeFile: return new Color("#ffffff")
-        case ItemFamily.typeImporter: return new Color("#ffffff")
-        case ItemFamily.typeImporterRun: return new Color("#ffffff")
-        case ItemFamily.typeIndexer: return new Color("#ffffff")
-        case ItemFamily.typeIndexerRun: return new Color("#ffffff")
-        case ItemFamily.typeLabel: return new Color("#ffffff")
-        case ItemFamily.typeLocation: return new Color("#ffffff")
-        case ItemFamily.typeAddress: return new Color("#ffffff")
-        case ItemFamily.typeCountry: return new Color("#ffffff")
-        case ItemFamily.typeMedicalCondition: return new Color("#ffffff")
-        case ItemFamily.typeNavigationItem: return new Color("#ffffff")
-        case ItemFamily.typeOnlineProfile: return new Color("#ffffff")
-        case ItemFamily.typePerson: return new Color("#ffffff")
-        case ItemFamily.typePhoneNumber: return new Color("#ffffff")
-        case ItemFamily.typePublicKey: return new Color("#ffffff")
-        case ItemFamily.typeSetting: return new Color("#ffffff")
-        case ItemFamily.typeUserState: return new Color("#ffffff")
-        case ItemFamily.typeViewArguments: return new Color("#ffffff")
-        case ItemFamily.typeWebsite: return new Color("#ffffff")
+        case ItemFamily.AuditItem: return new Color("#ffffff")
+        case ItemFamily.Company: return new Color("#ffffff")
+        case ItemFamily.CreativeWork: return new Color("#ffffff")
+        case ItemFamily.DigitalDocument: return new Color("#ffffff")
+        case ItemFamily.Comment: return new Color("#ffffff")
+        case ItemFamily.Note: return new Color("#ffffff")
+        case ItemFamily.MediaObject: return new Color("#ffffff")
+        case ItemFamily.Audio: return new Color("#ffffff")
+        case ItemFamily.Photo: return new Color("#ffffff")
+        case ItemFamily.Video: return new Color("#ffffff")
+        case ItemFamily.CVUStoredDefinition: return new Color("#ffffff")
+        case ItemFamily.CVUStateDefinition: return new Color("#ffffff")
+        case ItemFamily.Datasource: return new Color("#ffffff")
+        case ItemFamily.Device: return new Color("#ffffff")
+        case ItemFamily.Diet: return new Color("#ffffff")
+        case ItemFamily.Downloader: return new Color("#ffffff")
+        case ItemFamily.Edge: return new Color("#ffffff")
+        case ItemFamily.File: return new Color("#ffffff")
+        case ItemFamily.Importer: return new Color("#ffffff")
+        case ItemFamily.ImporterRun: return new Color("#ffffff")
+        case ItemFamily.Indexer: return new Color("#ffffff")
+        case ItemFamily.IndexerRun: return new Color("#ffffff")
+        case ItemFamily.Label: return new Color("#ffffff")
+        case ItemFamily.Location: return new Color("#ffffff")
+        case ItemFamily.Address: return new Color("#ffffff")
+        case ItemFamily.Country: return new Color("#ffffff")
+        case ItemFamily.MedicalCondition: return new Color("#ffffff")
+        case ItemFamily.NavigationItem: return new Color("#ffffff")
+        case ItemFamily.OnlineProfile: return new Color("#ffffff")
+        case ItemFamily.Person: return new Color("#ffffff")
+        case ItemFamily.PhoneNumber: return new Color("#ffffff")
+        case ItemFamily.PublicKey: return new Color("#ffffff")
+        case ItemFamily.Setting: return new Color("#ffffff")
+        case ItemFamily.UserState: return new Color("#ffffff")
+        case ItemFamily.ViewArguments: return new Color("#ffffff")
+        case ItemFamily.Website: return new Color("#ffffff")
     }
 }
 
@@ -1281,52 +1207,55 @@ export var getPrimaryKey = function(name) {
 
 export var getItemType = function(name) {
     switch (name) {
-        case ItemFamily.typeAuditItem: return AuditItem
-        case ItemFamily.typeCompany: return Company
-        case ItemFamily.typeCreativeWork: return CreativeWork
-        case ItemFamily.typeDigitalDocument: return DigitalDocument
-        case ItemFamily.typeComment: return Comment
-        case ItemFamily.typeNote: return Note
-        case ItemFamily.typeMediaObject: return MediaObject
-        case ItemFamily.typeAudio: return Audio
-        case ItemFamily.typePhoto: return Photo
-        case ItemFamily.typeVideo: return Video
-        case ItemFamily.typeCVUStoredDefinition: return CVUStoredDefinition
-        case ItemFamily.typeCVUStateDefinition: return CVUStateDefinition
-        case ItemFamily.typeDatasource: return Datasource
-        case ItemFamily.typeDevice: return Device
-        case ItemFamily.typeDiet: return Diet
-        case ItemFamily.typeDownloader: return Downloader
-        case ItemFamily.typeEdge: return Edge
-        case ItemFamily.typeFile: return File
-        case ItemFamily.typeImporter: return Importer
-        case ItemFamily.typeImporterRun: return ImporterRun
-        case ItemFamily.typeIndexer: return Indexer
-        case ItemFamily.typeIndexerRun: return IndexerRun
-        case ItemFamily.typeLabel: return Label
-        case ItemFamily.typeLocation: return Location
-        case ItemFamily.typeAddress: return Address
-        case ItemFamily.typeCountry: return Country
-        case ItemFamily.typeMedicalCondition: return MedicalCondition
-        case ItemFamily.typeNavigationItem: return NavigationItem
-        case ItemFamily.typeOnlineProfile: return OnlineProfile
-        case ItemFamily.typePerson: return Person
-        case ItemFamily.typePhoneNumber: return PhoneNumber
-        case ItemFamily.typePublicKey: return PublicKey
-        case ItemFamily.typeSession: return Session
-        case ItemFamily.typeSessions: return Sessions
-        case ItemFamily.typeSessionView: return SessionView
-        case ItemFamily.typeSetting: return Setting
-        case ItemFamily.typeSyncState: return SyncState
-        case ItemFamily.typeUserState: return UserState
-        case ItemFamily.typeViewArguments: return ViewArguments
-        case ItemFamily.typeWebsite: return Website
+        case ItemFamily.AuditItem: return AuditItem
+        case ItemFamily.Company: return Company
+        case ItemFamily.CreativeWork: return CreativeWork
+        case ItemFamily.DigitalDocument: return DigitalDocument
+        case ItemFamily.Comment: return Comment
+        case ItemFamily.Note: return Note
+        case ItemFamily.MediaObject: return MediaObject
+        case ItemFamily.Audio: return Audio
+        case ItemFamily.Photo: return Photo
+        case ItemFamily.Video: return Video
+        case ItemFamily.CVUStoredDefinition: return CVUStoredDefinition
+        case ItemFamily.CVUStateDefinition: return CVUStateDefinition
+        case ItemFamily.Datasource: return Datasource
+        case ItemFamily.Device: return Device
+        case ItemFamily.Diet: return Diet
+        case ItemFamily.Downloader: return Downloader
+        case ItemFamily.Edge: return Edge
+        case ItemFamily.File: return File
+        case ItemFamily.Importer: return Importer
+        case ItemFamily.ImporterRun: return ImporterRun
+        case ItemFamily.Indexer: return Indexer
+        case ItemFamily.IndexerRun: return IndexerRun
+        case ItemFamily.Label: return Label
+        case ItemFamily.Location: return Location
+        case ItemFamily.Address: return Address
+        case ItemFamily.Country: return Country
+        case ItemFamily.MedicalCondition: return MedicalCondition
+        case ItemFamily.NavigationItem: return NavigationItem
+        case ItemFamily.OnlineProfile: return OnlineProfile
+        case ItemFamily.Person: return Person
+        case ItemFamily.PhoneNumber: return PhoneNumber
+        case ItemFamily.PublicKey: return PublicKey
+        case ItemFamily.Session: return Session
+        case ItemFamily.Sessions: return Sessions
+        case ItemFamily.SessionView: return SessionView
+        case ItemFamily.Setting: return Setting
+        case ItemFamily.SyncState: return SyncState
+        case ItemFamily.UserState: return UserState
+        case ItemFamily.ViewArguments: return ViewArguments
+        case ItemFamily.Website: return Website
     }
 }
 
 
 /// TBD
 export class AuditItem extends Item {
+    get computedTitle() {
+        return `Logged ${this.action ?? "unknown action"} on ${this.date ?? ""}`
+    }
     /// Date of death.
     date: Date
     /// TBD
@@ -1357,6 +1286,9 @@ export class AuditItem extends Item {
 
 /// A business corporation.
 export class Company extends Item {
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// TBD
     type
     /// The name of the item.
@@ -1447,11 +1379,11 @@ export class Comment extends Item{
 /// A file containing a note.
 export class Note extends Item {
     /// TBD
-    title
+    title = ""
     /// TBD
-    content
+    content = ""
     /// TBD
-    textContent
+    textContent = ""
 
     /// TBD
     get comment() {
@@ -1523,6 +1455,9 @@ export class MediaObject extends Item {
 
 /// An audio file.
 export class Audio extends Item {
+    get computedTitle() {
+        return this.caption ?? ""
+    }
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -1552,6 +1487,9 @@ export class Audio extends Item {
 
 /// An image file.
 export class Photo extends Item{
+    get computedTitle() {
+        return this.caption ?? ""
+    }
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -1586,6 +1524,9 @@ export class Photo extends Item{
 
 /// A video file.
 export class Video extends Item{
+    get computedTitle() {
+        return this.caption ?? ""
+    }
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -1644,6 +1585,9 @@ export class Device extends Item{
 
 /// TBD
 export class Diet extends Item {
+    get computedTitle() {
+        return this.type ?? ""
+    }
     /// TBD
     type
     /// TBD
@@ -1680,6 +1624,9 @@ export class File extends Item{
 
 /// TBD
 export class Importer extends Item{
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// The name of the item.
     name
     /// TBD
@@ -1719,6 +1666,9 @@ export class ImporterRun extends Item {
 /// An indexer enhances your personal data by inferring facts over existing data and adding those
 /// to the database.
 export class Indexer extends Item{
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// The name of the item.
     name
     /// TBD
@@ -1766,6 +1716,10 @@ export class Label extends Item{
     /// The name of the item.
     name
 
+    get computedTitle() {
+        return this.name ?? ""
+    }
+
     /// TBD
    /* get comment() {
         return this.edges("comment")?.items(Comment)
@@ -1799,6 +1753,13 @@ export class Location extends Item{
 
 /// A postal address.
 export class Address extends Item{
+    get computedTitle() {
+        return `${this.street ?? ""}
+		${this.city ?? ""}
+		${this.postalCode == undefined ? "" : this.postalCode! + ","} ${this.state ?? ""}
+		${this.edge("country")?.item()?.computedTitle ?? ""}
+        `
+    }
     /// A city or town.
     city
     /// The postal code. For example, 94043.
@@ -1828,6 +1789,9 @@ export class Address extends Item{
 
 /// TBD
 export class Country extends Item{
+    get computedTitle() {
+        return this.name ?? ""
+    }
     /// The name of the item.
     name
 
@@ -1849,6 +1813,9 @@ export class Country extends Item{
 
 /// TBD
 export class MedicalCondition extends Item{
+    get computedTitle() {
+        return this.type ?? ""
+    }
     /// TBD
     type
     /// The name of the item.
@@ -1877,6 +1844,9 @@ export class NavigationItem extends Item{
 
 /// TBD
 export class OnlineProfile extends Item{
+    get computedTitle() {
+        return this.handle ?? ""
+    }
     /// TBD
     type
     /// TBD
@@ -1979,6 +1949,9 @@ export class SchemaPerson extends Item{
 
 /// TBD
 export class PhoneNumber extends Item{
+    get computedTitle() {
+        return this.phoneNumber ?? ""
+    }
     /// A phone number with an area code.
     phoneNumber
     /// TBD
@@ -2110,6 +2083,9 @@ export class SyncState extends Item{
 
 /// TBD
 export class Website  extends Item{
+    get computedTitle() {
+        return this.url ?? ""
+    }
     /// TBD
     type
     /// URL of the item.

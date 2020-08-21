@@ -6,7 +6,7 @@ import * as React from 'react';
 import {allRenderers, CascadingListConfig} from "../../cvu/views/Renderers";
 import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionDelete, ActionOpenView} from "../../cvu/views/Action";
-import {ASTableView, font, HStack, MainUI, MemriText, padding, Spacer, VStack} from "../swiftUI";
+import {ASTableView, font, HStack, MainUI, MemriText, padding, RenderersMemri, Spacer, VStack} from "../swiftUI";
 import {ListItem} from "@material-ui/core";
 
 export var registerListRenderer = function () {
@@ -33,7 +33,7 @@ export var registerListRenderer = function () {
 
 //CascadingListConfig moved to Renderers.ts
 
-export class ListRendererView extends MainUI {
+export class ListRendererView extends RenderersMemri {
 	constructor(props) {
 		super(props);
 
@@ -53,14 +53,6 @@ export class ListRendererView extends MainUI {
 
 	get renderConfig() {
 		return this.context.currentView?.renderConfig ?? new CascadingListConfig()
-	}
-
-	executeAction = (dataItem) => () => {
-		let press = this.renderConfig.press
-		// press = new ActionOpenView()
-		if (press) {
-			this.context.executeAction(press, dataItem)
-		}
 	}
 
 	getItems() {

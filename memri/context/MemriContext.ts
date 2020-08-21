@@ -19,7 +19,7 @@
 // TODO: Remove this and find a solution for Edges
 import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/PodAPI";
@@ -33,6 +33,7 @@ import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
 import {Realm} from "../model/RealmLocal";
 import {ViewArguments} from "../cvu/views/CascadableDict";
+import {MemriDictionary} from "../model/MemriDictionary";
 
 export var globalCache
 
@@ -130,6 +131,8 @@ export class MemriContext {
 
 	scheduleUIUpdate(immediate =  false, check?) { // Update UI
 		if (immediate) {
+			if (typeof this.showNavigationBinding == "function")
+				this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
 			// #warning("@Toby how can we prevent the uiUpdateSubject from firing immediate after this?")
 
 			// Do this straight away, usually for the sake of correct animation
@@ -147,7 +150,7 @@ export class MemriContext {
 		//this.uiUpdateSubject.send() TODO
 	}
 
-	scheduleCascadableViewUpdate(immediate =  false) {
+	scheduleCascadableViewUpdate(immediate =  true) {
 		if (immediate) {
 			// Do this straight away, usually for the sake of correct animation
 			try { this.currentSession?.setCurrentView() }
@@ -160,6 +163,8 @@ export class MemriContext {
 		} else {
 			//this.cascadableViewUpdateSubject.send() TODO
 		}
+		if (typeof this.showNavigationBinding == "function")
+			this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
 	}
 
 	/*updateCascadingView() {
@@ -470,7 +475,7 @@ export class MemriContext {
 			.merge(viewArguments)
 			.resolve(item)
 
-		var args = {}
+		var args = new MemriDictionary()
 		for (let [argName, inputValue] of Object.entries(action.values)) {
 			if (action.argumentTypes[argName] == undefined) { continue }
 
@@ -487,7 +492,7 @@ export class MemriContext {
 			let dataItem = argValue;
 			if (dataItem?.constructor?.name == "Item") {
 				finalValue = dataItem
-			} else if (typeof argValue.isCVUObject === "function") {
+			} else if (argValue?.constructor?.name === "MemriDictionary") {
 				let dict = argValue;
 				if (action.argumentTypes[argName] == "ViewArguments") {
 					finalValue = new ViewArguments(dict).resolve(item, viewArgs)
@@ -509,7 +514,7 @@ export class MemriContext {
 					let viewArgs = argValue;
 					// We explicitly don't copy here. The caller is responsible for uniqueness
 					finalValue = viewArgs.resolve(item)
-				} else if (argValue?.constructor?.name == "CVUParsedDefinition") {
+				} else if (argValue instanceof CVUParsedDefinition) {
 					// #warning("This seems to not set the head properly")
 					let parsedDef = argValue
 					finalValue = new ViewArguments(parsedDef).resolve(item, viewArgs)
@@ -547,21 +552,21 @@ export class MemriContext {
 		if (typeof stringType != "string") {
 			throw "Missing type attribute to indicate the type of the data item"
 		}
-		let family = ItemFamily["type" + stringType];
+		let family = ItemFamily[stringType];
 		if (!family) {
 			throw `Cannot find find family ${stringType}`
 		}
-		let ItemType = new (getItemType(family))();
+		/*let ItemType = new (getItemType(family))();
 		if (!ItemType) {
 			throw `Cannot find family ${stringType}`
-		}
+		}*/
 		var values = dict ?? {}
 		if (typeof dict["uid"] != "number") {
 			delete values["uid"]
 		}
 		delete values["_type"]
 
-		return CacheMemri.createItem(ItemType, values)
+		return CacheMemri.createItem(family, values)
 	}
 }
 
@@ -582,7 +587,7 @@ export class SubContext extends MemriContext {
 			context.renderers,
 			context.indexerAPI
 		)
-
+		this.parent = context;
 		this.closeStack = context.closeStack
 
 		views.context = this
@@ -636,6 +641,8 @@ export class RootContext extends MemriContext {
 
 	createSubContext(state?: CVUStateDefinition) {
 		let subContext = new SubContext("Proxy", this, state)
+		if (!this.subContexts)
+			this.subContexts = []
 		this.subContexts.push(subContext)
 		return subContext
 	}

@@ -23,17 +23,17 @@ export class Session  /*extends Equatable, Subscriptable*/ {
     get name() { return this.parsed.get("name") }
     set name(value) { this.setState("name", value) }
     /// TBD
-    get currentViewIndex(){ return Number(this.parsed.get("currentViewIndex") ?? 0) }
+    get currentViewIndex(){ return Number(this?.parsed?.get("currentViewIndex") ?? 0) }
     set currentViewIndex(value) { this.setState("currentViewIndex", Number(value)) }
     /// TBD
-    get editMode(){ return Boolean(this.parsed.get("editMode")) ?? false }
+    get editMode(){ return Boolean(this?.parsed?.get("editMode")) ?? false }
     set editMode(value) { this.setState("editMode", value) }
     /// TBD
 
-    get showContextPane(){ return Boolean(this.parsed.get("showContextPane")) ?? false }
+    get showContextPane(){ return Boolean(this?.parsed?.get("showContextPane")) ?? false }
     set showContextPane(value) { this.setState("showContextPane", value) }
     /// TBD
-    get showFilterPanel(){ return Boolean(this.parsed.get("showFilterPanel")) ?? false }
+    get showFilterPanel(){ return Boolean(this?.parsed?.get("showFilterPanel")) ?? false }
     set showFilterPanel(value) { this.setState("showFilterPanel", value) }
 
     /// TBD
@@ -130,11 +130,11 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                     for (let parsed of parsedViews) {
                         let viewState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
                         state.link(viewState, "view", EdgeSequencePosition.last)
-                        this.views.push(new CascadableView(new CVUStateDefinition(viewState), this))
+                        this.views.push(new CascadableView(viewState, this))
                     }
                 })
                 
-                delete this.parsed?.get("viewDefinitions")
+                delete this.parsed["viewDefinitions"] //TODO:
             }
             else {
                 throw "CVU state definition is missing views"
@@ -260,7 +260,7 @@ subscript(propName: String) -> Any? {
 
                 let s = view.state
                 if (s) {
-                    state?.link(s, "view", ".last", false)
+                    state?.link(s, "view", EdgeSequencePosition.last, undefined,false, false)
                 }
                 else {
                     debugHistory.warn("Unable to store view. Missing state CVU")

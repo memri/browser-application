@@ -5,7 +5,9 @@
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {Cascadable} from "./Cascadable";
 import {ItemReference} from "../../model/DatabaseController";
-import {CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {Item} from "../../model/items/Item";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptable*/ {
 	subscript() {
@@ -48,24 +50,21 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 		}
 	}
 
-	getSubscript(name) { return this.get(name) }//TODO get with param
-	setSubscript(name, value) { this.set(name, value) }
-
 	constructor(head?, tail?: CVUParsedDefinition[]|Item, host?:Cascadable) {//TODO
-		if (head?.constructor?.name == "CascadableDict" || tail?.constructor?.name == "Item") {
+		if (head instanceof CascadableDict || tail instanceof Item) {
 			super(new CVUParsedObjectDefinition(), head?.cascadeStack)
 			if (tail) { this.set(".", tail) }
-		} else if (head?.constructor?.name == "CVUParsedDefinition") {
+		} else if (head instanceof CVUParsedDefinition) {
 			super(head, tail, host)
 		} else {
-			var result = {}
+			var result = new MemriDictionary()
 
-			if (head) {
+			if (head && head.constructor.name === "MemriDictionary") {
 				for (let [key, value] of Object.entries(head)) {
-					if (value?.constructor?.name == "Item") {
+					if (value instanceof Item) {
 						result[key] = new ItemReference(value)
 					}
-					else if (Array.isArray(value) && value[0]?.constructor?.name == "Item") {
+					else if (Array.isArray(value) && value[0] instanceof Item) {
 						result[key] = value.map ((item) => {
 							if (!item) { return undefined }
 							return new ItemReference(item)
@@ -102,7 +101,7 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 	deepMerge(other?: CascadableDict) {
 		if (!other) { return this }
 
-		let merge = (parsed?) => {
+		let merge = (parsed?: MemriDictionary) => {
 			if (!parsed) { return }
 			for (let [key, value] of Object.entries(parsed)) {
 				this.head.set(key, value)

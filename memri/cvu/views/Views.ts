@@ -14,9 +14,10 @@ import {Languages} from "./Languages";
 import {DatabaseController} from "../../model/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 //import {RealmObjects} from "../../model/RealmLocal";
-import {CVUStateDefinition, dataItemListToArray} from "../../model/items/Item";
+import {CVUStateDefinition, dataItemListToArray, Item} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
 import {CascadingRenderConfig} from "./Renderers";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Views {
 	///
@@ -67,7 +68,7 @@ export class Views {
 	setCurrentLanguage(language) {
 		this.languages.currentLanguage = language
 
-		let definitions = this.fetchDefinitions("language")
+		let definitions = this.fetchDefinitions(undefined, undefined, "language")
 			.map(function (item) {
 				this.parseDefinition(item)
 			}.bind(this)).filter(function (item) {
@@ -103,10 +104,10 @@ export class Views {
 			DatabaseController.tryWriteSync(() => { // Start write transaction outside loop for performance reasons
 				// Loop over lookup table with named views
 				for (let def of parsedDefinitions) {
-					var values = {
+					var values = new MemriDictionary({
 						"domain": "defaults",
 						"definition": def.toString(),//TODO
-					}
+					})
 
 					if (def.selector != undefined) { values["selector"] = def.selector }
 					if (def.name != undefined) { values["name"] = def.name }
@@ -226,7 +227,7 @@ export class Views {
 			case "currentSession":
 			case "session": return this.context?.currentSession
 			case "currentView":
-			case "view": return this.context?.cascadingView
+			case "view": return this.context?.currentView
 			case "singletonItem":
 				let itemRef = viewArguments?.get(".");
 				let item = this.context?.currentView?.resultSet.singletonItem
@@ -293,7 +294,7 @@ export class Views {
 					throw error
 				}
 			} else
-			if (isFunction && i == lookup.sequence.length && value && value?.constructor?.name == "Item") {
+			if (isFunction && i == lookup.sequence.length && value && value instanceof Item) {
 				value = value.functions[node.name]
 				if (value == undefined) {
 					// TODO: parse [blah]
@@ -305,7 +306,7 @@ export class Views {
 			} else {
 					let dataItem = value
 					let v = value
-					if (dataItem?.constructor?.name == "Item") {
+					if (dataItem instanceof Item) {
 						switch (node.name) {
 							case "genericType": value = dataItem.genericType;
 								break;
@@ -338,9 +339,9 @@ export class Views {
 						switch (node.name) {
 							case "uppercased": value = v.toUpperCase(); break
 							case "lowercased": value = v.toLowerCase(); break
-							case "camelCaseToWords": value = v.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()); break//TODO
+							case "camelCaseToWords": value = v.camelCaseToWords(); break//TODO
 							case "plural": value = v + "s"; break;
-							case "firstUppercased": value = v.charAt(0).toUpperCase() + v.slice(1); break
+							case "firstUppercased": value = v.firstUppercased(); break
 							case "plainString": value = v/*.strippingHTMLtags()*/; //TODO: strip html tags
 							default:
 								// TODO: Warn
@@ -395,8 +396,8 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node} on list`)
 								break
 						}
-					} else if (typeof v.subscript == "function") {//Subscriptable
-						value = v[node.name]
+					} else if (v && typeof v.subscript == "function") {//Subscriptable
+						value = v.get(node.name)
 					}
 					// CascadingRenderer??
 					else if (v?.constructor?.name == "RealmObject") {//TODO:
@@ -565,7 +566,7 @@ export class Views {
 
 			function searchForRenderer(viewDefinition) {
 				let parsed = context.views.parseDefinition(viewDefinition)
-				for (var def of parsed["rendererDefinitions"]) {//TODO
+				for (var def of parsed.get("rendererDefinitions")) {//TODO
 					for (var name of rendererNames) {
 						// TODO: Should this first search for the first renderer everywhere
 						//       before trying the second renderer?
@@ -607,8 +608,8 @@ export class Views {
 			} else {
 				// Find views based on datatype
 				outerloop: for (var needle of [`${item.genericType}[]`, "*[]"]) {
-					for (var key in ["user", "defaults"]) {
-						let viewDefinition = context.views.fetchDefinitions(needle, key)[0]
+					for (var key of ["user", "defaults"]) {
+						let viewDefinition = context.views.fetchDefinitions(needle, undefined, undefined, undefined, key)[0]
 						if (viewDefinition) {
 							if (searchForRenderer(viewDefinition)) { break outerloop}
 						}
@@ -640,7 +641,7 @@ export class Views {
 			let cascadingRenderConfig = new CascadingRenderConfig(undefined, cascadeStack, context.currentView) //TODO:
 
 			// Return the rendered UIElements in a UIElementView
-			return cascadingRenderConfig.render(item, viewArguments)
+			return cascadingRenderConfig.render(item, "*", viewArguments)
 		} catch (error) {
 			debugHistory.error(`Unable to render ItemCell: ${error}`)
 

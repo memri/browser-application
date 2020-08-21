@@ -14,6 +14,7 @@
 import {settings} from "../../model/Settings";
 import {jsonDataFromFile, jsonErrorHandling, MemriJSONDecoder, realmWriteIfAvailable} from "../util";
 import {DatabaseController} from "../../model/DatabaseController";
+import {Realm} from "../../model/RealmLocal";
 
 export class MainNavigation {
 	items = []
@@ -23,7 +24,7 @@ export class MainNavigation {
 	}
 	set filterText(newFilter){
 		settings.set("device/navigation/filterText", newFilter);
-		this.scheduleUIUpdate(undefined);
+		this.scheduleUIUpdate(true);
 	}
 
 	scheduleUIUpdate/*: ((((_ context: MemriContext) -> Bool)?) -> Void)?*/
@@ -32,6 +33,7 @@ export class MainNavigation {
 
 	constructor() {
 		 DatabaseController.read((realm) => {
+		 	 this.realm = realm//TODO??
 			 this.items = realm.objects("NavigationItem").sorted("sequence");
 		});
 	}
@@ -39,11 +41,12 @@ export class MainNavigation {
 	getItems() {
 		let needle = this.filterText.toLowerCase();
 		return this.items.filter(function (item) {
-			return needle == "" || item.type == "item" && item.title.toLowerCase().indexOf(needle) < -1
+			return needle == "" || item.type == "item" && item.title.toLowerCase().indexOf(needle) > -1
 		})
 	}
 
 	load(callback) {
+		this.items = []//TODO??
 		// Fetch navigation from realm and sort based on the order property
 		let navItems = this.realm.objects("NavigationItem").sorted("order")
 
@@ -52,7 +55,7 @@ export class MainNavigation {
 			this.items.push(item)
 		}
 
-		callback()
+		callback && callback()
 	}
 
 	install() {

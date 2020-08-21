@@ -199,13 +199,15 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     insertRenderDefs(tail: CVUParsedRendererDefinition[]) {
         var renderDef: CVUStoredDefinition[] = this.context?.views
-            .fetchDefinitions(this.activeRenderer, "renderer") ?? []
+            .fetchDefinitions(null, this.activeRenderer, "renderer") ?? []
 
         if (this.activeRenderer.includes(".")) {
             let name = this.activeRenderer.split(".")[0]
             if (name) {
-                renderDef.push(this.context?.views
-                    .fetchDefinitions(String(name), "renderer") ?? [])
+                Object.assign(renderDef, this.context?.views
+                    .fetchDefinitions(null, String(name), "renderer"))
+                /*renderDef.push(this.context?.views
+                    .fetchDefinitions(null, String(name), "renderer") ?? [])*/
             }
         }
 
@@ -238,14 +240,14 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     get renderConfig(): CascadingRenderConfig {
         let x = this.localCache[this.activeRenderer]
-        if (x?.constructor?.name == "CascadingRenderConfig") { return x }
+        if (x && x instanceof CascadingRenderConfig) { return x }
 
         let getConfig = function(a: CVUParsedDefinition) {
             let definitions = (a.get("rendererDefinitions") ?? [])
             // Prefer a perfectly matched definition
             return definitions.find((item) => item.name == this.activeRenderer )
                 // Else get the one from the parent renderer
-                ?? definitions.find((item) => item.name == this.activeRenderer.split(".").splice(-1,1).join("."))
+                ?? definitions.find((item) => item.name == this.activeRenderer.split(".").slice(0, -1).join("."))
         }.bind(this)
 
         let head = getConfig(this.head) ?? function(){
@@ -299,7 +301,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     set filterText(newFilter) {
         // Don't update the filter when it's already set
-        if (newFilter.length > 0 && this._titleTemp != null &&
+        if (newFilter && newFilter.length > 0 && this._titleTemp != null &&
             this.userState.get("filterText") == newFilter) {
             return
         }
@@ -323,20 +325,21 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
         }
 
         if (this.userState.get("filterText") == "") {
-            this._titleTemp
-            this._subtitleTemp
-            this._emptyResultTextTemp
+            this._titleTemp = undefined
+            this._subtitleTemp = undefined
+            this._emptyResultTextTemp = undefined
         } else {
             // Set the title to an appropriate message
-            if (this.resultSet.length == 0) { this._titleTemp = "No results" }
-            else if (this.resultSet.length == 1) { this._titleTemp = "1 item found" }
-            else { this._titleTemp = `${this.resultSet.length} items found` }
+            if (this.resultSet.count == 0) { this._titleTemp = "No results" }
+            else if (this.resultSet.count == 1) { this._titleTemp = "1 item found" }
+            else { this._titleTemp = `${this.resultSet.count} items found` }
 
             // Temporarily hide the subtitle
             // _subtitleTemp = " " // TODO how to clear the subtitle ??
 
             this._emptyResultTextTemp = `No results found using '${this.userState.get("filterText") ?? ""}'`
         }
+        this.context.scheduleUIUpdate(true);
     }
 
     get searchMatchText() { return this.userState.get("searchMatchText") ?? "" }
@@ -459,7 +462,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
                     let viewName = result;
                     if (typeof viewName == "string") {
-                        let view = this.context?.views.fetchDefinitions(viewName)[0];
+                        let view = this.context?.views.fetchDefinitions(undefined, viewName)[0];
                         if (view) {
                             this.parse(view, domain)
                         } else {
@@ -501,7 +504,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
                 debugHistory.error("Could not parse definition")
             }
         } catch (error) {
-            if (error?.constructor?.name == "CVUParseErrors") {
+            if (typeof error.toErrorString == "function") {
                 debugHistory.error(`${error.toErrorString(def?.definition ?? "")}`)
             } else {
                 debugHistory.error(`${error}`)
@@ -535,7 +538,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
         // Find views based on datatype
         for (let domain of ["user", "defaults"]) {
             for (let needle of needles) {
-                let def = this.context?.views.fetchDefinitions(needle, domain)[0];
+                let def = this.context?.views.fetchDefinitions(needle, null, null, null, domain)[0];
                 if (def) {
                     this.parse(def, domain)
                 } else if (domain != "user") {

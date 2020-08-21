@@ -8,6 +8,8 @@
 
 import {realmWriteIfAvailable} from "../../gui/util";
 import {Datasource} from "../../api/Datasource";
+import {CVUStoredDefinition} from "../../model/items/Item";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class SessionView /*extends DataItem */{
  
@@ -76,16 +78,16 @@ export class SessionView /*extends DataItem */{
             args = parsed["viewArguments"].clone();
         }
         
-        var values = {//TODO
+        var values = new MemriDictionary({//TODO
             selector: parsed?.selector ?? stored?.selector ?? "[view]",
             name: typeof parsed["name"] === 'string' ? parsed["name"] : stored?.name || "",
-            viewDefinition: stored ?? new CVUStoredDefinition({ //TODO
+            viewDefinition: stored ?? new CVUStoredDefinition(new MemriDictionary({ //TODO
                 type: "view",
                 selector: parsed?.selector,
                 domain: parsed?.domain,
                 definition: parsed?.toCVUString(0, "    ")
-            })
-        }
+            }))
+        })
 
         if (args) { values["viewArguments"] = args }
         if (us) { values["userState"] = us }

@@ -4,16 +4,17 @@
 
 
 import {
-    border, Empty,
+    ASCollectionView,
+    border, Empty, font,
     frame,
     Group,
     HStack,
     MainUI,
-    MemriButton,
+    MemriRealButton,
     MemriDivider,
     MemriImage,
     MemriText,
-    padding,
+    padding, RoundedRectangle,
     Section,
     setProperties,
     Spacer,
@@ -25,13 +26,19 @@ import {CVUStateDefinition, Item} from "../../model/items/Item";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import * as React from "react";
 import {UIElementFamily} from "../../cvu/views/UIElement";
-import {Alignment} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
 import {Action, ActionUnlink} from "../../cvu/views/Action";
 import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
+import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
+import {MessageBubbleView} from "../renderers/MessageRenderer";
 
-//import {SubView} from "./SubView";
+import {SubView} from "./SubView";
+import {Grid} from "@material-ui/core";
+import {MemriDictionary} from "../../model/MemriDictionary";
+import {MemriButton} from "./MemriButton";
+require("../../extension/common/string");
 
 export class UIElementView extends MainUI {
     context: MemriContext
@@ -57,9 +64,14 @@ export class UIElementView extends MainUI {
 
     getImage(propName: string) {
         let file = this.get(propName);
-        if (file) {
-            return file.asUIImage ?? <UIImage/> //TODO:
+        if (file && file.file) {
+            return "memri/Resources/DemoAssets/" + file.file.uri + ".jpg"
         }
+        if (file) {
+            return "memri/Resources/DemoAssets/" + file.uri + ".jpg"
+        }
+
+        return "";
      /*   if let photo: Photo? = get(propName), let file = photo?.file {
             return file.asUIImage ?? UIImage()
         }
@@ -94,17 +106,18 @@ export class UIElementView extends MainUI {
 
     render(){
         var x = this.render1()
-        if (x === undefined) debugger
+        //if (x === undefined) debugger
         return x || null
     }
 
     render1(){
+        this.context = this.props.context;
         this.init(this.props.gui, this.props.dataItem, this.props.viewArguments);
         let editorLabelAction = () => {
-            let args = {
+            let args = new MemriDictionary({
                 "subject": this.context.item, // self.item,
                 "edgeType": this.viewArguments.get("name")
-            }
+            })
             let action = new ActionUnlink(this.context, args)
             this.context.executeAction(action, this.item, this.viewArguments
             )
@@ -117,7 +130,7 @@ export class UIElementView extends MainUI {
             }
         }
 
-        let setView = () => {
+        let setView = function () {
             let parsed = this.get("view");
             if (parsed) {
                 let def = new CVUParsedViewDefinition(
@@ -140,7 +153,7 @@ export class UIElementView extends MainUI {
                     )
             }
             return new CVUStateDefinition()
-        } //TODO: ();
+        }.bind(this) //TODO: ();
 
         if (!this.has("show") || this.get("show") == true) {
             switch (this.from.type) {
@@ -155,9 +168,9 @@ export class UIElementView extends MainUI {
                             (this.has("bundleImage")) ?
                                 <this.getbundleImage renderingMode="original"
                                                      setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}/> :
-                                <MemriImage
+                                <UIImage src={this.getImage("image")}
                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
-                                    {this.get("systemName") ?? "exclamationmark.bubble"}
+
                                     {/*Image(uiImage: getImage("image"))
                                                                                                         .renderingMode(.original)
                                                                                                         .if(from.has("resizable")) { view in
@@ -168,7 +181,7 @@ export class UIElementView extends MainUI {
                                                                                                             }
                                                                                                         }
                                                                                                         .setProperties(from.properties, self.item, context, self.viewArguments)*/}
-                                </MemriImage>
+                                </UIImage>
                     )
                 case UIElementFamily.HStack:
                     return (
@@ -245,13 +258,13 @@ export class UIElementView extends MainUI {
                                         : "#f7fcf5"}>
                                 {(this.has("title") && this.get("nopadding") != true) &&
                                 <MemriText generalEditorLabel>
-                                    {this.get("title") ?? ""
-                                        /*.camelCaseToWords()
-                                        .lowercased()
-                                        .capitalizingFirst()*/}
+                                    {(this.get("title") ?? "")
+                                        .camelCaseToWords()
+                                        .toLowerCase()
+                                        .capitalizingFirst()}
                                 </MemriText>
                                 }
-                                {this.renderChildren.generalEditorCaption()}
+                                {this.renderChildren /*//TODO: .generalEditorCaption()*/}
                             </VStack>
                             {(this.has("title")) &&
                             <MemriDivider padding={padding({leading: 35})}/>
@@ -266,13 +279,13 @@ export class UIElementView extends MainUI {
                             maxHeight: ".infinity",
                             alignment: Alignment.leading
                         })} padding={padding(10)} border={border({width: [0, 0, 1, 1], color: "#eee"})}>
-                            <MemriButton onClick={editorLabelAction}>
+                            <MemriRealButton action={editorLabelAction}>
                                 <MemriImage foregroundColor="red" font={font({size: 22})} lineLimit={1}>
                                     minus.circle.fill
                                 </MemriImage>
-                            </MemriButton>
+                            </MemriRealButton>
                             {(this.has("title")) &&
-                            <MemriButton>
+                            <MemriRealButton>
                                 <HStack>
                                     <MemriText foregroundColor="blue" font={font({size: 15})}>
                                         {this.get("title") ?? ""}
@@ -283,49 +296,63 @@ export class UIElementView extends MainUI {
                                         chevron.right
                                     </MemriImage>
                                 </HStack>
-                            </MemriButton>
+                            </MemriRealButton>
                             }
                         </HStack>
                     )
                 case UIElementFamily.Button:
                     return (
-                        <MemriButton action={buttonAction}
-                                     setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                        <MemriRealButton context={this.context} action={buttonAction}
+                                         setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
                             {this.renderChildren}
-                        </MemriButton>
+                        </MemriRealButton>
                     );
                 case UIElementFamily.FlowStack:
-                    //TODO:
+                    //TODO: FlowStack component
                     return (
-                        <FlowStack
+                        <ASCollectionView
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                            {this.getList("list").map((listItem) => {
+                                return this.from.children.map((child) => {
+                                        return <Grid item key={listItem.uid}><UIElementView context={this.context} gui={child} dataItem={listItem}
+                                                              viewArguments={this.viewArguments}/></Grid>
+                                    }
+                                )
+                            })}
                             {/* FlowStack(getList("list")) { listItem in
                                     ForEach(0 ..< self.from.children.count) { index in
                                         UIElementView(self.from.children[index], listItem, self.viewArguments)
                                         .environmentObject(self.context)
                                         }
                                         }*/}
-                        </FlowStack>
+                        </ASCollectionView>
                     );
                 case UIElementFamily.Textfield:
-                    //TODO:
-                    return (
-                        <this.renderTextfield
+                    /*
+                    <this.renderTextfield
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </this.renderTextfield>
+                     */
+                    //TODO:
+                    return (
+                        <div className="renderTextfield"></div>
                     )
                 case UIElementFamily.RichTextfield:
                     //TODO:
-                    return (
-                        <this.renderRichTextfield
+                    /*
+                    <this.renderRichTextfield
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </this.renderRichTextfield>
+                     */
+                    return (<>
+                        {this.renderRichTextfield()}
+                        </>
                     );
                 case UIElementFamily.ItemCell:
                     //TODO:
-                    return (<></>);
+                    return (<div className="ItemCell"></div>)
                 case UIElementFamily.SubView:
                     return (
                         (this.has("viewName")) ?
@@ -338,7 +365,7 @@ export class UIElementView extends MainUI {
                             </SubView> :
 
                             <SubView context={this.context}
-                                     view={setView}
+                                     view={setView()}
                                      item={this.item}
                                      viewArguments={new ViewArguments(this.get("arguments"))}
                                      setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
@@ -347,9 +374,8 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.Map:
                     //TODO:
-                    return (<></>)
+                    return (<div className="Map"></div>)
                 case UIElementFamily.Picker:
-                    //TODO:
                     return (
                         <this.renderPicker
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
@@ -358,13 +384,10 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.SecureField:
                     //TODO:
-                    return (
-                        <>
-                        </>
-                    )
+                    return (<div className="SecureField"></div>)
                 case UIElementFamily.Action:
                     return (
-                        <ActionButton
+                        <ActionButton context={this.context}
                             action={this.get("press") ?? new Action(this.context, "noop")}
                             item={this.item}
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
@@ -373,37 +396,43 @@ export class UIElementView extends MainUI {
                     )
                 case UIElementFamily.MemriButton:
                     return (
-                        <MemriButton
-                            item={this.item}
-                            setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
+                        <MemriButton context={this.context}
+                                         item={this.item}
+                                         setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </MemriButton>
                     )
                 case UIElementFamily.TimelineItem:
                     //TODO:
-                    return (<></>)
+                    return (<div className="TimelineItem"></div>)
                 case UIElementFamily.MessageBubble:
-                    //TODO:
-                    return (<></>)
+                    return (<MessageBubbleView timestamp={this.get("dateTime")}
+                                               sender={this.get("sender")}
+                                               content={this.from.processText(this.get("content")) ?? ""}
+                                               outgoing={this.get("isOutgoing") ?? false}
+                                               setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}
+                    />)
                 case UIElementFamily.Circle:
                     //TODO:
-                    return (<></>)
+                    return (<div className="Circle"></div>)
                 case UIElementFamily.HorizontalLine:
-                    //TODO:
-                    return (
-                        <HorizontalLine
+                    /*
+                    <HorizontalLine
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </HorizontalLine>
-                    )
+                     */
+                    //TODO:
+                    return (<div className="HorizontalLine"></div>)
                 case UIElementFamily.Rectangle:
                     //TODO:
-                    return (
+                    /*return (
                         <Rectangle
                             setProperties={setProperties(this.from.properties, this.item, this.context, this.viewArguments)}>
 
                         </Rectangle>
-                    )
+                    )*/
+                    return (<div className="Rectangle"></div>)
                 case UIElementFamily.RoundedRectangle:
                     //TODO:
                     return (
@@ -453,11 +482,11 @@ export class UIElementView extends MainUI {
     }
 
     renderRichTextfield() {
-        let [_, contentDataItem, contentPropertyName] = this.getType("htmlValue", this.item, this.viewArguments)
-        let [__, plainContentDataItem, plainContentPropertyName] = this.getType("value", this.item, this.viewArguments)
-        if (!contentDataItem.hasProperty(contentPropertyName) || !plainContentDataItem.hasProperty(plainContentPropertyName)) {
+        let [_, contentDataItem, contentPropertyName] = this.from.getType("htmlValue", this.item, this.viewArguments)
+        let [__, plainContentDataItem, plainContentPropertyName] = this.from.getType("value", this.item, this.viewArguments)
+        /*if (!contentDataItem.hasProperty(contentPropertyName) || !plainContentDataItem.hasProperty(plainContentPropertyName)) {
             return <MemriText>Invalid property value set on RichTextEditor</MemriText>
-        }
+        }*/
 
         // CONTENT
         /*let contentBinding = Binding<String?>(
@@ -473,19 +502,27 @@ export class UIElementView extends MainUI {
         let fontSize = this.get("fontSize")
 
         // TITLE
-        let [___, titleDataItem, titlePropertyName] = this.getType("title", this.item, this.viewArguments)
+        let [___, titleDataItem, titlePropertyName] = this.from.getType("title", this.item, this.viewArguments)
         /*let titleBinding = titleDataItem.hasProperty(titlePropertyName) ? Binding<String?>(
             get: { (titleDataItem[titlePropertyName] as? String)?.nilIfBlank },
             set: { titleDataItem.set(titlePropertyName, $0) }
-        ) : nil // Only pass a title binding if the property exists (otherwise pass nil)
-        let titleHint = get("titleHint", type: String.self)
-        let titleFontSize = get("titleFontSize", type: CGFloat.self)
+        ) : nil // Only pass a title binding if the property exists (otherwise pass nil)*/
+        let titleHint = this.get("titleHint")
+        let titleFontSize = this.get("titleFontSize")
 
         // Filter (unimplemented)
-        let filterTextBinding = Binding<String>(
+        /* let filterTextBinding = Binding<String>(
             get: { self.context.currentView?.filterText ?? "" },
             set: { self.context.currentView?.filterText = $0 }
         )*/
+
+        return (
+            <RichTextEditor htmlContentBinding={contentDataItem[contentPropertyName]}
+                            titleBinding={titleDataItem[titlePropertyName]}
+                            titleHint={titleHint} headingFontSize={titleFontSize ?? 26}
+                            fontSize={fontSize ?? 18}
+            />
+        )
 
         /*return _RichTextEditor(htmlContentBinding: contentBinding,
                                plainContentBinding: plainContentBinding,
@@ -542,22 +579,27 @@ export class UIElementView extends MainUI {
     }
 
     renderPicker() {
-        /*let dataItem: Item? = get("value")
-        let (_, propItem, propName) = from.getType("value", item, viewArguments)
-        let emptyValue = get("empty") ?? "Pick a value"
-        let query = get("query", type: String.self)
-        let renderer = get("renderer", type: String.self)
-
-        return Picker(
-            item: item,
-            selected: dataItem ?? get("defaultValue"),
-            title: get("title") ?? "Select a \(emptyValue)",
-            emptyValue: emptyValue,
-            propItem: propItem,
-            propName: propName,
-            renderer: renderer,
-            query: query ?? ""
-        )*/
+        return (<div className="Picker">Testpicker</div>)
+        // let dataItem = this.get("value")
+        // let [_, propItem, propName] = this.from.getType("value", this.item, this.viewArguments)
+        // let emptyValue = this.get("empty") ?? "Pick a value"
+        // let query = this.get("query")
+        // let renderer = this.get("renderer")
+        //
+        // return <Picker>
+        //
+        // </Picker>
+        //
+        // return Picker(
+        //     item: item,
+        //     selected: dataItem ?? get("defaultValue"),
+        //     title: get("title") ?? "Select a \(emptyValue)",
+        //     emptyValue: emptyValue,
+        //     propItem: propItem,
+        //     propName: propName,
+        //     renderer: renderer,
+        //     query: query ?? ""
+        // )
     }
 
     get renderChildren() {

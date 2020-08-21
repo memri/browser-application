@@ -10,6 +10,7 @@ const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {ExprInterpreter} from "./ExprInterpreter";
 import {DatabaseController, ItemReference} from "../../model/DatabaseController";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Expression {
     code: string;
@@ -47,7 +48,7 @@ export class Expression {
         if (!this.parsed) this.parse()
         let node = this.ast
         if (node?.constructor?.name == "ExprLookupNode") {
-            var sequence = node.sequence
+            var sequence = Object.assign([], node.sequence)
             let lastProperty = sequence.pop()
             if (lastProperty?.constructor?.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence);
@@ -87,17 +88,15 @@ export class Expression {
 
         let node = this.ast
         if (node?.constructor?.name == "ExprLookupNode") {
-            var sequence = node.sequence
+            var sequence = Object.assign([], node.sequence)
             let lastProperty = sequence.pop()
             if (lastProperty?.constructor?.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence)
-                let dataItem = this.lookup(lookupNode, viewArguments)//TODO
-                if (dataItem?.constructor?.name == "DataItem") {
-                    let propType = dataItem.objectSchema[lastProperty.name]?.type;
-                    if (propType) {
-                        let propType = property.type
-                        return (propType, dataItem, lastProperty.name)//TODO
-                    } else  {
+                let dataItem = this.lookup(lookupNode, viewArguments)
+                if (dataItem) {//TODO: this is completely different in js
+
+                    return [undefined, dataItem, lastProperty.name]//TODO
+                    /*} else  {
                         let propType = PropertyType(7)
                         if (propType) {
                             //warning("This requires a local version a browsable schema that describes the types of edges")
@@ -105,7 +104,7 @@ export class Expression {
                             return (propType, dataItem, lastProperty.name)
                             //
                         }
-                    }
+                    }*/
                 }
             }
         }
@@ -154,10 +153,11 @@ export class Expression {
         let value = this.interpreter?.execute(args)
 
         if (value == null) { return null}
-        //if (typeof value == "object") { return value }
+        //
         if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value) }
         if (typeof value == "number") { return ExprInterpreter.evaluateNumber(value) }
         if (typeof value == "string") { return ExprInterpreter.evaluateString(value) }
+        if (typeof value == "object") { return value }
         //TODO: dateTime
         //TODO: this should be quite the same
         return null;
@@ -171,7 +171,7 @@ export class Expression {
 
     static resolve(object?, viewArguments?: ViewArguments, dontResolveItems: boolean = false) { //TODO:
         var dict = object;
-        if (typeof dict?.isCVUObject == "function") {
+        if (dict?.constructor.name === "MemriDictionary") {
             for (let [key, value] of Object.entries(dict)) {
                 dict[key] = this.resolve(value, viewArguments, dontResolveItems)
             }

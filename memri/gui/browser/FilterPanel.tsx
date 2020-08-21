@@ -11,7 +11,7 @@ import {
 	Group,
 	HStack,
 	MainUI,
-	MemriButton,
+	MemriRealButton,
 	MemriImage,
 	MemriText,
 	padding, SectionHeader, Spacer,
@@ -52,7 +52,7 @@ export class FilterPanel extends MainUI {
 
 	getRenderersAvailable(category) {
 		if (!category) { return [] }
-		return Object.entries(this.context.renderers.all)
+		return Object.entries(allRenderers.all)
 			.map ((arg0) => {//TODO
 				let [key, value] = arg0
 				return [key, value(this.context)]
@@ -67,19 +67,20 @@ export class FilterPanel extends MainUI {
 		let item = this.context.currentView?.resultSet.items[0]
 		if (!item) { return [] }
 
-		var excludeList = this.context.currentView?.sortFields ?? []
+		var excludeList = []
+		Object.assign(excludeList, this.context.currentView?.sortFields ?? [])
 		excludeList.push(this.context.currentView?.datasource.sortProperty ?? "")
 		excludeList.push("uid", "deleted", "externalId")
 
-		let properties = Object.keys(item)
+		let properties = Object.entries(item)
 
 		return properties.map((prop) => {
-			if (!excludeList.includes(prop) && !prop.startsWith("_")) {
-					return prop
-				}
-				else {
-					return undefined
-				}
+			if (!excludeList.includes(prop[0]) && !prop[0].startsWith("_") && typeof prop[1] !== "object") {
+				return prop[0]
+			}
+			else {
+				return undefined
+			}
 		}).filter((item) => item != undefined)
 	}
 
@@ -106,6 +107,8 @@ export class FilterPanel extends MainUI {
 		// let segmentedRendererCategories = this.getRendererCategories().segments(ofSize: 5).indexed()
 		//TODO segments function?
 
+		let currentSortProperty = cascadableView?.datasource.sortProperty ?? ""//TODO
+
 		return (
 			<div className="FilterPanel">
 			<HStack alignment={Alignment.top} spacing={0}
@@ -125,7 +128,7 @@ export class FilterPanel extends MainUI {
 									background={new Color("white").toLowerCase()}
 							>
 								{categories.map((renderer) =>
-									<MemriButton
+									<MemriRealButton
 										onClick={() => context.executeAction(renderer[1])} key={renderer[0]}>
 										<MemriImage fixedSize=""
 													padding={padding({horizontal: 5, vertical: 5})}
@@ -139,7 +142,7 @@ export class FilterPanel extends MainUI {
 										>
 											{renderer[1].getString("icon")}
 										</MemriImage>
-									</MemriButton>
+									</MemriRealButton>
 								)}
 							</HStack>
 						)}
@@ -147,7 +150,7 @@ export class FilterPanel extends MainUI {
 
 					<ASTableView>
 						{this.getRenderersAvailable(this.currentRendererCategory).map((item) =>
-							<MemriButton onClick={() => this.context.executeAction(item[1])}>
+							<MemriRealButton onClick={() => this.context.executeAction(item[1])}>
 								<Group padding={padding({horizontal: 6, vertical: 6})}>
 									{cascadableView?.activeRenderer == item[1].rendererName ?
 										<MemriText foregroundColor={"#6aa84f"}
@@ -163,7 +166,7 @@ export class FilterPanel extends MainUI {
 										</MemriText>
 									}
 								</Group>
-							</MemriButton>
+							</MemriRealButton>
 						)}
 					</ASTableView>
 				</VStack>
@@ -182,54 +185,52 @@ export class FilterPanel extends MainUI {
 						</MemriText>
 
 					</SectionHeader>
-					{cascadableView?.datasource.sortProperty?.map((currentSortProperty) =>
-						<MemriButton onClick={this.toggleAscending}>
-							<HStack>
-								<MemriText foregroundColor={"#6aa84f"}
-										   font={font({size: 16, weight: Font.Weight.semibold,
-											   design: "default"})}
-										   frame={frame({
-											   minWidth: 0,
-											   maxWidth: "infinity",
-											   alignment: Alignment.leading
-										   })}
-								>
-									{currentSortProperty}
-								</MemriText>
-								<Spacer/>
-								<MemriImage resizable={true}
-											aspectRatio={"fit"}
-											foregroundColor={"#6aa84f"}
-											frame={frame({minWidth: 10, maxWidth: 10})}
-								>
-									{cascadableView.datasource.sortAscending === false
-									? "arrow_down"
-									: "arrow_up"}
-								</MemriImage>
-							</HStack>
-						</MemriButton>
-					)}
+					<MemriRealButton onClick={() => this.toggleAscending()}>
+						<HStack>
+							<MemriText foregroundColor={"#6aa84f"}
+									   font={font({size: 16, weight: Font.Weight.semibold,
+										   design: "default"})}
+									   frame={frame({
+										   minWidth: 0,
+										   maxWidth: "infinity",
+										   alignment: Alignment.leading
+									   })}
+							>
+								{currentSortProperty}
+							</MemriText>
+							<Spacer/>
+							<MemriImage resizable={"true"}//TODO
+										// aspectRatio={"fit"}//TODO
+										foregroundColor={"#6aa84f"}
+										frame={frame({minWidth: 10/*, maxWidth: 10*/})}
+							>
+								{cascadableView.datasource.sortAscending === false
+								? "arrow_downward"
+								: "arrow_upward"}
+							</MemriImage>
+						</HStack>
+					</MemriRealButton>
 					{cascadableView?.sortFields.filter (($0) =>
 						cascadableView?.datasource.sortProperty != $0
 					).map ((fieldName) =>
-						<MemriButton onClick={() => this.changeOrderProperty(fieldName)}>
+						<MemriRealButton onClick={() => this.changeOrderProperty(fieldName)}>
 							<MemriText foregroundColor={"#434343"}
 									   font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
 									   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
 							>
 								{fieldName}
 							</MemriText>
-						</MemriButton>
+						</MemriRealButton>
 					)}
 					{this.getRelevantFields().map ((fieldName) =>
-						<MemriButton onClick={() => this.changeOrderProperty(fieldName)}>
+						<MemriRealButton onClick={() => this.changeOrderProperty(fieldName)}>
 							<MemriText foregroundColor={"#434343"}
 									   font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
 									   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
 							>
 								{fieldName}
 							</MemriText>
-						</MemriButton>
+						</MemriRealButton>
 					)}
 
 				</ASTableView>

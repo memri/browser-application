@@ -14,6 +14,15 @@ import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
 import {Item} from "../../model/items/Item";
 import {FilterPanelRendererButton} from "./Action";
 import {UIElementView} from "../../gui/common/UIElementView";
+import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
+import {registerThumbnailRenderer} from "../../gui/renderers/GridRenderers/ThumbnailRendererView";
+import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/ThumbGridRendererView";
+import {registerMessageRenderer} from "../../gui/renderers/MessageRenderer";
+import {registerPhotoViewerRenderer} from "../../gui/renderers/PhotoViewerRenderer/PhotoViewerRenderer";
+import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "../../gui/renderers/GeneralEditorView";
+import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRenderers/ThumbHorizontalGridRendererView";
+import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Renderers {
     all = {}
@@ -38,18 +47,18 @@ export class Renderers {
     constructor() {
         //if (allRenderers == null) { allRenderers = this }
         
-        //registerCustomRenderer()//TODO
+        registerCustomRenderer()//TODO
         registerListRenderer()
-        //registerGeneralEditorRenderer()
-        //registerThumbnailRenderer()
-        //registerThumbGridRenderer()
-        //registerThumbHorizontalGridRenderer()
-        //registerThumbWaterfallRenderer()
+        registerGeneralEditorRenderer()
+        registerThumbnailRenderer()
+        registerThumbGridRenderer()
+        registerThumbHorizontalGridRenderer()
+        registerThumbWaterfallRenderer()
         //registerMapRenderer()
         //registerChartRenderer()
         // registerCalendarRenderer()
-        // registerMessageRenderer()
-        //registerPhotoViewerRenderer()
+        registerMessageRenderer()
+        registerPhotoViewerRenderer()
     }
     
     get tuples() {
@@ -62,10 +71,10 @@ export var allRenderers = new Renderers();
 //FilterPanelRendererButton moved to Action.ts
 
 class RenderGroup {
-    options = {}
+    options = new MemriDictionary()
     body: UIElement = null
     
-    constructor(dict) {
+    constructor(dict: MemriDictionary) {
         if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
         delete dict["children"]
         this.options = dict
@@ -111,7 +120,7 @@ export class CascadingRenderConfig extends Cascadable {
         if (renderGroup) {
             return renderGroup.options
         }
-        return {}
+        return new MemriDictionary()
     }
     
     getRenderGroup(group) {
@@ -122,14 +131,14 @@ export class CascadingRenderConfig extends Cascadable {
         else if (group == "*" && this.cascadeProperty("*") == null) {
             let list = this.cascadeProperty("children")
             if (list) {
-                var dict = {"children": list}
+                var dict = new MemriDictionary({"children": list})
                 let renderGroup = new RenderGroup(dict)
                 this.localCache[group] = renderGroup
                 return renderGroup
             }
         }
         else {
-            var dict = this.cascadeProperty(group)
+            var dict: MemriDictionary = this.cascadeProperty(group)
             if (dict) {
                 let renderGroup = new RenderGroup(dict)
                 this.localCache[group] = renderGroup
@@ -150,12 +159,12 @@ export class CascadingRenderConfig extends Cascadable {
                 if (s.setDefaultValues && typeof s.setDefaultValues === "function") {//TODO
                     s.setDefaultValues(body)
                 }
-                let uiElement = new UIElementView({gui: body, dataItem: item, viewArguments: argumentsJs/* ?? viewArguments*/});
+                let uiElement = new UIElementView({context: this.host.context, gui: body, dataItem: item, viewArguments: argumentsJs/* ?? viewArguments*/});
                 //(body, item, argumentsJs ?? viewArguments)
                 return uiElement.render();
             }
 
-            return new UIElementView({gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
+            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
         }
 
         let renderGroup = this.getRenderGroup(group)
@@ -163,7 +172,7 @@ export class CascadingRenderConfig extends Cascadable {
             return doRender(renderGroup, item)
         }
         else {
-            return new UIElementView({gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
+            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
         }
     }
 }
@@ -173,14 +182,153 @@ export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRende
     type = "list"
 
     get longPress() { return this.cascadeProperty("longPress") }
+    set longPress(value) { this.setState("longPress", value) }
+
     get press() { return this.cascadeProperty("press") }
+    set press(value) { this.setState("press", value) }
 
     get slideLeftActions() { return this.cascadeList("slideLeftActions") }
+    set slideLeftActions(value) { this.setState("slideLeftActions", value) }
+
     get slideRightActions() { return this.cascadeList("slideRightActions") }
+    set slideRightActions(value) { this.setState("slideRightActions", value) }
 
     setDefaultValues(element: UIElement) {
         if (element.properties["padding"] == undefined) {
             element.properties["padding"] = [10, 10, 10, 20]
         }
+    }
+}
+
+//CascadingCustomConfig moved from CustomRenderer.tsx
+export class CascadingCustomConfig extends CascadingRenderConfig {
+    type = "custom"
+}
+
+//CascadingThumbnailConfig moved from ThumbnailRendererView.tsx
+export class CascadingThumbnailConfig extends CascadingRenderConfig {
+    type = "thumbnail"
+
+    get longPress() { return this.cascadeProperty("longPress") }
+    set longPress(value) { this.setState("longPress", value) }
+
+    get press() { return this.cascadeProperty("press") }
+    set press(value) { this.setState("press", value) }
+
+    get columns() { return this.cascadeProperty("columns") ?? 3 }
+    set columns(value) { this.setState("columns", value) }
+
+    get edgeInset() {
+        let edgeInset = this.cascadePropertyAsCGFloat("edgeInset")
+        if (edgeInset) {
+            return [
+                edgeInset,
+                edgeInset,
+                edgeInset,
+                edgeInset
+            ]
+        } else {
+            let x = this.cascadeProperty("edgeInset")
+            if (x) {
+                let insetArray = x.filter((item) => item != undefined/*TODO???*/).map(($0) => $0.map (($0) => Number($0) ))
+                switch (insetArray.length) {
+                    case 2: return [
+                        insetArray[1],
+                        insetArray[0],
+                        insetArray[1],
+                        insetArray[0]
+                    ]
+                    case 4: return [
+                        insetArray[0],
+                        insetArray[3],
+                        insetArray[2],
+                        insetArray[1]
+                    ]
+                    default: return
+                }
+            }
+        }
+
+        return
+    }
+    set edgeInset(value) { this.setState("edgeInset", value) }
+
+    get nsEdgeInset(): NSDirectionalEdgeInsets {
+        let edgeInset = this.edgeInset
+        return new NSDirectionalEdgeInsets(
+            edgeInset.top,
+            edgeInset.left,
+            edgeInset.bottom,
+            edgeInset.right
+        )
+    }
+
+    // Calculated
+    get spacing() {
+        let spacing = this.cascadePropertyAsCGFloat("spacing")
+        if (spacing) {
+            return [spacing, spacing]
+        }
+        else {
+            let x = this.cascadeProperty("spacing")
+            if (x) {
+                let spacingArray = x.filter((item) => item != undefined/*TODO???*/).map(($0) => $0.map(($0) => Number($0)))
+
+                if (spacingArray.length != 2) {
+                    return [0, 0]
+                }
+                return [spacingArray[0], spacingArray[1]]
+            }
+        }
+        return [0, 0]
+    }
+    set(value) { this.setState("spacing", value) }
+}
+
+export class CascadingMessageRendererConfig extends CascadingRenderConfig {
+    type = "messages"
+
+    get press() { return this.cascadeProperty("press") }
+
+    get isOutgoing(): Expression {
+        return this.cascadeProperty("isOutgoing");
+    }
+}
+
+export class PhotoViewerRendererConfig extends CascadingRenderConfig {
+    type = "photoViewer"
+
+    get imageFile() { return this.cascadeProperty("file") }
+    get initialItem() { return this.cascadeProperty("initialItem") }
+}
+
+export class CascadingGeneralEditorConfig extends CascadingRenderConfig {
+    type = "generalEditor"
+
+    get layout() {
+        return this.cascadeList(
+            "layout",
+            (item) => {
+                return String(item["section"]) ?? ""
+            },
+            (old, newJs) => {
+                var result = old;
+                for (let [key, value] of Object.entries(newJs)) { //TODO: need to check
+                    if (old[key] == undefined) {
+                        result[key] = value
+                    } else if (key == "exclude") {
+                        var dict = old[key];
+                        if (Array.isArray(dict)) {
+                            result[key] = dict.push(...(newJs[key] ?? []))
+                        }
+                    }
+                }
+
+                return result
+            }
+        )
+            .map((dict) => {
+                return new GeneralEditorLayoutItem(dict, this.viewArguments)
+            })
     }
 }

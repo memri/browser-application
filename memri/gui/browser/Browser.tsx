@@ -45,6 +45,7 @@ export class Browser extends MainUI {
 		this.currentView = currentView
 
 		return (
+			<div className={"Browser"}>
 			<ZStack>
 				{this.context.currentView == undefined ? "Loading..." :
 					<>
@@ -62,9 +63,9 @@ export class Browser extends MainUI {
 
 							{currentView.showSearchbar && !currentView.fullscreen &&
 								<>
-									{/*<Search context={this.context}/>
-									{this.context.currentSession?.showFilterPanel ||
-										<FilterPanel context={this.context}/>}*/}
+									<Search context={this.context}/>
+									{this.context.currentSession?.showFilterPanel &&
+										<FilterPanel context={this.context}/>}
 								</>
 							}
 						</VStack>
@@ -72,6 +73,7 @@ export class Browser extends MainUI {
 					</>
 				}
 			</ZStack>
+			</div>
 		);
 	}
 }

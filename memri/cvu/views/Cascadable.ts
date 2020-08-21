@@ -6,21 +6,22 @@ import {ActionMultiAction} from "./Action";
 import {debugHistory} from "./ViewDebugger";
 import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Cascadable/* extends CustomStringConvertible*/{
     host?: Cascadable
     cascadeStack: CVUParsedDefinition[]
     tail: CVUParsedDefinition[]
     head: CVUParsedDefinition
-    localCache = {}
+    localCache = new MemriDictionary()
 
     get viewArguments() { return this.host?.viewArguments }
     set viewArguments(value) { this.host?.viewArguments = value }
 
-    get description() {
-        var merged = {}
+    get toString() {
+        var merged = new MemriDictionary()
 
-        function recur(dict: {}) {
+        function recur(dict: MemriDictionary) {
             if (!dict) { return }
 
             for (let [key, value] of Object.entries(dict)) {
@@ -122,7 +123,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
             }
 
             var result = []
-            var lut = [];
+            var lut = {};
             for (let def of this.cascadeStack) {
                 let list: CVUParsedDefinition = def.get(name); //TODO:
                 if (Array.isArray(list)) {
@@ -169,7 +170,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
                         this.localCache[name] = x
                         return x
                     } else {
-                        result.push(x)
+                        result.push(...x)
                     }
                 } else if (def[name]) {
                     if (!uniqueKey) {
@@ -180,6 +181,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
                     }
                 }
             }
+            result = Array.from(new Set(result))//TODO
         }
 
 
@@ -199,7 +201,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         if (forceArray) {
             for (var def of this.cascadeStack) {
                 let x = def[name]
-                if (typeof x.isCVUObject === "function") {
+                if (x.constructor.name === "MemriDictionary") {
                     for (let [key, value] of Object.entries(x)) {
                         if (value) {
                             result[key] = value

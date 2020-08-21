@@ -1,4 +1,5 @@
 import {CVUSerializer} from "./CVUToString";
+import {MemriDictionary} from "../../model/MemriDictionary";
 
 export enum CompileScope {
     all="all",
@@ -23,7 +24,7 @@ export class CVUParsedDefinition {
         this.selector = selector
         this.name = name
         this.domain = domain;
-        this.parsed = parsed
+        this.parsed = parsed ?? new MemriDictionary()
     }
     
     get(propName:string) {
@@ -32,12 +33,12 @@ export class CVUParsedDefinition {
     }
 
     set(propName:string, value) {
-        if (this.parsed == undefined) { this.parsed = {} }
+        if (this.parsed == undefined) { this.parsed = new MemriDictionary() }
         this.parsed[propName] = value
     }
 
     
-    parsed: {};
+    parsed = new MemriDictionary();
 
     get description(): string {
         return this.toCVUString(0, "    ")
@@ -85,7 +86,7 @@ export class CVUParsedDefinition {
                 return scope == CompileScope.all
                     ? notnil.execute(viewArguments)
                     : notnil.compile(viewArguments)
-            } else if (typeof notnil.isCVUObject == "function") {
+            } else if (notnil.constructor.name == "MemriDictionary") {
                 for (let [key, value] of Object.entries(notnil)) {
                     notnil[key] = recur(value)
                 }
@@ -135,8 +136,8 @@ export class CVUParsedDefinition {
                 let cascadableDict = this.parsed[key];
                 if (cascadableDict?.constructor?.name == "CascadableDict") {
                     cascadableDict.deepMerge(value);
-                } else {
-                    this.parsed[key] = (value)?.copy() //CascadablaDict
+                } else if (value?.constructor?.name == "CascadableDict") {//TODO???
+                    this.parsed[key] = value.copy() //CascadablaDict
                 }
             } else if (this.parsed[key] == undefined) {
                 /*if (this.parsed == undefined) {
@@ -200,7 +201,7 @@ export class CVUParsedViewDefinition extends CVUParsedDefinition {
     query?: ExprNode
     get definitionType() {return "view" }
 
-    constructor(selector, name, type?, query?, domain: string = "user", parsed?) {//TODO
+    constructor(selector, name?, type?, query?, domain: string = "user", parsed?: MemriDictionary) {//TODO
         super(selector, name, domain, parsed)
 
         this.type = type

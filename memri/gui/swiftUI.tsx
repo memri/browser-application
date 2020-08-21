@@ -1,5 +1,16 @@
 import * as React from "react";
-import {BaseTextFieldProps, Box, Button, Divider, Icon, List, TextField} from "@material-ui/core";
+import {
+    BaseTextFieldProps,
+    Box,
+    Button,
+    Divider,
+    Grid,
+    GridList,
+    Icon,
+    List,
+    Switch,
+    TextField
+} from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
 
@@ -266,6 +277,15 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     }
 }
 
+export class RenderersMemri extends MainUI {
+    executeAction = (dataItem) => () => {
+        let press = this.renderConfig.press
+        if (press) {
+            this.context.executeAction(press, dataItem)
+        }
+    }
+}
+
 export class VStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
@@ -321,13 +341,15 @@ export class Content extends MainUI {
     }
 }
 
-export class MemriButton extends MainUI {
+export class MemriRealButton extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
+        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
         return (
-            <Button style={this.setStyles()} {...other}>
+            <div className={"MemriRealButton"}>
+            <Button onClick={action} style={this.setStyles()} {...other}>
                 {this.props.children}
             </Button>
+            </div>
         )
     }
 }
@@ -382,9 +404,9 @@ export class MemriText extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <span style={this.setStyles()} {...other}>
+            <div style={this.setStyles()} {...other}>
                 {this.props.children}
-            </span>
+            </div>
         )
     }
 }
@@ -434,9 +456,9 @@ export class ASTableView extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <List style={this.setStyles()} className="ASTableView" {...other}>
+            <div style={this.setStyles()} className="ASTableView" {...other}>
                 {this.props.children}
-            </List>
+            </div>
         )
     }
 }
@@ -478,9 +500,9 @@ export class Group extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <List style={this.setStyles()} className="Group" {...other}>
+            <div style={this.setStyles()} className="Group" {...other}>
                 {this.props.children}
-            </List>
+            </div>
         )
     }
 }
@@ -499,12 +521,54 @@ export class MemriList extends MainUI {
 export class UIImage extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {maxWidth: "100%", maxHeight: "100%"})
         return (
-            <img style={this.setStyles()} className="UIImage" {...other}/>
+            <img style={style} className="UIImage" {...other}/>
         )
     }
 }
 
+export class RoundedRectangle extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="RoundedRectangle" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+export class ASCollectionView extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {maxHeight: "400px"})
+        if (images == true) {
+            return (
+                <GridList style={style} className="ASCollectionView" {...other} cols={3}>
+                    {this.props.children}
+                </GridList>
+            )
+        } else {
+            return (
+                <Grid container style={this.setStyles()} className="ASCollectionView" {...other}>
+                    {this.props.children}
+                </Grid>
+            )
+        }
+    }
+}
+
+export class Toggle extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, isOn, ...other} = this.props;
+        return (
+            <Switch checked={isOn} style={this.setStyles()} {...other}/>
+        )
+    }
+}
 
 
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:

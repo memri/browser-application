@@ -1,14 +1,4 @@
-//import * as DB from "./defaults/default_database.json";
 import {getItemType} from "./items/Item";
-/*let fs = require("fs");
-var DB = fs.readFileSync("./defaults/default_database.json");*/
-
-/*DB.forEach(function(x, i) {
-    if (!x.uid)
-        x.uid = (i + 1) + 1000000
-    /!*else
-        console.log(x.uid)*!/
-})*/
 
 export class Realm {
     db;
@@ -66,17 +56,35 @@ export class RealmObjects extends Array {
     }*/
 
     filtered(query: string) {
+        if (query.indexOf("ANY") > -1) { //TODO:
+            if (/(?<=^|\s)ANY\s([.\w]+)\s*=\s*(\w+|('[^']*'))$/g.test(query)) {
+                let parts = query.split(/(?:AND )?ANY/);
+                query=parts[0];
+                var anyQuery = parts[1].replace(/\s([\w]+)\.(\w+)\s*=\s*(\w+|('[^']*'))/,"item['$1'].some((el)=> el['$2'] == $3)");
+                var result = this.filter(new Function("item", "return " + anyQuery))
+            }
+        }
         //TODO: we need parse query, not eval it... "selector = '[sessions = defaultSessions]'"
         let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)(\w+)\s*=\s*(\w+|('[^']*'))/g,"item['$1'] == $2").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
-        return this.filter(new Function("item", "return " + newquery))
+        if (!result)
+            result = this;
+        return result.filter(new Function("item", "return " + newquery))
         //return this;
     }
 
     sorted(descriptor: string, reverse?: boolean) {
         //TODO:
-        return this;/*.sort((a, b) => {
-
-        })     */
+        return this.sort((a, b) => {
+            let res
+            if (a[descriptor] > b[descriptor]) {
+                res = 1
+            } else if (a[descriptor] < b[descriptor]) {
+                res = -1
+            } else {
+                res = 0
+            }
+            return reverse ? res : -res
+        })
     }
 }
 

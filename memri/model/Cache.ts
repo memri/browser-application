@@ -14,6 +14,7 @@ import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "./DatabaseController";
 import {Realm} from "./RealmLocal";
 import {Sync} from "./Sync";
+import {MemriDictionary} from "./MemriDictionary";
 export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
@@ -61,7 +62,7 @@ export class CacheMemri {
 			var lut = {}
 
 			function recur(dict) {
-				var values = {}
+				var values = new MemriDictionary()
 				let type = dict["_type"];
 				let itemType = getItemType(type);
 				if (typeof type != "string" || !itemType) {
@@ -192,7 +193,7 @@ export class CacheMemri {
 
 			// Parse query
 			let [typeName, filter] = this.parseQuery(q)
-			let type = ItemFamily["type"+typeName]
+			let type = ItemFamily[typeName]
 			if (typeName == "*") {
 				var returnValue = []
 
@@ -200,7 +201,7 @@ export class CacheMemri {
 					// NOTE: Allowed forced cast
 					let objects = realm.objects(getItemType(dtype)?.constructor?.name)
 						.filtered("deleted = false " + (filter ?? "")) //TODO
-					for (var item of objects) { returnValue.push(new Item(item)) }
+					for (var item of objects) { returnValue.push(item) }
 				}
 
 				callback && callback(null, returnValue)
@@ -230,7 +231,7 @@ export class CacheMemri {
 				var returnValue = []
 				for (var item of result) {
 					//if (item?.constructor?.name == "Item") {
-						returnValue.push(new Item(item))
+						returnValue.push(item)
 					//}
 				}
 
@@ -250,9 +251,9 @@ export class CacheMemri {
 		if (query.indexOf(" ") >= 0) {
 			let splits = query.split(" ")
 			let type = String(splits[0])
-			return [type, String(splits.shift().join(" "))]
+			return [type, String(splits.slice(1).join(" "))]
 		} else {
-			return [query, null]
+			return [query, undefined]
 		}
 	}
 
@@ -276,7 +277,7 @@ export class CacheMemri {
 			// this.cancellables.push(resultSet.objectWillChange.sink(function () {
 				// TODO: Error handling
 				this.scheduleUIUpdate(function (context) {//TODO
-					return context.cascadingView.resultSet.datasource == resultSet.datasource
+					return context.currentView.resultSet.datasource == resultSet.datasource
 				})
 			// }.bind(this)))
 
@@ -411,7 +412,7 @@ export class CacheMemri {
 
 		let itemType = item.getType()
 		if (itemType) {
-			var dict= {};
+			var dict= new MemriDictionary();
 
 			for (var prop in item) {
 				if (item.hasOwnProperty(prop)) {
@@ -490,7 +491,7 @@ export class CacheMemri {
 	}
 
 	//#warning("This doesnt trigger syncToPod()")
-	static createItem(type, values = {}, unique?: string) {
+	static createItem(type, values = new MemriDictionary(), unique?: string) {
 		var item
 		DatabaseController.tryWriteSync((realm: Realm) => {
 			var dict = values
@@ -594,7 +595,7 @@ export class CacheMemri {
 				// TODO: find item in DB & merge
 				// Uniqueness based on also not primary key
 
-				let values = {
+				let values = new MemriDictionary({
 					"targetItemType": target[0],
 					"targetItemID": target[1],
 					"sourceItemType": source.genericType,
@@ -604,7 +605,7 @@ export class CacheMemri {
 					"sequence": sequence,
 					"dateCreated": new Date(),
 					"_action": "create"
-				}
+				})
 
 				edge = realm.create("Edge", values)
 			});
@@ -618,7 +619,7 @@ export class CacheMemri {
 				throw "Cannot link target, no .uid set"
 			}
 
-			return CacheMemri.createEdge(source, ["type" + target["_type"], targetUID],
+			return CacheMemri.createEdge(source, [target["_type"], targetUID],
 				edgeType, label, sequence)
 		}
 	}

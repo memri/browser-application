@@ -7,12 +7,12 @@
 //
 
 
-import {MainUI, MemriButton, MemriImage, MemriText, padding, VStack} from "./swiftUI";
+import {MainUI, MemriRealButton, MemriImage, MemriText, padding, VStack} from "./swiftUI";
 import * as React from "react";
 import {Action, ActionFamily, ActionNoop, RenderType} from "../cvu/views/Action";
 import {MemriContext} from "../context/MemriContext";
 import {ViewArguments} from "../cvu/views/CascadableDict";
-// import {SubView} from "./common/SubView";
+import {SubView} from "./common/SubView";
 
 export class ActionButton extends MainUI {
 	context: MemriContext
@@ -31,9 +31,11 @@ export class ActionButton extends MainUI {
 		this.item = item;
 		this.action = action;
 		return (
+			<div className={"ActionButton"}>
 			<VStack>
 				{this.getAction()}
 			</VStack>
+			</div>
 		)
 	}
 
@@ -88,7 +90,7 @@ class ActionButtonView extends MainUI {
 		let icon = this.action.getString("icon");
 		let title = this.action.get("title");
 		return (
-			<MemriButton onClick={() => this.context.executeAction(this.action)}>
+			<MemriRealButton onClick={() => this.context.executeAction(this.action)}>
 				{(icon || title == undefined) &&
 				<MemriImage fixedSize padding={padding({
 					horizontal: 5,
@@ -103,7 +105,7 @@ class ActionButtonView extends MainUI {
 					{title ?? ""}
 				</MemriText>
 				}
-			</MemriButton>
+			</MemriRealButton>
 
 		);//font(.subheadline)
 	}

@@ -109,7 +109,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                     .items("CVUStateDefinition");
                 if (storedSessionStates && storedSessionStates.length > 0) {
                     for (let sessionState of storedSessionStates) {
-                        this.sessions.push(new Session(new CVUStateDefinition(sessionState), this));
+                        this.sessions.push(new Session(sessionState, this));
                     }
                 }
                 // Or if the sessions are encoded in the definition
@@ -194,7 +194,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                 session.persist()
                 let s = session.state;
                 if (s) {
-                    state?.link(s, "session", EdgeSequencePosition.last, false);
+                    state?.link(s, "session", EdgeSequencePosition.last, undefined,false,false);
                 }
                 else {
                     debugHistory.warn("Unable to store session. Missing stored CVU")
