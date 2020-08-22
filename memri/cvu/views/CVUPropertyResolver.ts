@@ -8,6 +8,9 @@ import {Font} from "../../parsers/cvu-parser/CVUParser";
 export class CVUPropertyResolver {
     properties = MemriDictionary
 
+    constructor(properties) {
+    }
+
     get color(): ColorDefinition {
         let colorDef = this.properties["color"]
         if (colorDef?.constructor?.name == "ColorDefinition") {

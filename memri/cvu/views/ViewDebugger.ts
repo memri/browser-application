@@ -260,6 +260,6 @@ class DebugConsole /*extends View*/ {
 
 class ErrorConsole_Previews /*extends PreviewProvider*/ {
 	static previews () {//TODO
-		new DebugConsole().environmentObject(RootContext("", "").mockBoot())//TODO
+		new DebugConsole().environmentObject(RootContext("").mockBoot())//TODO
 	}
 }

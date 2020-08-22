@@ -231,6 +231,7 @@ export enum ActionFamily {
     showNavigation = "showNavigation",
     addToPanel = "addToPanel",
     duplicate = "duplicate",
+    copyToClipboard = "copyToClipboard",
     schedule = "schedule",
     addToList = "addToList",
     duplicateNote = "duplicateNote",
@@ -292,6 +293,7 @@ export var getActionType = function (name) {
         case ActionFamily.runImporter: return ActionRunImporter
         case ActionFamily.setProperty: return ActionSetProperty
         case ActionFamily.setSetting: return ActionSetSetting
+        case ActionFamily.copyToClipboard: return ActionCopyToClipboard
         case ActionFamily.noop:
         default: return ActionNoop
     }
@@ -372,6 +374,7 @@ protocol ActionExec {
 }
 */
 
+// #warning("Make this Subscriptable and add to expression docs on the wiki")
 export class ActionBack extends Action {
     defaultValues = new MemriDictionary({
         "icon": "chevron_left", //chevron.left
@@ -438,10 +441,41 @@ export class ActionAddItem extends Action {
       }*/
 }
 
+export class ActionCopyToClipboard extends Action {
+    defaultValues = new MemriDictionary({
+        "icon": "doc.on.doc",
+        "argumentTypes": {"value": AnyObject},
+        "opensView": true,
+        "color": new Color("#6aa84f"),
+            "inactiveColor": new Color("#434343")
+    });
+
+    constructor(context: MemriContext, values?) {
+        super(context, "copyToClipboard", values);
+    }
+
+    exec(argumentsJs) {
+        let value = argumentsJs["value"]
+        if (typeof value === "string") {
+            // UIPasteboard.general.string = value//TODO
+        }
+        else if (value != undefined) {
+            throw "Not implemented yet"
+        }
+    }
+
+    /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {
+        execWithoutThrow { try ActionCopyToClipboard(context).exec(arguments) }
+    }*/
+}
 
 export class ActionOpenView extends Action {
     defaultValues = new MemriDictionary({
-        "argumentTypes": {"view": "CVUStateDefinition", "viewArguments": "ViewArguments"},
+        "argumentTypes": {
+            "item": "ItemFamily",
+            "view": "CVUStateDefinition",
+            "viewArguments": "ViewArguments"
+        },
         "withAnimation": false,
         "opensView": true
     });
@@ -459,7 +493,7 @@ export class ActionOpenView extends Action {
             }
             // Create a new view
             view = CacheMemri.createItem("CVUStateDefinition", {
-                "type": "view",
+                "itemType": "view",
                 "selector": "[view]",
                 "definition":
 `[view] {
@@ -495,7 +529,7 @@ export class ActionOpenView extends Action {
             this.openView(this.context, item, viewArguments)
         } else {
             // TODO Error handling
-            throw `Cannot execute ActionOpenView, arguments require a SessionView. passed arguments:\n ${argumentsJs}, `;
+            throw `Cannot execute ActionOpenView, arguments require a view. passed arguments:\n ${argumentsJs}, `;
         }
     }
 
@@ -567,17 +601,20 @@ export class ActionOpenViewWithUIDs extends Action {
     openView(context: MemriContext, itemType: string|CVUStateDefinition, uids: [], argumentsJs = null) {
         if (typeof itemType == "string") {
             if (!uids.length) { throw "No UIDs specified" }
+            let firstUID = uids[0]
+            // note that the `IN` selector requires >1 item or it will throw an exception (use `=` if one item)
+            let uidQueryString = uids.length > 1 ? `uid IN {${uids.map(($0) => String($0)).join(",")}}` : `uid = ${firstUID}`
 
             let arrayString = `{${uids.map((item) => String(item)).join(",")}`
 
             // Create a new view
             itemType = CacheMemri.createItem("CVUStateDefinition", {
-                "type": "view",
+                "itemType": "view",
                 "selector": "[view]",
                 "definition":
                     `[view] {
     [datasource = pod] {
-        query: "${itemType} AND uid IN ${arrayString}"
+        query: "${itemType} AND ${uidQueryString}"
     }
 }`
 
@@ -657,7 +694,7 @@ export class ActionToggleFilterPanel extends Action {
 export class ActionStar extends Action {
     defaultValues = new MemriDictionary({
         "icon": "star",//star.fill
-        "binding": new Expression("dataItem.starred")//TODO
+        "binding": new Expression(".starred")//TODO
     });
 
     constructor(context: MemriContext, values = {}) {
@@ -750,7 +787,8 @@ export class ActionShowNavigation extends Action {
     defaultValues = new MemriDictionary({
         "icon": "menu",//line.horizontal.3
         "binding": new Expression("context.showNavigation"),
-        "inactiveColor": new Color("#434343")//TODO:
+        "inactiveColor": new Color("#434343"),//TODO:
+        "withAnimation": true
     });
 
     constructor(context: MemriContext, values?) {
@@ -911,7 +949,7 @@ export class ActionOpenSession extends Action {
         super(context, "openSession", values)
     }
 
-    openSession(session: CVUStateDefinition, args) {
+    openSession(session: CVUStateDefinition|Session, args) {
         let sessions = this.context.sessions
 
         sessions.setCurrentSession(session)
@@ -937,16 +975,20 @@ export class ActionOpenSession extends Action {
         if (item) {
             let session = item;
             if (session?.constructor?.name == "CVUStateDefinition") {
-                this.openSession(this.context, args)
-            } else {
+                this.openSession(session, args)
+            }
+            if (session?.constructor?.name == "Session") {
+                this.openSession(session, args)
+            }
+            else {
                 // TODO Error handling
-                throw "Cannot execute openSession 'session' argmument cannot be casted to Session"
+                throw "Cannot execute openSession 'session' argmument cannot be cast to Session"
             }
         }
         else {
             let session = argumentsJs["item"];
             if (session?.constructor?.name == "CVUStateDefinition") {
-                this.openSession(this.context, args);
+                this.openSession(session, args);
             }
 
             // TODO Error handling
@@ -1037,6 +1079,20 @@ export class ActionDelete extends Action {
     }*/
 }
 
+export class ActionSelectAll extends Action {
+    constructor(context: MemriContext, values?: MemriDictionary) {
+        super(context, "selectAll", values)
+    }
+
+    exec() {
+        this.context.setSelection(this.context.items)
+    }
+
+    /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {
+        execWithoutThrow { try ActionSelectAll(context).exec(arguments) }
+    }*/
+}
+
 export class ActionDuplicate extends Action {
     defaultValues = new MemriDictionary({
         "argumentTypes": {"item": "ItemFamily"}//TODO MemriDictionary?
@@ -1057,7 +1113,7 @@ export class ActionDuplicate extends Action {
                 new ActionAddItem(this.context).exec({"template": item});
             } else {
                 // TODO Error handling
-                throw "Cannot execute ActionDupliate. The user either needs to make a selection, or a dataItem needs to be passed to this call."
+                throw "Cannot execute ActionDuplicate. The user either needs to make a selection, or a dataItem needs to be passed to this call."
             }
         }
     }
@@ -1080,16 +1136,27 @@ export class ActionRunImporter extends Action {
         // TODO: parse options
         let run = argumentsJs["importer"];
         if (run?.constructor?.name == "ImporterRun") {
-            let uid = run.uid;
-            if (!uid) {
-                throw "Uninitialized import run"
-            }
 
-            this.context.podAPI.runImporter(uid, function (error) {
-                if (error) {
-                    console.log(`Cannot execute actionImport: ${error}`);
+            this.context.cache.isOnRemote(run, 0, (error) => {
+                if (error != undefined) {
+                    // How to handle??
+                    // #warning("Look at this when implementing syncing")
+                    debugHistory.error("Polling timeout. All polling services disabled")
+                    return
                 }
-            });
+
+                let uid = run.uid.value
+                if (!uid) {
+                    debugHistory.error("Item does not have a uid")
+                    return
+                }
+
+                this.context.podAPI.runImporter(uid, (error) => {
+                    if (error) {
+                        console.log(`Cannot execute actionImport: ${error}`)
+                    }
+                })
+            })
         }
     }
 

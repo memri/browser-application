@@ -17,22 +17,23 @@ import {debugHistory} from "./ViewDebugger";
 import {dataItemListToArray, UUID} from "../../model/items/Item";
 import {ViewArguments} from "./CascadableDict";
 import {MemriDictionary} from "../../model/MemriDictionary";
+import {CVUPropertyResolver} from "./CVUPropertyResolver";
 
 export class UIElement /*extends CVUToString */{
 	id = UUID()
 	type: UIElementFamily
 	children = []
-	properties: MemriDictionary // TODO: ViewParserDefinitionContext
+	propertyResolver: CVUPropertyResolver
 
 	constructor(type, children?, properties?) {
 		//super()
 		this.type = type
 		this.children = children ?? this.children
-		this.properties = properties ?? new MemriDictionary()
+		this.propertyResolver = new CVUPropertyResolver(properties ?? new MemriDictionary())
 	}
 
 	has(propName) {
-		return this.properties[propName] != null
+		return this.propertyResolver.properties[propName] != null
 	}
 
 	getString(propName, item = null) {
@@ -45,7 +46,7 @@ export class UIElement /*extends CVUToString */{
 
 	get(propName, item = null, viewArguments?) {
 		let args = viewArguments ?? new ViewArguments({".": item});
-		let prop = this.properties[propName]
+		let prop = this.propertyResolver.properties[propName]
 		if (prop) {
 			let propValue = prop
 
@@ -75,7 +76,7 @@ export class UIElement /*extends CVUToString */{
 					}
 				} catch (error) {
 					// TODO: Refactor error handling
-					debugHistory.error(`Could note compute ${propName}\n`
+					debugHistory.error(`Could not compute ${propName}\n`
 						+ `Arguments: [${args.toString}]\n`
 						+ (expr.startInStringMode
 							? `Expression: \"${expr.code}\"\n`
@@ -94,7 +95,7 @@ export class UIElement /*extends CVUToString */{
 	}
 
 	getType(propName, item, viewArguments) {
-		let prop = this.properties[propName]
+		let prop = this.propertyResolver.properties[propName]
 		if (prop) {
 			let propValue = prop
 
@@ -135,8 +136,9 @@ export class UIElement /*extends CVUToString */{
 		let tabs = tab.repeat(depth + 1);
 		let tabsPlus = tab.repeat(depth + 2);
 		//let tabsEnd = (depth - 1 > 0)? tab.repeat(depth - 1) : ""; //TODO:
+		let properties = this.propertyResolver.properties
 
-		let propertiesLength = Object.keys(this.properties).length ?? 0
+		let propertiesLength = Object.keys(properties).length ?? 0
 		let childrenLength = Object.keys(this.children).length ?? 0
 		//TODO: i changed some code here to pass all tests with UIElements in CVUParser; don't know if i right
 		return propertiesLength > 0 || childrenLength > 0
@@ -191,7 +193,9 @@ export enum UIElementFamily {
 	RichTextfield = "RichTextfield",
 	Empty = "Empty",
 	TimelineItem = "TimelineItem",
-	MessageBubble = "MessageBubble"
+	MessageBubble = "MessageBubble",
+	EmailHeader = "EmailHeader",
+	SmartText = "SmartText"
 }
 
 export enum UIElementProperties {
@@ -300,7 +304,7 @@ export var validateUIElementProperties = function (key, value) {
 		case UIElementProperties.color:
 		case UIElementProperties.background:
 		case UIElementProperties.rowbackground:
-			return value?.constructor?.name == "Color"
+			return value?.constructor?.name == "ColorDefinition"
 		case UIElementProperties.font:
 			if (Array.isArray(value)) {
 			return value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number" || (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
@@ -315,11 +319,11 @@ export var validateUIElementProperties = function (key, value) {
 			}
 		case UIElementProperties.border:
 			if (Array.isArray(value)) {
-			return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+			return value[0]?.constructor?.name == "ColorDefinition" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
 		} else { return false }
 		case UIElementProperties.shadow:
 			if (Array.isArray(value)) {
-				return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+				return value[0]?.constructor?.name == "ColorDefinition" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
 					&& (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
 			} else {
 				return false

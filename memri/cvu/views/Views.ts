@@ -18,6 +18,8 @@ import {CVUStateDefinition, dataItemListToArray, Item} from "../../model/items/I
 import {ViewArguments} from "./CascadableDict";
 import {CascadingRenderConfig} from "./Renderers";
 import {MemriDictionary} from "../../model/MemriDictionary";
+import {ParseErrors} from "../../parsers/cvu-parser/CVUParseErrors";
+require("../../extension/common/string");
 
 export class Views {
 	///
@@ -32,7 +34,7 @@ export class Views {
 	constructor() {
 	}
 
-	load(context: MemriContext, callback) {
+	load(context: MemriContext) {
 		// Store context for use within createCascadingView)
 		this.context = context
 
@@ -49,15 +51,12 @@ export class Views {
 				}
 			}
 		}.bind(this)) //TODO: maybe i wrong;*/
-
-		// Done
-		 callback()
 	}
 
 	listenForChanges() {
-		if (!this.context?.podAPI.isConfigured) {
-			return;
-		}
+		if (!this.context?.podAPI.isConfigured) { return }
+		if (DatabaseController.realmTesting) { return }
+
 		// Subscribe to changes in CVUStoredDefinition
 		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition").forEach(function (items) { // CVUStoredDefinition AND domain='user'
 		this.reloadViews(items)
@@ -80,68 +79,74 @@ export class Views {
 
 	// TODO: Refactor: distinguish between views and sessions
 	// Load the default views from the package
-	install() {
+	install(overrideCodeForTesting: string, callback) {
 		if (!this.context) {
-			throw "Context is not set"
+			callback("Context is not set")
+			return
 		}
-		let code = getDefaultViewContents()
+		let code = overrideCodeForTesting ?? getDefaultViewContents()
 
+		var parsedDefinitions: CVUParsedDefinition[]
 		try {
 			let cvu = new CVU(code, this.context, this.lookupValueOfVariables, this.executeFunction)
-			let parsedDefinitions = cvu.parse() // TODO: this could be optimized
-
-			/*let validator = new CVUValidator();
-			if (!validator.validate(parsedDefinitions)) {
-				validator.debug()
-				if (validator.warnings.length > 0) {
-					for (let message of validator.warnings) { debugHistory.warn(message) }
-				}
-				if (validator.errors.length > 0) {
-					for (let message of validator.errors) { debugHistory.error(message) }
-					throw `Exception: Errors in default view set:    \n${validator.errors.join("\n    ")}`
-				}
-			}*///TODO:
-			DatabaseController.tryWriteSync(() => { // Start write transaction outside loop for performance reasons
-				// Loop over lookup table with named views
-				for (let def of parsedDefinitions) {
-					var values = new MemriDictionary({
-						"domain": "defaults",
-						"definition": def.toString(),//TODO
-					})
-
-					if (def.selector != undefined) { values["selector"] = def.selector }
-					if (def.name != undefined) { values["name"] = def.name }
-
-					let selector = def.selector
-					if (!selector) {
-						throw "Exception: selector on parsed CVU is not defined"
-					}
-
-					if (def?.constructor?.name == "CVUParsedViewDefinition") {
-						values["type"] = "view"
-						//                    values["query"] = (def as! CVUParsedViewDefinition)?.query ?? ""
-					} else if (def?.constructor?.name == "CVUParsedRendererDefinition") { values["type"] = "renderer" }
-					else if (def?.constructor?.name == "CVUParsedDatasourceDefinition") { values["type"] = "datasource" }
-					else if (def?.constructor?.name == "CVUParsedStyleDefinition") { values["type"] = "style" }
-					else if (def?.constructor?.name == "CVUParsedColorDefinition") { values["type"] = "color" }
-					else if (def?.constructor?.name == "CVUParsedLanguageDefinition") { values["type"] = "language" }
-					else if (def?.constructor?.name == "CVUParsedSessionsDefinition") { values["type"] = "sessions" }
-					else if (def?.constructor?.name == "CVUParsedSessionDefinition") { values["type"] = "session" }
-					else { throw "Exception: unknown definition" }
-
-					// Store definition
-					CacheMemri.createItem("CVUStoredDefinition", values,
-                        `selector = '${selector}' and domain = 'defaults'`);
-				}
-			})
+			parsedDefinitions = cvu.parse() // TODO: this could be optimized
 		} catch (error) {
-			if (error?.constructor?.name == "ParseErrors") {
+			if (error instanceof ParseErrors) {
 				// TODO: Fatal error handling
-				throw `Parse Error: ${error.toErrorString()}`
+				callback(`Parse Error: ${error.toErrorString()}`)
 			} else {
-				throw error
+				callback(error)
 			}
 		}
+
+		/*let validator = new CVUValidator();
+		if (!validator.validate(parsedDefinitions)) {
+			validator.debug()
+			if (validator.warnings.length > 0) {
+				for (let message of validator.warnings) { debugHistory.warn(message) }
+			}
+			if (validator.errors.length > 0) {
+				for (let message of validator.errors) { debugHistory.error(message) }
+				callback(`Exception: Errors in default view set:    \n${validator.errors.join("\n    ")}`)
+				return
+			}
+		}
+		*///TODO:
+		DatabaseController.background(true, callback,() => { // Start write transaction outside loop for performance reasons
+			// Loop over lookup table with named views
+			for (let def of parsedDefinitions) {
+				var values = new MemriDictionary({
+					"domain": "defaults",
+					"definition": def.toString(),//TODO
+				})
+
+				if (def.selector != undefined) { values["selector"] = def.selector }
+				if (def.name != undefined) { values["name"] = def.name }
+
+				let selector = def.selector
+				if (!selector) {
+					throw "Exception: selector on parsed CVU is not defined"
+				}
+
+				if (def?.constructor?.name == "CVUParsedViewDefinition") {
+					values["itemType"] = "view"
+					//                    values["query"] = (def as! CVUParsedViewDefinition)?.query ?? ""
+				} else if (def?.constructor?.name == "CVUParsedRendererDefinition") { values["itemType"] = "renderer" }
+				else if (def?.constructor?.name == "CVUParsedDatasourceDefinition") { values["itemType"] = "datasource" }
+				else if (def?.constructor?.name == "CVUParsedStyleDefinition") { values["itemType"] = "style" }
+				else if (def?.constructor?.name == "CVUParsedColorDefinition") { values["itemType"] = "color" }
+				else if (def?.constructor?.name == "CVUParsedLanguageDefinition") { values["itemType"] = "language" }
+				else if (def?.constructor?.name == "CVUParsedSessionsDefinition") { values["itemType"] = "sessions" }
+				else if (def?.constructor?.name == "CVUParsedSessionDefinition") { values["itemType"] = "session" }
+				else { throw "Exception: unknown definition" }
+
+				// Store definition
+				CacheMemri.createItem("CVUStoredDefinition", values,
+					`selector = '${selector}' and domain = 'defaults'`);
+			}
+
+			callback(undefined)
+		})
 	}
 
 	static formatDate(date, dateFormat?) {//TODO:
@@ -193,7 +198,7 @@ export class Views {
 	}
 
 	getGlobalReference(name, viewArguments) {
-		let realm = DatabaseController.getRealm()
+		let realm = DatabaseController.getRealmSync()
 		// Fetch the value of the right property on the right object
 		switch (name) {
 			case "setting":
@@ -219,7 +224,38 @@ export class Views {
 						}
 						return
 					}
-					return getItem(typeName, uid)
+					return getItem(typeName, Math.floor(uid))
+				}
+			case "debug":
+				return (args) => {
+					if (!args || args.length == 0) {
+						debugHistory.info("nil")
+						return null
+					}
+					debugHistory.info(args?.map(($0) => `${$0 ?? ""}`).join(" ") ?? "")
+					return null
+				}
+			case "min":
+				return (args) => {
+					let first = Number(args[0]) ?? 0//TODO
+					let second = Number(args[1]) ?? 0//TODO
+					return Math.min(first, second)
+				}
+			case "max":
+				return (args) => {
+					let first = Number(args[0]) ?? 0//TODO
+					let second = Number(args[1]) ?? 0//TODO
+					return Math.max(first, second)
+				}
+			case "floor":
+				return (args) => {
+					let value = Number(args[0]) ?? 0//TODO
+					return Math.floor(value)
+				}
+			case "ceil":
+				return (args) => {
+					let value = Number(args[0]) ?? 0//TODO
+					return Math.ceil(value)
 				}
 			case "me": return realm.objects("Person").filtered("ANY allEdges.type = 'me'")[0]
 			case "context": return this.context
@@ -241,6 +277,8 @@ export class Views {
 			default:
 				let value = viewArguments.get(name)
 				if (value) { return value }
+
+				debugHistory.warn(`Undefined variable ${name}`)
 				return null
 				//throw `Exception: Unknown object for property getter: ${name}`
 		}
@@ -266,7 +304,7 @@ export class Views {
 
 		if (this.recursionCounter > 4) {
 			this.recursionCounter = 0
-			throw `Exception: Recursion detected while expanding variable ${lookup}`
+			throw `Exception: Recursion detected while expanding variable ${lookup.toExprString()}`
 		}
 
 		var i = 0
@@ -276,6 +314,7 @@ export class Views {
 				if (first) {
 					// TODO: move to CVU validator??
 					if (node.list == ExprVariableList.list || node.type != ExprVariableType.propertyOrItem) {
+						this.recursionCounter = 0
 						throw "Unexpected edge lookup. No source specified"
 					}
 
@@ -341,10 +380,12 @@ export class Views {
 							case "lowercased": value = v.toLowerCase(); break
 							case "camelCaseToWords": value = v.camelCaseToWords(); break//TODO
 							case "plural": value = v + "s"; break;
-							case "firstUppercased": value = v.firstUppercased(); break
-							case "plainString": value = v/*.strippingHTMLtags()*/; //TODO: strip html tags
+							case "firstUppercased": value = v.capitalizingFirst(); break
+							case "plainString": value = v/*.strippingHTMLtags()*/; break //TODO: strip html tags
+							case "count": value = v.length; break
 							default:
 								// TODO: Warn
+								debugHistory.warn(`Could not find property ${node.name} on string`)
 								break
 						}
 					} else if (value?.constructor?.name == "Date") {
@@ -381,15 +422,43 @@ export class Views {
 							case "first": value = v[0]; break
 							case "last": value = v[v.length - 1]; break
 							//                        case "sum": value = v.sum; break
-							case "min": value = v.min; break//TODO
-							case "max": value = v.max; break//TODO
+							// case "min": value = v.min; break//TODO
+							// case "max": value = v.max; break//TODO
+							case "items": value = v.items(); break
+							// #warning("Add sort")
 							default:
 								// TODO: Warn
 								debugHistory.warn(`Could not find property ${node.name} on list of edge`)
 								break
 						}
-					} else if (v?.constructor?.name == "RealmObjects.ListBase") {//TODO
-						switch (node) {
+					}
+					else if (v?.constructor?.name == "RealmSwift.Results<Item>") {//TODO
+						switch (node.name) {
+							case "count": value = v.length; break
+							case "first": value = v[0]; break
+							case "last": value = v[v.length - 1]; break
+							// #warning("Add sort")
+							default:
+								// TODO: Warn
+								debugHistory.warn(`Could not find property ${node.name} on list of items`);
+								break
+						}
+					}
+					else if (Array.isArray(v)) {
+						switch (node.name) {
+							case "count": value = v.length; break
+							case "first": value = v[0]; break
+							case "last": value = v[v.length - 1]; break
+							// #warning("Add sort")
+							default:
+								// TODO: Warn
+								debugHistory.warn(`Could not find property ${node.name} on list`);
+								break
+						}
+					}
+
+					else if (v?.constructor?.name == "RealmObjects.ListBase") {//TODO
+						switch (node.name) {
 							case "count": value = v.length; break//TODO
 							default:
 								// TODO: Warn
@@ -401,15 +470,17 @@ export class Views {
 					}
 					// CascadingRenderer??
 					else if (v?.constructor?.name == "RealmObject") {//TODO:
-						if (v[node] == null) {
+						if (v[node.name] == null) {
 							// TODO: error handling
 							this.recursionCounter = 0
-							throw `No variable with name ${node}`
+							throw `No variable with name ${node.name}`
 						} else {
-							value = v[node] // How to handle errors?
+							value = v[node.name] // How to handle errors?
 						}
-					} else if (typeof v == "object") {//Subscriptable
-						value = v[node.name]
+					}
+					else if (`${value ?? ""}` != "undefined"/*TODO*/) { //#warning("Fix Any issue")
+						this.recursionCounter = 0
+						throw `Unexpected fetch ${node.name} on ${value}`
 					}
 				}
 			}
@@ -452,8 +523,9 @@ export class Views {
 		if (f /*as? ([Any?]?) -> Any*/) {//TODO
 			if (typeof f == "function") {
 				return f(args);
-			} else {
-				throw `Could not find function to execute: ${lookup.toString()}`
+			}
+			else if (`${f}` != "undefined"/*TODO*/) { //#warning("Temporary hack to detect nil that is not nil — .dateAccessed.format where .dateAccessed is nil")
+				throw `Could not find function to execute: ${lookup.toExprString()}`
 			}
 		}
 
@@ -467,15 +539,18 @@ export class Views {
 
 		if (selector) { filter.push(`selector = '${selector}'`) }
 		else {
-			if (type) { filter.push(`type = '${type}'`) }
+			if (type) { filter.push(`itemType = '${type}'`) }
 			if (name) { filter.push(`name = '${name}'`) }
 			if (query) { filter.push(`query = '${query}'`) }
 		}
 
 		if (domain) { filter.push(`domain = '${domain}'`) }
 
-		return DatabaseController.read((item) => item.objects("CVUStoredDefinition")
-			.filtered(filter.join(" AND ")).map ( (def) => { return (def["_type"] == "CVUStoredDefinition")? def: undefined}) )  ?? []//TODO
+		return DatabaseController.current(false, undefined, (item) =>
+				item.objects("CVUStoredDefinition")
+					.filtered(filter.join(" AND "))
+					.map ( (def) => (def["_type"] == "CVUStoredDefinition") ? def: undefined)
+		)  ?? []//TODO
 	}
 
 	// TODO: REfactor return list of definitions
@@ -527,9 +602,9 @@ export class Views {
 	/// Takes a stored definition and fetches the view definition or when its a session definition, the currentView of that session
 	getViewStateDefinition(stored: CVUStoredDefinition) {
 		var view: CVUStateDefinition
-		if (stored.type == "view") {
+		if (stored.itemType == "view") {
 			view = CVUStateDefinition.fromCVUStoredDefinition(stored)
-		} else if (stored.type == "session") {
+		} else if (stored.itemType == "session") {
 			let parsed = this.parseDefinition(stored);
 			if (!parsed) {
 				throw "Unable to parse state definition"
@@ -587,7 +662,7 @@ export class Views {
 			if (viewOverride) {
 				let viewDefinition = context.views.fetchDefinitions(viewOverride)[0]
 				if (viewDefinition) {
-					if (viewDefinition.type == "renderer") {
+					if (viewDefinition.itemType == "renderer") {
 						let parsed = context.views.parseDefinition(viewDefinition)
 						if (parsed && parsed?.constructor?.name == "CVUParsedRendererDefinition") {
 							if (parsed.get("children") != undefined) { cascadeStack.push(parsed) }
@@ -597,10 +672,10 @@ export class Views {
 						} else {
 							throw `Exception: View definition is missing: ${viewOverride}`
 						}
-					} else if (viewDefinition.type == "view") {
+					} else if (viewDefinition.itemType == "view") {
 						searchForRenderer(viewDefinition)
 					} else {
-						throw `Exception: incompatible view type of ${viewDefinition.type ?? ""}, expected renderer or view`
+						throw `Exception: incompatible view type of ${viewDefinition.itemType ?? ""}, expected renderer or view`
 					}
 				} else {
 					throw `Exception: Could not find view to override: ${viewOverride}`

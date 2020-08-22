@@ -11,7 +11,7 @@ import {UIElement, UIElementFamily} from "./UIElement";
 import {Cascadable} from "./Cascadable";
 import {registerListRenderer} from "../../gui/renderers/ListRendererView";
 import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
-import {Item} from "../../model/items/Item";
+import {Item, UUID} from "../../model/items/Item";
 import {FilterPanelRendererButton} from "./Action";
 import {UIElementView} from "../../gui/common/UIElementView";
 import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
@@ -59,6 +59,8 @@ export class Renderers {
         // registerCalendarRenderer()
         registerMessageRenderer()
         registerPhotoViewerRenderer()
+        // registerFileViewerRenderer()
+        // registerEmailRenderers()
     }
     
     get tuples() {
@@ -109,6 +111,9 @@ export class CascadingRenderConfig extends Cascadable {
     ) {
         super(head, tail, host)
     }
+
+    // Used for ui purposes. Random value that doesn't need to be persisted
+    ui_UUID = UUID()
     
     hasGroup(group) {
         let x = this.cascadeProperty(group)
