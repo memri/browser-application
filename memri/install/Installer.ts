@@ -6,10 +6,12 @@
 //
 
 
-import {MemriContext, RootContext} from "../context/MemriContext";
+import {MemriContext} from "../context/MemriContext";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {DatabaseController} from "../storage/DatabaseController";
 import {CacheMemri} from "../model/Cache";
+import {settings} from "../model/Settings";
+import {Authentication} from "../api/Authentication";
 
 export class Installer {
 	isInstalled: boolean = false
@@ -18,38 +20,157 @@ export class Installer {
 	readyCallback;
 
 	constructor() {
-		let realm = DatabaseController.getRealm()
-		if (realm.objectForPrimaryKey("AuditItem", -2)) {
-			this.isInstalled = true
-		}
 		//this.debugMode = CrashObserver.shared.didCrashLastTime
 	}
 
-	await(callback) {
-		if (this.isInstalled && !this.debugMode) {
-			callback()
-			return
+	await(context: MemriContext, callback) {
+		let authAtStartup = settings.get("device/auth/atStartup") ?? true
+
+		let check = () => {
+			if (settings.get("memri/installed")) {
+				this.isInstalled = true
+
+				if (!this.debugMode) {
+					this.ready(context)
+				}
+			}
 		}
 
 		this.readyCallback = callback
+
+		if (authAtStartup) {
+			Authentication.authenticateOwner((error) => {
+				if (error) {
+					throw `Unable to authenticate ${error}` // TODO report to user allow retry
+				}
+
+				check()
+			})
+		} else {
+			check()
+		}
 	}
 
-	ready() {
+	ready(context:MemriContext) {
 		this.isInstalled = true
 
-		DatabaseController.writeSync((realm) => {
-			realm.create("AuditItem", {"uid": -2}, ".modified")
-		});
+		settings.set("memri/installed", Date()); //TODO: LocalSetting
 
 		try {
 			this.readyCallback()
 			this.readyCallback = {}
+			context.scheduleUIUpdate()
 		} catch (error) {
 			debugHistory.error(`${error}`)
 		}
 	}
 
-	installForTesting(boot = true) {
+	installLocalAuthForNewPod(context: MemriContext, areYouSure: boolean, host: string, callback) {
+
+		DatabaseController.deleteDatabase((error) => {
+			try {
+				if (error) {
+					throw `${error}`
+				}
+
+				Authentication.createRootKey(areYouSure)
+
+				this.installDefaultDatabase(context, (error) => {
+					if (error) {
+						// TODO Error Handling - show to the user
+						debugHistory.warn(`${error}`)
+						callback(error)
+						return
+					}
+
+					//DispatchQueue.main.async {
+					if (error) {
+						// TODO Error Handling - show to the user
+						debugHistory.warn(`${error}`)
+						callback(error)
+						return
+					}
+
+					try {
+						//console.log(`KEY: ${Authentication.getPublicRootKeySync().hexEncodedString(".upperCase")}`) //TODO?
+
+						Authentication.createOwnerAndDBKey()
+					} catch {
+						callback(error)
+					}
+
+					settings.set("user/pod/host", host)
+					this.ready(context)
+					context.cache.sync.schedule()
+
+					callback(undefined)
+					//}
+				})
+			} catch {
+				callback(error)
+			}
+		})
+	}
+
+	installLocalAuthForExistingPod(context: MemriContext, areYouSure: boolean, host: string, privateKey: string, publicKey: string, dbKey: string, callback) {
+
+		DatabaseController.deleteDatabase((error) => {
+			try {
+				if (error) {
+					callback(error)
+					throw `Unable to authenticate: ${error}`
+				}
+
+				context.podAPI.host = host
+
+				Authentication.createRootKey(areYouSure)
+
+				context.cache.sync.syncAllFromPod(() => { // TODO error handling
+					settings.set("user/pod/host", host)
+
+					try {
+						Authentication.setOwnerAndDBKey(privateKey, publicKey, dbKey);
+					} catch {
+						callback(error)
+					}
+
+					this.ready(context)
+
+					callback(undefined)
+				})
+			} catch {
+				callback(error)
+			}
+		})
+	}
+
+	installLocalAuthForLocalInstallation(context: MemriContext, areYouSure: boolean, callback) {
+
+		DatabaseController.deleteDatabase((error) => {
+			try {
+				if (error) {
+					throw `Unable to authenticate: ${error}`
+				}
+
+				Authentication.createRootKey(areYouSure)
+
+				this.installDefaultDatabase(context, (error) => {
+					if (error) {
+						// TODO Error Handling - show to the user
+						debugHistory.warn(`${error}`)
+						callback(error)
+					}
+					this.ready(context)
+
+					callback(undefined)
+				})
+			} catch {
+				callback(error)
+			}
+		})
+	}
+
+	/*installForTesting(boot = true) { //TODO:
 		if (!this.isInstalled) {
 			let root = new RootContext("", "");
 
@@ -61,234 +182,93 @@ export class Installer {
 
 			this.installDefaultDatabase(root)
 		}
+	}*/
+
+	handleInstallError(error) {
+		// TODO ERror handling - report to the user
+		debugHistory.warn(`${error!}`)
 	}
 
-	installDefaultDatabase(context: MemriContext) {
+	installDefaultDatabase(context: MemriContext, callback) {
 		debugHistory.info("Installing defaults in the database")
-
-		try {
-			this.install(context, "default_database")
-		} catch (error) {
-			debugHistory.error(`Unable to load: ${error}`)
-		}
+		this.install(context, "default_database", callback)
 	}
 
-	installDemoDatabase(context: MemriContext) {
+	installDemoDatabase(context: MemriContext, callback) {
 		debugHistory.info("Installing demo database")
-
-		try {
-			this.install(context, "demo_database")
-		} catch (error) {
-			debugHistory.error(`Unable to load: ${error}`)
-		}
+		this.install(context, "demo_database", callback)
 	}
 
-	install(context: MemriContext, dbName: string) {
-		// Load default objects in database
-		context.cache.install(dbName)
+	install(context: MemriContext, dbName: string, callback) {
+		try {
+			// Load default objects in database
+			context.cache.install(dbName, (error) => {
+				if (error) {
+					callback(error)
+					return
+				}
 
-		// Load default views in database
-		context.views.context = context
-		context.views.install()
+				// Load default views in database
+				context.views.context = context
+				context.views.install(undefined, (error) => {
+					if (error) {
+						callback(error)
+						return
+					}
 
-		// Load default sessions in database
-		context.sessions.install(context)
+					// Load default sessions in database
+					context.sessions.install(context, (error) => {
+						if (error) {
+							callback(error)
+							return
+						}
 
-		// Installation complete
-		DatabaseController.writeSync((realm) => {
-			realm.create("AuditItem", {
-				"uid": -2,
-				action: "install",
-				dateCreated: new Date(),
-				contents: JSON.stringify({version: "1.0"})
+						// Installation complete
+						settings.set("memri/installed", Date()) //TODO:
+
+						callback(undefined)
+					})
+				})
 			})
-		})
-
-		this.ready();
+		} catch (error) {
+			callback(error)
+		}
 	}
 
 	continueAsNormal(context: MemriContext) {
 		this.debugMode = false
-		context.scheduleUIUpdate(true)
+		this.ready(context)
 	}
 
-	clearDatabase(context: MemriContext) {
-		DatabaseController.writeSync((realm) => {
+	clearDatabase(context: MemriContext, callback) {
+		DatabaseController.current(true,(realm) => {
 			realm.deleteAll()
-		})
 
-		this.isInstalled = false
-		this.debugMode = false
-		context.scheduleUIUpdate(true)
+			CacheMemri.cacheUIDCounter = -1
+
+			this.isInstalled = false
+			this.debugMode = false
+			context.scheduleUIUpdate()
+
+			callback(undefined)
+		})
 	}
 
-	clearSessions(context: MemriContext) {
-		DatabaseController.writeSync(() => {
+	clearSessions(context: MemriContext, callback) {
+		DatabaseController.current(true, callback, () => {
 			// Create a new default session
-			context.sessions.install(context)
-		})
+			context.sessions.install(context, (error) => {
+				if (error) {
+					// TODO Error Handling - show to the user
+					debugHistory.warn(`${error}`)
+					callback(error)
+					return
+				}
 
-		this.debugMode = false
-		this.ready()
+				this.debugMode = false
+				this.ready(context)
+				callback(undefined)
+			})
+		})
 	}
 }
-
-/*struct SetupWizard: View {
-	@EnvironmentObject var context: MemriContext
-
-	@State var host: String = "http://localhost:3030"
-	@State var username: String = ""
-	@State var password: String = ""
-
-	var body: some View {
-		NavigationView {
-			Form {
-				if !context.installer.isInstalled && !context.installer.debugMode {
-					Text("Setup Wizard")
-						.font(.system(size: 22, weight: .bold))
-
-					Section(
-						header: Text("Connect to a pod")
-				) {
-						NavigationLink(destination: Form {
-							Section(
-								header: Text("Pod Connection"),
-								footer: Text("Never give out these details to anyone")
-								.font(.system(size: 11, weight: .regular))
-						) {
-								HStack {
-									Text("Host:")
-										.frame(width: 100, alignment: .leading)
-									MemriTextField(value: $host)
-								}
-								HStack {
-									Text("Username:")
-										.frame(width: 100, alignment: .leading)
-									MemriTextField(value: $username)
-								}
-								HStack {
-									Text("Password:")
-										.frame(width: 100, alignment: .leading)
-									SecureField("Password", text: $password)
-								}
-								HStack {
-									Button(action: {
-										if self.host != "" {
-//                                            self.context.installer.clearDatabase(self.context)
-											self.context.installer
-												.installDefaultDatabase(self.context)
-											Settings.shared.set("user/pod/host", self.host)
-											Settings.shared.set("user/pod/username", self.username)
-											Settings.shared.set("user/pod/password", self.password)
-											self.context.cache.sync.schedule()
-										}
-									}) {
-										Text("Connect")
-									}
-								}
-							}
-						}) {
-							Text("Connect to a new pod")
-						}
-						NavigationLink(destination: Form {
-							Section(
-								header: Text("Pod Connection"),
-								footer: Text("Never give out these details to anyone")
-								.font(.system(size: 11, weight: .regular))
-						) {
-								HStack {
-									Text("Host:")
-										.frame(width: 100, alignment: .leading)
-									MemriTextField(value: $host)
-								}
-								HStack {
-									Text("Username:")
-										.frame(width: 100, alignment: .leading)
-									MemriTextField(value: $username)
-								}
-								HStack {
-									Text("Password:")
-										.frame(width: 100, alignment: .leading)
-									SecureField("Password", text: $password)
-								}
-								HStack {
-									Button(action: {
-										if self.host != "" {
-											self.context.podAPI.host = self.host
-											self.context.podAPI.username = self.username
-											self.context.podAPI.password = self.password
-
-											self.context.cache.sync.syncAllFromPod {
-												Settings.shared.set("user/pod/host", self.host)
-												Settings.shared.set(
-													"user/pod/username",
-													self.username
-												)
-												Settings.shared.set(
-													"user/pod/password",
-													self.password
-												)
-												self.context.installer.ready()
-											}
-										}
-									}) {
-										Text("Connect")
-									}
-								}
-							}
-						}) {
-							Text("Connect to an existing pod")
-						}
-					}
-					Section(
-						header: Text("Or use Memri locally")
-				) {
-						Button(action: {
-							self.context.settings.set("user/pod/host", "")
-							self.context.installer.installDefaultDatabase(self.context)
-						}) {
-							Text("Use memri without a pod")
-						}
-						Button(action: {
-							self.context.settings.set("user/pod/host", "")
-							self.context.installer.installDemoDatabase(self.context)
-						}) {
-							Text("Play around with the DEMO database")
-						}
-//                        Button(action: {
-//                            fatalError()
-//                        }) {
-//                            Text("Simulate a hard crash")
-//                        }
-					}
-				}
-				if context.installer.debugMode {
-					Text("Recovery Wizard")
-						.font(.system(size: 22, weight: .bold))
-
-					Section(
-						header: Text("Memri crashed last time. What would you like to do?")
-				) {
-						Button(action: {
-							self.context.installer.continueAsNormal(self.context)
-						}) {
-							Text("Continue as normal")
-						}
-						Button(action: {
-							self.context.installer.clearDatabase(self.context)
-						}) {
-							Text("Delete the local database and start over")
-						}
-						if context.installer.isInstalled {
-							Button(action: {
-								self.context.installer.clearSessions(self.context)
-							}) {
-								Text("Clear the session history (to recover from an issue)")
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}*/

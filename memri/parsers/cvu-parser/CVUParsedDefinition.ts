@@ -109,11 +109,11 @@ export class CVUParsedDefinition {
             } else if (notnil?.constructor?.name == "CVUParsedDefinition") {
                 let def = notnil;
                 def.parsed = recur(def.parsed);
-            } else if (notnil?.constructor?.name == "UIElement") {
+            } else if (notnil?.constructor?.name == "UIElement") { //TODO: MemtriDictionary?
                 let el = notnil;
-                let dict = recur(el.properties);
+                let dict = recur(el.propertyResolver.properties);
                 if (typeof dict.isCVUObject == "function") {
-                    el.properties = dict
+                    el.propertyResolver.properties = dict
                 }
             }
             return notnil
@@ -130,26 +130,24 @@ export class CVUParsedDefinition {
         }
         for (let [key, value] of Object.entries(dict)) {
             if (key == "userState" || key == "viewArguments") {
-                /*if (this.parsed == undefined) {
-                    this.parsed = {}
-                }*/
-                let cascadableDict = this.parsed[key];
-                if (cascadableDict?.constructor?.name == "CascadableDict") {
-                    cascadableDict.deepMerge(value);
-                } else if (value?.constructor?.name == "CascadableDict") {//TODO???
-                    this.parsed[key] = value.copy() //CascadablaDict
+                if (value instanceof CVUParsedObjectDefinition) {
+                    let parsedObject = this.parsed[key];
+                    if (parsedObject instanceof CVUParsedObjectDefinition) {
+                        parsedObject.mergeValuesWhenNotSet(value);
+                        this.parsed[key] = parsedObject;
+                    }
+                    else {
+                        this.parsed[key] = new CVUParsedObjectDefinition(value.parsed);
+                    }
                 }
             } else if (this.parsed[key] == undefined) {
-                /*if (this.parsed == undefined) {
-                    this.parsed = {}
-                }*/
                 this.parsed[key] = value;
-            } else if (value?.constructor?.name == "CVUParsedDefinition") {
+            } else if (value instanceof CVUParsedDefinition) {
                 (this.parsed[key])?.mergeValuesWhenNotSet(value)
-            } else if (Array.isArray(value) && value.length > 0 && value[0]?.constructor?.name == "CVUParsedDefinition") {
+            } else if (Array.isArray(value) && value.length > 0 && value[0] instanceof CVUParsedDefinition) {
                 let list = value;
                 var localList = this.parsed[key];
-                if (Array.isArray(localList) && localList.length > 0 && localList[0]?.constructor?.name == "CVUParsedDefinition") {
+                if (Array.isArray(localList) && localList.length > 0 && localList[0] instanceof CVUParsedDefinition) {
                     for (let def of list) {
                         var found = false;
                         for (let localDef of localList) {

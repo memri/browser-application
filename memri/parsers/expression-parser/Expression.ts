@@ -52,31 +52,28 @@ export class Expression {
             let lastProperty = sequence.pop()
             if (lastProperty?.constructor?.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence);
-                let lookupValue =  this.lookup(lookupNode, null)
+                let lookupValue = this.lookup(lookupNode, null)
 
-                let context = this.context;
-                if (context) {
-                    let obj = lookupValue;
-                    if (obj?.constructor?.name == "UserState") {
-                        obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
-                        return
-                    } else if (obj?.constructor?.name == "Object") { //TODO: RealmObject maybe? Or another check
-                        let name = lastProperty.name
+                let obj = lookupValue;
+                if (obj?.constructor?.name == "UserState") {
+                    obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
+                    return
+                } else if (obj?.constructor?.name == "Object") { //TODO: RealmObject maybe? Or another check
+                    let name = lastProperty.name
 
-                        if (obj.objectSchema[name]?.type != "boolean") {
-                            throw `'${name}' is not a boolean property`
-                        }
-
-                        DatabaseController.writeSync (function() {
-                            obj[name] = !(typeof obj[name] === "boolean" ?? false)
-                        })
-                        return
+                    if (obj.objectSchema[name]?.type != "boolean") {
+                        throw `'${name}' is not a boolean property`
                     }
-                    else if (typeof obj.subscript == "function") {
-                        obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
-                        return
-                    }
+
+                    DatabaseController.write(undefined,function () {
+                        obj[name] = !(typeof obj[name] === "boolean" ?? false)
+                    })
+                    return
+                } else if (typeof obj.subscript == "function") {
+                    obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
+                    return
                 }
+
             }
         }
 

@@ -22,7 +22,7 @@ export class ItemReference {
 		let uid = to.uid;
 		let type = to.getType();
 		if (!uid || !type || to.realm == undefined) {
-			fatalError("Trying to get a reference to an item that is not in realm or has no uid"); //TODO:
+			throw "Trying to get a reference to an item that is not in realm or has no uid"; //TODO:
 		}
         this.uid = uid
         this.type = type
@@ -49,7 +49,7 @@ class EdgeReference {
 		let targetItemID = to.targetItemID;
 		let sourceItemID = to.sourceItemID;
 		if (!type || !targetItemID || !sourceItemID) {
-			fatalError("Trying to get a reference to an edge that is not in realm or has no uid")
+			throw "Trying to get a reference to an edge that is not in realm or has no uid"
 		}
         this.type = type;
 		this.sourceItemID = sourceItemID;
@@ -69,9 +69,9 @@ class EdgeReference {
 }
 
 export class DatabaseController {
-	constructor() {}
-	
 	static realmTesting = false
+
+	constructor() {}
 
 	/*static get realmConfig(): Realm.Configuration {
 		return {
@@ -254,7 +254,10 @@ export class DatabaseController {
 	}
 
 	/// Execute a realm based function on a background thread
-	static background(write = false, error = this.globalErrorHandler, exec) { //TODO:
+	static background(write = false, error, exec) { //TODO:
+		if (error == undefined) {
+			error = this.globalErrorHandler;
+		}
 		this.realmQueue.async(() => {
 			/*autoreleasepool {*/
             this.current(write, error, exec);

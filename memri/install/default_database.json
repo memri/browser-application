@@ -1,0 +1,2977 @@
+[
+    {
+        "_type": "Setting",
+        "key": "defaults/general/gui/showEditButton",
+        "value": true
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/general/gui/showDateAgo",
+        "value": true
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/general/gui/useMapBox",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/sensors/location/track",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/formatting/date",
+        "value": "yyyy/MM/dd HH:mm"
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/formatting/time",
+        "value": "HH:mm"
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/pod/host",
+        "value": "http://localhost:3030"
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/debug/autoShowErrorConsole",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/debug/autoReloadCVU",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/auth/atStartup",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/upload/cellular",
+        "value": false
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "heading",
+        "title": "Inbox"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "inbox",
+        "sessionName": "inbox"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "messages",
+        "sessionName": "all-messages"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "message channels",
+        "sessionName": "all-message-channels"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "email",
+        "sessionName": "all-email-messages"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "heading",
+        "title": "General"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "notes",
+        "sessionName": "all-notes"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "people",
+        "sessionName": "all-people"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "photos",
+        "sessionName": "all-photos"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "addresses",
+        "sessionName": "all-addresses"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "log",
+        "sessionName": "all-audit-items"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "labels",
+        "sessionName": "all-labels"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "sessions",
+        "sessionName": "all-sessions"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "importers",
+        "sessionName": "all-importers"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "importer instances",
+        "sessionName": "all-importer-instances"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "indexers",
+        "sessionName": "all-indexers"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "indexer instances",
+        "sessionName": "all-indexer-instances"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "views",
+        "sessionName": "all-sessionviews"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "locations",
+        "sessionName": "all-locations"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "crypto keys",
+        "sessionName": "all-cryptokeys"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "heading",
+        "title": "Macros"
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "starred",
+        "sessionName": "filter-starred"
+    },
+    {
+        "_type": "Importer",
+        "name": "iCloud notes",
+        "datatype": "Note",
+        "icon": "cloud"
+    },
+    {
+        "_type": "Importer",
+        "name": "Evernote notes",
+        "datatype": "Note",
+        "bundleImage": "evernote-icon"
+    },
+    {
+        "_type": "Importer",
+        "name": "Gmail",
+        "datatype": "Email",
+        "bundleImage": "envelope"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Geolocation indexer",
+        "indexerClass": "GeoIndexer",
+        "itemDescription": "Enriches datatypes with geographic coordinates with their corresponding cities and countries",
+        "icon": "mappin.and.ellipse"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Note Label Indexer",
+        "query": "Note",
+        "runDestination": "ios",
+        "itemDescription": "This indexer extracts labels from notes. You can specify aliases in the labels to add keywords that are used to match against.",
+        "icon": "tag"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Note List Indexer",
+        "query": "Note",
+        "indexerClass": "NotesListIndexer",
+        "itemDescription": "This indexer extracts lists from notes. It detects both structured and unstructured lists",
+        "icon": "text.badge.plus"
+    },
+    {
+        "_type": "Note",
+        "title": "Note1",
+        "content": "My phone number is +31-655-5995-48. Although it is a randomly generated phone-number.",
+        "icon": "mappin.and.ellipse"
+    },
+    {
+        "_type": "Note",
+        "title": "Note2",
+        "content": "Take control of your data.<br/>Visit memri.io to find out more!",
+    },
+    {
+        "_type": "Photo",
+        "uid": 79200,
+        "width": 1000,
+        "height": 1500,
+        "caption": "A bridge at night",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "ave-calvar-ukuIJ6ReFms-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1482,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "karen-penroz-06ZTGDcAQFs-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1500,
+        "caption": "Lavender",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "katarzyna-korobczuk-pwUjBdc5U9c-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1333,
+        "caption": "Coffee is the answer!",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "szabo-viktor-tarTTEaiIx4-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0001"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1591765257000,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0002"
+                }
+            }
+        ]
+    },
+    {
+        "uid": 500,
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1592283657000,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0003"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1592483657000,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0004"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1591183657000,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0005"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1591981657000,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0006"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1590561657000,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0007"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0008"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0009"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0010"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0011"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0012"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0013"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0014"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0015"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0016"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0017"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0018"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0019"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0020"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0021"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0022"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0023"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0024"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0025"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0026"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0027"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0028"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0029"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0030"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0031"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0032"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0033"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0034"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0035"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0036"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0037"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0038"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0039"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0040"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0041"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Arnold_Schwarzenegger_0042"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 501,
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Michael_Douglas_0005"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 502,
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "Norah_Jones_0007"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Label",
+        "uid": 1000,
+        "name": "Green house",
+        "color": "#047a0a",
+        "aliases": [
+            "green house",
+            "green-house"
+        ]
+    },
+    {
+        "_type": "Label",
+        "uid": 1001,
+        "name": "Soccer team",
+        "color": "#83ac06"
+    },
+    {
+        "_type": "Label",
+        "uid": 1002,
+        "name": "Friends from University",
+        "color": "#ffd966"
+    },
+    {
+        "_type": "Label",
+        "uid": 1015,
+        "name": "Daily Log",
+        "color": "#83ac06",
+        "comment": "Stuff I write about daily"
+    },
+    {
+        "_type": "Label",
+        "uid": 1016,
+        "name": "Polis",
+        "color": "#ffd966",
+        "comment": "Everything about polis"
+    },
+    {
+        "_type": "Label",
+        "uid": 1017,
+        "name": "Government",
+        "color": "#835506"
+    },
+    {
+        "_type": "PhoneNumber",
+        "itemType": "mobile",
+        "uid": 1003,
+        "phoneNumber": "0654271340"
+    },
+    {
+        "_type": "Website",
+        "uid": 1004,
+        "itemType": "blog",
+        "url": "www.revolutionairyblog.com"
+    },
+    {
+        "_type": "Website",
+        "uid": 1005,
+        "itemType": "website",
+        "url": "www.eagleve.com"
+    },
+    { "_type": "Organization", "uid": 1006, "itemType": "company", "name": "eagle solutions" },
+    {
+        "_type": "CryptoKey",
+        "uid": 1007,
+        "name": "PGP Email",
+        "key": "A999 B749 8D1A 8DC4 73E5 3C92 309F 635D AD1B 5517",
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 2,
+                "_type": "owner"
+            }
+        ]
+    },
+    {
+        "_type": "CryptoKey",
+        "uid": 1007,
+        "name": "PGP Email",
+        "active": true,
+        "key": "A999 B749 8D1A 8DC4 73E5 3C92 309F 635D AD1B 5517",
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 1,
+                "_type": "owner"
+            }
+        ]
+    },
+    { "_type": "Network", "uid": 9996, "name": "Email" },
+    { "_type": "Network", "uid": 9997, "name": "Whatsapp" },
+    { "_type": "Network", "uid": 9998, "name": "Twitter" },
+    { "_type": "Network", "uid": 9999, "name": "Facebook" },
+    { "_type": "Account", "uid": 1008, "itemType": "twitter", "handle": "@eagleve91",
+        "allEdges": [
+            {"_type":"network", "targetType": "Network", "uid": 9998}
+        ]
+    },
+    { "_type": "Account", "uid": 1009, "itemType": "facebook", "handle": "@eagleve2393",
+        "allEdges": [
+            {"_type":"network", "targetType": "Network", "uid": 9999}
+        ]
+    },
+    {
+        "_type": "Diet",
+        "uid": 1010,
+        "itemType": "Vegan",
+        "additions": "egg"
+    },
+    {
+        "_type": "Diet",
+        "uid": 1011,
+        "itemType": "Gluten Free",
+        "additions": "sourdough"
+    },
+    {
+        "_type": "MedicalCondition",
+        "uid": 1012,
+        "itemType": "Psoriasis"
+    },
+    {
+        "_type": "Address",
+        "uid": 1013,
+        "itemType": "Home",
+        "city": "Washington, DC",
+        "state": "NW",
+        "street": "1600 Pennsylvania Ave",
+        "postalCode": "20500",
+        "allEdges": [
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            },
+            {
+                "_type": "country",
+                "targetType": "Country",
+                "uid": 1401
+            }
+        ]
+    },
+    {
+        "_type": "Address",
+        "uid": 1014,
+        "itemType": "Work",
+        "city": "Paris",
+        "state": "",
+        "street": "45 Rue de la plage",
+        "postalCode": "EL29",
+        "allEdges": [
+            {
+                "_type": "country",
+                "targetType": "Country",
+                "uid": 1402
+            }
+        ]
+    },
+    {
+        "_type": "Address",
+        "uid": 100013,
+        "itemType": "Indexer example",
+        "allEdges": [
+            {
+                "_type": "location",
+                "targetType": "Location",
+                "uid": 100017
+            },
+        ]
+    },
+    {
+        "_type": "Location",
+        "uid": 100017,
+        "latitude": -37.81,
+        "longitude": 144.96
+    },
+    {
+        "uid": 3,
+        "_type": "Person",
+        "firstName": "Eve",
+        "lastName": "Eagle",
+        "birthDate": 793777745298,
+        "starred": true,
+        "height": 185,
+        "shoulderWidth": 42,
+        "armLength": 73,
+        "allEdges": [
+            {
+                "_type": "me",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 500
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1000
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1001
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1002
+            },
+            {
+                "_type": "hasPhoneNumber",
+                "targetType": "PhoneNumber",
+                "uid": 1003
+            },
+            {
+                "_type": "website",
+                "targetType": "Website",
+                "uid": 1004
+            },
+            {
+                "_type": "website",
+                "targetType": "Website",
+                "uid": 1005
+            },
+            {"_type":"company", "targetType": "Organization", "uid": 1006, "label": "freelance"},
+            {
+                "_type": "cryptoKey",
+                "targetType": "CryptoKey",
+                "uid": 1007
+            },
+            {"_type":"account", "targetType": "Account", "uid": 1008},
+            {"_type":"account", "targetType": "Account", "uid": 1009},
+            {
+                "_type": "diet",
+                "targetType": "Diet",
+                "uid": 1010
+            },
+            {
+                "_type": "diet",
+                "targetType": "Diet",
+                "uid": 1011
+            },
+            {
+                "_type": "medicalCondition",
+                "targetType": "MedicalCondition",
+                "uid": 1012
+            },
+            {
+                "_type": "address",
+                "edgeLabel": "Home",
+                "targetType": "Address",
+                "uid": 1013
+            },
+            {
+                "_type": "address",
+                "edgeLabel": "Holiday home in France",
+                "targetType": "Address",
+                "uid": 1014
+            },
+        ],
+        "version": 1
+    },
+    {
+        "uid": 2,
+        "_type": "Person",
+        "firstName": "Bob",
+        "lastName": "Brown",
+        "birthDate": 543777745298,
+        "height": 197,
+        "shoulderWidth": 64,
+        "armLength": 91,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 501
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            },
+        ],
+        "version": 1
+    },
+    {
+        "uid": 1,
+        "_type": "Person",
+        "firstName": "Alice",
+        "lastName": "Awesome",
+        "birthDate": 890775545298,
+        "height": 141,
+        "shoulderWidth": 38,
+        "armLength": 65,
+        "dateCreated": 1593777745298,
+        "starred": true,
+        "allEdges": [
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 502
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            },
+        ],
+        "version": 1
+    },
+    {
+        "name": "Afghanistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Akrotiri",
+        "_type": "Country"
+    },
+    {
+        "name": "Albania",
+        "_type": "Country"
+    },
+    {
+        "name": "Algeria",
+        "_type": "Country"
+    },
+    {
+        "name": "American Samoa",
+        "_type": "Country"
+    },
+    {
+        "name": "Andorra",
+        "_type": "Country"
+    },
+    {
+        "name": "Angola",
+        "_type": "Country"
+    },
+    {
+        "name": "Anguilla",
+        "_type": "Country"
+    },
+    {
+        "name": "Antarctica",
+        "_type": "Country"
+    },
+    {
+        "name": "Antigua and Barbuda",
+        "_type": "Country"
+    },
+    {
+        "name": "Argentina",
+        "_type": "Country"
+    },
+    {
+        "name": "Armenia",
+        "_type": "Country"
+    },
+    {
+        "name": "Aruba",
+        "_type": "Country"
+    },
+    {
+        "name": "Ashmore and Cartier Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Australia",
+        "_type": "Country"
+    },
+    {
+        "name": "Austria",
+        "_type": "Country"
+    },
+    {
+        "name": "Azerbaijan",
+        "_type": "Country"
+    },
+    {
+        "name": "Bahamas, The",
+        "_type": "Country"
+    },
+    {
+        "name": "Bahrain",
+        "_type": "Country"
+    },
+    {
+        "name": "Bangladesh",
+        "_type": "Country"
+    },
+    {
+        "name": "Barbados",
+        "_type": "Country"
+    },
+    {
+        "name": "Bassas da India",
+        "_type": "Country"
+    },
+    {
+        "name": "Belarus",
+        "_type": "Country"
+    },
+    {
+        "name": "Belgium",
+        "_type": "Country"
+    },
+    {
+        "name": "Belize",
+        "_type": "Country"
+    },
+    {
+        "name": "Benin",
+        "_type": "Country"
+    },
+    {
+        "name": "Bermuda",
+        "_type": "Country"
+    },
+    {
+        "name": "Bhutan",
+        "_type": "Country"
+    },
+    {
+        "name": "Bolivia",
+        "_type": "Country"
+    },
+    {
+        "name": "Bosnia and Herzegovina",
+        "_type": "Country"
+    },
+    {
+        "name": "Botswana",
+        "_type": "Country"
+    },
+    {
+        "name": "Bouvet Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Brazil",
+        "_type": "Country"
+    },
+    {
+        "name": "British Indian Ocean Territory",
+        "_type": "Country"
+    },
+    {
+        "name": "British Virgin Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Brunei",
+        "_type": "Country"
+    },
+    {
+        "name": "Bulgaria",
+        "_type": "Country"
+    },
+    {
+        "name": "Burkina Faso",
+        "_type": "Country"
+    },
+    {
+        "name": "Burma",
+        "_type": "Country"
+    },
+    {
+        "name": "Burundi",
+        "_type": "Country"
+    },
+    {
+        "name": "Cambodia",
+        "_type": "Country"
+    },
+    {
+        "name": "Cameroon",
+        "_type": "Country"
+    },
+    {
+        "name": "Canada",
+        "_type": "Country"
+    },
+    {
+        "name": "Cape Verde",
+        "_type": "Country"
+    },
+    {
+        "name": "Cayman Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Central African Republic",
+        "_type": "Country"
+    },
+    {
+        "name": "Chad",
+        "_type": "Country"
+    },
+    {
+        "name": "Chile",
+        "_type": "Country"
+    },
+    {
+        "name": "China",
+        "_type": "Country"
+    },
+    {
+        "name": "Christmas Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Clipperton Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Cocos (Keeling) Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Colombia",
+        "_type": "Country"
+    },
+    {
+        "name": "Comoros",
+        "_type": "Country"
+    },
+    {
+        "name": "Congo, Democratic Republic of the",
+        "_type": "Country"
+    },
+    {
+        "name": "Congo, Republic of the",
+        "_type": "Country"
+    },
+    {
+        "name": "Cook Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Coral Sea Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Costa Rica",
+        "_type": "Country"
+    },
+    {
+        "name": "Cote d'Ivoire",
+        "_type": "Country"
+    },
+    {
+        "name": "Croatia",
+        "_type": "Country"
+    },
+    {
+        "name": "Cuba",
+        "_type": "Country"
+    },
+    {
+        "name": "Cyprus",
+        "_type": "Country"
+    },
+    {
+        "name": "Czech Republic",
+        "_type": "Country"
+    },
+    {
+        "name": "Denmark",
+        "_type": "Country"
+    },
+    {
+        "name": "Dhekelia",
+        "_type": "Country"
+    },
+    {
+        "name": "Djibouti",
+        "_type": "Country"
+    },
+    {
+        "name": "Dominica",
+        "_type": "Country"
+    },
+    {
+        "name": "Dominican Republic",
+        "_type": "Country"
+    },
+    {
+        "name": "Ecuador",
+        "_type": "Country"
+    },
+    {
+        "name": "Egypt",
+        "_type": "Country"
+    },
+    {
+        "name": "El Salvador",
+        "_type": "Country"
+    },
+    {
+        "name": "Equatorial Guinea",
+        "_type": "Country"
+    },
+    {
+        "name": "Eritrea",
+        "_type": "Country"
+    },
+    {
+        "name": "Estonia",
+        "_type": "Country"
+    },
+    {
+        "name": "Ethiopia",
+        "_type": "Country"
+    },
+    {
+        "name": "Europa Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Falkland Islands (Islas Malvinas)",
+        "_type": "Country"
+    },
+    {
+        "name": "Faroe Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Fiji",
+        "_type": "Country"
+    },
+    {
+        "name": "Finland",
+        "_type": "Country"
+    },
+    {
+        "name": "France",
+        "_type": "Country",
+        "uid": 1402
+    },
+    {
+        "name": "French Guiana",
+        "_type": "Country"
+    },
+    {
+        "name": "French Polynesia",
+        "_type": "Country"
+    },
+    {
+        "name": "French Southern and Antarctic Lands",
+        "_type": "Country"
+    },
+    {
+        "name": "Gabon",
+        "_type": "Country"
+    },
+    {
+        "name": "Gambia, The",
+        "_type": "Country"
+    },
+    {
+        "name": "Gaza Strip",
+        "_type": "Country"
+    },
+    {
+        "name": "Georgia",
+        "_type": "Country"
+    },
+    {
+        "name": "Germany",
+        "_type": "Country",
+        "starred": true
+    },
+    {
+        "name": "Ghana",
+        "_type": "Country"
+    },
+    {
+        "name": "Gibraltar",
+        "_type": "Country"
+    },
+    {
+        "name": "Glorioso Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Greece",
+        "_type": "Country"
+    },
+    {
+        "name": "Greenland",
+        "_type": "Country"
+    },
+    {
+        "name": "Grenada",
+        "_type": "Country"
+    },
+    {
+        "name": "Guadeloupe",
+        "_type": "Country"
+    },
+    {
+        "name": "Guam",
+        "_type": "Country"
+    },
+    {
+        "name": "Guatemala",
+        "_type": "Country"
+    },
+    {
+        "name": "Guernsey",
+        "_type": "Country"
+    },
+    {
+        "name": "Guinea",
+        "_type": "Country"
+    },
+    {
+        "name": "Guinea-Bissau",
+        "_type": "Country"
+    },
+    {
+        "name": "Guyana",
+        "_type": "Country"
+    },
+    {
+        "name": "Haiti",
+        "_type": "Country"
+    },
+    {
+        "name": "Heard Island and McDonald Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Holy See (Vatican City)",
+        "_type": "Country"
+    },
+    {
+        "name": "Honduras",
+        "_type": "Country"
+    },
+    {
+        "name": "Hong Kong",
+        "_type": "Country"
+    },
+    {
+        "name": "Hungary",
+        "_type": "Country"
+    },
+    {
+        "name": "Iceland",
+        "_type": "Country"
+    },
+    {
+        "name": "India",
+        "_type": "Country"
+    },
+    {
+        "name": "Indonesia",
+        "_type": "Country"
+    },
+    {
+        "name": "Iran",
+        "_type": "Country"
+    },
+    {
+        "name": "Iraq",
+        "_type": "Country"
+    },
+    {
+        "name": "Ireland",
+        "_type": "Country"
+    },
+    {
+        "name": "Isle of Man",
+        "_type": "Country"
+    },
+    {
+        "name": "Israel",
+        "_type": "Country"
+    },
+    {
+        "name": "Italy",
+        "_type": "Country"
+    },
+    {
+        "name": "Jamaica",
+        "_type": "Country"
+    },
+    {
+        "name": "Jan Mayen",
+        "_type": "Country"
+    },
+    {
+        "name": "Japan",
+        "_type": "Country"
+    },
+    {
+        "name": "Jersey",
+        "_type": "Country"
+    },
+    {
+        "name": "Jordan",
+        "_type": "Country"
+    },
+    {
+        "name": "Juan de Nova Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Kazakhstan",
+        "_type": "Country"
+    },
+    {
+        "name": "Kenya",
+        "_type": "Country"
+    },
+    {
+        "name": "Kiribati",
+        "_type": "Country"
+    },
+    {
+        "name": "Korea, North",
+        "_type": "Country"
+    },
+    {
+        "name": "Korea, South",
+        "_type": "Country"
+    },
+    {
+        "name": "Kuwait",
+        "_type": "Country"
+    },
+    {
+        "name": "Kyrgyzstan",
+        "_type": "Country"
+    },
+    {
+        "name": "Laos",
+        "_type": "Country"
+    },
+    {
+        "name": "Latvia",
+        "_type": "Country"
+    },
+    {
+        "name": "Lebanon",
+        "_type": "Country"
+    },
+    {
+        "name": "Lesotho",
+        "_type": "Country"
+    },
+    {
+        "name": "Liberia",
+        "_type": "Country"
+    },
+    {
+        "name": "Libya",
+        "_type": "Country"
+    },
+    {
+        "name": "Liechtenstein",
+        "_type": "Country"
+    },
+    {
+        "name": "Lithuania",
+        "_type": "Country"
+    },
+    {
+        "name": "Luxembourg",
+        "_type": "Country"
+    },
+    {
+        "name": "Macau",
+        "_type": "Country"
+    },
+    {
+        "name": "Macedonia",
+        "_type": "Country"
+    },
+    {
+        "name": "Madagascar",
+        "_type": "Country"
+    },
+    {
+        "name": "Malawi",
+        "_type": "Country"
+    },
+    {
+        "name": "Malaysia",
+        "_type": "Country"
+    },
+    {
+        "name": "Maldives",
+        "_type": "Country"
+    },
+    {
+        "name": "Mali",
+        "_type": "Country"
+    },
+    {
+        "name": "Malta",
+        "_type": "Country"
+    },
+    {
+        "name": "Marshall Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Martinique",
+        "_type": "Country"
+    },
+    {
+        "name": "Mauritania",
+        "_type": "Country"
+    },
+    {
+        "name": "Mauritius",
+        "_type": "Country"
+    },
+    {
+        "name": "Mayotte",
+        "_type": "Country"
+    },
+    {
+        "name": "Mexico",
+        "_type": "Country"
+    },
+    {
+        "name": "Micronesia, Federated States of",
+        "_type": "Country"
+    },
+    {
+        "name": "Moldova",
+        "_type": "Country"
+    },
+    {
+        "name": "Monaco",
+        "_type": "Country"
+    },
+    {
+        "name": "Mongolia",
+        "_type": "Country"
+    },
+    {
+        "name": "Montserrat",
+        "_type": "Country"
+    },
+    {
+        "name": "Morocco",
+        "_type": "Country"
+    },
+    {
+        "name": "Mozambique",
+        "_type": "Country"
+    },
+    {
+        "name": "Namibia",
+        "_type": "Country"
+    },
+    {
+        "name": "Nauru",
+        "_type": "Country"
+    },
+    {
+        "name": "Navassa Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Nepal",
+        "_type": "Country"
+    },
+    {
+        "name": "Netherlands",
+        "_type": "Country",
+        "starred": true
+    },
+    {
+        "name": "Netherlands Antilles",
+        "_type": "Country"
+    },
+    {
+        "name": "New Caledonia",
+        "_type": "Country"
+    },
+    {
+        "name": "New Zealand",
+        "_type": "Country"
+    },
+    {
+        "name": "Nicaragua",
+        "_type": "Country"
+    },
+    {
+        "name": "Niger",
+        "_type": "Country"
+    },
+    {
+        "name": "Nigeria",
+        "_type": "Country"
+    },
+    {
+        "name": "Niue",
+        "_type": "Country"
+    },
+    {
+        "name": "Norfolk Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Northern Mariana Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Norway",
+        "_type": "Country"
+    },
+    {
+        "name": "Oman",
+        "_type": "Country"
+    },
+    {
+        "name": "Pakistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Palau",
+        "_type": "Country"
+    },
+    {
+        "name": "Panama",
+        "_type": "Country"
+    },
+    {
+        "name": "Papua New Guinea",
+        "_type": "Country"
+    },
+    {
+        "name": "Paracel Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Paraguay",
+        "_type": "Country"
+    },
+    {
+        "name": "Peru",
+        "_type": "Country"
+    },
+    {
+        "name": "Philippines",
+        "_type": "Country"
+    },
+    {
+        "name": "Pitcairn Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Poland",
+        "_type": "Country"
+    },
+    {
+        "name": "Portugal",
+        "_type": "Country"
+    },
+    {
+        "name": "Puerto Rico",
+        "_type": "Country"
+    },
+    {
+        "name": "Qatar",
+        "_type": "Country"
+    },
+    {
+        "name": "Reunion",
+        "_type": "Country"
+    },
+    {
+        "name": "Romania",
+        "_type": "Country"
+    },
+    {
+        "name": "Russia",
+        "_type": "Country"
+    },
+    {
+        "name": "Rwanda",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Helena",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Kitts and Nevis",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Lucia",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Pierre and Miquelon",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Vincent and the Grenadines",
+        "_type": "Country"
+    },
+    {
+        "name": "Samoa",
+        "_type": "Country"
+    },
+    {
+        "name": "San Marino",
+        "_type": "Country"
+    },
+    {
+        "name": "Sao Tome and Principe",
+        "_type": "Country"
+    },
+    {
+        "name": "Saudi Arabia",
+        "_type": "Country"
+    },
+    {
+        "name": "Senegal",
+        "_type": "Country"
+    },
+    {
+        "name": "Serbia and Montenegro",
+        "_type": "Country"
+    },
+    {
+        "name": "Seychelles",
+        "_type": "Country"
+    },
+    {
+        "name": "Sierra Leone",
+        "_type": "Country"
+    },
+    {
+        "name": "Singapore",
+        "_type": "Country"
+    },
+    {
+        "name": "Slovakia",
+        "_type": "Country"
+    },
+    {
+        "name": "Slovenia",
+        "_type": "Country"
+    },
+    {
+        "name": "Solomon Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Somalia",
+        "_type": "Country"
+    },
+    {
+        "name": "South Africa",
+        "_type": "Country"
+    },
+    {
+        "name": "South Georgia and the South Sandwich Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Spain",
+        "_type": "Country"
+    },
+    {
+        "name": "Spratly Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Sri Lanka",
+        "_type": "Country"
+    },
+    {
+        "name": "Sudan",
+        "_type": "Country"
+    },
+    {
+        "name": "Suriname",
+        "_type": "Country"
+    },
+    {
+        "name": "Svalbard",
+        "_type": "Country"
+    },
+    {
+        "name": "Swaziland",
+        "_type": "Country"
+    },
+    {
+        "name": "Sweden",
+        "_type": "Country"
+    },
+    {
+        "name": "Switzerland",
+        "_type": "Country"
+    },
+    {
+        "name": "Syria",
+        "_type": "Country"
+    },
+    {
+        "name": "Taiwan",
+        "_type": "Country"
+    },
+    {
+        "name": "Tajikistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Tanzania",
+        "_type": "Country"
+    },
+    {
+        "name": "Thailand",
+        "_type": "Country"
+    },
+    {
+        "name": "Timor-Leste",
+        "_type": "Country"
+    },
+    {
+        "name": "Togo",
+        "_type": "Country"
+    },
+    {
+        "name": "Tokelau",
+        "_type": "Country"
+    },
+    {
+        "name": "Tonga",
+        "_type": "Country"
+    },
+    {
+        "name": "Trinidad and Tobago",
+        "_type": "Country"
+    },
+    {
+        "name": "Tromelin Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Tunisia",
+        "_type": "Country"
+    },
+    {
+        "name": "Turkey",
+        "_type": "Country"
+    },
+    {
+        "name": "Turkmenistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Turks and Caicos Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Tuvalu",
+        "_type": "Country"
+    },
+    {
+        "name": "Uganda",
+        "_type": "Country"
+    },
+    {
+        "name": "Ukraine",
+        "_type": "Country"
+    },
+    {
+        "name": "United Arab Emirates",
+        "_type": "Country"
+    },
+    {
+        "name": "United Kingdom",
+        "_type": "Country"
+    },
+    {
+        "name": "United States",
+        "_type": "Country",
+        "starred": true,
+        "uid": 1401
+    },
+    {
+        "name": "Uruguay",
+        "_type": "Country"
+    },
+    {
+        "name": "Uzbekistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Vanuatu",
+        "_type": "Country"
+    },
+    {
+        "name": "Venezuela",
+        "_type": "Country"
+    },
+    {
+        "name": "Vietnam",
+        "_type": "Country"
+    },
+    {
+        "name": "Virgin Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Wake Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Wallis and Futuna",
+        "_type": "Country"
+    },
+    {
+        "name": "West Bank",
+        "_type": "Country"
+    },
+    {
+        "name": "Western Sahara",
+        "_type": "Country"
+    },
+    {
+        "name": "Yemen",
+        "_type": "Country"
+    },
+    {
+        "name": "Zambia",
+        "_type": "Country"
+    },
+    {
+        "name": "Zimbabwe",
+        "_type": "Country"
+    },
+    {
+        "_type": "Note",
+        "title": "Shopping list",
+        "content": "- potatoes<br />- mayonaise",
+        "starred": true,
+        "dateModified": 1593710745298,
+        "allEdges": [
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "_partial": true,
+        "version": 1
+    },
+    {
+        "_type": "Note",
+        "title": "To read list",
+        "content": "Age of surveillance capitalism",
+        "allEdges": [
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "dateModified": 1593577545298,
+        "version": 1
+    },
+    {
+        "_type": "Note",
+        "title": "Ideas for memri",
+        "content": "privacy by design, digital memory",
+        "starred": true,
+        "dateModified": 1593677745298,
+        "version": 1
+    },
+    {
+        "_type": "Note",
+        "title": "Love letter",
+        "content": "Roses are red, violets are blue",
+        "dateModified": 1593147945298,
+        "version": 1
+    },
+    {
+        "_type": "Note",
+        "title": "Notes to self",
+        "content": "Be in time with hour administration",
+        "dateModified": 1593717745298,
+        "version": 1
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000000,
+        "displayName": "Myself (WA)",
+        "externalId": "101010101010@s.whatsapp.net",
+        "nameQuality": 2,
+        "enablePresence": true,
+        "enableReceipts": true,
+        "service": "whatsapp",
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 3,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000001,
+        "displayName": "+123456789 (WA)",
+        "externalId": "123456789@s.whatsapp.net",
+        "nameQuality": 2,
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 2,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000002,
+        "displayName": "+987654321 (WA)",
+        "externalId": "987654321@s.whatsapp.net",
+        "nameQuality": 2,
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 1,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000003,
+        "displayName": "John Doe (WA)",
+        "externalId":"1357924680@s.whatsapp.net",
+        "nameQuality": 2,
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 1,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000004,
+        "externalId": "status@broadcast",
+        "name": "WhatsApp Status Broadcast",
+        "topic": "WhatsApp status updates from your contacts",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000005,
+        "externalId": "123456789@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000002,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000006,
+        "externalId": "987654321@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000003,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000007,
+        "externalId": "1357924680@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000003,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000008,
+        "externalId": "93463F7980167E92C28FF0781E650E80",
+        "content": "test 123",
+        "dateSent": 1589691657000,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000009,
+        "externalId": "9BDD372B9D4F7486D2A0",
+        "content": "hello",
+        "dateSent": 1589691670000,
+        "allEdges": [
+            {
+                "targetType": "Message",
+                "uid": 20000000008,
+                "_type": "message"
+            },
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000010,
+        "externalId": "36A3043A22AC7524060B23FB54815B39",
+        "content": "Check out this photo!",
+        "dateSent": 1589691680000,
+        "allEdges": [
+            {
+                "targetType": "Photo",
+                "uid": 79200,
+                "_type": "photo"
+            },
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000011,
+        "externalId": "7A1FCF21F8E4216509EF8300D7C5CC57",
+        "content": "where r u?",
+        "dateSent": 1589691690000,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000006,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000002,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "content": "at home",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000006,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "content": "That's cool",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Message",
+                "uid": 20000000010,
+                "_type": "message"
+            },
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000006,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 209003,
+        "displayName": "john@example.com",
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 1,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9996,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000008,
+        "subject": "Hello",
+        "externalId": "93463F7980167E92C28FF0781E650E80",
+        "content": "test 123",
+        "dateSent": 1589691657000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000009,
+        "externalId": "9BDD372B9D4F7486D2A0",
+        "subject": "Re: Hello",
+        "content": "hello",
+        "dateSent": 1589691670000,
+        "allEdges": [
+            {
+                "targetType": "Message",
+                "uid": 22000000008,
+                "_type": "message"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000010,
+        "externalId": "36A3043A22AC7524060B23FB54815B39",
+        "subject": "Re: Hello",
+        "content": "Check out this photo!",
+        "dateSent": 1589691680000,
+        "allEdges": [
+            {
+                "targetType": "Photo",
+                "uid": 79200,
+                "_type": "photo"
+            },
+            {
+                "targetType": "Message",
+                "uid": 22000000009,
+                "_type": "message"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000011,
+        "externalId": "7A1FCF21F8E4216509EF8300D7C5CC57",
+        "subject": "Re: Hello",
+        "content": "where r u?",
+        "dateSent": 1589691690000,
+        "allEdges": [
+            {
+                "targetType": "Message",
+                "uid": 22000000010,
+                "_type": "message"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000002,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "subject": "Interesting information",
+        "content": "at home",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "subject": "Check this out",
+        "content": "That's cool",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    }
+]
+

@@ -84,7 +84,7 @@ export class CVUValidator {
             }
         }
 
-        for (let [key, value] of Object.entries(element.properties)) {
+        for (let [key, value] of Object.entries(element.propertyResolver.properties)) {
             let prop = UIElementProperties[key]
             if (prop) {
                 if (key == "frame") {

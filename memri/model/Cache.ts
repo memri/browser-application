@@ -15,7 +15,6 @@ import {DatabaseController} from "../storage/DatabaseController";
 import {Realm} from "./RealmLocal";
 import {Sync} from "./Sync";
 import {MemriDictionary} from "./MemriDictionary";
-export var cacheUIDCounter: number = -1
 
 export class CacheMemri {
 	/// PodAPI object
@@ -45,8 +44,14 @@ export class CacheMemri {
 	}
 
 	/// gets default item from database, and adds them to realm
-	install(dbName: string) {
-		let realm = DatabaseController.getRealm();
+	install(dbName: string, callback) {
+		DatabaseController.background(true, callback, (realm) => {
+			this._install(realm, dbName)
+			callback(undefined);
+		})
+	}
+
+	_install(realm:Realm, dbName: string) {
 		// Load default database from disk
 		try {
 			//let jsonData = jsonDataFromFile(dbName)
@@ -113,13 +118,13 @@ export class CacheMemri {
 			// Then create all edges
 			for (let [item, allEdges] of items) {
 				for (let edgeDict of allEdges) {
-					let edgeType = edgeDict["type"];
+					let edgeType = edgeDict["_type"];
 					if (typeof edgeType != "string") {
 						throw "Exception: Ill defined edge"
 					}
 
 					var edge: Edge;
-					let targetDict = edgeDict["target"];
+					let targetDict = edgeDict["_target"];
 					if (typeof targetDict == "object") {
 						let target = recur(targetDict);
 						edge = CacheMemri.createEdge(
@@ -130,30 +135,30 @@ export class CacheMemri {
 							Number(edgeDict["sequence"])
 						)
 					} else {
-						let itemType = edgeDict["itemType"];
+						let targetType = edgeDict["targetType"];
 						let _itemUID = edgeDict["uid"];
 						let itemUID = lut[_itemUID];
-						if (typeof itemType != "string" || typeof _itemUID != "number" || !itemUID) {
+						if (typeof targetType != "string" || typeof _itemUID != "number" || !itemUID) {
 							throw `Exception: Ill defined edge: ${edgeDict}`
 						}
 
 						edge = CacheMemri.createEdge(
 							item,
-							[itemType, itemUID],
+							[targetType, itemUID],
 							edgeType,
 							String(edgeDict["edgeLabel"]),
 							Number(edgeDict["sequence"])
 						)
 					}
 
-					DatabaseController.writeSync(() => {
+					DatabaseController.current(true,() => {
 						item.allEdges.push(edge)
 					})
 				}
 			}
 
 		} catch (error) {
-			console.log(`Failed to Install: ${error}`)
+			throw `Failed to Install: ${error}`
 		}
 	}
 
@@ -178,70 +183,75 @@ export class CacheMemri {
 	///   - datasource: datasource for the query, containing datatype(s), filters, sortInstructions etc.
 	///   - callback: action exectued on the result
 	query(datasource, syncWithRemote =true, callback?) {
-		let realm = DatabaseController.getRealm()
-		// Do nothing when the query is empty. Should not happen.
-		let q = datasource.query ?? ""
+		DatabaseController.tryCurrent(false, (realm) => {
+			// Do nothing when the query is empty. Should not happen.
+			let q = datasource.query ?? ""
 
-		// Log to a maker user
-		debugHistory.info(`Executing query ${q}`)
+			// Log to a maker user
+			debugHistory.info(`Executing query ${q}`)
 
-		if (q == "") {
-			callback && callback("Empty Query", null)
-		} else {
-			// Schedule the query to sync from the pod
-			//if (syncWithRemote) {this.sync.syncQuery(datasource)}
-
-			// Parse query
-			let [typeName, filter] = this.parseQuery(q)
-			let type = ItemFamily[typeName]
-			if (typeName == "*") {
-				var returnValue = []
-
-				for (var dtype in ItemFamily) {
-					// NOTE: Allowed forced cast
-					let objects = realm.objects(getItemType(dtype)?.constructor?.name)
-						.filtered("deleted = false " + (filter ?? "")) //TODO
-					for (var item of objects) { returnValue.push(item) }
-				}
-
-				callback && callback(null, returnValue)
-			}
-			// Fetch the type of the data item
-			else if (type) {
-				// Get primary key of data item
-				// let primKey = type.getPrimaryKey()
-
-				// Query based on a simple format:
-				// Query format: <type><space><filter-text>
-				let queryType = getItemType(type)?.constructor?.name
-				//                let t = queryType() as! Object.Type
-
-				var result = realm.objects(typeName)
-					.filtered("deleted = false " + (filter ?? ""))
-
-				let sortProperty = datasource.sortProperty
-				if (sortProperty && sortProperty != "") {
-					result.sorted(
-						sortProperty,
-						datasource.sortAscending ?? true
-					)
-				}
-
-				// Construct return array
-				var returnValue = []
-				for (var item of result) {
-					//if (item?.constructor?.name == "Item") {
-						returnValue.push(item)
-					//}
-				}
-
-				// Done
-				callback && callback(null, returnValue)
+			if (q == "") {
+				callback && callback("Empty Query", null)
 			} else {
-				// Done
-				callback && callback(`Unknown type send by server: ${q}`, null)
+				// Schedule the query to sync from the pod
+				//if (syncWithRemote) {this.sync.syncQuery(datasource)}
+
+				// Parse query
+				let [typeName, filter] = this.parseQuery(q)
+				let type = ItemFamily[typeName]
+				if (typeName == "*") {
+					var returnValue = []
+
+					for (var dtype in ItemFamily) {
+						// NOTE: Allowed forced cast
+						let objects = realm.objects(getItemType(dtype)?.constructor?.name)
+							.filtered("deleted = false " + (filter ?? "")) //TODO
+						for (var item of objects) { returnValue.push(item) }
+					}
+
+					callback && callback(null, returnValue)
+				}
+				// Fetch the type of the data item
+				else if (type) {
+					// Get primary key of data item
+					// let primKey = type.getPrimaryKey()
+
+					// Query based on a simple format:
+					// Query format: <type><space><filter-text>
+					let queryType = getItemType(type)?.constructor?.name
+					if (!queryType) {
+						throw `Unknown type ${type}`
+					}
+					//                let t = queryType() as! Object.Type
+
+					var result = realm.objects(typeName)
+						.filtered("deleted = false " + (filter ?? ""))
+
+					let sortProperty = datasource.sortProperty
+					if (sortProperty && sortProperty != "") {
+						result.sorted(
+							sortProperty,
+							datasource.sortAscending ?? true
+						)
+					}
+
+					// Construct return array
+					var returnValue = []
+					for (var item of result) {
+						//if (item?.constructor?.name == "Item") {
+						returnValue.push(item)
+						//}
+					}
+
+					// Done
+					callback && callback(null, returnValue)
+				} else {
+					// Done
+					callback && callback(`Unknown type send by server: ${q}`, null)
+				}
 			}
-		}
+		})
+
 	}
 
 	/// Parses the query string, which whould be of format \<type\>\<space\>\<filter-text\>
@@ -304,7 +314,7 @@ export class CacheMemri {
 			}
 
 			// Add item to realm
-			DatabaseController.tryWriteSync((el) => { el.add(item, "modified") }) //TODO
+			DatabaseController.tryCurrent(true,($0) => { $0.add(item, "modified") }) //TODO
 		} catch (error) {
 			console.log(`Could not add to cache: ${error}`)
 		}
@@ -376,7 +386,7 @@ export class CacheMemri {
 	delete(item: Item|Item[]) {
 		if (!Array.isArray(item)) {
 			if (!item.deleted) {
-				DatabaseController.writeSync(() => {//TODO
+				DatabaseController.tryCurrent(true,() => {//TODO
 					item.deleted = true
 					item["_action"] = "delete";
 					let auditItem = CacheMemri.createItem("AuditItem", {"action": "delete"})
@@ -386,7 +396,7 @@ export class CacheMemri {
 				})
 			}
 		} else {
-			DatabaseController.writeSync(() => {//TODO
+			DatabaseController.tryCurrent(true,() => {//TODO
 				for (let el of item) {
 					if (!el.deleted) {
 						el.deleted = true
@@ -432,38 +442,40 @@ export class CacheMemri {
 		return 1_000_000_000
 	}
 
+	static cacheUIDCounter: Int = -1
+
 	static incrementUID() {
-		DatabaseController.writeSync((realm: Realm) => {
-			if (cacheUIDCounter == -1) {
+		DatabaseController.tryCurrent(true,(realm: Realm) => {
+			if (CacheMemri.cacheUIDCounter == -1) {
 				let setting = realm.objects("Setting").filtered(`key = '${this.getDeviceID()}/uid-counter'`)[0];
 				if (setting && setting.json) {
-					cacheUIDCounter = Number(setting.json);
+					CacheMemri.cacheUIDCounter = Number(setting.json);
 				} else {
-					cacheUIDCounter = this.getDeviceID() + 1
+					CacheMemri.cacheUIDCounter = this.getDeviceID() + 1
 
 					// As an exception we are not using Cache.createItem here because it should
 					// not be synced to the backend
 					realm.create("Setting", {
-						"uid": cacheUIDCounter - 1,
+						"uid": CacheMemri.cacheUIDCounter - 1,
 						"key": `${this.getDeviceID()}/uid-counter`,
 						"_action": "create",
-						"json": String(cacheUIDCounter),
+						"json": String(CacheMemri.cacheUIDCounter),
 					})
 					return
 				}
 			}
 
-			cacheUIDCounter += 1
+			CacheMemri.cacheUIDCounter += 1
 			let setting = realm.objects("Setting").filtered(`key = '${this.getDeviceID()}/uid-counter'`)[0];
 			if (setting) {
-				setting.json = String(cacheUIDCounter);
+				setting.json = String(CacheMemri.cacheUIDCounter);
 				if (setting._action == undefined) {
 					setting._action = "update"
 					setting["_updated"] = ["json"]
 				}
 			}
 		});
-		return cacheUIDCounter
+		return CacheMemri.cacheUIDCounter
 	}
 
 	mergeFromCache(cachedItem: Item, newerItem: Item) {
@@ -493,7 +505,7 @@ export class CacheMemri {
 	//#warning("This doesnt trigger syncToPod()")
 	static createItem(type, values = new MemriDictionary(), unique?: string) {
 		var item
-		DatabaseController.tryWriteSync((realm: Realm) => {
+		DatabaseController.tryCurrent(true,(realm: Realm) => {
 			var dict = values
 
 			// TODO:
@@ -588,7 +600,7 @@ export class CacheMemri {
 			   label?: string, sequence?: number) {
 		if (Array.isArray(target)) {
 			var edge: Edge;
-			DatabaseController.tryWriteSync((realm) => {
+			DatabaseController.tryCurrent(true,(realm) => {
 				// TODO:
 				// Always overwrite (see also link())
 

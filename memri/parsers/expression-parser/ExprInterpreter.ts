@@ -52,7 +52,7 @@ export class ExprInterpreter {
         return x//TODO as? Date
     }
 
-    static evaluateString(x) {
+    static evaluateString(x) { //TODO: maybe we will need some checks
         return x == null ? "" : String(x);
     }
     
@@ -124,6 +124,21 @@ export class ExprInterpreter {
                 case ExprOperator.ConditionEquals:
                     var otherResult = this.execSingle(expr.rhs, args)
                     return this.compare(result, otherResult)
+                case ExprOperator.ConditionNotEquals:
+                    var otherResult = this.execSingle(expr.rhs, args)
+                    return !this.compare(result, otherResult)
+                case ExprOperator.ConditionGreaterThan:
+                    var otherResult = this.execSingle(expr.rhs, args)
+                    return IP.evaluateNumber(result) > IP.evaluateNumber(otherResult)
+                case ExprOperator.ConditionGreaterThanOrEqual:
+                    var otherResult = this.execSingle(expr.rhs, args)
+                    return IP.evaluateNumber(result) >= IP.evaluateNumber(otherResult)
+                case ExprOperator.ConditionLessThan:
+                    var otherResult = this.execSingle(expr.rhs, args)
+                    return IP.evaluateNumber(result) < IP.evaluateNumber(otherResult)
+                case ExprOperator.ConditionLessThanOrEqual:
+                    var otherResult = this.execSingle(expr.rhs, args)
+                    return IP.evaluateNumber(result) <= IP.evaluateNumber(otherResult)
                 case ExprOperator.ConditionAND:
                     var boolLHS = IP.evaluateBoolean(result)
                     if (!boolLHS) { return false }

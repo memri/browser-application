@@ -1,39 +1,6 @@
 //
-//  Sync.swift
-//  memri
-//
-//  Created by Ruben Daniels on 4/3/20.
-//  Copyright © 2020 memri. All rights reserved.
-//
-
-///// This class represent the state of syncing for a Item, it keeps tracks of the multiple versions of a Item on the server and
-///// what actions are needed to sync the Item with the latest version on the pod
-// class SyncState extends Object, Codable {
-//	// Whether the data item is loaded partially and requires a full load
-//	@objc dynamic var isPartiallyLoaded: Bool = false
-//
-//	// What action is needed on this data item to sync with the pod
-//	// Enum: "create", "delete", "update"
-//	@objc dynamic var actionNeeded: String = ""
-//
-//	// Which fields to update
-//	let updatedFields = List<String>()
-//
-//	//
-//	@objc dynamic var changedInThisSession = false
-//
-//	required convenience init(from decoder: Decoder)  {
-//		self.init()
-//
-//		jsonErrorHandling(decoder) {
-//			isPartiallyLoaded =  decoder.decodeIfPresent("isPartiallyLoaded") ?? isPartiallyLoaded
-//		}
-//	}
-//
-//	required init() {
-//		super.init()
-//	}
-// }
+// Sync.swift
+// Copyright © 2020 memri. All rights reserved.
 
 /// Based on a query, Sync checks whether it still has the latest version of the resulting Items. It does this asynchronous and in the
 /// background, items are updated automatically.
@@ -60,18 +27,20 @@ export class Sync {
 	/// - Parameters:
 	///   - api: api Object
 	///   - rlm: local Realm database object
-	constructor(api: PodAPI) {
-		this.podAPI = api
+    constructor(api: PodAPI) {
+        this.podAPI = api
+    }
 
-		// Periodically sync data from the pod
-		// TODO:
+    load() {
+        // Periodically sync data from the pod
+        // TODO:
 
-		// Schedule syncing to the pod to see if (there are any jobs that remain
-		this.schedule()
+        // Schedule syncing to the pod to see if (there are any jobs that remain
+        this.schedule()
 
-		// Run any priority syncs in the background
+        // Run any priority syncs in the background
         this.prioritySyncAll()
-	}
+    }
 
 	/// Schedule a query to sync the resulting Items from the pod
 	/// - Parameter datasource: QueryOptions used to perform the query
@@ -85,7 +54,7 @@ export class Sync {
             })
             
             // Add to realm
-			DatabaseController.writeAsync((realm) => {
+			DatabaseController.background(true, undefined,(realm) => {
                 var safeRef: ItemReference
                 if (auditable) {
                     // Store query in a log item
@@ -106,8 +75,8 @@ export class Sync {
                 this.prioritySync(datasource, () => {
                     if (auditable) {
                         // We no longer need to process this log item
-                        DatabaseController.writeAsync(() => {
-                            safeRef?.resolve()?._action = undefined;
+                        DatabaseController.background(true, undefined, () => {
+                            safeRef.resolve()._action = undefined;
                         })
                     }
 
@@ -163,7 +132,12 @@ export class Sync {
                     for (var item of items) {
                         // TODO: handle sync errors
                         try {
-                            CacheMemri.addToCache(item)
+                            let finalItem = CacheMemri.addToCache(item)
+                            //#warning("When loading photos, edges dont have any data")
+                            let file = finalItem;//TODO: check as File?
+                            if (file) {
+                                file.queueForDownload()
+                            }
                         } catch(error) {
                             debugHistory.error(`${error}`)
                         }
@@ -213,13 +187,18 @@ export class Sync {
 
 	syncToPod() {
 		function markAsDone(list, callback) {
-			DatabaseController.writeAsync((realm) => {
+			DatabaseController.background(true, callback,(realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
                         let resolvedItem = (item?.constructor?.name == "ItemReference" || item?.constructor?.name == "EdgeReference") && item.resolve()
 						if (item?.constructor?.name == "ItemReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
-								realm.delete(resolvedItem)
+                                let file = resolvedItem; //TODO: as File?
+                                if (file) {
+                                    file.clearCache()
+                                }
+
+                                resolvedItem._action = undefined;
 							}
 							else {
 								resolvedItem._action = ""
@@ -227,7 +206,7 @@ export class Sync {
 							}
 						} else if (item?.constructor?.name == "EdgeReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
-								realm.delete(resolvedItem)
+                                resolvedItem._action = undefined;
 							}
 							else {
 								resolvedItem._action = ""
@@ -237,14 +216,14 @@ export class Sync {
 					}
 				}
 
-                callback();
+                callback(undefined);
 			})
 		}
 		
 		if (this.syncing) { return }
         this.syncing = true
-        
-        DatabaseController.read((realm) => {
+        //#warning("Why is this not in the background?")
+        DatabaseController.current(false,(realm) => {
             var found = 0
             var itemQueue = {create: [], update: [], delete: []}
             var edgeQueue = {create: [], update: [], delete: []}
@@ -302,12 +281,15 @@ export class Sync {
                             }
                             else {
                                 // #warning(`Items/Edges could have changed in the mean time, check dateModified/AuditItem`)
-                                markAsDone(safeItemQueue, ()=>{
-                                    markAsDone(safeEdgeQueue, ()=>{
+                                markAsDone(safeItemQueue, () => {
+                                    markAsDone(safeEdgeQueue, () => {
                                         debugHistory.info("Syncing complete")
 
-                                        this.syncing = false
-                                        this.schedule()
+                                        //#warning("Should this hold up further syncing?")
+                                        this.syncFilesToPod(() => {
+                                            this.syncing = false
+                                            this.schedule(true);
+                                        })
                                     })
                                 });
 
@@ -319,13 +301,141 @@ export class Sync {
                     debugHistory.error(`Could not sync to pod: ${error}`)
                 }
             } else {
-                this.syncing = false;
-                this.schedule(true)
+                this.syncFilesToPod(() => {
+                    this.syncing = false;
+                    this.schedule(true)
+                });
             }
         })
 	}
 
-    //#warning("This is terribly brittle, we'll need to completely rearchitect syncing next week")
+    syncFilesFromPod(callback) {
+        DatabaseController.background(false, undefined, (realm) => {
+            var list = [];
+            let items = realm.objects("LocalFileSyncQueue").filtered("task = 'upload'")
+            items.forEach(($0) => {
+                let s = $0["sha256"];
+                if (typeof s == "string") {
+                    list.push(s)
+                }
+            })
+
+            if (list.length == 0) {
+                callback(undefined) // done
+                return
+            }
+
+
+            function validate(sha256: string) {
+                return DatabaseController.current(false, (realm) => {
+                    let file = realm.objects("File").filtered(`sha256 = '${sha256}'`)[0];
+                    if (!file || file._action == "create" || file._updated.includes("sha256")) {
+                        return false
+                    }
+                    return true
+                }) ?? true
+            }
+
+            var i = -1
+
+            function next() {
+                i += 1
+                let sha256 = list[i];
+                if (!sha256) {
+                    callback(undefined) // done
+                    return
+                }
+
+                if (validate(sha256)) {
+                    this.podAPI.downloadFile(sha256, (error, progress, response) => {
+                        if (error) {
+                            debugHistory.warn(`${error}`) // TODO ERror handling
+                            callback(error)
+                        } else if (progress) {
+                            console.log(`Download progress ${progress}`)
+                        } else if (response) {
+                            this.LocalFileSyncQueue.remove(sha256) //TODO:
+                            next()
+                        } else {
+                            debugHistory.warn("Unknown error") // TODO ERror handling
+                            callback(error)
+                        }
+                    })
+                    return
+                } else {
+                    this.LocalFileSyncQueue.remove(sha256) //TODO:
+                    next()
+                }
+            }
+
+            next()
+        })
+    }
+
+    syncFilesToPod(callback) {
+        DatabaseController.background(false, undefined, (realm) => {
+            var list = [];
+            let items = realm.objects("LocalFileSyncQueue").filtered("task = 'upload'")
+            items.forEach(($0) => {
+                let s = $0["sha256"];
+                if (typeof s == "string") {
+                    list.push(s)
+                }
+            })
+
+            if (list.length == 0) {
+                callback(undefined) // done
+                return
+            }
+
+
+            function validate(sha256: string) {
+                return DatabaseController.current(false, (realm) => {
+                    let file = realm.objects("File").filtered(`sha256 = '${sha256}'`)[0];
+                    if (!file || file._action == "create" || file._updated.includes("sha256")) {
+                        return false
+                    }
+                    return true
+                }) ?? true
+            }
+
+            var i = -1
+
+            function next() {
+                i += 1
+                let sha256 = list[i];
+                if (!sha256) {
+                    callback(undefined) // done
+                    return
+                }
+
+                if (validate(sha256)) {
+                    this.podAPI.uploadFile(sha256, (error, progress, response) => {
+                        if (error) {
+                            debugHistory.warn(`${error}`) // TODO ERror handling
+                            callback(error)
+                        } else if (progress) {
+                            console.log(`UploadFile progress ${progress}`)
+                        } else if (response) {
+                            this.LocalFileSyncQueue.remove(sha256) //TODO:
+                            next()
+                        } else {
+                            debugHistory.warn("Unknown error") // TODO ERror handling
+                            callback(error)
+                        }
+                    })
+                    return
+                } else {
+                    this.LocalFileSyncQueue.remove(sha256) //TODO:
+                    next()
+                }
+            }
+
+            next()
+        })
+    }
+
+    //#warning("This is terribly brittle, we'll need to completely rearchitect syncing")
     syncAllFromPod(callback) {
         this.syncQuery(new Datasource("CVUStoredDefinition"), false, () => {
             this.syncQuery(new Datasource("CVUStateDefinition"), false, () => {
