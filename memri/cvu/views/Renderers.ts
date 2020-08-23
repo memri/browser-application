@@ -199,8 +199,8 @@ export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRende
     set slideRightActions(value) { this.setState("slideRightActions", value) }
 
     setDefaultValues(element: UIElement) {
-        if (element.properties["padding"] == undefined) {
-            element.properties["padding"] = [10, 10, 10, 20]
+        if (element.propertyResolver.properties["padding"] == undefined) {
+            element.propertyResolver.properties["padding"] = [10, 10, 10, 20]
         }
     }
 }
@@ -208,6 +208,14 @@ export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRende
 //CascadingCustomConfig moved from CustomRenderer.tsx
 export class CascadingCustomConfig extends CascadingRenderConfig {
     type = "custom"
+
+    showSortInConfig: boolean = false
+
+    configItems(context: MemriContext) {
+        return []
+    }
+
+    showContextualBarInEditMode: boolean = false
 }
 
 //CascadingThumbnailConfig moved from ThumbnailRendererView.tsx

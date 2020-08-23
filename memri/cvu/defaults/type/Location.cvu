@@ -19,6 +19,7 @@ Location[] {
             Spacer
             Map {
                 location: {{.}}
+				moveable: false
                 minHeight: 80
                 maxHeight: 80
             }
@@ -38,6 +39,7 @@ Location[] {
     
     [renderer = map] {
         location: {{.}}
+/*        movable: true/false*/ /* WARN: This causes a crash in error reporting */
         
         radius: {{.influence}}
         
@@ -48,3 +50,15 @@ Location[] {
         }
     }
 }
+
+/*Route[] {*/
+/*    [renderer = map] {*/
+/*        location: {{.location[]}}*/
+/*        */
+/*        line: {*/
+/*            color: #ff0000*/
+/*            sortProperty: {{.dateCreated}}*/
+/*            maxTimeApart: 15*/
+/*        }*/
+/*    }*/
+/*}*/

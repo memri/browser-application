@@ -5,14 +5,13 @@
 //  Created by Ruben Daniels on 3/12/20.
 //  Copyright © 2020 memri. All rights reserved.
 //
-import * as DB from "./defaults/default_database.json";
+import * as DB from "../install/default_database.json";
 import {getItem, serialize} from "../gui/util";
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Item, Edge, getItemType, ItemFamily} from "./items/Item";
 import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "../storage/DatabaseController";
-import {Realm} from "./RealmLocal";
 import {Sync} from "./Sync";
 import {MemriDictionary} from "./MemriDictionary";
 

@@ -233,7 +233,7 @@
     {
         "_type": "Note",
         "title": "Note2",
-        "content": "Take control of your data.<br/>Visit memri.io to find out more!",
+        "content": "Take control of your data.<br/>Visit memri.io to find out more!"
     },
     {
         "_type": "Photo",
@@ -1306,7 +1306,7 @@
                 "_type": "location",
                 "targetType": "Location",
                 "uid": 100017
-            },
+            }
         ]
     },
     {
@@ -1410,7 +1410,7 @@
                 "edgeLabel": "Holiday home in France",
                 "targetType": "Address",
                 "uid": 1014
-            },
+            }
         ],
         "version": 1
     },
@@ -1443,7 +1443,7 @@
                 "_type": "label",
                 "targetType": "Label",
                 "uid": 1016
-            },
+            }
         ],
         "version": 1
     },
@@ -1473,7 +1473,7 @@
                 "_type": "label",
                 "targetType": "Label",
                 "uid": 1016
-            },
+            }
         ],
         "version": 1
     },

@@ -5,14 +5,13 @@
 //  Created by Toby Brennan on 19/7/20.
 //  Copyright © 2020 memri. All rights reserved.
 //
-
-
-import {Item} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
 //import * as path from "path";
 import {Realm} from "../model/RealmLocal";
-var realm;
+import {Authentication} from "../api/Authentication";
+
+export var realm;
 
 export class ItemReference {
     uid: number
@@ -21,7 +20,7 @@ export class ItemReference {
     constructor (to: Item) {
 		let uid = to.uid;
 		let type = to.getType();
-		if (!uid || !type || to.realm == undefined) {
+		if (!uid || !type /*|| to.realm == undefined*/) {
 			throw "Trying to get a reference to an item that is not in realm or has no uid"; //TODO:
 		}
         this.uid = uid
@@ -39,7 +38,7 @@ export class ItemReference {
 	}
 }
 
-class EdgeReference {
+export class EdgeReference {
     type: string
     sourceItemID: number
     targetItemID: number
@@ -124,11 +123,11 @@ export class DatabaseController {
 		// #endif
 	}*/
 	static getRealmAsync(receiveRealm) {
-		Authentication.getPublicRootKey((error, data) => {
-			if (!data) {
+		//Authentication.getPublicRootKey((error, data) => {
+			/*if (!data) {
 				receiveRealm(error, undefined)
 				return;
-			}
+			}*/
 
 			//var config = realmConfig
 
@@ -144,19 +143,21 @@ export class DatabaseController {
 			}
 
 			try {
-				let realm = new Realm();
+				if (!realm) {
+					realm = new Realm();
+				}
 				receiveRealm(undefined, realm)
-			} catch {
+			} catch (error) {
 				// TODO error handling
 				// Notify the user
 				debugHistory.error(`${error}`)
 				receiveRealm(error, undefined)
 			}
-		})
+		//})
 	}
 	/// This function returns a Realm for the current thread
 	static getRealmSync() {
-		let data = Authentication.getPublicRootKeySync()
+		//let data = Authentication.getPublicRootKeySync()
 		//var config = this.realmConfig
 		/*if (!realmTesting) {
 			#if targetEnvironment(simulator)
@@ -177,7 +178,10 @@ export class DatabaseController {
 
 			config.encryptionKey = data
 		}*/
-		return new Realm();
+		if (!realm) {
+			realm = new Realm();
+		}
+		return realm;
 	}
 	
 	static get realmQueue() {
@@ -258,11 +262,11 @@ export class DatabaseController {
 		if (error == undefined) {
 			error = this.globalErrorHandler;
 		}
-		this.realmQueue.async(() => {
+		//this.realmQueue.async(() => {
 			/*autoreleasepool {*/
             this.current(write, error, exec);
         //})
-		})
+		//})
 	}
 
 	/// Execute a realm based function on the main thread (warning this blocks the UI)
@@ -291,14 +295,14 @@ export class DatabaseController {
 		debugHistory.error(`${error}`)
 	}
 
-	deleteDatabase(callback) {
-		Authentication.authenticateOwnerByPasscode((error) => {
+	static deleteDatabase(callback) {
+		/*Authentication.authenticateOwnerByPasscode((error) => {
 			if (error) {
 				callback(`Unable to authenticate: ${error}`)
 				return
 			}
 
-			/*try {
+			/!*try {
                 let fileManager = FileManager.default
                 let realmUrl = try getRealmURL()
 
@@ -311,11 +315,12 @@ export class DatabaseController {
             }
             catch {
                 callback("Could not remove realm database: \(error)")
-            }*/
-		})
+            }*!/
+		})*/
+		callback(undefined);
 	}
 
-	clean(callback) { //TODO:
+	static clean(callback) { //TODO:
 		//#warning("@Toby, deleting here on realm doesnt remove them from the db and thus this is called every time. Any idea why?")
 		/*DatabaseController.background(true, callback, (realm) => {
             for (itemType in ItemFamily.allCases) {
@@ -340,6 +345,8 @@ export class DatabaseController {
 
             callback(nil)
         }*/
+
+		callback(undefined);
 	}
 
 }

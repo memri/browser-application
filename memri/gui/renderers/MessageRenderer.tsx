@@ -75,6 +75,12 @@ export class MessageRenderer extends RenderersMemri {
                 {this.renderConfig.render(dataItem)}
             </ListItem>
         })
+        /* TODO: here should be padding, but i have no idea which :)
+        padding(EdgeInsets(top: cellContext.isFirstInSection ? 0 : self.renderConfig.spacing.height / 2,
+									leading: self.renderConfig.edgeInset.left,
+									bottom: cellContext.isLastInSection ? 0 : self.renderConfig.spacing.height / 2,
+									trailing: self.renderConfig.edgeInset.right))
+        */
     }
 
     render() {
@@ -82,9 +88,11 @@ export class MessageRenderer extends RenderersMemri {
         this.editMode = this.props.editMode;
 
         return (
-            <ASTableView editMode={this.editMode} separatorsEnabled={false} alwaysBounce>
-                {this.section}
-            </ASTableView>
+            <VStack spacing={0}>
+                <ASTableView editMode={this.editMode} separatorsEnabled={false} alwaysBounce>
+                    {this.section}
+                </ASTableView>
+            </VStack>
         )
         /*
         .scrollPositionSetter($scrollPosition)

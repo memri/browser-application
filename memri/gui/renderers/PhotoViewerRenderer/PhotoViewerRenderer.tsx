@@ -53,7 +53,7 @@ export class PhotoViewerRenderer extends RenderersMemri {
         if (!item || !file /*|| !url*/) {
             return undefined;
         }
-        let url = file.uri
+        let url = file.filename
         let overlay = this.renderConfig.render(item);
         return (<>
             <UIImage src={"memri/Resources/DemoAssets/" + url + ".jpg"}></UIImage>

@@ -166,7 +166,6 @@ Person {
     [renderer = generalEditor] {
         layout: [
             { section: profilePicture }
-            { section: labels }
             { section: names, fields: firstName lastName }
             { section: picturesOfPerson }
             { section: phoneNumbers, edges: hasPhoneNumber, type: PhoneNumber }
@@ -178,7 +177,7 @@ Person {
             { section: companies, edges: company, type: Company }
             { section: diets, edges: diet, type: Diet }
             { section: medicalConditions, edges: medicalCondition, type: MedicalCondition }
-            { section: publicKeys, edges: publicKey, type: PublicKey }
+            { section: cryptoKeys, edges: cryptoKey, type: CryptoKey }
             { section: onlineProfiles, edges: onlineProfile, type: OnlineProfile }
             { section: other, fields: * }
             { section: dates }
@@ -187,25 +186,17 @@ Person {
         profilePicture {
             showTitle: false
         
-            ZStack {
+            HStack {
                 alignment: center
-            
-                Image {
-                    image: {{.profilePicture}}
-                    border: #ccc 1
-                    resizable: fill
-                    minHeight: 250
-                    maxHeight: 250
-                    opacity: 0.6
-                    align: center
-                }
+				minHeight: 180
+				maxHeight: 180
                 
                 ZStack {
                     border: #fff 27
                     padding: 12
                     maxWidth: 140
                     maxHeight: 140
-                    cornerRadius: 100
+                    cornerRadius: 25
                     align: center
                 
                     Image {
@@ -246,12 +237,51 @@ Person {
                         }
                     }
                 }
+				
+				VStack {
+					spacing: 6
+					Text {
+						font: 20 bold
+						text: "{.firstName} {.lastName}"
+					}
+					
+					Text {
+						show: {{ !.label }}
+						text: "no labels yet"
+					}
+					
+					FlowStack {
+						list: {{ .label[] }}
+						
+						button {
+							press: openViewByName {
+								viewName: "all-items-with-label"
+								viewArguments: {
+									name: "{.name}"
+									uid: {{.uid}}
+								}
+							}
+							
+							VStack {
+								background: {{.color}}
+								cornerRadius: 5
+								
+								Text {
+									text: "{.name}"
+									font: 16 semibold
+									color: #fff
+									padding: 5 8 5 8
+								}
+							}
+						}
+					}
+				}
             }
         }
         
         picturesOfPerson {
             title: "Photos of {.computedTitle()}"
-        
+            
             SubView {
                 minHeight: 165
                 
@@ -276,47 +306,7 @@ Person {
             }
         }
         
-        labels {
-            showTitle: false
-            dividers: false
-        
-            VStack {
-                padding: 10 36 5 36
-            
-                Text {
-                    show: {{ !.label }}
-                    text: "no labels yet"
-                }
-                
-                FlowStack {
-                    list: {{ .label[] }}
-                
-                    button {
-                        press: openViewByName {
-                            viewName: "all-items-with-label"
-                            viewArguments: {
-                                name: "{.name}"
-                                uid: {{.uid}}
-                            }
-                        }
-                    
-                        VStack {
-                            background: {{.color}}
-                            cornerRadius: 5
-                        
-                            Text {
-                                text: "{.name}"
-                                font: 16 semibold
-                                color: #fff
-                                padding: 5 8 5 8
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        publicKeys {
+        cryptoKeys {
             EditorRow {
                 title: "{.name}"
             
@@ -328,7 +318,7 @@ Person {
         
         onlineProfiles {
             EditorRow {
-                title: "{.type}"
+                title: "{.itemType}"
             
                 VStack {
                     cornerRadius: 5
@@ -363,6 +353,10 @@ Person[] {
     filterButtons: showStarred toggleFilterPanel
     
     [renderer = list] {
+        contextMenu: [
+        star { title: "Favourite" }
+        ]
+        
         VStack {
             alignment: left
             padding: 5 0 0 20
@@ -371,10 +365,6 @@ Person[] {
                 alignment: center
                 
                 ZStack {
-                    padding: 12
-                    maxWidth: 25
-                    maxHeight: 25
-                    cornerRadius: 30
                     align: center
                     margin: 5 15 9 0
                 
@@ -383,6 +373,9 @@ Person[] {
                         resizable: fill
                         minHeight: 60
                         maxHeight: 60
+						minWidth: 60
+						maxWidth: 60
+						cornerRadius: 30
                     }
                 }
             
@@ -409,13 +402,18 @@ Person[] {
         spacing: 10
         edgeInset: 10
         
+        contextMenu: [
+        star { title: "Favourite" }
+        ]
+        
         VStack {
             alignment: center
             
             Image {
                 image: {{.profilePicture}}
                 cornerRadius: 10
-                resizable: fit
+                resizable: fill
+				forceAspect: true
             }
             Text {
                 text: "{.firstName} {.lastName}"
@@ -444,26 +442,22 @@ Person[] {
     }
     
     [renderer = chart] {
-        chartTitle: "People by height" /* Use this to override the auto-generated chart title */
+        chartType: bar
+        chartTitle: "Dynamically chart your data"
+        chartSubtitle: "Use the filter panel to change chart types"
         
-        label: "{.firstName}" /* used for bar chart (also provides label on line chart) */
+        label: "{.firstName}" /* provides label for a point/bar */
+        xAxis: {{.age()}} /* used for linechart. Feeling old? Try {{.age() - 10}} to give everyone back a decade ;) */
 		yAxis: {{.height}}
         
         hideGridlines: true
         yAxisStartAtZero: true /* use this to force y-Axis to start at zero (vs fitting data)*/
+		
+		color: #7BC17E
+		
+		valueLabelFont: 20
         
         sortProperty: height
         sortAscending: true
-    }
-    
-    [renderer = chart.line] {
-        chartTitle: "Height vs. Age"
-        chartSubtitle: "A demo of dynamically graphing your data."
-        
-		xAxis: {{.age()}} /* Feeling old? Try {{.age() - 10}} to give everyone back a decade ;) */
-		yAxis: {{.height}}
-        label: "{.firstName}" /* The label to show over the point */
-        
-        /* line chart ignores sort (automatically sorted by x-axis) */
     }
 }

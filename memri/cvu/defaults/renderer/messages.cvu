@@ -1,3 +1,4 @@
 [renderer = messages] {
-    press: openView /* open the message when pressing it */
+	edgeInset: 10
+	spacing: 8 /* the spacing between rows */
 }

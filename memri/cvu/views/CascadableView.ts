@@ -67,7 +67,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     }
 
     get state() {
-        return DatabaseController.current(false, null, (realm) => {
+        return DatabaseController.current(false, (realm) => {
             return realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
         })
     }

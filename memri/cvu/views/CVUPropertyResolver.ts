@@ -6,9 +6,11 @@ import {MemriDictionary} from "../../model/MemriDictionary";
 import {Font} from "../../parsers/cvu-parser/CVUParser";
 
 export class CVUPropertyResolver {
-    properties = MemriDictionary
+    properties = new MemriDictionary()
 
-    constructor(properties) {
+
+    constructor(properties: MemriDictionary) {
+        this.properties = properties ?? this.properties;
     }
 
     get color(): ColorDefinition {
@@ -17,7 +19,7 @@ export class CVUPropertyResolver {
             return colorDef
         }
         else if (typeof colorDef === "string") {
-            return ColorDefinition.hex(colorDef)
+            return colorDef //ColorDefinition.hex(colorDef)
         }
         return undefined
     }
@@ -38,37 +40,40 @@ export class CVUPropertyResolver {
             }
             else if (typeof value[0] == "number") {
                 let size = value[0]
-                return new FontDefinition("", size, value[1])
+                return new FontDefinition(undefined, size, value[1])
             }
         }
         else if (typeof fontProperty === "number") {
             let size = fontProperty
-            return FontDefinition("", size)
+            return new FontDefinition(undefined, size)
         }
-        else if let weight = fontProperty as? Font.Weight {
-            return FontDefinition(weight: weight)
+        else if (Object.values(Font.Weight).includes(fontProperty)) {
+            return new FontDefinition(undefined,undefined, fontProperty)
         }
-        return FontDefinition()
+        return new FontDefinition()
     }
 
-    var lineLimit: Int? {
-        properties["lineLimit"] as? Int
+    get lineLimit() {
+        return Number(this.properties["lineLimit"])
     }
 
-    var fitContent: Bool {
-        switch properties["resizable"] as? String {
-        case "fill": return false
-        case "fit": return true
-        default: return true
+    get fitContent() {
+        switch (this.properties["resizable"]) {
+            case "fill":
+                return false
+            case "fit":
+                return true
+            default:
+                return true
         }
     }
 
-    var forceAspect: Bool {
-        (properties["forceAspect"] as? Bool) ?? false
+    get forceAspect() {
+        return (Boolean(this.properties["forceAspect"])) ?? false
     }
 }
 
-public enum ColorDefinition {
+/*public enum ColorDefinition {
     case hex(String)
     case system(UIColor)
 
@@ -89,29 +94,37 @@ public enum ColorDefinition {
             return color
         }
     }
-}
+}*/
 
 export class FontDefinition {
     name: string
     size: number
-    weight: Font.Weight
+    weight
     italic: boolean = false
 
-    get font(): Font {
-		return Font(this.uiFont)
+
+    constructor(name?: string, size?: number, weight?, italic?: boolean) {
+        this.name = name;
+        this.size = size;
+        this.weight = weight;
+        this.italic = italic ?? this.italic;
     }
 
-    get uiFont(): UIFont {
+    get font(): Font {
+		return "Arial" //TODO: Font(this.uiFont)
+    }
+
+    /*get uiFont(): UIFont {
         let font = UIFont.systemFont(
             ofSize: size ?? UIFont.systemFontSize,
             weight: weight?.uiKit ?? .regular
         )
         let fontWithTraits = font.withTraits(traits: italic ? .traitItalic : [])
         return fontWithTraits
-    }
+    }*/
 }
 
-extension UIFont {
+/*extension UIFont {
     func withTraits(traits: UIFontDescriptor.SymbolicTraits) -> UIFont {
         let descriptor = fontDescriptor
             .withSymbolicTraits(fontDescriptor.symbolicTraits.union(traits))
@@ -134,4 +147,4 @@ extension Font.Weight {
         default: return .regular
         }
     }
-}
+}*/

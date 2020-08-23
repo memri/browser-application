@@ -1,14 +1,12 @@
 import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
-import {decodeEdges, jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder, unserialize} from "../../gui/util";
+import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder} from "../../gui/util";
 import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
-import {DatabaseController, ItemReference} from "../../storage/DatabaseController";
-import {RealmObjects, Realm} from "../RealmLocal";
+import {DatabaseController, ItemReference, realm} from "../../storage/DatabaseController";
+import {RealmObjects} from "../RealmLocal";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {Datasource} from "../../api/Datasource";
-import {Session} from "../../sessions/Session";
-import {Sessions} from "../../sessions/Sessions";
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
 import {MemriDictionary} from "../MemriDictionary";
 
@@ -76,7 +74,7 @@ export class Item extends SchemaItem {
         }
 
     get toString() {
-        var str = `${this.genericType} ${this.realm == undefined ? "[UNMANAGED] " : ""}{\n`
+        var str = `${this.genericType} ${realm == undefined ? "[UNMANAGED] " : ""}{\n`
             + `    uid: ${this.uid == undefined ? "null" : String(this.uid ?? 0)}\n`
             + `    _updated: ${!this["_updated"] || this["_updated"].length == 0 ? "[]" : `[${this["_updated"].join(", ")}]`}\n`
             + "    " + Object.keys(this)
@@ -227,7 +225,7 @@ export class Item extends SchemaItem {
     ///   - name: property name
     ///   - value: value
     set(name: string, value) {
-        DatabaseController.write(this.realm, () => {
+        DatabaseController.write(realm, () => {
             //let schema = this[name];
             if  (typeof value != "object" || !value) {
                 this[name] = value
@@ -258,7 +256,7 @@ export class Item extends SchemaItem {
     }
 
     reverseEdges(edgeType: string) {
-        if (this.realm && !this.uid) {
+        if (realm && !this.uid) {
             return null;
         }
 
@@ -266,12 +264,12 @@ export class Item extends SchemaItem {
         //#warning("Not implemented fully yet")
 
         // Should this create a temporary edge for which item() is source() ?
-        return this.realm?.objects("Edge") //TODO:
+        return realm?.objects("Edge") //TODO:
             .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}'`)
     }
 
     reverseEdge(edgeType: string) {
-        if (this.realm && !this.uid) {
+        if (realm && !this.uid) {
             return null;
         }
 
@@ -279,13 +277,13 @@ export class Item extends SchemaItem {
         //#warning("Not implemented fully yet")
 
         // Should this create a temporary edge for which item() is source() ?
-        return this.realm?.objects("Edge") //TODO:
+        return realm?.objects("Edge") //TODO:
             .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}'`)[0]
     }
 
     edges(edgeType: string|string[]) {
         if (Array.isArray(edgeType)) {
-            if (edgeType.length == 0 && this.realm == undefined) {
+            if (edgeType.length == 0 && realm == undefined) {
                 return null;
             }
             var flattened = [];
@@ -301,7 +299,7 @@ export class Item extends SchemaItem {
 
             return this.allEdges.filtered(filter)
         } else {
-            if (edgeType == "" && this.realm == undefined) {
+            if (edgeType == "" && realm == undefined) {
                 return null;
             }
             let collection = this.edgeCollection(edgeType);
@@ -427,10 +425,10 @@ export class Item extends SchemaItem {
         var edge = this.allEdges.filtered(query)[0] //TODO
         let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
-        DatabaseController.write(this.realm, function () {
+        DatabaseController.write(realm, function () {
             if (item.realm == undefined && item?.constructor?.name == "Item") {
                 item["_action"] = "create"
-                this.realm?.add(item, ".modified") //TODO
+                realm?.add(item, ".modified") //TODO
             }
 
             if (edge == undefined) {
@@ -478,10 +476,10 @@ export class Item extends SchemaItem {
     unlink(edge: Edge | Item, edgeType?: string, all: boolean = true) {
         if (edge?.constructor?.name == "Edge") {
             if (edge.sourceItemID.value == this.uid && edge.sourceItemType == this.genericType) {
-                DatabaseController.write(this.realm, () => {
+                DatabaseController.write(realm, () => {
                     edge.deleted = true;
                     edge["_action"] = "delete"
-                    this.realm?.delete(edge)//TODO
+                    realm?.delete(edge)//TODO
                 })
             } else {
                 throw "Exception: Edge does not link from this item"
@@ -500,7 +498,7 @@ export class Item extends SchemaItem {
             let results = this.allEdges.filtered(query); //TODO:
 
             if (results.length > 0) {
-                DatabaseController.write(this.realm,() => {
+                DatabaseController.write(realm,() => {
                     if (all) {
                         for (let edge of results) {
                             edge.deleted = true
@@ -604,7 +602,6 @@ export class Item extends SchemaItem {
     ///    that values cannot be set from a non-nil value to nil.
     merge(item: Item, mergeDefaults: boolean = false) {
         // Store these changes in realm
-        let realm: Realm = this.realm;
         if (realm) {
             try {
                 realm.write(() => {
@@ -669,7 +666,7 @@ export class Item extends SchemaItem {
     modified(updatedFields: string[]) {
         if (this._action != "create") {
             // Make sure that in between updates to this item are processed correctly
-            DatabaseController.write(this.realm, ()=> {
+            DatabaseController.write(realm, ()=> {
                 for (let field of updatedFields) {
                     if (!this._updated.contains(field)) {
                         this._updated.append(field)
@@ -1004,249 +1001,249 @@ export class Edge {
 //
 
 // The family of all data item classes
-enum ItemFamily {
-    typeAccount = "Account",
-    typeAuditItem = "AuditItem",
-    typeCreativeWork = "CreativeWork",
-    typeGame = "Game",
-    typeHowTo = "HowTo",
-    typeDiet = "Diet",
-    typeExercisePlan = "ExercisePlan",
-    typeRecipe = "Recipe",
-    typeMovingImage = "MovingImage",
-    typePerformingArt = "PerformingArt",
-    typeRecording = "Recording",
-    typeVisualArt = "VisualArt",
-    typeWrittenWork = "WrittenWork",
-    typeArticle = "Article",
-    typeComment = "Comment",
-    typeMessage = "Message",
-    typeEmailMessage = "EmailMessage",
-    typeNote = "Note",
-    typeNoteList = "NoteList",
-    typeReview = "Review",
-    typeCryptoKey = "CryptoKey",
-    typeCVUStateDefinition = "CVUStateDefinition",
-    typeCVUStoredDefinition = "CVUStoredDefinition",
-    typeDatasource = "Datasource",
-    typeDevice = "Device",
-    typeDownloader = "Downloader",
-    typeEdge = "Edge",
-    typeEvent = "Event",
-    typeFile = "File",
-    typeFrequency = "Frequency",
-    typeGenericAttribute = "GenericAttribute",
-    typeImporter = "Importer",
-    typeImporterRun = "ImporterRun",
-    typeIndexer = "Indexer",
-    typeIndexerRun = "IndexerRun",
-    typeIndustry = "Industry",
-    typeInvoice = "Invoice",
-    typeLabel = "Label",
-    typeLead = "Lead",
-    typeLocation = "Location",
-    typeAddress = "Address",
-    typeCountry = "Country",
-    typeMaterial = "Material",
-    typeMeasure = "Measure",
-    typeMediaObject = "MediaObject",
-    typeAudio = "Audio",
-    typePhoto = "Photo",
-    typeVideo = "Video",
-    typeMedicalCondition = "MedicalCondition",
-    typeMessageChannel = "MessageChannel",
-    typeModeOfTransport = "ModeOfTransport",
-    typeNavigationItem = "NavigationItem",
-    typeNetwork = "Network",
-    typeOffer = "Offer",
-    typeOpeningHours = "OpeningHours",
-    typeOption = "Option",
-    typeOrganization = "Organization",
-    typePerson = "Person",
-    typePhoneNumber = "PhoneNumber",
-    typePhysicalEntity = "PhysicalEntity",
-    typeProduct = "Product",
-    typeProductCode = "ProductCode",
-    typeReceipt = "Receipt",
-    typeReservation = "Reservation",
-    typeResource = "Resource",
-    typeRoute = "Route",
-    typeSetting = "Setting",
-    typeSpan = "Span",
-    typeTimeFrame = "TimeFrame",
-    typeTransaction = "Transaction",
-    typeTrip = "Trip",
-    typeUnit = "Unit",
-    typeUserState = "UserState",
-    typeViewArguments = "ViewArguments",
-    typeVote = "Vote",
-    typeVoteAction = "VoteAction",
-    typeWebsite = "Website",
+export enum ItemFamily {
+    Account = "Account",
+    AuditItem = "AuditItem",
+    CreativeWork = "CreativeWork",
+    Game = "Game",
+    HowTo = "HowTo",
+    Diet = "Diet",
+    ExercisePlan = "ExercisePlan",
+    Recipe = "Recipe",
+    MovingImage = "MovingImage",
+    PerformingArt = "PerformingArt",
+    Recording = "Recording",
+    VisualArt = "VisualArt",
+    WrittenWork = "WrittenWork",
+    Article = "Article",
+    Comment = "Comment",
+    Message = "Message",
+    EmailMessage = "EmailMessage",
+    Note = "Note",
+    NoteList = "NoteList",
+    Review = "Review",
+    CryptoKey = "CryptoKey",
+    CVUStateDefinition = "CVUStateDefinition",
+    CVUStoredDefinition = "CVUStoredDefinition",
+    Datasource = "Datasource",
+    Device = "Device",
+    Downloader = "Downloader",
+    Edge = "Edge",
+    Event = "Event",
+    File = "File",
+    Frequency = "Frequency",
+    GenericAttribute = "GenericAttribute",
+    Importer = "Importer",
+    ImporterRun = "ImporterRun",
+    Indexer = "Indexer",
+    IndexerRun = "IndexerRun",
+    Industry = "Industry",
+    Invoice = "Invoice",
+    Label = "Label",
+    Lead = "Lead",
+    Location = "Location",
+    Address = "Address",
+    Country = "Country",
+    Material = "Material",
+    Measure = "Measure",
+    MediaObject = "MediaObject",
+    Audio = "Audio",
+    Photo = "Photo",
+    Video = "Video",
+    MedicalCondition = "MedicalCondition",
+    MessageChannel = "MessageChannel",
+    ModeOfTransport = "ModeOfTransport",
+    NavigationItem = "NavigationItem",
+    Network = "Network",
+    Offer = "Offer",
+    OpeningHours = "OpeningHours",
+    Option = "Option",
+    Organization = "Organization",
+    Person = "Person",
+    PhoneNumber = "PhoneNumber",
+    PhysicalEntity = "PhysicalEntity",
+    Product = "Product",
+    ProductCode = "ProductCode",
+    Receipt = "Receipt",
+    Reservation = "Reservation",
+    Resource = "Resource",
+    Route = "Route",
+    Setting = "Setting",
+    Span = "Span",
+    TimeFrame = "TimeFrame",
+    Transaction = "Transaction",
+    Trip = "Trip",
+    Unit = "Unit",
+    UserState = "UserState",
+    ViewArguments = "ViewArguments",
+    Vote = "Vote",
+    VoteAction = "VoteAction",
+    Website = "Website",
 }
 
 //export var discriminator = Discriminator._type
 
 export var backgroundColor = function(name) {
     switch (name) {
-        case ItemFamily.typeAccount: return new Color("#93c47d")
-        case ItemFamily.typeAuditItem: return new Color("#93c47d")
-        case ItemFamily.typeCreativeWork: return new Color("#93c47d")
-        case ItemFamily.typeGame: return new Color("#93c47d")
-        case ItemFamily.typeHowTo: return new Color("#93c47d")
-        case ItemFamily.typeDiet: return new Color("#37af1c")
-        case ItemFamily.typeExercisePlan: return new Color("#93c47d")
-        case ItemFamily.typeRecipe: return new Color("#93c47d")
-        case ItemFamily.typeMovingImage: return new Color("#93c47d")
-        case ItemFamily.typePerformingArt: return new Color("#93c47d")
-        case ItemFamily.typeRecording: return new Color("#93c47d")
-        case ItemFamily.typeVisualArt: return new Color("#93c47d")
-        case ItemFamily.typeWrittenWork: return new Color("#93c47d")
-        case ItemFamily.typeArticle: return new Color("#93c47d")
-        case ItemFamily.typeComment: return new Color("#93c47d")
-        case ItemFamily.typeMessage: return new Color("#93c47d")
-        case ItemFamily.typeEmailMessage: return new Color("#93c47d")
-        case ItemFamily.typeNote: return new Color("#93c47d")
-        case ItemFamily.typeNoteList: return new Color("#93c47d")
-        case ItemFamily.typeReview: return new Color("#93c47d")
-        case ItemFamily.typeCryptoKey: return new Color("#93c47d")
-        case ItemFamily.typeCVUStateDefinition: return new Color("#93c47d")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#93c47d")
-        case ItemFamily.typeDatasource: return new Color("#93c47d")
-        case ItemFamily.typeDevice: return new Color("#93c47d")
-        case ItemFamily.typeDownloader: return new Color("#93c47d")
-        case ItemFamily.typeEdge: return new Color("#93c47d")
-        case ItemFamily.typeEvent: return new Color("#93c47d")
-        case ItemFamily.typeFile: return new Color("#93c47d")
-        case ItemFamily.typeFrequency: return new Color("#93c47d")
-        case ItemFamily.typeGenericAttribute: return new Color("#93c47d")
-        case ItemFamily.typeImporter: return new Color("#93c47d")
-        case ItemFamily.typeImporterRun: return new Color("#93c47d")
-        case ItemFamily.typeIndexer: return new Color("#93c47d")
-        case ItemFamily.typeIndexerRun: return new Color("#93c47d")
-        case ItemFamily.typeIndustry: return new Color("#93c47d")
-        case ItemFamily.typeInvoice: return new Color("#93c47d")
-        case ItemFamily.typeLabel: return new Color("#93c47d")
-        case ItemFamily.typeLead: return new Color("#93c47d")
-        case ItemFamily.typeLocation: return new Color("#93c47d")
-        case ItemFamily.typeAddress: return new Color("#93c47d")
-        case ItemFamily.typeCountry: return new Color("#93c47d")
-        case ItemFamily.typeMaterial: return new Color("#3d57e2")
-        case ItemFamily.typeMeasure: return new Color("#3d57e2")
-        case ItemFamily.typeMediaObject: return new Color("#93c47d")
-        case ItemFamily.typeAudio: return new Color("#93c47d")
-        case ItemFamily.typePhoto: return new Color("#93c47d")
-        case ItemFamily.typeVideo: return new Color("#93c47d")
-        case ItemFamily.typeMedicalCondition: return new Color("#3dc8e2")
-        case ItemFamily.typeMessageChannel: return new Color("#93c47d")
-        case ItemFamily.typeModeOfTransport: return new Color("#93c47d")
-        case ItemFamily.typeNavigationItem: return new Color("#93c47d")
-        case ItemFamily.typeNetwork: return new Color("#93c47d")
-        case ItemFamily.typeOffer: return new Color("#93c47d")
-        case ItemFamily.typeOpeningHours: return new Color("#93c47d")
-        case ItemFamily.typeOption: return new Color("#93c47d")
-        case ItemFamily.typeOrganization: return new Color("#93c47d")
-        case ItemFamily.typePerson: return new Color("#3a5eb2")
-        case ItemFamily.typePhoneNumber: return new Color("#eccf23")
-        case ItemFamily.typePhysicalEntity: return new Color("#93c47d")
-        case ItemFamily.typeProduct: return new Color("#93c47d")
-        case ItemFamily.typeProductCode: return new Color("#93c47d")
-        case ItemFamily.typeReceipt: return new Color("#93c47d")
-        case ItemFamily.typeReservation: return new Color("#93c47d")
-        case ItemFamily.typeResource: return new Color("#93c47d")
-        case ItemFamily.typeRoute: return new Color("#93c47d")
-        case ItemFamily.typeSetting: return new Color("#93c47d")
-        case ItemFamily.typeSpan: return new Color("#93c47d")
-        case ItemFamily.typeTimeFrame: return new Color("#93c47d")
-        case ItemFamily.typeTransaction: return new Color("#3a5eb2")
-        case ItemFamily.typeTrip: return new Color("#93c47d")
-        case ItemFamily.typeUnit: return new Color("#93c47d")
-        case ItemFamily.typeUserState: return new Color("#93c47d")
-        case ItemFamily.typeViewArguments: return new Color("#93c47d")
-        case ItemFamily.typeVote: return new Color("#93c47d")
-        case ItemFamily.typeVoteAction: return new Color("#93c47d")
-        case ItemFamily.typeWebsite: return new Color("#3d57e2")
+        case ItemFamily.Account: return new Color("#93c47d")
+        case ItemFamily.AuditItem: return new Color("#93c47d")
+        case ItemFamily.CreativeWork: return new Color("#93c47d")
+        case ItemFamily.Game: return new Color("#93c47d")
+        case ItemFamily.HowTo: return new Color("#93c47d")
+        case ItemFamily.Diet: return new Color("#37af1c")
+        case ItemFamily.ExercisePlan: return new Color("#93c47d")
+        case ItemFamily.Recipe: return new Color("#93c47d")
+        case ItemFamily.MovingImage: return new Color("#93c47d")
+        case ItemFamily.PerformingArt: return new Color("#93c47d")
+        case ItemFamily.Recording: return new Color("#93c47d")
+        case ItemFamily.VisualArt: return new Color("#93c47d")
+        case ItemFamily.WrittenWork: return new Color("#93c47d")
+        case ItemFamily.Article: return new Color("#93c47d")
+        case ItemFamily.Comment: return new Color("#93c47d")
+        case ItemFamily.Message: return new Color("#93c47d")
+        case ItemFamily.EmailMessage: return new Color("#93c47d")
+        case ItemFamily.Note: return new Color("#93c47d")
+        case ItemFamily.NoteList: return new Color("#93c47d")
+        case ItemFamily.Review: return new Color("#93c47d")
+        case ItemFamily.CryptoKey: return new Color("#93c47d")
+        case ItemFamily.CVUStateDefinition: return new Color("#93c47d")
+        case ItemFamily.CVUStoredDefinition: return new Color("#93c47d")
+        case ItemFamily.Datasource: return new Color("#93c47d")
+        case ItemFamily.Device: return new Color("#93c47d")
+        case ItemFamily.Downloader: return new Color("#93c47d")
+        case ItemFamily.Edge: return new Color("#93c47d")
+        case ItemFamily.Event: return new Color("#93c47d")
+        case ItemFamily.File: return new Color("#93c47d")
+        case ItemFamily.Frequency: return new Color("#93c47d")
+        case ItemFamily.GenericAttribute: return new Color("#93c47d")
+        case ItemFamily.Importer: return new Color("#93c47d")
+        case ItemFamily.ImporterRun: return new Color("#93c47d")
+        case ItemFamily.Indexer: return new Color("#93c47d")
+        case ItemFamily.IndexerRun: return new Color("#93c47d")
+        case ItemFamily.Industry: return new Color("#93c47d")
+        case ItemFamily.Invoice: return new Color("#93c47d")
+        case ItemFamily.Label: return new Color("#93c47d")
+        case ItemFamily.Lead: return new Color("#93c47d")
+        case ItemFamily.Location: return new Color("#93c47d")
+        case ItemFamily.Address: return new Color("#93c47d")
+        case ItemFamily.Country: return new Color("#93c47d")
+        case ItemFamily.Material: return new Color("#3d57e2")
+        case ItemFamily.Measure: return new Color("#3d57e2")
+        case ItemFamily.MediaObject: return new Color("#93c47d")
+        case ItemFamily.Audio: return new Color("#93c47d")
+        case ItemFamily.Photo: return new Color("#93c47d")
+        case ItemFamily.Video: return new Color("#93c47d")
+        case ItemFamily.MedicalCondition: return new Color("#3dc8e2")
+        case ItemFamily.MessageChannel: return new Color("#93c47d")
+        case ItemFamily.ModeOfTransport: return new Color("#93c47d")
+        case ItemFamily.NavigationItem: return new Color("#93c47d")
+        case ItemFamily.Network: return new Color("#93c47d")
+        case ItemFamily.Offer: return new Color("#93c47d")
+        case ItemFamily.OpeningHours: return new Color("#93c47d")
+        case ItemFamily.Option: return new Color("#93c47d")
+        case ItemFamily.Organization: return new Color("#93c47d")
+        case ItemFamily.Person: return new Color("#3a5eb2")
+        case ItemFamily.PhoneNumber: return new Color("#eccf23")
+        case ItemFamily.PhysicalEntity: return new Color("#93c47d")
+        case ItemFamily.Product: return new Color("#93c47d")
+        case ItemFamily.ProductCode: return new Color("#93c47d")
+        case ItemFamily.Receipt: return new Color("#93c47d")
+        case ItemFamily.Reservation: return new Color("#93c47d")
+        case ItemFamily.Resource: return new Color("#93c47d")
+        case ItemFamily.Route: return new Color("#93c47d")
+        case ItemFamily.Setting: return new Color("#93c47d")
+        case ItemFamily.Span: return new Color("#93c47d")
+        case ItemFamily.TimeFrame: return new Color("#93c47d")
+        case ItemFamily.Transaction: return new Color("#3a5eb2")
+        case ItemFamily.Trip: return new Color("#93c47d")
+        case ItemFamily.Unit: return new Color("#93c47d")
+        case ItemFamily.UserState: return new Color("#93c47d")
+        case ItemFamily.ViewArguments: return new Color("#93c47d")
+        case ItemFamily.Vote: return new Color("#93c47d")
+        case ItemFamily.VoteAction: return new Color("#93c47d")
+        case ItemFamily.Website: return new Color("#3d57e2")
     }
 }
 
 export var foregroundColor = function(name) {
     switch (name) {
-        case ItemFamily.typeAccount: return new Color("#ffffff")
-        case ItemFamily.typeAuditItem: return new Color("#ffffff")
-        case ItemFamily.typeCreativeWork: return new Color("#ffffff")
-        case ItemFamily.typeGame: return new Color("#ffffff")
-        case ItemFamily.typeHowTo: return new Color("#ffffff")
-        case ItemFamily.typeDiet: return new Color("#ffffff")
-        case ItemFamily.typeExercisePlan: return new Color("#ffffff")
-        case ItemFamily.typeRecipe: return new Color("#ffffff")
-        case ItemFamily.typeMovingImage: return new Color("#ffffff")
-        case ItemFamily.typePerformingArt: return new Color("#ffffff")
-        case ItemFamily.typeRecording: return new Color("#ffffff")
-        case ItemFamily.typeVisualArt: return new Color("#ffffff")
-        case ItemFamily.typeWrittenWork: return new Color("#ffffff")
-        case ItemFamily.typeArticle: return new Color("#ffffff")
-        case ItemFamily.typeComment: return new Color("#ffffff")
-        case ItemFamily.typeMessage: return new Color("#ffffff")
-        case ItemFamily.typeEmailMessage: return new Color("#ffffff")
-        case ItemFamily.typeNote: return new Color("#ffffff")
-        case ItemFamily.typeNoteList: return new Color("#ffffff")
-        case ItemFamily.typeReview: return new Color("#ffffff")
-        case ItemFamily.typeCryptoKey: return new Color("#ffffff")
-        case ItemFamily.typeCVUStateDefinition: return new Color("#ffffff")
-        case ItemFamily.typeCVUStoredDefinition: return new Color("#ffffff")
-        case ItemFamily.typeDatasource: return new Color("#ffffff")
-        case ItemFamily.typeDevice: return new Color("#ffffff")
-        case ItemFamily.typeDownloader: return new Color("#ffffff")
-        case ItemFamily.typeEdge: return new Color("#ffffff")
-        case ItemFamily.typeEvent: return new Color("#ffffff")
-        case ItemFamily.typeFile: return new Color("#ffffff")
-        case ItemFamily.typeFrequency: return new Color("#ffffff")
-        case ItemFamily.typeGenericAttribute: return new Color("#ffffff")
-        case ItemFamily.typeImporter: return new Color("#ffffff")
-        case ItemFamily.typeImporterRun: return new Color("#ffffff")
-        case ItemFamily.typeIndexer: return new Color("#ffffff")
-        case ItemFamily.typeIndexerRun: return new Color("#ffffff")
-        case ItemFamily.typeIndustry: return new Color("#ffffff")
-        case ItemFamily.typeInvoice: return new Color("#ffffff")
-        case ItemFamily.typeLabel: return new Color("#ffffff")
-        case ItemFamily.typeLead: return new Color("#ffffff")
-        case ItemFamily.typeLocation: return new Color("#ffffff")
-        case ItemFamily.typeAddress: return new Color("#ffffff")
-        case ItemFamily.typeCountry: return new Color("#ffffff")
-        case ItemFamily.typeMaterial: return new Color("#ffffff")
-        case ItemFamily.typeMeasure: return new Color("#ffffff")
-        case ItemFamily.typeMediaObject: return new Color("#ffffff")
-        case ItemFamily.typeAudio: return new Color("#ffffff")
-        case ItemFamily.typePhoto: return new Color("#ffffff")
-        case ItemFamily.typeVideo: return new Color("#ffffff")
-        case ItemFamily.typeMedicalCondition: return new Color("#ffffff")
-        case ItemFamily.typeMessageChannel: return new Color("#ffffff")
-        case ItemFamily.typeModeOfTransport: return new Color("#ffffff")
-        case ItemFamily.typeNavigationItem: return new Color("#ffffff")
-        case ItemFamily.typeNetwork: return new Color("#ffffff")
-        case ItemFamily.typeOffer: return new Color("#ffffff")
-        case ItemFamily.typeOpeningHours: return new Color("#ffffff")
-        case ItemFamily.typeOption: return new Color("#ffffff")
-        case ItemFamily.typeOrganization: return new Color("#ffffff")
-        case ItemFamily.typePerson: return new Color("#ffffff")
-        case ItemFamily.typePhoneNumber: return new Color("#ffffff")
-        case ItemFamily.typePhysicalEntity: return new Color("#ffffff")
-        case ItemFamily.typeProduct: return new Color("#ffffff")
-        case ItemFamily.typeProductCode: return new Color("#ffffff")
-        case ItemFamily.typeReceipt: return new Color("#ffffff")
-        case ItemFamily.typeReservation: return new Color("#ffffff")
-        case ItemFamily.typeResource: return new Color("#ffffff")
-        case ItemFamily.typeRoute: return new Color("#ffffff")
-        case ItemFamily.typeSetting: return new Color("#ffffff")
-        case ItemFamily.typeSpan: return new Color("#ffffff")
-        case ItemFamily.typeTimeFrame: return new Color("#ffffff")
-        case ItemFamily.typeTransaction: return new Color("#ffffff")
-        case ItemFamily.typeTrip: return new Color("#ffffff")
-        case ItemFamily.typeUnit: return new Color("#ffffff")
-        case ItemFamily.typeUserState: return new Color("#ffffff")
-        case ItemFamily.typeViewArguments: return new Color("#ffffff")
-        case ItemFamily.typeVote: return new Color("#ffffff")
-        case ItemFamily.typeVoteAction: return new Color("#ffffff")
-        case ItemFamily.typeWebsite: return new Color("#ffffff")
+        case ItemFamily.Account: return new Color("#ffffff")
+        case ItemFamily.AuditItem: return new Color("#ffffff")
+        case ItemFamily.CreativeWork: return new Color("#ffffff")
+        case ItemFamily.Game: return new Color("#ffffff")
+        case ItemFamily.HowTo: return new Color("#ffffff")
+        case ItemFamily.Diet: return new Color("#ffffff")
+        case ItemFamily.ExercisePlan: return new Color("#ffffff")
+        case ItemFamily.Recipe: return new Color("#ffffff")
+        case ItemFamily.MovingImage: return new Color("#ffffff")
+        case ItemFamily.PerformingArt: return new Color("#ffffff")
+        case ItemFamily.Recording: return new Color("#ffffff")
+        case ItemFamily.VisualArt: return new Color("#ffffff")
+        case ItemFamily.WrittenWork: return new Color("#ffffff")
+        case ItemFamily.Article: return new Color("#ffffff")
+        case ItemFamily.Comment: return new Color("#ffffff")
+        case ItemFamily.Message: return new Color("#ffffff")
+        case ItemFamily.EmailMessage: return new Color("#ffffff")
+        case ItemFamily.Note: return new Color("#ffffff")
+        case ItemFamily.NoteList: return new Color("#ffffff")
+        case ItemFamily.Review: return new Color("#ffffff")
+        case ItemFamily.CryptoKey: return new Color("#ffffff")
+        case ItemFamily.CVUStateDefinition: return new Color("#ffffff")
+        case ItemFamily.CVUStoredDefinition: return new Color("#ffffff")
+        case ItemFamily.Datasource: return new Color("#ffffff")
+        case ItemFamily.Device: return new Color("#ffffff")
+        case ItemFamily.Downloader: return new Color("#ffffff")
+        case ItemFamily.Edge: return new Color("#ffffff")
+        case ItemFamily.Event: return new Color("#ffffff")
+        case ItemFamily.File: return new Color("#ffffff")
+        case ItemFamily.Frequency: return new Color("#ffffff")
+        case ItemFamily.GenericAttribute: return new Color("#ffffff")
+        case ItemFamily.Importer: return new Color("#ffffff")
+        case ItemFamily.ImporterRun: return new Color("#ffffff")
+        case ItemFamily.Indexer: return new Color("#ffffff")
+        case ItemFamily.IndexerRun: return new Color("#ffffff")
+        case ItemFamily.Industry: return new Color("#ffffff")
+        case ItemFamily.Invoice: return new Color("#ffffff")
+        case ItemFamily.Label: return new Color("#ffffff")
+        case ItemFamily.Lead: return new Color("#ffffff")
+        case ItemFamily.Location: return new Color("#ffffff")
+        case ItemFamily.Address: return new Color("#ffffff")
+        case ItemFamily.Country: return new Color("#ffffff")
+        case ItemFamily.Material: return new Color("#ffffff")
+        case ItemFamily.Measure: return new Color("#ffffff")
+        case ItemFamily.MediaObject: return new Color("#ffffff")
+        case ItemFamily.Audio: return new Color("#ffffff")
+        case ItemFamily.Photo: return new Color("#ffffff")
+        case ItemFamily.Video: return new Color("#ffffff")
+        case ItemFamily.MedicalCondition: return new Color("#ffffff")
+        case ItemFamily.MessageChannel: return new Color("#ffffff")
+        case ItemFamily.ModeOfTransport: return new Color("#ffffff")
+        case ItemFamily.NavigationItem: return new Color("#ffffff")
+        case ItemFamily.Network: return new Color("#ffffff")
+        case ItemFamily.Offer: return new Color("#ffffff")
+        case ItemFamily.OpeningHours: return new Color("#ffffff")
+        case ItemFamily.Option: return new Color("#ffffff")
+        case ItemFamily.Organization: return new Color("#ffffff")
+        case ItemFamily.Person: return new Color("#ffffff")
+        case ItemFamily.PhoneNumber: return new Color("#ffffff")
+        case ItemFamily.PhysicalEntity: return new Color("#ffffff")
+        case ItemFamily.Product: return new Color("#ffffff")
+        case ItemFamily.ProductCode: return new Color("#ffffff")
+        case ItemFamily.Receipt: return new Color("#ffffff")
+        case ItemFamily.Reservation: return new Color("#ffffff")
+        case ItemFamily.Resource: return new Color("#ffffff")
+        case ItemFamily.Route: return new Color("#ffffff")
+        case ItemFamily.Setting: return new Color("#ffffff")
+        case ItemFamily.Span: return new Color("#ffffff")
+        case ItemFamily.TimeFrame: return new Color("#ffffff")
+        case ItemFamily.Transaction: return new Color("#ffffff")
+        case ItemFamily.Trip: return new Color("#ffffff")
+        case ItemFamily.Unit: return new Color("#ffffff")
+        case ItemFamily.UserState: return new Color("#ffffff")
+        case ItemFamily.ViewArguments: return new Color("#ffffff")
+        case ItemFamily.Vote: return new Color("#ffffff")
+        case ItemFamily.VoteAction: return new Color("#ffffff")
+        case ItemFamily.Website: return new Color("#ffffff")
     }
 }
 
@@ -1256,83 +1253,83 @@ export var getPrimaryKey = function(name) {
 
 export var getItemType = function(name) {
     switch (name) {
-        case ItemFamily.typeAccount: return Account
-        case ItemFamily.typeAuditItem: return AuditItem
-        case ItemFamily.typeCreativeWork: return CreativeWork
-        case ItemFamily.typeGame: return Game
-        case ItemFamily.typeHowTo: return HowTo
-        case ItemFamily.typeDiet: return Diet
-        case ItemFamily.typeExercisePlan: return ExercisePlan
-        case ItemFamily.typeRecipe: return Recipe
-        case ItemFamily.typeMovingImage: return MovingImage
-        case ItemFamily.typePerformingArt: return PerformingArt
-        case ItemFamily.typeRecording: return Recording
-        case ItemFamily.typeVisualArt: return VisualArt
-        case ItemFamily.typeWrittenWork: return WrittenWork
-        case ItemFamily.typeArticle: return Article
-        case ItemFamily.typeComment: return Comment
-        case ItemFamily.typeMessage: return Message
-        case ItemFamily.typeEmailMessage: return EmailMessage
-        case ItemFamily.typeNote: return Note
-        case ItemFamily.typeNoteList: return NoteList
-        case ItemFamily.typeReview: return Review
-        case ItemFamily.typeCryptoKey: return CryptoKey
-        case ItemFamily.typeCVUStateDefinition: return CVUStateDefinition
-        case ItemFamily.typeCVUStoredDefinition: return CVUStoredDefinition
-        case ItemFamily.typeDatasource: return Datasource
-        case ItemFamily.typeDevice: return Device
-        case ItemFamily.typeDownloader: return Downloader
-        case ItemFamily.typeEdge: return Edge
-        case ItemFamily.typeEvent: return Event
-        case ItemFamily.typeFile: return File
-        case ItemFamily.typeFrequency: return Frequency
-        case ItemFamily.typeGenericAttribute: return GenericAttribute
-        case ItemFamily.typeImporter: return Importer
-        case ItemFamily.typeImporterRun: return ImporterRun
-        case ItemFamily.typeIndexer: return Indexer
-        case ItemFamily.typeIndexerRun: return IndexerRun
-        case ItemFamily.typeIndustry: return Industry
-        case ItemFamily.typeInvoice: return Invoice
-        case ItemFamily.typeLabel: return Label
-        case ItemFamily.typeLead: return Lead
-        case ItemFamily.typeLocation: return Location
-        case ItemFamily.typeAddress: return Address
-        case ItemFamily.typeCountry: return Country
-        case ItemFamily.typeMaterial: return Material
-        case ItemFamily.typeMeasure: return Measure
-        case ItemFamily.typeMediaObject: return MediaObject
-        case ItemFamily.typeAudio: return Audio
-        case ItemFamily.typePhoto: return Photo
-        case ItemFamily.typeVideo: return Video
-        case ItemFamily.typeMedicalCondition: return MedicalCondition
-        case ItemFamily.typeMessageChannel: return MessageChannel
-        case ItemFamily.typeModeOfTransport: return ModeOfTransport
-        case ItemFamily.typeNavigationItem: return NavigationItem
-        case ItemFamily.typeNetwork: return Network
-        case ItemFamily.typeOffer: return Offer
-        case ItemFamily.typeOpeningHours: return OpeningHours
-        case ItemFamily.typeOption: return Option
-        case ItemFamily.typeOrganization: return Organization
-        case ItemFamily.typePerson: return Person
-        case ItemFamily.typePhoneNumber: return PhoneNumber
-        case ItemFamily.typePhysicalEntity: return PhysicalEntity
-        case ItemFamily.typeProduct: return Product
-        case ItemFamily.typeProductCode: return ProductCode
-        case ItemFamily.typeReceipt: return Receipt
-        case ItemFamily.typeReservation: return Reservation
-        case ItemFamily.typeResource: return Resource
-        case ItemFamily.typeRoute: return Route
-        case ItemFamily.typeSetting: return Setting
-        case ItemFamily.typeSpan: return Span
-        case ItemFamily.typeTimeFrame: return TimeFrame
-        case ItemFamily.typeTransaction: return Transaction
-        case ItemFamily.typeTrip: return Trip
-        case ItemFamily.typeUnit: return Unit
-        case ItemFamily.typeUserState: return UserState
-        case ItemFamily.typeViewArguments: return ViewArguments
-        case ItemFamily.typeVote: return Vote
-        case ItemFamily.typeVoteAction: return VoteAction
-        case ItemFamily.typeWebsite: return Website
+        case ItemFamily.Account: return Account
+        case ItemFamily.AuditItem: return AuditItem
+        case ItemFamily.CreativeWork: return CreativeWork
+        case ItemFamily.Game: return Game
+        case ItemFamily.HowTo: return HowTo
+        case ItemFamily.Diet: return Diet
+        case ItemFamily.ExercisePlan: return ExercisePlan
+        case ItemFamily.Recipe: return Recipe
+        case ItemFamily.MovingImage: return MovingImage
+        case ItemFamily.PerformingArt: return PerformingArt
+        case ItemFamily.Recording: return Recording
+        case ItemFamily.VisualArt: return VisualArt
+        case ItemFamily.WrittenWork: return WrittenWork
+        case ItemFamily.Article: return Article
+        case ItemFamily.Comment: return Comment
+        case ItemFamily.Message: return Message
+        case ItemFamily.EmailMessage: return EmailMessage
+        case ItemFamily.Note: return Note
+        case ItemFamily.NoteList: return NoteList
+        case ItemFamily.Review: return Review
+        case ItemFamily.CryptoKey: return CryptoKey
+        case ItemFamily.CVUStateDefinition: return CVUStateDefinition
+        case ItemFamily.CVUStoredDefinition: return CVUStoredDefinition
+        case ItemFamily.Datasource: return Datasource
+        case ItemFamily.Device: return Device
+        case ItemFamily.Downloader: return Downloader
+        case ItemFamily.Edge: return Edge
+        case ItemFamily.Event: return Event
+        case ItemFamily.File: return File
+        case ItemFamily.Frequency: return Frequency
+        case ItemFamily.GenericAttribute: return GenericAttribute
+        case ItemFamily.Importer: return Importer
+        case ItemFamily.ImporterRun: return ImporterRun
+        case ItemFamily.Indexer: return Indexer
+        case ItemFamily.IndexerRun: return IndexerRun
+        case ItemFamily.Industry: return Industry
+        case ItemFamily.Invoice: return Invoice
+        case ItemFamily.Label: return Label
+        case ItemFamily.Lead: return Lead
+        case ItemFamily.Location: return Location
+        case ItemFamily.Address: return Address
+        case ItemFamily.Country: return Country
+        case ItemFamily.Material: return Material
+        case ItemFamily.Measure: return Measure
+        case ItemFamily.MediaObject: return MediaObject
+        case ItemFamily.Audio: return Audio
+        case ItemFamily.Photo: return Photo
+        case ItemFamily.Video: return Video
+        case ItemFamily.MedicalCondition: return MedicalCondition
+        case ItemFamily.MessageChannel: return MessageChannel
+        case ItemFamily.ModeOfTransport: return ModeOfTransport
+        case ItemFamily.NavigationItem: return NavigationItem
+        case ItemFamily.Network: return Network
+        case ItemFamily.Offer: return Offer
+        case ItemFamily.OpeningHours: return OpeningHours
+        case ItemFamily.Option: return Option
+        case ItemFamily.Organization: return Organization
+        case ItemFamily.Person: return Person
+        case ItemFamily.PhoneNumber: return PhoneNumber
+        case ItemFamily.PhysicalEntity: return PhysicalEntity
+        case ItemFamily.Product: return Product
+        case ItemFamily.ProductCode: return ProductCode
+        case ItemFamily.Receipt: return Receipt
+        case ItemFamily.Reservation: return Reservation
+        case ItemFamily.Resource: return Resource
+        case ItemFamily.Route: return Route
+        case ItemFamily.Setting: return Setting
+        case ItemFamily.Span: return Span
+        case ItemFamily.TimeFrame: return TimeFrame
+        case ItemFamily.Transaction: return Transaction
+        case ItemFamily.Trip: return Trip
+        case ItemFamily.Unit: return Unit
+        case ItemFamily.UserState: return UserState
+        case ItemFamily.ViewArguments: return ViewArguments
+        case ItemFamily.Vote: return Vote
+        case ItemFamily.VoteAction: return VoteAction
+        case ItemFamily.Website: return Website
     }
 }
 
@@ -1604,9 +1601,9 @@ export class WrittenWork extends Item {
 /// An article, for instance from a journal, magazine or newspaper.
 export class Article extends Item {
     /// A comment on this Item.
-    get comment() {
+    /*get comment() {
         return this.edges("comment")?.items(Comment)
-    }
+    }*/
 
     constructor(decoder) {
         super(decoder)
@@ -1675,9 +1672,9 @@ export class EmailMessage extends Item {
 /// A file containing a note.
 export class Note extends Item {
     /// A comment on this Item.
-    get comment() {
+    /*get comment() {
         return this.edges("comment")?.items(Comment)
-    }
+    }*/
 
     constructor(decoder) {
         super(decoder)
@@ -1979,9 +1976,9 @@ export class Label extends Item {
     name
 
     /// A comment on this Item.
-    get comment() {
+    /*get comment() {
         return this.edges("comment")?.items(Comment)
-    }
+    }*/
 
     /// The Item this Item applies to.
     get appliesTo() {
@@ -3038,18 +3035,18 @@ export function dataItemListToArray(object) {
 
 // Other.swift/ts
 
-Object.assign(Note.prototype,{
+Object.defineProperty(Note, "computedTitle", {
     get computedTitle() {
         return `${this.title ?? ""}`
     }
 });
 
-Object.assign(PhoneNumber.prototype,{
+Object.defineProperty(PhoneNumber, "computedTitle", {
     get computedTitle() {
         return `${this.phoneNumber ?? ""}`
     }
 });
-
+/*
 Object.assign(Website.prototype,{
     get computedTitle() {
         return `${this.url ?? ""}`
@@ -3099,7 +3096,7 @@ Object.assign(Network.prototype,{
     get computedTitle() {
         return `${this.name ?? ""}`
     }
-});
+});*/
 
 export class Person extends SchemaPerson {
     get computedTitle(): string {
@@ -3134,6 +3131,7 @@ export class Person extends SchemaPerson {
     }
 }
 
+/*
 Object.assign(AuditItem.prototype,{
     get computedTitle() {
         return `Logged ${this.action ?? "unknown action"} on ${this.date?.description ?? ""}`
@@ -3205,6 +3203,7 @@ Object.assign(IndexerRun.prototype,{
         if (indexer) { this.set("indexer", indexer) }
     }
 });
+*/
 
 export class CVUStoredDefinition extends Item {
     get computedTitle() {

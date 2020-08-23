@@ -75,8 +75,7 @@ Note {
     
     [renderer = custom] {
         RichTextfield {
-            htmlValue: {{.content}}
-            value: {{.textContent}}
+            content: {{.content}}
             title: {{.title}}
             titleHint: "Untitled Note"
             fontSize: 18
@@ -108,13 +107,22 @@ Note[] {
     filterButtons: showStarred toggleFilterPanel
     
     [renderer = list] {
+        contextMenu: [
+            showOverlay { title: "Share" }
+            addToPanel { title: "Add to list" }
+            duplicate { title: "Duplicate" }
+        ]
+        
         VStack {
             alignment: left
             spacing: 3
             
             HStack {
+                align: left
+                
                 Text {
                     text: {{.title or "Untitled Note"}}
+					lineLimit: 1
                     font: 18 semibold
                     color: #333
                     padding: 0 0 0 0
@@ -129,6 +137,7 @@ Note[] {
             }
             Text {
                 text: "{.content.plainString}"
+				lineLimit: 1
                 removeWhiteSpace: true
                 maxChar: 100
                 color: #555
@@ -136,6 +145,7 @@ Note[] {
             }
             Text {
                 text: "{.dateModified}"
+				lineLimit: 1
                 font: 11 regular
                 color: #888
                 padding: 0 0 0 0
@@ -167,6 +177,7 @@ Note[] {
                 align: left top
             }
             HStack {
+                align: center
                 Text {
                     text: {{.title or "Untitled Note"}}
                     padding: 5 0 0 0
@@ -190,9 +201,15 @@ Note[] {
             }
         }
     }
+    
+	[renderer = calendar] {
+		background: #FFF
+		color: #FF0000 /* set the primary color to red */
+	}
 	
 	[renderer = calendar.timeline] {
 		dateTime: {{.dateModified}}
+        detailLevel: hour
 
 		TimelineItem {
 			icon: "square.and.pencil"
@@ -202,8 +219,14 @@ Note[] {
 	}
 	
 	[renderer = messages] {
-		sort: dateModified
+		background: #D3E4D1
+		spacing: 8
 		
+        send: sendMessage {
+            network: {{.whatsapp}}
+            contents: {{composedText}}
+        }
+        
 		MessageBubble {
 			sender: {{.title}}
 			content: {{.content.plainString}}
@@ -211,4 +234,16 @@ Note[] {
 			isOutgoing: {{.title = "To read list"}} /* This is just a demo until we have a Message type in the schema... */
 		}
 	}
+    
+    [renderer = email] {
+        background: #D3E4D1
+        content: {{.content}}
+        
+        EmailHeader {
+            color: #000000
+            title: {{.title}}
+            subtitle: "Testing out email renderer"
+            rightSubtitle: {{.dateModified}}
+        }
+    }
 }

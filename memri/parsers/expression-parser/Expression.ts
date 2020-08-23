@@ -9,7 +9,7 @@ import {ExprLookupNode, ExprVariableNode} from "./ExprNodes";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {ExprInterpreter} from "./ExprInterpreter";
-import {DatabaseController, ItemReference} from "../../storage/DatabaseController";
+//import {DatabaseController, ItemReference} from "../../storage/DatabaseController";
 import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Expression {

@@ -28,7 +28,7 @@ import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
 import {Sessions} from "../sessions/Sessions";
 import {Installer} from "../install/Installer";
 import {IndexerAPI} from "../api/IndexerAPI";
-import {MainNavigation} from "../gui/navigation/MainNavigation";
+import {MainNavigation} from "../model/MainNavigation";
 import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
 import {Realm} from "../model/RealmLocal";
@@ -655,8 +655,8 @@ export class RootContext extends MemriContext {
 			new Renderers(),
 			new IndexerAPI()
 		)
-
-		this.currentView?.context = this
+		if (this.currentView)
+			this.currentView.context = this
 
 		// TODO: Refactor: This is a mess. Create a nice API, possible using property wrappers
 		// Optimize by only doing this when a property in session/view/dataitem has changed

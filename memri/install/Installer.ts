@@ -38,7 +38,7 @@ export class Installer {
 
 		this.readyCallback = callback
 
-		if (authAtStartup) {
+		/*if (authAtStartup) { //TODO:
 			Authentication.authenticateOwner((error) => {
 				if (error) {
 					throw `Unable to authenticate ${error}` // TODO report to user allow retry
@@ -46,9 +46,9 @@ export class Installer {
 
 				check()
 			})
-		} else {
+		} else {*/
 			check()
-		}
+		//}
 	}
 
 	ready(context:MemriContext) {
@@ -152,7 +152,7 @@ export class Installer {
 					throw `Unable to authenticate: ${error}`
 				}
 
-				Authentication.createRootKey(areYouSure)
+				//Authentication.createRootKey(areYouSure)
 
 				this.installDefaultDatabase(context, (error) => {
 					if (error) {

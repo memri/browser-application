@@ -46,11 +46,11 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             "cornerRadius",
             "cornerborder",
             "border",
-            "margin",
             "shadow",
             "offset",
             "blur",
             "opacity",
+            "margin",
             "zindex",
         ]
 
@@ -92,6 +92,17 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                     } else {
                         view["padding"] = padding(value);
                     }
+                           /* else if let value = (value as? String)?
+                            .split(separator: " ")
+                            .compactMap({ CGFloat(Int(String($0)) ?? 0) })
+                        {
+                            return AnyView(padding(EdgeInsets(
+                                top: value[safe: 0] ?? 0,
+                            leading: value[safe: 3] ?? 0,
+                            bottom: value[safe: 2] ?? 0,
+                            trailing: value[safe: 1] ?? 0
+                        )))
+                        }*/
                     break;
                 case "blur":
                     if (value) {
@@ -159,6 +170,10 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                     }
                 case "frame":
                     if (Array.isArray(value)) {
+                        /*if let str = value[4] as? String {
+                            value[4] = CVUParser.specialTypedProperties["align"]?(str, "") ?? nil
+                        }*/ //TODO:
+
                         view["frame"] = frame(
                             {
                                 minWidth: value[0],
@@ -205,7 +220,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             }
         }
 
-        if (properties.length == 0) {
+        if (!properties || properties.length == 0) {
             return view
         }
 
@@ -221,6 +236,21 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                         console.log(`Could not set property. Executing expression ${expr} failed`)
                         continue
                     }
+                } else if (Array.isArray(value)) {
+                    let list = value;
+                    for (let i = 0; i < list.length; i++) {
+                        let expr = list[i];
+                        if (expr?.constructor?.name == "Expression") {
+                            try {
+                                list[i] = expr.execute(viewArguments);
+                            } catch {
+                                // TODO: refactor: Error handling
+                                console.log(`Could not set property. Executing expression ${expr} failed`)
+                                continue
+                            }
+                        }
+                    }
+                    value = list
                 }
 
                 setProperty(name, value);

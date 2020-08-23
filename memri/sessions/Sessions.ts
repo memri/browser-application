@@ -195,9 +195,9 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     schedulePersist() { //this.persistSubject.send()
         }
     
-    persist() {
+    persist(state) {
         DatabaseController.tryCurrent (false, (realm)=>{
-            var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
+            //var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored sessions CVU. Creating a new one.")
                 
@@ -223,6 +223,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
             }
 
         })
+        return state;
     }
 
 	install(context: MemriContext, callback) {
@@ -249,9 +250,9 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
             this.parsed = parsed /*as? CVUParsedSessionsDefinition*/
             console.log(realm.objects("CVUStoredDefinition"));
-            delete this.parsed?.parsed["sessionDefinitions"]; //TODO:
+            //delete this.parsed?.parsed["sessionDefinitions"]; //TODO:
             
-            this.persist()
+            this.persist(state)
             this.load(context)
 
             callback(undefined);

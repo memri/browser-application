@@ -1,5 +1,5 @@
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {getItemType, ItemFamily} from "../model/items/Item";
+import {getItemType, ItemFamily, Person} from "../model/items/Item";
 import {DatabaseController} from "../storage/DatabaseController";
 
 export var MemriJSONEncoder = function (x) {
@@ -115,3 +115,16 @@ export function getItem(type: string, uid) {
 }
 
 export function autoreleasepool(callback){callback()}//TODO
+
+function me() {
+    try {
+        let realm = DatabaseController.getRealmSync();
+        let myself = realm.objects("Person").filtered("ANY allEdges.type = 'me'")[0];
+        if (!myself) {
+            throw "Unexpected error. Cannot find 'me' in the database"
+        }
+        return myself
+    } catch {
+        return new Person()
+    }
+}

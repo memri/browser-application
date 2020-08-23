@@ -546,7 +546,7 @@ export class Views {
 
 		if (domain) { filter.push(`domain = '${domain}'`) }
 
-		return DatabaseController.current(false, undefined, (item) =>
+		return DatabaseController.current(false,  (item) =>
 				item.objects("CVUStoredDefinition")
 					.filtered(filter.join(" AND "))
 					.map ( (def) => (def["_type"] == "CVUStoredDefinition") ? def: undefined)
@@ -733,6 +733,7 @@ function getDefaultViewContents() {
 		"all-items-with-label": require("text-loader!../defaults/named/all-items-with-label.cvu"),
 		"choose-item-by-query": require("text-loader!../defaults/named/choose-item-by-query.cvu"),
 		"filter-starred": require("text-loader!../defaults/named/filter-starred.cvu"),
+		"inbox": require("text-loader!../defaults/named/inbox.cvu"),
 		"calendar": require("text-loader!../defaults/renderer/calendar.cvu"),
 		"chart": require("text-loader!../defaults/renderer/chart.cvu"),
 		"generalEditor": require("text-loader!../defaults/renderer/generalEditor.cvu"),
@@ -742,16 +743,21 @@ function getDefaultViewContents() {
 		"thumbnail": require("text-loader!../defaults/renderer/thumbnail.cvu"),
 		"sessions": require("text-loader!../defaults/session/sessions.cvu"),
 		"defaults": require("text-loader!../defaults/styles/defaults.cvu"),
+		"Account": require("text-loader!../defaults/type/Account.cvu"),
 		"Address": require("text-loader!../defaults/type/Address.cvu"),
 		"Any": require("text-loader!../defaults/type/Any.cvu"),
 		"AuditItem": require("text-loader!../defaults/type/AuditItem.cvu"),
 		"Country": require("text-loader!../defaults/type/Country.cvu"),
+		"CryptoKey": require("text-loader!../defaults/type/CryptoKey.cvu"),
+		"EmailMessage": require("text-loader!../defaults/type/EmailMessage.cvu"),
 		"Importer": require("text-loader!../defaults/type/Importer.cvu"),
 		"ImporterInstance": require("text-loader!../defaults/type/ImporterInstance.cvu"),
 		"Indexer": require("text-loader!../defaults/type/Indexer.cvu"),
 		"IndexerRun": require("text-loader!../defaults/type/IndexerRun.cvu"),
 		"Label": require("text-loader!../defaults/type/Label.cvu"),
 		"Location": require("text-loader!../defaults/type/Location.cvu"),
+		"Message": require("text-loader!../defaults/type/Message.cvu"),
+		"MessageChannel": require("text-loader!../defaults/type/MessageChannel.cvu"),
 		//"Mixed": require("text-loader!../defaults/type/Mixed.cvu"),
 		"Note": require("text-loader!../defaults/type/Note.cvu"),
 		"Person": require("text-loader!../defaults/type/Person.cvu"),

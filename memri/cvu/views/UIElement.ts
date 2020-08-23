@@ -144,7 +144,7 @@ export class UIElement /*extends CVUToString */{
 		return propertiesLength > 0 || childrenLength > 0
 			? `${this.type} {\n`
 			+ (propertiesLength > 0
-				? `${tabsPlus}${CVUSerializer.dictToString(this.properties, depth + 1, tab, false)}`
+				? `${tabsPlus}${CVUSerializer.dictToString(properties, depth + 1, tab, false)}`
 				: "")
 			+ (propertiesLength > 0 && childrenLength > 0
 				? "\n\n"

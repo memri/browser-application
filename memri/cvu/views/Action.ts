@@ -444,7 +444,7 @@ export class ActionAddItem extends Action {
 export class ActionCopyToClipboard extends Action {
     defaultValues = new MemriDictionary({
         "icon": "doc.on.doc",
-        "argumentTypes": {"value": AnyObject},
+        "argumentTypes": {"value": "AnyObject"},
         "opensView": true,
         "color": new Color("#6aa84f"),
             "inactiveColor": new Color("#434343")
