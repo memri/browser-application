@@ -3035,32 +3035,31 @@ export function dataItemListToArray(object) {
 
 // Other.swift/ts
 
-Object.defineProperty(Note, "computedTitle", {
-    get computedTitle() {
+Object.defineProperty(Note.prototype, "computedTitle", {
+    get() {
         return `${this.title ?? ""}`
     }
 });
 
-Object.defineProperty(PhoneNumber, "computedTitle", {
-    get computedTitle() {
+Object.defineProperty(PhoneNumber.prototype, "computedTitle", {
+    get() {
         return `${this.phoneNumber ?? ""}`
     }
 });
-/*
-Object.assign(Website.prototype,{
-    get computedTitle() {
+Object.defineProperty(Website.prototype, "computedTitle", {
+    get() {
         return `${this.url ?? ""}`
     }
 });
 
-Object.assign(Country.prototype,{
-    get computedTitle() {
+Object.defineProperty(Country.prototype, "computedTitle",{
+    get() {
         return `${this.name ?? ""}`
     }
 });
 
-Object.assign(Address.prototype, {
-    get computedTitle() {
+Object.defineProperty(Address.prototype, "computedTitle", {
+    get() {
         return `${this.street ?? ""}
 ${this.city ?? ""}
 ${this.postalCode == undefined ? "" : this.postalCode! + ","} ${this.state ?? ""}
@@ -3068,35 +3067,35 @@ ${this.edge("country")?.item()?.computedTitle ?? ""}`
     }
 });
 
-Object.assign(Organization.prototype,{
-    get computedTitle() {
+Object.defineProperty(Organization.prototype, "computedTitle",{
+    get() {
         return `${this.name ?? ""}`
     }
 });
 
-Object.assign(Account.prototype,{
-    get computedTitle() {
+Object.defineProperty(Account.prototype, "computedTitle",{
+    get() {
         return `${this.handle ?? ""}`
     }
 });
 
-Object.assign(Diet.prototype,{
-    get computedTitle() {
+Object.defineProperty(Diet.prototype, "computedTitle",{
+    get() {
         return `${this.itemType ?? ""}`
     }
 });
 
-Object.assign(MedicalCondition.prototype,{
-    get computedTitle() {
+Object.defineProperty(MedicalCondition.prototype, "computedTitle",{
+    get() {
         return `${this.itemType ?? ""}`
     }
 });
 
-Object.assign(Network.prototype,{
-    get computedTitle() {
+Object.defineProperty(Network.prototype, "computedTitle",{
+    get() {
         return `${this.name ?? ""}`
     }
-});*/
+});
 
 export class Person extends SchemaPerson {
     get computedTitle(): string {
@@ -3131,58 +3130,57 @@ export class Person extends SchemaPerson {
     }
 }
 
-/*
-Object.assign(AuditItem.prototype,{
-    get computedTitle() {
+Object.defineProperty(AuditItem.prototype, "computedTitle",{
+    get() {
         return `Logged ${this.action ?? "unknown action"} on ${this.date?.description ?? ""}`
-    },
-    constructor(date?, content?, action?, appliesTo?) {
-        this.date = date ?? this.date
-        this.content = content ?? this.content
-        this.action = action ?? this.action
+    }
+});
+/*constructor(date?, content?, action?, appliesTo?) {
+    this.date = date ?? this.date
+    this.content = content ?? this.content
+    this.action = action ?? this.action
 
-        if (appliesTo) {
-            for (let item of appliesTo) {
-                this.link(item, "appliesTo");
-            }
+    if (appliesTo) {
+        for (let item of appliesTo) {
+            this.link(item, "appliesTo");
         }
     }
-});
+}*/ //TODO:
 
-Object.assign(Label.prototype,{
-    get computedTitle() {
+Object.defineProperty(Label.prototype, "computedTitle",{
+    get() {
         return `${this.name ?? ""}`
     }
 });
 
-Object.assign(Photo.prototype,{
-    get computedTitle() {
+Object.defineProperty(Photo.prototype, "computedTitle",{
+    get() {
         return `${this.caption ?? ""}`
     }
 });
 
-Object.assign(Video.prototype,{
-    get computedTitle() {
+Object.defineProperty(Video.prototype, "computedTitle",{
+    get() {
         return `${this.caption ?? ""}`
     }
 });
 
-Object.assign(Audio.prototype,{
-    get computedTitle() {
+Object.defineProperty(Audio.prototype, "computedTitle",{
+    get() {
         return `${this.caption ?? ""}`
     }
 });
 
-Object.assign(Importer.prototype,{
-    get computedTitle() {
+Object.defineProperty(Importer.prototype, "computedTitle",{
+    get() {
         return `${this.name ?? ""}`
     }
 });
 
-Object.assign(Indexer.prototype,{
-    get computedTitle() {
+Object.defineProperty(Indexer.prototype, "computedTitle",{
+    get() {
         return `${this.name ?? ""}`
-    },
+    }/*,
     constructor(name?: string, itemDescription?: string, query?: string, icon?: string, bundleImage?: string, runDestination?: string){
         this.name = name ?? this.name
         this.itemDescription = itemDescription ?? this.itemDescription
@@ -3190,10 +3188,10 @@ Object.assign(Indexer.prototype,{
         this.icon = icon ?? this.icon
         this.bundleImage = bundleImage ?? this.bundleImage
         this.runDestination = runDestination ?? this.runDestination
-    }
+    }*/
 });
 
-Object.assign(IndexerRun.prototype,{
+/*Object.assign(IndexerRun.prototype,{
     constructor(name?: string, query?: string, indexer?: Indexer, progress?: number){
         this.name = name ?? this.name
         this.query = query ?? this.query
@@ -3202,8 +3200,7 @@ Object.assign(IndexerRun.prototype,{
 
         if (indexer) { this.set("indexer", indexer) }
     }
-});
-*/
+});*/
 
 export class CVUStoredDefinition extends Item {
     get computedTitle() {
