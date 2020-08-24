@@ -23,6 +23,7 @@ import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "../../gui/
 import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRenderers/ThumbHorizontalGridRendererView";
 import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
 import {MemriDictionary} from "../../model/MemriDictionary";
+import {Color} from "../../parsers/cvu-parser/CVUParser";
 
 export class Renderers {
     all = {}
@@ -182,6 +183,88 @@ export class CascadingRenderConfig extends Cascadable {
     }
 }
 
+//CommonRendererConfig.swift
+Object.assign(CascadingRenderConfig.prototype, {
+    get primaryColor(): ColorDefinition {
+        return this.cascadeProperty("color") ?? new Color("systemBlue")
+    },
+    set primaryColor(value) {
+        this.setState("color", value)
+    },
+    get backgroundColor() {
+        return this.cascadeProperty("background");
+    },
+    set backgroundColor(value) {
+        this.setState("background", value)
+    },
+    get spacing() {
+        let spacing = this.cascadeProperty("spacing");
+        if (spacing) {
+            return spacing;
+        }
+    /*else if let x: [Double?] = cascadeProperty("spacing") {
+            let spacingArray = x.compactMap { $0.map { CGFloat($0) } }
+            guard spacingArray.count == 2 else { return .zero }
+            return CGSize(width: spacingArray[0], height: spacingArray[1])
+        }*/
+        return 0;
+    },
+    set spacing(value) {
+        this.setState("spacing", value)
+    },
+    get contextMenuActions() {
+        return this.cascadeList("contextMenu")
+    },
+    set contextMenuActions(value) {
+        this.setState("contextMenu", value)
+    }
+})
+
+//TODO: edgeInsets
+/*var edgeInset: UIEdgeInsets {
+    get {
+        if let edgeInset = cascadePropertyAsCGFloat("edgeInset") {
+            return UIEdgeInsets(
+                top: edgeInset,
+                left: edgeInset,
+                bottom: edgeInset,
+                right: edgeInset
+        )
+        }
+    else if let x: [Double?] = cascadeProperty("edgeInset") {
+            let insetArray = x.compactMap { $0.map { CGFloat($0) } }
+            switch insetArray.count {
+                case 2: return UIEdgeInsets(
+                    top: insetArray[1],
+                    left: insetArray[0],
+                    bottom: insetArray[1],
+                    right: insetArray[0]
+                )
+                case 4: return UIEdgeInsets(
+                    top: insetArray[0],
+                    left: insetArray[3],
+                    bottom: insetArray[2],
+                    right: insetArray[1]
+                )
+                default: return .init()
+            }
+        }
+        return .init()
+    }
+    set(value) { setState("edgeInset", value) }
+}
+
+var nsEdgeInset: NSDirectionalEdgeInsets {
+    let edgeInset = self.edgeInset
+    return NSDirectionalEdgeInsets(
+        top: edgeInset.top,
+        leading: edgeInset.left,
+        bottom: edgeInset.bottom,
+        trailing: edgeInset.right
+)
+}*/
+//--------------------------
+
 //CascadingListConfig moved from ListRendererView.tsx
 export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRendererDefaults*/ {
     type = "list"
@@ -313,6 +396,14 @@ export class PhotoViewerRendererConfig extends CascadingRenderConfig {
 
     get imageFile() { return this.cascadeProperty("file") }
     get initialItem() { return this.cascadeProperty("initialItem") }
+
+    showSortInConfig: boolean = true
+
+    showContextualBarInEditMode: boolean = false
+
+    configItems(context: MemriContext) {
+        return []
+    }
 }
 
 export class CascadingGeneralEditorConfig extends CascadingRenderConfig {
@@ -343,5 +434,13 @@ export class CascadingGeneralEditorConfig extends CascadingRenderConfig {
             .map((dict) => {
                 return new GeneralEditorLayoutItem(dict, this.viewArguments)
             })
+    }
+
+    showSortInConfig: boolean = false
+
+    showContextualBarInEditMode: boolean = false
+
+    configItems(context: MemriContext) {
+        return []
     }
 }

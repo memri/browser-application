@@ -477,7 +477,7 @@ export class MemriDivider extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <Divider style={this.setStyles()} className="Spacer" {...other}/>
+            <Divider style={this.setStyles()} className="Divider" {...other}/>
         )
     }
 }

@@ -27,6 +27,12 @@ export class Color {
     value;
     constructor(value) {
         switch (value) {
+            case "systemFill":
+                this.value = "#7878805b"
+                break;
+            case "secondarySystemBackground":
+                this.value = "#f2f2f7f";
+                break;
             case "systemBackground":
             case "white":
                 this.value = "#ffffff";

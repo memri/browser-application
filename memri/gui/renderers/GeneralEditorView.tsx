@@ -77,7 +77,7 @@ export class GeneralEditorLayoutItem {
                 value = expr.execute(this.viewArguments)
             } catch (error) {
                 // TODO: Refactor error handling
-                debugHistory.error(`Could note compute layout property ${propName}\n`
+                debugHistory.error(`Could not compute layout property ${propName}\n`
                     + `Arguments: [${this.viewArguments?.description ?? ""}]\n`
                     + (expr.startInStringMode
                         ? `Expression: "${expr.code}"\n`
