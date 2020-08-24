@@ -184,42 +184,50 @@ export class CascadingRenderConfig extends Cascadable {
 }
 
 //CommonRendererConfig.swift
-Object.assign(CascadingRenderConfig.prototype, {
-    get primaryColor(): ColorDefinition {
+Object.defineProperty(CascadingRenderConfig.prototype, "primaryColor", {
+    get(): ColorDefinition {
         return this.cascadeProperty("color") ?? new Color("systemBlue")
     },
-    set primaryColor(value) {
+    set(value) {
         this.setState("color", value)
     },
-    get backgroundColor() {
+})
+
+Object.defineProperty(CascadingRenderConfig.prototype, "backgroundColor", {
+    get() {
         return this.cascadeProperty("background");
     },
-    set backgroundColor(value) {
+    set(value) {
         this.setState("background", value)
     },
-    get spacing() {
+})
+
+Object.defineProperty(CascadingRenderConfig.prototype, "spacing", {
+    get() {
         let spacing = this.cascadeProperty("spacing");
         if (spacing) {
             return spacing;
         }
-    /*else if let x: [Double?] = cascadeProperty("spacing") {
-            let spacingArray = x.compactMap { $0.map { CGFloat($0) } }
-            guard spacingArray.count == 2 else { return .zero }
-            return CGSize(width: spacingArray[0], height: spacingArray[1])
-        }*/
+        /*else if let x: [Double?] = cascadeProperty("spacing") {
+                let spacingArray = x.compactMap { $0.map { CGFloat($0) } }
+                guard spacingArray.count == 2 else { return .zero }
+                return CGSize(width: spacingArray[0], height: spacingArray[1])
+            }*/
         return 0;
     },
-    set spacing(value) {
+    set(value) {
         this.setState("spacing", value)
-    },
-    get contextMenuActions() {
-        return this.cascadeList("contextMenu")
-    },
-    set contextMenuActions(value) {
-        this.setState("contextMenu", value)
     }
 })
 
+Object.defineProperty(CascadingRenderConfig.prototype, "contextMenuActions", {
+    get() {
+        return this.cascadeList("contextMenu")
+    },
+    set(value) {
+        this.setState("contextMenu", value)
+    },
+})
 //TODO: edgeInsets
 /*var edgeInset: UIEdgeInsets {
     get {
