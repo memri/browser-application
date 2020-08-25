@@ -127,7 +127,7 @@ export class MessageRenderer extends RenderersMemri {
         */
         return (
             <HStack spacing={6} padding={padding({vertical: 5})} background={new Color("secondarySystemBackground")}>
-                <MemriFittedTextEditor contentBinding={this.$composedMessage} placeholder="Type a message..." backgroundColor={new Color("systemBackground")} isEditing={$isEditingComposedMessage}>
+                <MemriFittedTextEditor contentBinding={{/*this.$composedMessage*/}} placeholder="Type a message..." backgroundColor={new Color("systemBackground")} isEditing={{/*$isEditingComposedMessage*/}}>
 
                 </MemriFittedTextEditor>
 
@@ -191,7 +191,7 @@ export class MessageBubbleView extends MainUI {
                              fixedSize={{horizontal: false, vertical: true}}
                              padding={padding(10)} color={this.outgoing ? "white" : new Color("label")}
                              background={this.outgoing ? "blue" : new Color("secondarySystemBackground")}
-                             mask={}
+                             mask={""}
                   >
                       {this.content}
                   </MemriSmartTextView>

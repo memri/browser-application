@@ -23,12 +23,14 @@ import {UUID} from "../../model/items/Item";
 export class FilterPanel extends MainUI {
 	toggleAscending() {
 		let ds = this.context.currentView?.datasource
-		ds?.sortAscending = !(ds?.sortAscending ?? true)
+		if (ds)
+			ds.sortAscending = !(ds?.sortAscending ?? true)
 		this.context.scheduleCascadableViewUpdate()
 	}
 
 	changeOrderProperty(fieldName: string) {
-		this.context.currentView?.datasource.sortProperty = fieldName
+		if (this.context.currentView)
+			this.context.currentView.datasource.sortProperty = fieldName
 		this.context.scheduleCascadableViewUpdate()
 	}
 

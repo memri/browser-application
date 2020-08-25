@@ -394,8 +394,10 @@ export class MemriContext {
 		this.indexerAPI = indexerAPI
 
 		// TODO: FIX
-		this.currentView?.context = this
-		this.indexerAPI?.context = this
+		if (this.currentView)
+			this.currentView.context = this
+		if (this.indexerAPI)
+			this.indexerAPI.context = this
 
         // Setup update publishers //TODO
 		/*this.uiUpdateCancellable = uiUpdateSubject

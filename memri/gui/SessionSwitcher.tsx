@@ -123,7 +123,7 @@ export class SessionSwitcher extends MainUI {
     render() {
         this.context = this.props.context;
         return (
-            <ZStack alignment={/*alignment({horizontal: Alignment.trailing, vertical: Alignment.top})*/}>
+            <ZStack alignment={""/*alignment({horizontal: Alignment.trailing, vertical: Alignment.top})*/}>
                 <HStack alignment={Alignment.top} spacing={10}
                         padding={padding({top: 15, bottom: 10, leading: 15, trailing: 15})}
                         frame={frame({height: 50, alignment: Alignment.top})}

@@ -140,7 +140,7 @@ class Navigation extends MainUI {
 	getNavigationItems() {
 		let navigationItems = this.context.navigation.getItems();
 		return navigationItems.map((navItem) => {
-			switch (navItem.type) {
+			switch (navItem.itemType) {
 				case "item":
 					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>/*(navItem, hide: {
 					withAnimation {

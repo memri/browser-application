@@ -23,7 +23,8 @@ export class ContextPane extends MainUI {
 	}
 
 	set isVisible (newValue) {
-		this.context.currentSession?.showContextPane = newValue
+		if (this.context.currentSession)
+			this.context.currentSession.showContextPane = newValue
 		this.context.scheduleUIUpdate(true)
 	}
 
