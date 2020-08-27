@@ -53,6 +53,9 @@ export class ExprInterpreter {
     }
 
     static evaluateString(x) { //TODO: maybe we will need some checks
+        if (typeof x == "number") {//TODO: need normal formatting
+            return new Date(x).toLocaleString("en-US");
+        }
         return x == null ? "" : String(x);
     }
     

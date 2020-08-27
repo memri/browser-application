@@ -153,19 +153,27 @@ export class Views {
 		let showAgoDate = settings.get("user/general/gui/showDateAgo")
 
 		if (date) {
-			/*// Compare against 36 hours ago
-			if (dateFormat != undefined || showAgoDate == false || date.timeIntervalSince(new Date(-129_600)) < 0) {//TODO
-				let dateFormatter = new DateFormatter()
+			// Compare against 36 hours ago
+			if (dateFormat != undefined || showAgoDate == false /*|| date
+                .timeIntervalSince(Date(timeIntervalSinceNow: -129_600)) < 0*/) {
+                //let dateFormatter = DateFormatter()
 
-				dateFormatter.dateFormat = dateFormat ?? Settings.get("user/formatting/date") ?? "yyyy/MM/dd HH:mm"
-				dateFormatter.locale = Locale("en_US")
-				dateFormatter.timeZone = TimeZone(0)
-
-				return dateFormatter.string(date)
-			} else {
-				return date.timestampString ?? ""
-			}*/ //TODO:
-			return date;
+                /*dateFormatter.dateFormat = dateFormat == "time"
+                    ? settings.get("user/formatting/time")
+                    : dateFormat
+                        ?? settings.get("user/formatting/date")
+                        ?? "yyyy/MM/dd HH:mm"
+				*/
+                let options = {};
+                if (dateFormat == "time") {
+                	options = {hour: "numeric", minute: "numeric"}
+				}
+				//let format = settings.get("user/formatting/time");
+				return date.toLocaleString('en-US', options);
+            }
+            else {
+				return date.toLocaleString();
+            } //TODO:
 		} else {
 			return "never"
 		}
@@ -388,17 +396,25 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on string`)
 								break
 						}
-					} else if (value?.constructor?.name == "Date") {
+					} else if (value?.constructor?.name == "Date" || typeof value == "number") {//Most likely number will be timestamp
+						let date = value;
 						switch (node.name) {
 							case "format":
-							/*guard isFunction else { throw "You must call .format() as a function" }
-
-                            value = { (args: [Any?]?) -> Any? in
-                            if args?.count == 0 { return Views.formatDate(date) }
-                            else { return Views.formatDate(date, dateFormat: args?[0] as? String) }
-                        }
-                        case "timeSince1970": value = date.timeIntervalSince1970
-                        case "timeSinceNow": value = date.timeIntervalSinceNow*/
+								if (!isFunction) {
+									throw "You must call .format() as a function"
+								}
+								if (typeof value == "number")
+									date = new Date(date);
+								value = (args) => {
+									if (args.length == 0) {
+										return Views.formatDate(date);
+									} else {
+										return Views.formatDate(date, args[0]);
+									}
+								}
+								break;
+							/*case "timeSince1970": value = date.timeIntervalSince1970
+                            case "timeSinceNow": value = date.timeIntervalSinceNow*/
 							default:
 								// TODO: Warn
 								debugHistory.warn("Could not find property \(node.name) on string")

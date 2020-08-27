@@ -213,10 +213,12 @@ export class Item extends SchemaItem {
     /// - Parameters:
     ///   - name: property name
     get(name: string) {
+        //TODO: maybe it's dirty hack :)
+        if (this.edge(name)) {
+            return this.edge(name).target();
+        } else
         if (this[name] != undefined) {
             return this[name]
-        } else if (this.edge(name)) {
-            return this.edge(name).target();
         }
         return null
     }

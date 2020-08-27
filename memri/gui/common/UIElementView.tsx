@@ -169,10 +169,6 @@ export class UIElementView extends MainUI {
         }.bind(this) //TODO: ();
 
         let show = this.get("show")
-        if (show && typeof show != "boolean") {
-            debugger;
-            this.get("show");
-        }
         if (!this.has("show") || show) {
             switch (this.from.type) {
                 case UIElementFamily.Image:
