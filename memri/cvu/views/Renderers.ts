@@ -452,3 +452,11 @@ export class CascadingGeneralEditorConfig extends CascadingRenderConfig {
         return []
     }
 }
+
+export class CascadingEmailThreadRendererConfig extends CascadingRenderConfig {
+    type = "email"
+
+    get content() {
+        return this.cascadeProperty("content")
+    }
+}

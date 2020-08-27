@@ -27,6 +27,9 @@ export class Color {
     value;
     constructor(value) {
         switch (value) {
+            case "label":
+                this.value = "#000000"
+                break;
             case "systemFill":
                 this.value = "#7878805b"
                 break;

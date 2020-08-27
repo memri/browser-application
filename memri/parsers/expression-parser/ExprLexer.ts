@@ -360,7 +360,7 @@ export class ExprLexer {
                     case "!":
                         if (c == "=") {
                             addToken(new ExprToken.Operator(ExprOperator.ConditionNotEquals, i))
-                            return
+                            continue
                         } else {
                             addToken(new ExprToken.Negation(i))
                         }
@@ -368,7 +368,7 @@ export class ExprLexer {
                     case ">":
                         if (c == "=") {
                             addToken(new ExprToken.Operator(ExprOperator.ConditionGreaterThanOrEqual, i))
-                            return
+                            continue
                         } else {
                             addToken(new ExprToken.Operator(ExprOperator.ConditionGreaterThan, i))
                         }
@@ -376,7 +376,7 @@ export class ExprLexer {
                     case "<":
                         if (c == "=") {
                             addToken(new ExprToken.Operator(ExprOperator.ConditionLessThanOrEqual, i))
-                            return
+                            continue
                         } else {
                             addToken(new ExprToken.Operator(ExprOperator.ConditionLessThan, i))
                         }
@@ -418,7 +418,7 @@ export class ExprLexer {
             case "/": addToken(new ExprToken.Operator(ExprOperator.Division, i)); break
             case "+": addToken(new ExprToken.Operator(ExprOperator.Plus, i)); break
             case "-": addToken(new ExprToken.Operator(ExprOperator.Minus, i)); break
-            case "!": lastChar = c; return;
+            case "!": lastChar = c; continue;
             case "?": addToken(new ExprToken.Operator(ExprOperator.ConditionStart, i)); break
             case ":": addToken(new ExprToken.Operator(ExprOperator.ConditionElse, i)); break
             case "(": addToken(new ExprToken.ParensOpen(i)); break
@@ -426,8 +426,8 @@ export class ExprLexer {
             case "[": addToken(new ExprToken.BracketOpen(i)); break
             case "]": addToken(new ExprToken.BracketClose(i)); break
             case "=": addToken(new ExprToken.Operator(ExprOperator.ConditionEquals, i)); break
-            case ">": lastChar = c; return
-            case "<": lastChar = c; return
+            case ">": lastChar = c; continue
+            case "<": lastChar = c; continue
             case ",": addToken(new ExprToken.Comma(i)); break
             case "'": case '"':
                 isMode = Mode.string

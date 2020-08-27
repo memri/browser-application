@@ -765,6 +765,11 @@ Object.assign(RealmObjects.prototype, {
             return
         }
 
+        if (type && typeof type != "string") {
+            //Implicitly cast string to type @mkslanc
+            type = type?.name
+        }
+
         var listType = type
         if (listType == undefined) {
             let strType = dir == Direction.target ? this[0]?.targetItemType : this[0]?.sourceItemType;
@@ -1081,8 +1086,6 @@ export enum ItemFamily {
     Website = "Website",
 }
 
-//export var discriminator = Discriminator._type
-
 export var backgroundColor = function(name) {
     switch (name) {
         case ItemFamily.Account: return new Color("#93c47d")
@@ -1247,10 +1250,6 @@ export var foregroundColor = function(name) {
     }
 }
 
-export var getPrimaryKey = function(name) {
-    return (new getItemType(name))().primaryKey() ?? ""
-}
-
 export var getItemType = function(name) {
     switch (name) {
         case ItemFamily.Account: return Account
@@ -1349,7 +1348,7 @@ export class Account extends Item {
     /// A service of any kind.
     service
     /// The type or (sub)category of some Item.
-    type
+    itemType
 
     /// The Person this Item belongs to.
     get belongsTo() {
@@ -1416,7 +1415,7 @@ export class CreativeWork extends Item {
     /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
     transcript
     /// The type or (sub)category of some Item.
-    type
+    itemType
 
     /// An audio object.
     get audio() {
@@ -1473,6 +1472,72 @@ export class CreativeWork extends Item {
 
 /// Any kind of (video) game, typically rule-governed recreational activities.
 export class Game extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1480,6 +1545,72 @@ export class Game extends Item {
 
 /// Instructions that explain how to achieve a result by performing a sequence of steps.
 export class HowTo extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1488,8 +1619,73 @@ export class HowTo extends Item {
 /// A strategy of regulating the intake of food to achieve or maintain a specific health-related
 /// goal.
 export class Diet extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
     /// The duration of an Item, for instance an event or an Audio file.
     duration
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
 
     /// An included Product.
     get includedProduct() {
@@ -1509,10 +1705,75 @@ export class Diet extends Item {
 /// Fitness-related activity designed for a specific health-related purpose, including defined
 /// exercise routines as well as activity prescribed by a clinician.
 export class ExercisePlan extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
     /// The duration of an Item, for instance an event or an Audio file.
     duration
     /// The number of times something is repeated.
     repetitions
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
 
     /// The amount of energy something takes.
     get workload() {
@@ -1532,10 +1793,75 @@ export class ExercisePlan extends Item {
 /// A set of instructions for preparing a particular dish, including a list of the ingredients
 /// required.
 export class Recipe extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
     /// The duration of an Item, for instance an event or an Audio file.
     duration
     /// A set of steps to reach a certain goal.
     instructions
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
 
     /// An ingredient of an Item.
     get ingredient() {
@@ -1565,6 +1891,72 @@ export class Recipe extends Item {
 
 /// Any type of video, for instance a movie, TV show, animation etc.
 export class MovingImage extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1572,6 +1964,72 @@ export class MovingImage extends Item {
 
 /// A work of performing art, for instance dance, theater, opera or musical.
 export class PerformingArt extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1579,6 +2037,72 @@ export class PerformingArt extends Item {
 
 /// A audio performance or production. Can be a single, album, radio show, podcast etc.
 export class Recording extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1586,6 +2110,72 @@ export class Recording extends Item {
 
 /// A work of visual arts, for instance a painting, sculpture or drawing.
 export class VisualArt extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1593,6 +2183,72 @@ export class VisualArt extends Item {
 
 /// A written work, for instance a book, article or note. Doesn't have to be published.
 export class WrittenWork extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1600,6 +2256,72 @@ export class WrittenWork extends Item {
 
 /// An article, for instance from a journal, magazine or newspaper.
 export class Article extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     /// A comment on this Item.
     /*get comment() {
         return this.edges("comment")?.items(Comment)
@@ -1612,6 +2334,72 @@ export class Article extends Item {
 
 /// A comment.
 export class Comment extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1619,12 +2407,77 @@ export class Comment extends Item {
 
 /// A single message.
 export class Message extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
     /// The subject of some Item.
     subject
     /// Datetime when Item was sent.
     dateSent: Date
     /// Datetime when Item was received.
     dateReceived: Date
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
 
     /// A message channel this Item belongs to, for instance a WhatsApp chat.
     get messageChannel() {
@@ -1648,6 +2501,93 @@ export class Message extends Item {
 
 /// A single email message.
 export class EmailMessage extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+    /// The subject of some Item.
+    subject
+    /// Datetime when Item was sent.
+    dateSent: Date
+    /// Datetime when Item was received.
+    dateReceived: Date
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
+    /// A message channel this Item belongs to, for instance a WhatsApp chat.
+    get messageChannel() {
+        return this.edges("messageChannel")?.items(MessageChannel)
+    }
+
+    /// The sender of an Item.
+    get sender() {
+        return this.edges("sender")?.items(Account)
+    }
+
+    /// The account that received, or is to receive, this Item.
+    get receiver() {
+        return this.edges("receiver")?.items(Account)
+    }
+
     /// Accounts this Message is sent to beside the receiver.
     get cc() {
         return this.edges("cc")?.items(Account)
@@ -1671,20 +2611,76 @@ export class EmailMessage extends Item {
 
 /// A file containing a note.
 export class Note extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     /// A comment on this Item.
     /*get comment() {
         return this.edges("comment")?.items(Comment)
     }*/
-
-    constructor(decoder) {
-        super(decoder)
-    }
-}
-
-/// A list in a note.
-export class NoteList extends Item {
-    /// Category of this item.
-    category
 
     /// List occurs in Note.
     get noteList() {
@@ -1696,8 +2692,164 @@ export class NoteList extends Item {
     }
 }
 
+/// A list in a note.
+export class NoteList extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+    /// Category of this item.
+    category
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
+    /// Range of an item in a piece of text.
+    get span() {
+        return this.edges("span")?.items(Span)
+    }
+
+    /// span of an item in a list that lives in text.
+    get itemSpan() {
+        return this.edges("itemSpan")?.items(Span)
+    }
+
+    /// Note of an item.
+    get note() {
+        return this.edges("note")?.items(Note)
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+}
+
 /// A review of an Item, for instance a Organization, CreativeWork, or Product.
 export class Review extends Item {
+    /// The title of an Item.
+    title
+    /// An abstract is a short description that summarizes an Items content.
+    abstract
+    /// Date of first broadcast/publication.
+    datePublished: Date
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are
+    /// typically delimited by commas.
+    keyword
+    /// The content of an Item.
+    content
+    /// The plain text content of an Item, without styling or syntax for Markdown, HTML, etc.
+    textContent
+    /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
+    transcript
+    /// The type or (sub)category of some Item.
+    itemType
+
+    /// An audio object.
+    get audio() {
+        return this.edges("audio")?.items(Audio)
+    }
+
+    /// A citation or reference to another creative work, such as another publication, web page,
+    /// scholarly article, etc.
+    get citation() {
+        return this.edges("citation")?.items(CreativeWork)
+    }
+
+    /// The location depicted or described in the content. For example, the location in a
+    /// photograph or painting.
+    get contentLocation() {
+        return this.edges("contentLocation")?.items(Location)
+    }
+
+    /// The location where the Item was created, which may not be the same as the location
+    /// depicted in the Item.
+    get locationCreated() {
+        return this.edges("locationCreated")?.items(Location)
+    }
+
+    /// A video object.
+    get video() {
+        return this.edges("video")?.items(Video)
+    }
+
+    /// The author of this Item.
+    get writtenBy() {
+        return this.edges("writtenBy")?.items(Person)
+    }
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edges("file")?.items(File)
+    }
+
+    /// The event where something is recorded.
+    get recordedAt() {
+        return this.edges("recordedAt")?.items(Event)
+    }
+
+    /// A review of the Item.
+    get review() {
+        return this.edges("review")?.items(Review)
+    }
+
     /// A rating is an evaluation using some Measure, for instance 1 to 5 stars.
     get rating() {
         return this.edges("rating")?.items(Measure)
@@ -1711,7 +2863,7 @@ export class Review extends Item {
 /// A key used in an cryptography protocol.
 export class CryptoKey extends Item {
     /// The type or (sub)category of some Item.
-    type
+    itemType
     /// A role describes the function of the item in their context.
     role
     /// A piece of information that determines the functional output of a cryptographic
@@ -1801,12 +2953,15 @@ export class Event extends Item {
     }
 }
 
-/// Any type of file that can be stored on disk.
+/// Any file that can be stored on disk.
 export class File extends Item {
-    /// The blake2b hash of a resource.
-    blake2b
     /// The sha256 hash of a resource.
     sha256
+    /// A cryptographic nonce https://en.wikipedia.org/wiki/Cryptographic_nonce
+    nonce
+    /// A piece of information that determines the functional output of a cryptographic
+    /// algorithm.
+    key
     /// The filename of a resource.
     filename
 
@@ -1880,8 +3035,15 @@ export class Importer extends Item {
 export class ImporterRun extends Item {
     /// The name of the item.
     name
+    /// The progress an Item made. The number could be a (rounded) percentage or a count of a
+    /// (potentially unknown) total.
+    progress
     /// The type of the data this Item acts on.
     dataType
+    /// Username of an importer.
+    username
+    /// Password for a username.
+    password
 
     /// An Importer is used to import data from an external source to the Pod database.
     get importer() {
@@ -1944,7 +3106,7 @@ export class IndexerRun extends Item {
 /// A sector that produces goods or related services within an economy.
 export class Industry extends Item {
     /// The type or (sub)category of some Item.
-    type
+    itemType
 
     constructor(decoder) {
         super(decoder)
@@ -2016,6 +3178,10 @@ export class Location extends Item {
 
 /// A postal address.
 export class Address extends Item {
+    /// The latitude of a location in WGS84 format.
+    latitude
+    /// The longitude of a location in WGS84 format.
+    longitude
     /// A city or town.
     city
     /// The postal code. For example, 94043.
@@ -2025,7 +3191,7 @@ export class Address extends Item {
     /// The street address. For example, 1600 Amphitheatre Pkwy.
     street
     /// The type or (sub)category of some Item.
-    type
+    itemType
     /// A location with a automatic lookup hash.
     locationAutoLookupHash
 
@@ -2047,6 +3213,10 @@ export class Address extends Item {
 
 /// A country.
 export class Country extends Item {
+    /// The latitude of a location in WGS84 format.
+    latitude
+    /// The longitude of a location in WGS84 format.
+    longitude
     /// The name of the item.
     name
 
@@ -2151,11 +3321,37 @@ export class MediaObject extends Item {
 
 /// An audio file.
 export class Audio extends Item {
+    /// The bitrate of a media object.
+    bitrate
+    /// The duration of an Item, for instance an event or an Audio file.
+    duration
+    /// The endTime of something. For a reserved event or service, the time that it is expected
+    /// to end. For actions that span a period of time, when the action was performed. e.g. John wrote a
+    /// book from January to December. For media, including audio and video, it's the time offset of the
+    /// end of a clip within a larger file.
+    endTime: Date
+    /// Location of the actual bytes of a File.
+    fileLocation
+    /// The startTime of something. For a reserved event or service, the time that it is
+    /// expected to start. For actions that span a period of time, when the action was performed. e.g.
+    /// John wrote a book from January to December. For media, including audio and video, it's the time
+    /// offset of the start of a clip within a larger file.
+    startTime: Date
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
     /// If this MediaObject is an AudioObject or VideoObject, the transcript of that object.
     transcript
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edge("file")?.target(File)
+    }
+
+    /// Items included within this Item. Included Items can be of any type.
+    get includes() {
+        return this.edges("includes")?.itemsArray()
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -2164,6 +3360,22 @@ export class Audio extends Item {
 
 /// An image file.
 export class Photo extends Item {
+    /// The bitrate of a media object.
+    bitrate
+    /// The duration of an Item, for instance an event or an Audio file.
+    duration
+    /// The endTime of something. For a reserved event or service, the time that it is expected
+    /// to end. For actions that span a period of time, when the action was performed. e.g. John wrote a
+    /// book from January to December. For media, including audio and video, it's the time offset of the
+    /// end of a clip within a larger file.
+    endTime: Date
+    /// Location of the actual bytes of a File.
+    fileLocation
+    /// The startTime of something. For a reserved event or service, the time that it is
+    /// expected to start. For actions that span a period of time, when the action was performed. e.g.
+    /// John wrote a book from January to December. For media, including audio and video, it's the time
+    /// offset of the start of a clip within a larger file.
+    startTime: Date
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -2171,6 +3383,16 @@ export class Photo extends Item {
     exifData
     /// The name of the item.
     name
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edge("file")?.target(File)
+    }
+
+    /// Items included within this Item. Included Items can be of any type.
+    get includes() {
+        return this.edges("includes")?.itemsArray()
+    }
 
     /// Thumbnail image for an Item, typically an image or video.
     get thumbnail() {
@@ -2184,6 +3406,22 @@ export class Photo extends Item {
 
 /// A video file.
 export class Video extends Item {
+    /// The bitrate of a media object.
+    bitrate
+    /// The duration of an Item, for instance an event or an Audio file.
+    duration
+    /// The endTime of something. For a reserved event or service, the time that it is expected
+    /// to end. For actions that span a period of time, when the action was performed. e.g. John wrote a
+    /// book from January to December. For media, including audio and video, it's the time offset of the
+    /// end of a clip within a larger file.
+    endTime: Date
+    /// Location of the actual bytes of a File.
+    fileLocation
+    /// The startTime of something. For a reserved event or service, the time that it is
+    /// expected to start. For actions that span a period of time, when the action was performed. e.g.
+    /// John wrote a book from January to December. For media, including audio and video, it's the time
+    /// offset of the start of a clip within a larger file.
+    startTime: Date
     /// The caption for this object. For downloadable machine formats (closed caption, subtitles
     /// etc.) use MediaObject and indicate the encodingFormat.
     caption
@@ -2191,6 +3429,16 @@ export class Video extends Item {
     exifData
     /// The name of the item.
     name
+
+    /// Any type of file that can be stored on disk.
+    get file() {
+        return this.edge("file")?.target(File)
+    }
+
+    /// Items included within this Item. Included Items can be of any type.
+    get includes() {
+        return this.edges("includes")?.itemsArray()
+    }
 
     /// Thumbnail image for an Item, typically an image or video.
     get thumbnail() {
@@ -2206,7 +3454,7 @@ export class Video extends Item {
 /// physically or mentally. Includes diseases, injuries, disabilities, disorders, syndromes, etc.
 export class MedicalCondition extends Item {
     /// The type or (sub)category of some Item.
-    type
+    itemType
     /// The name of the item.
     name
 
@@ -2255,7 +3503,7 @@ export class NavigationItem extends Item {
     /// Used to define position in a sequence, enables ordering based on this number.
     sequence
     /// The type or (sub)category of some Item.
-    type
+    itemType
 
     constructor(decoder) {
         super(decoder)
@@ -2535,7 +3783,7 @@ export class PhoneNumber extends Item {
     /// A phone number with an area code.
     phoneNumber
     /// The type or (sub)category of some Item.
-    type
+    itemType
 
     constructor(decoder) {
         super(decoder)
@@ -2900,7 +4148,7 @@ export class Unit extends Item {
 /// An occasion where a choice is made choose between two or more options, for instance an election.
 export class Vote extends Item {
     /// The type or (sub)category of some Item.
-    type
+    itemType
 
     /// An option for some choice, for instance a Vote.
     get option() {
@@ -2942,7 +4190,7 @@ export class VoteAction extends Item {
 /// domain and accessible via URLs.
 export class Website extends Item {
     /// The type or (sub)category of some Item.
-    type
+    itemType
     /// The url property represents the Uniform Resource Location (URL) of a resource.
     url
 
@@ -3032,6 +4280,8 @@ export function dataItemListToArray(object) {
 
     return collection
 }
+
+
 
 // Other.swift/ts
 

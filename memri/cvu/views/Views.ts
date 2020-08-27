@@ -69,7 +69,7 @@ export class Views {
 
 		let definitions = this.fetchDefinitions(undefined, undefined, "language")
 			.map(function (item) {
-				this.parseDefinition(item)
+				return this.parseDefinition(item)
 			}.bind(this)).filter(function (item) {
 				return item != undefined;
 			})
@@ -403,7 +403,7 @@ export class Views {
 								// TODO: Warn
 								debugHistory.warn("Could not find property \(node.name) on string")
 						}
-					} else if (v?.constructor?.name == "Edge") {//TODO
+					} else if (v?.constructor?.name == "Edge") {
 						switch (node.name) {
 							case "source": value = v.source(); break;
 							case "target": value = v.target(); break
@@ -432,7 +432,7 @@ export class Views {
 								break
 						}
 					}
-					else if (v?.constructor?.name == "RealmSwift.Results<Item>") {//TODO
+					/*else if (v?.constructor?.name == "RealmSwift.Results<Item>") {//TODO
 						switch (node.name) {
 							case "count": value = v.length; break
 							case "first": value = v[0]; break
@@ -443,7 +443,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on list of items`);
 								break
 						}
-					}
+					}*/
 					else if (Array.isArray(v)) {
 						switch (node.name) {
 							case "count": value = v.length; break

@@ -26,7 +26,7 @@ import {CVUStateDefinition, Item} from "../../model/items/Item";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import * as React from "react";
 import {UIElementFamily} from "../../cvu/views/UIElement";
-import {Alignment, CVUParser, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, CVUParser, Font} from "../../parsers/cvu-parser/CVUParser";
 import {Action, ActionUnlink} from "../../cvu/views/Action";
 import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
@@ -38,6 +38,7 @@ import {SubView} from "./SubView";
 import {Grid} from "@material-ui/core";
 import {MemriDictionary} from "../../model/MemriDictionary";
 import {MemriButton} from "./MemriButton";
+import {MemriSmartTextView} from "../components/Text/MemriSmartTextView";
 require("../../extension/common/string");
 
 export class UIElementView extends MainUI {
@@ -167,7 +168,12 @@ export class UIElementView extends MainUI {
             return new CVUStateDefinition()
         }.bind(this) //TODO: ();
 
-        if (!this.has("show") || this.get("show") == true) {
+        let show = this.get("show")
+        if (show && typeof show != "boolean") {
+            debugger;
+            this.get("show");
+        }
+        if (!this.has("show") || show) {
             switch (this.from.type) {
                 case UIElementFamily.Image:
                     return (
@@ -425,8 +431,17 @@ export class UIElementView extends MainUI {
                                                setProperties={setProperties(this.from.propertyResolver.properties, this.item, this.context, this.viewArguments)}
                     />)
                 case UIElementFamily.SmartText:
-                    //TODO:
-                    return (<div className="SmartText"></div>)
+                    return (
+                        <MemriSmartTextView string={this.get("text") ?? ""}
+                                            detectLinks={this.get("detectLinks") ?? true}
+                                            font={this.from.propertyResolver.font}
+                                            color={this.get("color") ?? new Color("label")}
+                                            maxLines={this.get("maxLines")}
+                                            setProperties={setProperties(this.from.propertyResolver.properties, this.item, this.context, this.viewArguments)}
+
+                        />
+                    )
+                //.fixedSize(horizontal: false, vertical: true)
                 case UIElementFamily.EmailHeader:
                     //TODO:
                     return (<div className="EmailHeader"></div>)
