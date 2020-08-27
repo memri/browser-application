@@ -61,7 +61,7 @@ export class RendererSelectionPanel extends MainUI{
                         <HStack alignment={Alignment.top} spacing={3}>
                             {categories.map((renderer) =>
                                 <MemriRealButton
-                                    onClick={() => context.executeAction(renderer[1])} key={renderer[0]}>
+                                    onClick={() => this.context.executeAction(renderer[1])} key={renderer[0]}>
                                     <MemriImage fixedSize=""
                                                 padding={padding({horizontal: 5, vertical: 5})}
                                                 frame={frame({width: 35, height: 40, alignment: Alignment.center})}
