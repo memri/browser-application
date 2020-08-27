@@ -20,6 +20,7 @@ import * as React from "react";
 import {ListItem} from "@material-ui/core";
 import {Alignment, Color, Font, TextAlignment} from "../../parsers/cvu-parser/CVUParser";
 import {FontDefinition} from "../../cvu/views/CVUPropertyResolver";
+import {MemriFittedTextEditor} from "../components/MemriFittedTextEditor/MemriFittedTextEditor";
 
 export var registerMessageRenderer = function () {
     if (allRenderers) {
@@ -127,13 +128,11 @@ export class MessageRenderer extends RenderersMemri {
         */
         return (
             <HStack spacing={6} padding={padding({vertical: 5})} background={new Color("secondarySystemBackground")}>
-                <MemriFittedTextEditor contentBinding={{/*this.$composedMessage*/}} placeholder="Type a message..." backgroundColor={new Color("systemBackground")} isEditing={{/*$isEditingComposedMessage*/}}>
-
-                </MemriFittedTextEditor>
+                <MemriFittedTextEditor contentBinding={this.composedMessage} placeholder="Type a message..." backgroundColor={new Color("systemBackground")} isEditing={{/*$isEditingComposedMessage*/}}/>
 
                 <MemriRealButton action={this.onPressSend}>
                     <MemriImage foregroundColor={this.canSend ? "blue" : new Color("systemFill")} font={font({family:"system", size: 20})}>
-                        arrow.up.circle.fill
+                        {/*arrow.up.circle.fill*/}send
                     </MemriImage>
                 </MemriRealButton>{/*.disabled(!canSend)*/}
 
