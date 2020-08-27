@@ -25,6 +25,9 @@ export class ContextPaneForeground extends MainUI {
 		let labels = context.currentView?.resultSet
 			.singletonItem?.edges("label")?.itemsArray("Label") ?? []
 		let addLabelAction = new ActionNoop(context)
+
+		let describeChangelog = context.item?.functions["describeChangelog"]
+		let description = describeChangelog && describeChangelog()//TODO
 		return (
 			<div className="ContextPaneForeground">
 			<ScrollView background="white">
@@ -57,7 +60,7 @@ export class ContextPaneForeground extends MainUI {
 							padding={padding({horizontal: this.paddingLeft, vertical: 10})}
 							multilineTextAlignment={Alignment.center}
 						>
-							{"You created this note in August 2017 and viewed it 12 times and edited it 3 times over the past 1.5 years."}
+							{description}
 						</MemriText>
 						<MemriDivider/>
 					</VStack>

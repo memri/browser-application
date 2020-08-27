@@ -9,6 +9,7 @@ import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {Datasource} from "../../api/Datasource";
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
 import {MemriDictionary} from "../MemriDictionary";
+import {ComputedPropertyLink} from "../../gui/browser/ConfigPanel";
 
 enum ItemError {
     cannotMergeItemWithDifferentId

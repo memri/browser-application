@@ -15,10 +15,12 @@ import {
 	MemriImage,
 	MemriText,
 	padding, SectionHeader, Spacer,
-	VStack
+	VStack, MemriDivider
 } from "../swiftUI";
 import {Icon} from "@material-ui/core";
 import {UUID} from "../../model/items/Item";
+import {RendererSelectionPanel} from "./RendererSelectionPanel";
+import {ConfigPanel} from "./ConfigPanel";
 
 export class FilterPanel extends MainUI {
 	toggleAscending() {
@@ -92,24 +94,6 @@ export class FilterPanel extends MainUI {
 
 	render() {
 		this.context = this.props.context
-		let context = this.context
-		let cascadableView = this.context.currentView
-		let renderers = this.getRendererCategories()
-		let segmentedRendererCategories = []
-		let rendererCategories = []
-
-		for (let i = 0; i < renderers.length; i++) {
-			rendererCategories.push(renderers[i])
-			if (rendererCategories.length == 5) {
-				segmentedRendererCategories.push(rendererCategories)
-				rendererCategories = []
-			}
-		}
-		if (rendererCategories.length) segmentedRendererCategories.push(rendererCategories)
-		// let segmentedRendererCategories = this.getRendererCategories().segments(ofSize: 5).indexed()
-		//TODO segments function?
-
-		let currentSortProperty = cascadableView?.datasource.sortProperty ?? ""//TODO
 
 		return (
 			<div className="FilterPanel">
@@ -117,126 +101,10 @@ export class FilterPanel extends MainUI {
 					frame={frame({maxWidth: ".infinity", alignment: Alignment.topLeading, height: 240})}
 					background={"#eee"}
 			>
-				<VStack alignment={Alignment.leading} spacing={0} padding={padding({bottom: 1})}>
-					<VStack spacing={3}
-							frame={frame({maxWidth: ".infinity", alignment: Alignment.leading})}
-							padding={padding({leading: 12, top: 1})}
-							background={"white"}
-					>
-						{segmentedRendererCategories.map((categories) =>
-							<HStack alignment={Alignment.top} spacing={3}
-									frame={frame({maxWidth: ".infinity", alignment: Alignment.leading})}
-									padding={padding({leading: 12, top: 1})}
-									background={new Color("white").toLowerCase()}
-							>
-								{categories.map((renderer) =>
-									<MemriRealButton
-										onClick={() => context.executeAction(renderer[1])} key={renderer[0]}>
-										<MemriImage fixedSize=""
-													padding={padding({horizontal: 5, vertical: 5})}
-													frame={frame({width: 35, height: 40, alignment: Alignment.center})}
-													foregroundColor={this.isActive(renderer[1])
-														? renderer[1].getColor("activeColor").toLowerCase()
-														: renderer[1].getColor("inactiveColor").toLowerCase()}
-													background={this.isActive(renderer[1])
-														? renderer[1].getColor("activeBackgroundColor").toLowerCase()
-														: renderer[1].getColor("inactiveBackgroundColor").toLowerCase()}
-										>
-											{renderer[1].getString("icon")}
-										</MemriImage>
-									</MemriRealButton>
-								)}
-							</HStack>
-						)}
-					</VStack>
-
-					<ASTableView>
-						{this.getRenderersAvailable(this.currentRendererCategory).map((item) =>
-							<MemriRealButton onClick={() => this.context.executeAction(item[1])}>
-								<Group padding={padding({horizontal: 6, vertical: 6})}>
-									{cascadableView?.activeRenderer == item[1].rendererName ?
-										<MemriText foregroundColor={"#6aa84f"}
-												   font={font({size: 16, weight: Font.Weight.semibold})}
-										>
-											{item[1].getString("title")}
-										</MemriText>
-										:
-										<MemriText foregroundColor={"#434343"}
-												   font={font({size: 16, weight: Font.Weight.regular})}
-										>
-											{item[1].getString("title")}
-										</MemriText>
-									}
-								</Group>
-							</MemriRealButton>
-						)}
-					</ASTableView>
-				</VStack>
-
-				<ASTableView>
-					<SectionHeader background={"white"}
-								   padding={padding({vertical: 1, leading: 1})}
-					>
-						<MemriText padding={4}
-								   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
-								   font={font({size: 14, weight: Font.Weight.semibold})}
-								   foregroundColor={"#434343"}
-								   background={new Color("secondarySystemBackground").toLowerCase()}
-						>
-							Sort on:
-						</MemriText>
-
-					</SectionHeader>
-					<MemriRealButton onClick={() => this.toggleAscending()}>
-						<HStack>
-							<MemriText foregroundColor={"#6aa84f"}
-									   font={font({size: 16, weight: Font.Weight.semibold,
-										   design: "default"})}
-									   frame={frame({
-										   minWidth: 0,
-										   maxWidth: "infinity",
-										   alignment: Alignment.leading
-									   })}
-							>
-								{currentSortProperty}
-							</MemriText>
-							<Spacer/>
-							<MemriImage resizable={"true"}//TODO
-										// aspectRatio={"fit"}//TODO
-										foregroundColor={"#6aa84f"}
-										frame={frame({minWidth: 10/*, maxWidth: 10*/})}
-							>
-								{cascadableView.datasource.sortAscending === false
-								? "arrow_downward"
-								: "arrow_upward"}
-							</MemriImage>
-						</HStack>
-					</MemriRealButton>
-					{cascadableView?.sortFields.filter (($0) =>
-						cascadableView?.datasource.sortProperty != $0
-					).map ((fieldName) =>
-						<MemriRealButton onClick={() => this.changeOrderProperty(fieldName)}>
-							<MemriText foregroundColor={"#434343"}
-									   font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
-									   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
-							>
-								{fieldName}
-							</MemriText>
-						</MemriRealButton>
-					)}
-					{this.getRelevantFields().map ((fieldName) =>
-						<MemriRealButton onClick={() => this.changeOrderProperty(fieldName)}>
-							<MemriText foregroundColor={"#434343"}
-									   font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
-									   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
-							>
-								{fieldName}
-							</MemriText>
-						</MemriRealButton>
-					)}
-
-				</ASTableView>
-
+				<RendererSelectionPanel context={this.context}/>
+				<MemriDivider/>
+				<ConfigPanel  context={this.context}
+							  frame={frame({width: 200})}/>
 			</HStack>
 			</div>
 		);

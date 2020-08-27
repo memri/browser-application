@@ -116,7 +116,7 @@ export function getItem(type: string, uid) {
 
 export function autoreleasepool(callback){callback()}//TODO
 
-function me() {
+export function me() {
     try {
         let realm = DatabaseController.getRealmSync();
         let myself = realm.objects("Person").filtered("ANY allEdges.type = 'me'")[0];

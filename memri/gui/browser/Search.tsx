@@ -8,6 +8,8 @@ import {font, HStack, MainUI, MemriDivider, MemriText, MemriTextField, padding, 
 import {ActionButton} from "../ActionView";
 
 export class Search extends MainUI{
+	isEditing = false//TODO
+
 	init() {
 		this.context = this.props.context;
 	}
@@ -42,45 +44,6 @@ export class Search extends MainUI{
 		);
 	}
 }
-
-/*class KeyboardModifier extends React.Component {
-	keyboard = KeyboardResponder.shared
-	screenSize
-	contentBounds?: CGRect
-
-	render() {
-		return()
-		content
-			.offset(x: 0, y: contentBounds.flatMap { contentBounds in
-				screenSize.map { screenSize in
-					min(0, (screenSize.height - contentBounds.maxY) - keyboard.currentHeight)
-				}
-            } ?? 0)
-			.background(
-				GeometryReader { geom in
-					Color.clear.preference(key: BoundsPreferenceKey.self, value: geom.frame(in: .global))
-				}
-			)
-			.onPreferenceChange(BoundsPreferenceKey.self, perform: { value in
-				DispatchQueue.main.async {
-					self.contentBounds = value
-				}
-            })
-	}
-}*/
-
-/*class BoundsPreferenceKey extends PreferenceKey {
-	Value? = CGRect
-
-	defaultValue
-
-	static reduce(
-		value,
-		nextValue
-	) {
-		value = nextValue() ?? value
-	}
-}*/
 
 /*struct Search_Previews: PreviewProvider {
 	static var previews: some View {

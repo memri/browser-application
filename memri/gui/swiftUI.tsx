@@ -394,6 +394,16 @@ export class NavigationView extends MainUI {
     }
 }
 
+export class NavigationLink extends MainUI {
+    render() {
+        return (
+            <div className={"NavigationLink"}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
 /*export class ActionButton extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
@@ -600,6 +610,23 @@ export class Toggle extends MainUI {
     }
 }
 
+export class MemriStepper extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <input type="number" {...other}/>
+        )
+    }
+}
+
+export class EmptyView extends MainUI {
+    render() {
+        return (
+            <div className="EmptyView">
+            </div>
+        )
+    }
+}
 
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
     let frameObj = attrs;
