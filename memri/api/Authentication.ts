@@ -7,7 +7,7 @@
 //
 
 
-import {DatabaseController} from "../storage/DatabaseController";
+//import {DatabaseController} from "../storage/DatabaseController";
 
 export class Authentication {
     autologin = true
@@ -74,7 +74,7 @@ export class Authentication {
 
     authenticateOwnerByPasscode(callback) {
         //#if targetEnvironment(simulator)
-        if (DatabaseController.realmTesting || this.autologin) {
+        if (/*DatabaseController.realmTesting ||*/ this.autologin) {
             this.isOwnerAuthenticated = true
             callback(undefined)
             return;
@@ -104,7 +104,7 @@ export class Authentication {
 
     authenticateOwner(callback) {
         //#if targetEnvironment(simulator)
-        if (DatabaseController.realmTesting || this.autologin) {
+        if (/*DatabaseController.realmTesting || */this.autologin) {
             this.isOwnerAuthenticated = true
             callback(undefined)
             return

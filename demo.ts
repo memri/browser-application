@@ -6,7 +6,6 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-error_marker";
 import "ace-builds/src-noconflict/ext-options";
 import "ace-builds/src-noconflict/ext-prompt";
-import {StatusBar} from "ace-builds/src-noconflict/ext-statusbar";
 import {Mode} from "./playground/cvu-mode";
 
 let DemoWorker = require("worker-loader!./demo-worker")
