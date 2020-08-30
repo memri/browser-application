@@ -274,16 +274,17 @@ export class Views {
 			case "view": return this.context?.currentView
 			case "singletonItem":
 				let itemRef = viewArguments?.get(".");
-				let item = this.context?.currentView?.resultSet.singletonItem
 				if (itemRef) {
 					return itemRef
-				} else if (item) {
-					return item
 				} else {
-					throw "Exception: Missing object for property getter"
+					let item = this.context?.currentView?.resultSet.singletonItem
+					if (item) {
+						return item
+					}
 				}
+				throw "Exception: Missing object for property getter"
 			default:
-				let value = viewArguments.get(name)
+				let value = viewArguments?.get(name)
 				if (value) { return value }
 
 				debugHistory.warn(`Undefined variable ${name}`)
