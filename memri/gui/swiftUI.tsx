@@ -628,6 +628,19 @@ export class EmptyView extends MainUI {
     }
 }
 
+export class Circle extends MainUI {
+    render() {
+        let {fill, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {width: "40px", height: "40px", borderRadius: "50%", backgroundColor: fill, alignItems: "center", justifyContent: "center"})
+        return (
+            <Box display="flex" style={style} className="Circle MuiAvatar-root MuiAvatar-circle" {...other}>
+                {this.props.children}
+            </Box>
+        )
+    }
+}
+
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
     let frameObj = attrs;
 

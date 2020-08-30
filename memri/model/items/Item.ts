@@ -4378,8 +4378,8 @@ export class Person extends SchemaPerson {
     constructor(decoder) {
         super(decoder)
 
-        //this.functions["age"] = () => { return this.age }
-        //functions["fullName"] = { _ in self.fullName }
+        this.functions["age"] = () => { return this.age }
+        this.functions["fullName"] = () => { return this.fullName }
     }
 }
 

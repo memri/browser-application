@@ -52,10 +52,12 @@ export class RealmObjects extends Array {
 
     filtered(query: string) {
         if (query.indexOf("ANY") > -1) { //TODO:
+            let notQuery = (query.indexOf("NOT ANY") > -1);
             if (/(?<=^|\s)ANY\s([.\w]+)\s*=\s*(\w+|('[^']*'))$/g.test(query)) {
-                let parts = query.split(/(?:AND )?ANY/i);
+                let parts = query.split(/(?:AND )?(?:NOT )?ANY/i);
                 query=parts[0];
-                var anyQuery = parts[1].replace(/\s([\w]+)\.(\w+)\s*=\s*(\w+|('[^']*'))/,"item['$1'].some((el)=> el['$2'] == $3)");
+                let replace = notQuery? "item['$1'].some((el)=> el['$2'] != $3)" : "item['$1'].some((el)=> el['$2'] == $3)";
+                var anyQuery = parts[1].replace(/\s([\w]+)\.(\w+)\s*=\s*(\w+|('[^']*'))/, replace);
                 var result = this.filter(new Function("item", "return " + anyQuery))
             }
         }

@@ -24,6 +24,7 @@ import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRende
 import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
 import {MemriDictionary} from "../../model/MemriDictionary";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {registerEmailRenderers} from "../../gui/renderers/EmailRenderer/EmailThreadRenderer";
 
 export class Renderers {
     all = {}
@@ -61,7 +62,7 @@ export class Renderers {
         registerMessageRenderer()
         registerPhotoViewerRenderer()
         // registerFileViewerRenderer()
-        // registerEmailRenderers()
+        registerEmailRenderers()
     }
     
     get tuples() {

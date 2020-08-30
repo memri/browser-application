@@ -6,11 +6,13 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {allRenderers, CascadingThumbnailConfig} from "../../../cvu/views/Renderers";
+import {allRenderers, CascadingEmailThreadRendererConfig, CascadingThumbnailConfig} from "../../../cvu/views/Renderers";
 import {MainUI, RenderersMemri} from "../../swiftUI";
 import {ViewArguments} from "../../../cvu/views/CascadableDict";
 import * as React from "react";
 import {Color} from "../../../parsers/cvu-parser/CVUParser";
+import {EmailThreadItem} from "./EmailThreadCell";
+import {UUID} from "../../../model/items/Item";
 
 export var registerEmailRenderers = function () {
     if (allRenderers) {
@@ -39,20 +41,22 @@ class EmailThreadRenderer extends RenderersMemri {
     
     getEmailItems() {
         return this.context.items.map((item) => {
-            /*return new EmailThreadItem(uuid: item.uid.value.map(String.init) ?? UUID().uuidString,
-                            contentHTML: resolveExpression(renderConfig.content, toType: String.self, forItem: item) ?? "",
-                headerView: getEmailHeader(forItem: item))*/ //TODO:
+            return (
+                <EmailThreadItem uuid={item.uid ?? UUID()} contentHTML={this.resolveExpression(this.renderConfig.content, item) ?? ""} headerView={this.getEmailHeader(item)}/>
+            )
         })
     }
     
-    resolveExpression(expression?: Expression, dataItem: Item) {
+    resolveExpression(expression: Expression, dataItem: Item) {
         let args = new ViewArguments(this.context.currentView?.viewArguments, dataItem)
         return expression?.execForReturnType(args);
     }
 
     render() {
+        this.context = this.props.context;
+
         return (
-            <EmailThreadRendererController emails={this.getEmailItems()} background={this.renderConfig.backgroundColor?.color ?? new Color("systemGroupedBackground")}/>
+            <EmailThreadRendererController emails={this.getEmailItems()} background={this.renderConfig.backgroundColor?.value ?? new Color("systemGroupedBackground")}/>
         )
     }
     
@@ -66,10 +70,12 @@ class EmailThreadRendererController extends MainUI {
     emails
 
     render() {
-        this.emails = this.props.email;
+        this.emails = this.props.emails;
+        let style = this.setStyles();
+        Object.assign(style, {width: "100%"})
 
         return (
-            <div className={"EmailThreadRendererController"}>
+            <div style={style} className={"EmailThreadRendererController"}>
                 {this.emails}
             </div>
         )

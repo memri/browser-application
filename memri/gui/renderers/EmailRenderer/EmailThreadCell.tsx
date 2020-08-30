@@ -6,7 +6,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-export class EmailThreadItem {
+import {MainUI} from "../../swiftUI";
+import * as React from "react";
+import {ListItem} from "@material-ui/core";
+
+export class EmailThreadItem extends MainUI {
     uuid: string
     contentHTML: string
     headerView: AnyView
@@ -16,17 +20,29 @@ export class EmailThreadItem {
         hasher.combine(this.contentHTML)
     }
 
+    render() {
+        this.uuid = this.props.uuid;
+        this.contentHTML = this.props.contentHTML;
+        this.headerView = this.props.headerView;
+
+        return (
+            <div style={this.setStyles()} className={"EmailThreadItem"}>
+                <EmailThreadCell uuid={this.uuid} contentHTML={this.contentHTML} headerView={this.headerView}/>
+            </div>
+        )
+    }
+
     /*static func == (lhs: EmailThreadItem, rhs: EmailThreadItem) -> Bool {
         lhs.uuid == rhs.uuid && lhs.contentHTML == rhs.contentHTML
     }*/
 }
 
-export class EmailThreadCell/*: UITableViewCell*/ {
+export class EmailThreadCell extends MainUI/*: UITableViewCell*/ {
     reuseID = "EmailThreadCell"
     
-    emailView = new EmailViewUIKit()
+    emailView /*= new EmailViewUIKit()*/
     
-    //emailHeaderView = new UIHostingController(rootView: AnyView(EmptyView()))
+    emailHeaderView /*= new UIHostingController(rootView: AnyView(EmptyView()))*/
     
     setContent(email: EmailThreadItem) {
         this.emailView.emailHTML = email.contentHTML
@@ -38,8 +54,20 @@ export class EmailThreadCell/*: UITableViewCell*/ {
             this.emailView.onSizeUpdated = this.onEmailContentSizeUpdated
         //}
     }
+
+    render() {
+        this.uuid = this.props.uuid;
+        this.contentHTML = this.props.contentHTML;
+        this.headerView = this.props.headerView;
+
+        return (
+            <ListItem style={this.setStyles()} key={this.props.uuid}>
+                {this.props.headerView}
+            </ListItem>
+        )
+    }
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    /*override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         
         emailHeaderView.view.insetsLayoutMarginsFromSafeArea = false
@@ -92,5 +120,5 @@ export class EmailThreadCell/*: UITableViewCell*/ {
 //        emailHeaderView.additionalSafeAreaInsets = .init(top: 1, left: 0, bottom: 0, right: 0)
 //        emailHeaderView.additionalSafeAreaInsets = .zero
         super.layoutSubviews()
-    }
+    }*/
 }

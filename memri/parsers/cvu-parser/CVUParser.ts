@@ -27,6 +27,9 @@ export class Color {
     value;
     constructor(value) {
         switch (value) {
+            case "secondaryLabel":
+                this.value = "#3c3c4399";
+                break;
             case "label":
                 this.value = "#000000"
                 break;

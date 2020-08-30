@@ -39,6 +39,7 @@ import {Grid} from "@material-ui/core";
 import {MemriDictionary} from "../../model/MemriDictionary";
 import {MemriButton} from "./MemriButton";
 import {MemriSmartTextView} from "../components/Text/MemriSmartTextView";
+import {EmailHeaderView} from "../components/Email/EmailHeaderView";
 require("../../extension/common/string");
 
 export class UIElementView extends MainUI {
@@ -440,7 +441,13 @@ export class UIElementView extends MainUI {
                 //.fixedSize(horizontal: false, vertical: true)
                 case UIElementFamily.EmailHeader:
                     //TODO:
-                    return (<div className="EmailHeader"></div>)
+                    return (
+                        <EmailHeaderView senderName={this.get("title") ?? "Untitled"}
+                                         recipientList={this.get("subtitle")} dateString={this.get("rightSubtitle")}
+                                         color={this.get("color")}
+                                         setProperties={setProperties(this.from.propertyResolver.properties, this.item, this.context, this.viewArguments)}
+                        />
+                    )
                 case UIElementFamily.Circle:
                     //TODO:
                     return (<div className="Circle"></div>)
