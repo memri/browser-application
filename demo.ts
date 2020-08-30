@@ -390,15 +390,15 @@ window.onbeforeunload = function() {
     saveMetadata();
 }
 
-import {settings} from "./memri/model/Settings"
+import {Settings} from "./memri/model/Settings"
 import {PodAPI} from "./memri/api/PodAPI"
 
 refs.podAddress.addEventListener("input", function() {
-    settings.set("user/pod/host", refs.podAddress.value);
-    localStorage["user/pod/host"] = settings.get("user/pod/host")
+    Settings.shared.set("user/pod/host", refs.podAddress.value);
+    localStorage["user/pod/host"] = Settings.shared.get("user/pod/host")
 })
 refs.podAddress.value = localStorage["user/pod/host"] || "http://localhost:3030/"
-settings.set("user/pod/host", refs.podAddress.value);
+Settings.shared.set("user/pod/host", refs.podAddress.value);
 
 import {mockApi} from "./playground/mockApi"
 var api = new PodAPI(null, mockApi);

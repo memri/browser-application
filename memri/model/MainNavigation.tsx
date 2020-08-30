@@ -11,7 +11,7 @@
 	var firstCapitalized: String { prefix(1).capitalized + dropFirst() }
 }*/
 
-import {settings} from "./Settings";
+import {Settings} from "./Settings";
 import {jsonDataFromFile, jsonErrorHandling, MemriJSONDecoder, realmWriteIfAvailable} from "../gui/util";
 import {DatabaseController} from "../storage/DatabaseController";
 import {Realm} from "./RealmLocal";
@@ -20,10 +20,10 @@ export class MainNavigation {
 	items = []
 
 	get filterText(): string {
-		return settings.get("device/navigation/filterText") ?? "";
+		return Settings.shared.get("device/navigation/filterText") ?? "";
 	}
 	set filterText(newFilter){
-		settings.set("device/navigation/filterText", newFilter);
+		Settings.shared.set("device/navigation/filterText", newFilter);
 		this.scheduleUIUpdate(true);
 	}
 

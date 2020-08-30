@@ -20,7 +20,7 @@
 import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {settings} from "../model/Settings";
+import {Settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/PodAPI";
 import {Expression} from "../parsers/expression-parser/Expression";
@@ -649,7 +649,7 @@ export class RootContext extends MemriContext {
 			name,
 			podAPI,
 			cache,
-			settings,
+			new Settings(),
 			new Installer(),
 			new Sessions(undefined,true),
 			views,

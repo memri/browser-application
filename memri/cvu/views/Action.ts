@@ -7,7 +7,7 @@ import {Expression} from "../../parsers/expression-parser/Expression";
 import {ActionError} from "./ActionErrors";
 import {Color} from "../../parsers/cvu-parser/CVUParser";
 import {debugHistory} from "./ViewDebugger";
-import {settings} from "../../model/Settings";
+import {Settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {CacheMemri} from "../../model/Cache";
 import {CVUStateDefinition, EdgeSequencePosition, Item} from "../../model/items/Item";
@@ -1313,10 +1313,10 @@ class ActionSetSetting extends Action{
 
         let value = argumentsJs["value"]
 
-        settings./*shared. TODO*/set(path, value);
+        Settings.shared.set(path, value);
 
-            // TODO: refactor
-            ((this.context/*?.constructor?.name == "SubContext"*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
+        // TODO: refactor
+        ((this.context/*?.constructor?.name == "SubContext"*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
     }
 
     /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {

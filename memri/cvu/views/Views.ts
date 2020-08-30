@@ -2,7 +2,7 @@
 // TODO: Move to integrate with some of the sessions features so that Sessions can be nested
 import {CVU} from "../../parsers/cvu-parser/CVU";
 import {debugHistory} from "./ViewDebugger";
-import {settings} from "../../model/Settings";
+import {Settings} from "../../model/Settings";
 import {
 	ExprVariableList,
 	ExprVariableType
@@ -150,7 +150,7 @@ export class Views {
 	}
 
 	static formatDate(date, dateFormat?) {//TODO:
-		let showAgoDate = settings.get("user/general/gui/showDateAgo")
+		let showAgoDate = Settings.shared.get("user/general/gui/showDateAgo")
 
 		if (date) {
 			// Compare against 36 hours ago
@@ -159,16 +159,16 @@ export class Views {
                 //let dateFormatter = DateFormatter()
 
                 /*dateFormatter.dateFormat = dateFormat == "time"
-                    ? settings.get("user/formatting/time")
+                    ? Settings.shared.get("user/formatting/time")
                     : dateFormat
-                        ?? settings.get("user/formatting/date")
+                        ?? Settings.shared.get("user/formatting/date")
                         ?? "yyyy/MM/dd HH:mm"
 				*/
                 let options = {};
                 if (dateFormat == "time") {
                 	options = {hour: "numeric", minute: "numeric"}
 				}
-				//let format = settings.get("user/formatting/time");
+				//let format = Settings.shared.get("user/formatting/time");
 				return date.toLocaleString('en-US', options);
             }
             else {
@@ -214,7 +214,7 @@ export class Views {
 					//#warning("@Toby - how can we re-architect this?")
 					let value = args[0];
 					if (typeof value == "string") {
-						let x = settings.get(value/*, type: Double.self*/);
+						let x = Settings.shared.get(value/*, type: Double.self*/);
 						if (x) {
 							return x
 						}

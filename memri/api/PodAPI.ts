@@ -1,4 +1,4 @@
-import {settings} from "../model/Settings"
+import {Settings} from "../model/Settings"
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Authentication} from "./Authentication";
 
@@ -9,7 +9,7 @@ export class PodAPI {
     password?: string
 
     get isConfigured(): boolean {
-        return (this.host ?? settings.get("user/pod/host")) != ""
+        return (this.host ?? Settings.shared.get("user/pod/host")) != ""
     }
 
     constructor(podkey, mockApi?) {
@@ -24,8 +24,8 @@ export class PodAPI {
     } 
     
     async httpWithKeys({method = "POST", path = "", payload, ownerKey, databaseKey}, callback) {
-
-        let podhost = this.host ?? settings.get("user/pod/host")
+        let settings = new Settings()
+        let podhost = this.host ?? settings.getString("user/pod/host")
         if (podhost == "mock") {
             let body = JSON.stringify(payload);
             return this.mockApi.http({method, path, body}, callback);

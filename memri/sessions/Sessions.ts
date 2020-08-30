@@ -12,7 +12,7 @@ import {EdgeSequencePosition, CVUStateDefinition} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "../model/Cache";
 import {Session} from "./Session";
-import {settings} from "../model/Settings";
+import {Settings} from "../model/Settings";
 
 export class Sessions /*: ObservableObject, Equatable*/ {
     /// TBD
@@ -65,7 +65,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         } else if (isDefault) {
             this.isDefault = isDefault
             // Load default sessions for this device
-            this.uid = settings.get("device/sessions/uid")
+            this.uid = Settings.shared.get("device/sessions/uid")
         }
         
         // Setup update publishers
@@ -83,7 +83,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
     load(context: MemriContext) {//TODO: added this for JS
         if (this.isDefault && this.uid == undefined) {
-            this.uid = settings.get("device/sessions/uid")
+            this.uid = Settings.shared.get("device/sessions/uid")
             if (this.uid == undefined) {
                 throw "Could not find stored sessions to load from"
             }
@@ -246,7 +246,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
             // uid is always set
             this.uid = state.uid;
-            settings.set("device/sessions/uid", state.uid ?? -1);
+            Settings.shared.set("device/sessions/uid", state.uid ?? -1);
 
             this.parsed = parsed /*as? CVUParsedSessionsDefinition*/
             console.log(realm.objects("CVUStoredDefinition"));

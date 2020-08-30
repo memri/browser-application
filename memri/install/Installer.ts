@@ -10,8 +10,9 @@ import {MemriContext} from "../context/MemriContext";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {DatabaseController} from "../storage/DatabaseController";
 import {CacheMemri} from "../model/Cache";
-import {settings} from "../model/Settings";
+import {Settings} from "../model/Settings";
 import {Authentication} from "../api/Authentication";
+import {LocalSetting} from "../api/LocalSettings";
 
 export class Installer {
 	isInstalled: boolean = false
@@ -24,10 +25,10 @@ export class Installer {
 	}
 
 	await(context: MemriContext, callback) {
-		let authAtStartup = settings.get("device/auth/atStartup") ?? true
+		let authAtStartup = Settings.shared.get("device/auth/atStartup") ?? true
 
 		let check = () => {
-			if (settings.get("memri/installed")) {
+			if (LocalSetting.get("memri/installed")) {
 				this.isInstalled = true
 
 				if (!this.debugMode) {
@@ -54,7 +55,7 @@ export class Installer {
 	ready(context:MemriContext) {
 		this.isInstalled = true
 
-		settings.set("memri/installed", Date()); //TODO: LocalSetting
+		LocalSetting.set("memri/installed", Date()); //TODO: LocalSetting
 
 		try {
 			this.readyCallback()
@@ -99,7 +100,7 @@ export class Installer {
 						callback(error)
 					}
 
-					settings.set("user/pod/host", host)
+					Settings.shared.set("user/pod/host", host)
 					this.ready(context)
 					context.cache.sync.schedule()
 
@@ -126,7 +127,7 @@ export class Installer {
 				Authentication.createRootKey(areYouSure)
 
 				context.cache.sync.syncAllFromPod(() => { // TODO error handling
-					settings.set("user/pod/host", host)
+					Settings.shared.set("user/pod/host", host)
 
 					try {
 						Authentication.setOwnerAndDBKey(privateKey, publicKey, dbKey);
@@ -224,7 +225,7 @@ export class Installer {
 						}
 
 						// Installation complete
-						settings.set("memri/installed", Date()) //TODO:
+						LocalSetting.set("memri/installed", Date()) //TODO:
 
 						callback(undefined)
 					})

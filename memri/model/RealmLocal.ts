@@ -11,20 +11,15 @@ export class Realm {
     objects(type?) {
         let realmObjects = new RealmObjects();
         if (type) {
-            realmObjects.push(...this.db.filter((item) => item["_type"] == type).map((item) => {
-                return new (getItemType(item["_type"]))(item)}));
+            realmObjects.push(...this.db.filter((item) => item["_type"] == type));
             return realmObjects
         }
-        realmObjects.push(...this.db.map((item) => new (getItemType(item["_type"]))(item)));
+        realmObjects.push(...this.db);
         return realmObjects;
     }
 
     objectForPrimaryKey(type, key) {
-        let obj = this.db.filter((item) => item["_type"] == type && item["uid"] && item["uid"] == key);
-        if (obj.length > 0) {
-            let objType = obj[0]["_type"];
-            return new (getItemType(objType))(obj[0]);
-        }
+        return this.db.find((item) => item["_type"] == type && item["uid"] && item["uid"] == key);
     }
 
     create(type, properties) {
