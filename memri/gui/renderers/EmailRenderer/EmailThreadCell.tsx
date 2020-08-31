@@ -8,7 +8,6 @@
 
 import {MainUI} from "../../swiftUI";
 import * as React from "react";
-import {ListItem} from "@material-ui/core";
 
 export class EmailThreadItem extends MainUI {
     uuid: string
@@ -56,15 +55,20 @@ export class EmailThreadCell extends MainUI/*: UITableViewCell*/ {
     }
 
     render() {
+        this.init();
+
+        return (
+            <div style={this.setStyles()} key={this.props.uuid}>
+                {this.headerView}
+                {this.contentHTML}
+            </div>
+        )
+    }
+
+    init() {
         this.uuid = this.props.uuid;
         this.contentHTML = this.props.contentHTML;
         this.headerView = this.props.headerView;
-
-        return (
-            <ListItem style={this.setStyles()} key={this.props.uuid}>
-                {this.props.headerView}
-            </ListItem>
-        )
     }
     
     /*override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
