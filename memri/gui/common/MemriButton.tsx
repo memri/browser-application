@@ -35,7 +35,7 @@ export class MemriButton extends MainUI {
         if (type == "") { type = inputItem?.genericType }
 
         var title = inputItem?.computedTitle ?? ""
-        var bgColor = family?.backgroundColor ?? new Color("white").toLowerCase()
+        var bgColor = backgroundColor(family) ?? new Color("white").toLowerCase()
         if (inputItem?.genericType == "Person" && inputItem == me()) {
             title = "Me"
             bgColor = new Color("#e8ba32").toLowerCase()
