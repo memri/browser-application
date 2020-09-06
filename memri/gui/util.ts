@@ -106,10 +106,10 @@ func withRealm(_ doThis: (_ realm: Realm) -> Any?) -> Any? {
 export function getItem(type: string, uid) {
     type = ItemFamily[type];
     if (type) {
-        let item = getItemType(type);
-        return DatabaseController.read((realm)=> {
-        realm.objectForPrimaryKey(item, uid)
-        })
+        //let item = getItemType(type);
+        return DatabaseController.current(false, (realm) =>
+            realm.objectForPrimaryKey(type, uid)
+        )
     }
     return
 }

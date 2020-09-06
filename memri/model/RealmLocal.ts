@@ -1,4 +1,4 @@
-import {getItemType} from "./items/Item";
+import {Edge, getItemType, SchemaItem} from "./items/Item";
 
 export class Realm {
     db;
@@ -18,8 +18,8 @@ export class Realm {
         return realmObjects;
     }
 
-    objectForPrimaryKey(type, key) {
-        return this.db.find((item) => item["_type"] == type && item["uid"] && item["uid"] == key);
+    objectForPrimaryKey(type, key, primaryKey="uid") {//TODO: while we don't have objectSchema
+        return this.db.find((item) => item["_type"] == type && item[primaryKey] && item[primaryKey] == key);
     }
 
     create(type, properties) {
@@ -29,6 +29,26 @@ export class Realm {
         }
         this.db.push(new (getItemType(obj["_type"]))(obj));
         return this.db[this.db.length - 1];
+    }
+
+    add(obj, update = true) {
+        if (update) {
+            let item = this.objectForPrimaryKey(obj["_type"], obj.uid);
+            if (item) {
+                for (let prop in obj) {
+                    if (obj.hasOwnProperty(prop))
+                        item[prop] = obj[prop];
+                }
+            } else {
+                if (obj instanceof SchemaItem || obj instanceof Edge) {
+                    this.db.push(obj);
+                } else {
+                    this.db.push(new (getItemType(obj["_type"]))(obj));
+                }
+            }
+        } else {
+            this.db.push(new (getItemType(obj["_type"]))(obj));
+        }
     }
 
     write(callback) {
@@ -62,7 +82,7 @@ export class RealmObjects extends Array {
             }
         }
         //TODO: we need parse query, not eval it... "selector = '[sessions = defaultSessions]'"
-        let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)(\w+)\s*=\s*(\w+|('[^']*'))/g,"item['$1'] == $2").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
+        let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)([_\w]+)\s*(!?=)\s*(\w+|('[^']*'))/g,"item['$1'] $2= $3").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
         if (!result)
             result = this;
         return result.filter(new Function("item", "return " + newquery))

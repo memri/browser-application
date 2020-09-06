@@ -141,6 +141,9 @@ export class Settings {
 
                 if (s._action != "create") {
                     s._action = "update"
+                    if (!s._updated)
+                        s._updated=[];
+
                     if (!s._updated.includes("json")) {
                         s._updated.push("json")
                     }

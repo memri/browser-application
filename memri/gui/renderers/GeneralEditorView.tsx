@@ -333,8 +333,7 @@ export class GeneralEditorSection extends MainUI {
             </>
         );
         return (
-            <Section>
-                {header}
+            <Section header={header}>
                 {!isEmpty ? content: ""}
             </Section>
 

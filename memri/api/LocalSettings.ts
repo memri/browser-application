@@ -21,7 +21,7 @@ export class LocalSetting {
     
     static set(key: string, value: string) {
         DatabaseController.current(true, ($0) => { debugHistory.warn(`${$0}`) }, (realm: Realm) => {
-            let setting = realm.objectForPrimaryKey("LocalSetting", key)
+            let setting = realm.objectForPrimaryKey("LocalSetting", key, "key") //TODO: while we don't have objectSchema
 
             if (setting) {
                 setting.value = value
@@ -34,7 +34,7 @@ export class LocalSetting {
 
     static get(key: string): string {
         return DatabaseController.current(true, (realm) => {
-            let setting = realm.object("LocalSetting", key)
+            let setting = realm.objectForPrimaryKey("LocalSetting", key, "key")
             if (setting) {
                 return setting["value"]
             }

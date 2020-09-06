@@ -55,7 +55,7 @@ export class Installer {
 	ready(context:MemriContext) {
 		this.isInstalled = true
 
-		LocalSetting.set("memri/installed", Date()); //TODO: LocalSetting
+		LocalSetting.set("memri/installed", Date.now()); //TODO: LocalSetting
 
 		try {
 			this.readyCallback()
@@ -74,7 +74,7 @@ export class Installer {
 					throw `${error}`
 				}
 
-				Authentication.createRootKey(areYouSure)
+				//Authentication.createRootKey(areYouSure)
 
 				this.installDefaultDatabase(context, (error) => {
 					if (error) {
@@ -95,14 +95,14 @@ export class Installer {
 					try {
 						//console.log(`KEY: ${Authentication.getPublicRootKeySync().hexEncodedString(".upperCase")}`) //TODO?
 
-						Authentication.createOwnerAndDBKey()
+						//Authentication.createOwnerAndDBKey()
 					} catch {
 						callback(error)
 					}
 
 					Settings.shared.set("user/pod/host", host)
 					this.ready(context)
-					context.cache.sync.schedule()
+					context.cache.sync.schedule();
 
 					callback(undefined)
 					//}
@@ -124,7 +124,7 @@ export class Installer {
 
 				context.podAPI.host = host
 
-				Authentication.createRootKey(areYouSure)
+				//Authentication.createRootKey(areYouSure)
 
 				context.cache.sync.syncAllFromPod(() => { // TODO error handling
 					Settings.shared.set("user/pod/host", host)

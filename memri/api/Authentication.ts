@@ -9,6 +9,10 @@
 
 //import {DatabaseController} from "../storage/DatabaseController";
 
+import {DatabaseController} from "../storage/DatabaseController";
+import {me} from "../gui/util";
+import {CacheMemri} from "../model/Cache";
+
 export class Authentication {
     autologin = true
 
@@ -169,9 +173,53 @@ export class Authentication {
         }*/
     }
 
+    static setOwnerAndDBKey(privateKey: string, publicKey: string, dbKey: string) {
+        DatabaseController.tryCurrent(true, (realm) => {
+            realm.objects("CryptoKey").filtered("name = 'memriDBKey'").forEach((key) => {
+                key.active = false
+            });
+
+            realm.objects("CryptoKey").filtered("name = 'memriOwnerKey'").forEach((key) => {
+                key.active = false
+            })
+
+            let myself = me()
+            if (!myself.realm) {
+                throw "Could not find a reference to 'me'"
+            }
+
+            let dbKeyItem = CacheMemri.createItem("CryptoKey", {
+                "itemType": "64CharacterRandomHex",
+                "key": dbKey,
+                "name": "Memri Database Key",
+                "active": true
+            })
+            dbKeyItem.link(myself, "owner");
+
+            let ownerPrivateKeyItem = CacheMemri.createItem("CryptoKey", {
+                "itemType": "ED25519",
+                "role": "private",
+                "key": privateKey,
+                "name": "Memri Owner Key",
+                "active": true
+            })
+            let ownerPublicKeyItem = CacheMemri.createItem("CryptoKey", {
+                "itemType": "ED25519",
+                "role": "public",
+                "key": publicKey,
+                "name": "Memri Owner Key",
+                "active": true
+            })
+            ownerPrivateKeyItem.link(myself, "owner")
+            ownerPublicKeyItem.link(myself, "owner")
+            ownerPrivateKeyItem.link(ownerPublicKeyItem, "publicKey")
+            ownerPublicKeyItem.link(ownerPrivateKeyItem, "privateKey")
+        })
+    }
+
     static async getOwnerAndDBKey(callback) {
-        
-        callback(null, localStorage.ownerKey, localStorage.databaseKey)
+        callback(null, "54365395D0C23087C44FF5FC0A2320D276B942AA8A7F0A92585A8368FFBEAA29", "9F293DAA30B642C7885770F824CED595E7B206B670EE476087655EE9BDA6977B")
+        //callback(null, localStorage.ownerKey, localStorage.databaseKey)
         /*DatabaseController.current { realm in
             let dbQuery = "name = 'memriDBKey' and active = true"
             guard let dbKey = realm.objects(CryptoKey.self).filter(dbQuery).first else {

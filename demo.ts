@@ -401,7 +401,7 @@ refs.podAddress.value = localStorage["user/pod/host"] || "http://localhost:3030/
 Settings.shared.set("user/pod/host", refs.podAddress.value);
 
 import {mockApi} from "./playground/mockApi"
-var api = new PodAPI(null, mockApi);
+var api = new PodAPI(mockApi, mockApi);
  
  window.api = api
 
@@ -458,7 +458,7 @@ var cache;
 var cacheListeners;
 function listCVUDefinitions(callback) {
     cache = Object.create(null)
-    api.query({query: "CVUStoredDefinition"}, function(err, items) {
+    api.query({query: "CVUStoredDefinition"}, true,function(err, items) {
         if (err) return callback(err);
         items.forEach(function(item) {
             if (!item.definition || item.deleted) return;
@@ -499,9 +499,12 @@ function listCVUDefinitions(callback) {
         });
         callback(null, files)
         
-        if (cacheListeners.length)
+        if (cacheListeners && cacheListeners.length) {
             cacheListeners.forEach(x=>x())
-        cacheListeners.length = 0;
+            cacheListeners.length = 0;
+        }
+
+
     });
 }
 

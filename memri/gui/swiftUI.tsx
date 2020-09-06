@@ -2,14 +2,15 @@ import * as React from "react";
 import {
     BaseTextFieldProps,
     Box,
-    Button,
+    Button, Dialog, DialogTitle,
     Divider,
     Grid,
     GridList,
     Icon,
-    List,
+    List, Modal,
     Switch,
-    TextField
+    TextField,
+    DialogContentText, DialogActions
 } from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
@@ -372,13 +373,32 @@ export class Content extends MainUI {
 }
 
 export class MemriRealButton extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showAlert: false,
+        };
+        this.onAlert = this.onAlert.bind(this);
+    }
+
+    onAlert() {
+        this.setState({
+            showAlert: true,
+        });
+    }
+
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
-        return (
+        let {alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
+        action = alert ? this.onAlert : (action && typeof action == "function") ? action :  ()=> {};
+         return (
             <div className={"MemriRealButton"}>
             <Button onClick={action} style={this.setStyles()} {...other}>
                 {this.props.children}
             </Button>
+                {this.state.showAlert ?
+                    alert :
+                    null
+                }
             </div>
         )
     }
@@ -395,11 +415,33 @@ export class NavigationView extends MainUI {
 }
 
 export class NavigationLink extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showComponent: false,
+        };
+        this._onNavigationLinkClick = this._onNavigationLinkClick.bind(this);
+    }
+
+    _onNavigationLinkClick() {
+        this.setState({
+            showComponent: true,
+        });
+    }
+
     render() {
+        let {destination, font, padding, foregroundColor, spacing, frame, zIndex, action, ...other} = this.props;
         return (
-            <div className={"NavigationLink"}>
-                {this.props.children}
-            </div>
+            <>
+                <Button onClick={destination ? this._onNavigationLinkClick : ()=>{}} className={"NavigationLink"}
+                        style={this.setStyles()} {...other}>
+                    {this.props.children}
+                </Button>
+                {this.state.showComponent ?
+                    destination :
+                    null
+                }
+            </>
         )
     }
 }
@@ -436,6 +478,19 @@ export class MemriTextField extends MainUI {
         } = this.props;
         return (
             <TextField style={this.setStyles()} defaultValue={value} {...other}/>
+        )
+    }
+}
+
+export class SecureField extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex,
+            text, textColor, tintColor, clearButtonMode,
+            showPrevNextButtons, layoutPriority,
+            accentColor, background, cornerRadius, ...other
+        } = this.props;
+        return (
+            <TextField type="password" style={this.setStyles()} defaultValue={text} {...other}/>
         )
     }
 }
@@ -516,10 +571,12 @@ export class SectionHeader extends MainUI {
 
 export class Section extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {header, footer, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
             <div style={this.setStyles()} className="Section" {...other}>
+                {header ? header: ""}
                 {this.props.children}
+                {footer ? footer: ""}
             </div>
         )
     }
@@ -637,6 +694,56 @@ export class Circle extends MainUI {
             <Box display="flex" style={style} className="Circle MuiAvatar-root MuiAvatar-circle" {...other}>
                 {this.props.children}
             </Box>
+        )
+    }
+}
+
+export class MemriAlert extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {
+            open: true,
+        };
+        this.handleClose = this.handleClose.bind(this);
+    }
+
+    handleClose() {
+        this.setState({
+            open: false,
+        });
+    }
+
+    render() {
+        let {primaryButton, secondaryButton, title, message, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="Alert" {...other}>
+                <Dialog open={this.state.open} onClose={this.handleClose}>
+                    {title &&
+                    <DialogTitle>{title}</DialogTitle>
+                    }
+                    {message &&
+                    <DialogContentText>
+                        {message}
+                    </DialogContentText>
+                    }
+                    {(primaryButton || secondaryButton) &&
+                    <DialogActions>
+                        {primaryButton}
+                        {secondaryButton}
+                    </DialogActions>
+                    }
+                </Dialog>
+            </div>
+        )
+    }
+}
+
+export class Form extends MainUI {
+    render() {
+        return (
+            <div className="Form">
+                {this.props.children}
+            </div>
         )
     }
 }

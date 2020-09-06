@@ -193,7 +193,7 @@ export class CacheMemri {
 				callback && callback("Empty Query", null)
 			} else {
 				// Schedule the query to sync from the pod
-				//if (syncWithRemote) {this.sync.syncQuery(datasource)}
+				if (syncWithRemote) {this.sync.syncQuery(datasource)}
 
 				// Parse query
 				let [typeName, filter] = this.parseQuery(q)
@@ -554,7 +554,7 @@ export class CacheMemri {
 				if (fields.length > 0){
 					fromCache.modified(fields)
 				}
-				fromCache["dateModified"] = new Date();
+				fromCache["dateModified"] = Date.now();
 
 				if (item && item["_action"] != "create") {
 					item["_action"] = "update"
@@ -570,7 +570,7 @@ export class CacheMemri {
 			}
 
 			if (dict["dateCreated"] == undefined) {
-				dict["dateCreated"] = new Date()
+				dict["dateCreated"] = Date.now()
 			}
 			if (dict["uid"] == undefined) {
 				dict["uid"] = CacheMemri.incrementUID();
@@ -612,7 +612,7 @@ export class CacheMemri {
 					"type": edgeType,
 					"edgeLabel": label,
 					"sequence": sequence,
-					"dateCreated": new Date(),
+					"dateCreated": Date.now(),
 					"_action": "create"
 				})
 

@@ -537,7 +537,8 @@ export class UIElementView extends MainUI {
         let fontSize = this.get("fontSize")
 
         // TITLE
-        let [___, titleDataItem, titlePropertyName] = this.from.getType("title", this.item, this.viewArguments)
+        let [___, titleDataItem, titlePropertyName] = this.from.getType("title", this.item, this.viewArguments);
+        let titleBinding = titleDataItem.hasProperty(titlePropertyName);
         /*let titleBinding = titleDataItem.hasProperty(titlePropertyName) ? Binding<String?>(
             get: { (titleDataItem[titlePropertyName] as? String)?.nilIfBlank },
             set: { titleDataItem.set(titlePropertyName, $0) }
@@ -555,7 +556,7 @@ export class UIElementView extends MainUI {
             <RichTextEditor htmlContentBinding={contentDataItem[contentPropertyName]}
                             titleBinding={titleDataItem[titlePropertyName]}
                             titleHint={titleHint} headingFontSize={titleFontSize ?? 26}
-                            fontSize={fontSize ?? 18}
+                            fontSize={fontSize ?? 18} item={this.item}
             />
         )
 
