@@ -6,7 +6,18 @@ import * as React from 'react';
 import {allRenderers, CascadingListConfig} from "../../cvu/views/Renderers";
 import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionDelete, ActionOpenView} from "../../cvu/views/Action";
-import {ASTableView, font, HStack, MainUI, MemriText, padding, RenderersMemri, Spacer, VStack} from "../swiftUI";
+import {
+	ASTableView,
+	font,
+	HStack,
+	MainUI, MemriImage,
+	MemriRealButton,
+	MemriText,
+	padding,
+	RenderersMemri,
+	Spacer,
+	VStack
+} from "../swiftUI";
 import {ListItem} from "@material-ui/core";
 
 export var registerListRenderer = function () {
@@ -58,11 +69,12 @@ export class ListRendererView extends RenderersMemri {
 	get sections() { //contextMenuProvider: contextMenuProvider
 		let items = this.context.items;
 		return items.map((dataItem) => {
-			return <ListItem key={dataItem.uid} onClick={
+			return <><ListItem key={dataItem.uid} onClick={
 				this.executeAction(dataItem)
 			}>
 				{this.renderConfig.render(dataItem)}
-			</ListItem>
+
+			</ListItem><MemriRealButton action={this.deleteItem.bind(this, dataItem)}><MemriImage>delete_forever</MemriImage></MemriRealButton></>
 		})
 		/*
 		.padding(EdgeInsets(top: cellContext.isFirstInSection ? 0 : self.renderConfig.spacing.height / 2,
@@ -70,6 +82,10 @@ export class ListRendererView extends RenderersMemri {
 												bottom: cellContext.isLastInSection ? 0 : self.renderConfig.spacing.height / 2,
 												trailing: self.renderConfig.edgeInset.right))
 		 */
+	}
+
+	deleteItem = (item) => {
+		this.context.executeAction(new ActionDelete(this.context), item);
 	}
 
 	render() {

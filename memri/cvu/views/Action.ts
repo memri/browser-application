@@ -1065,7 +1065,7 @@ export class ActionDelete extends Action {
             this.context.scheduleCascadableViewUpdate(true);
         } else {
             let dataItem = argumentsJs["item"];
-            if (dataItem?.constructor?.name == "Item") {
+            if (dataItem instanceof Item) {
                 this.context.cache.delete(dataItem);
                 this.context.scheduleCascadableViewUpdate(true);
             } else {
@@ -1109,7 +1109,7 @@ export class ActionDuplicate extends Action {
             });//TODO:
         } else {
             let item = argumentsJs["item"];
-            if (item?.constructor?.name == "Item") {
+            if (item instanceof Item) {
                 new ActionAddItem(this.context).exec({"template": item});
             } else {
                 // TODO Error handling
@@ -1276,7 +1276,7 @@ export class ActionSetProperty extends Action {
 
     exec(argumentsJs: MemriDictionary) {
         let subject = argumentsJs["subject"];
-        if (!(subject?.constructor?.name == "Item")) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set"
         }
 
@@ -1335,7 +1335,7 @@ export class ActionLink extends Action {
 
     exec(argumentsJs: MemriDictionary) {
         let subject = argumentsJs["subject"];
-        if (!(subject?.constructor?.name == "Item")) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set";
         }
 
@@ -1345,7 +1345,7 @@ export class ActionLink extends Action {
         }
 
         let selected = argumentsJs["item"];
-        if (!(selected?.constructor?.name == "Item")) {
+        if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
 
@@ -1373,7 +1373,7 @@ export class ActionUnlink extends Action {
 
     exec(argumentsJs: MemriDictionary) {
         let subject = argumentsJs["subject"];
-        if (!(subject?.constructor?.name == "Item")) {
+        if (!(subject instanceof Item)) {
             throw "Exception: subject is not set";
         }
 
@@ -1383,7 +1383,7 @@ export class ActionUnlink extends Action {
         }
 
         let selected = argumentsJs["item"];
-        if (!(selected?.constructor?.name == "Item")) {
+        if (!(selected instanceof Item)) {
             throw "Exception: selected data item is not passed"
         }
 

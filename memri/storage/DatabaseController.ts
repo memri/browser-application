@@ -10,6 +10,7 @@ import {debugHistory} from "../cvu/views/ViewDebugger";
 //import * as path from "path";
 import {Realm} from "../model/RealmLocal";
 import {Authentication} from "../api/Authentication";
+import {getItemType, ItemFamily} from "../model/items/Item";
 
 export var realm;
 
@@ -296,57 +297,56 @@ export class DatabaseController {
 	}
 
 	static deleteDatabase(callback) {
-		/*Authentication.authenticateOwnerByPasscode((error) => {
+		new Authentication().authenticateOwnerByPasscode((error) => {
 			if (error) {
 				callback(`Unable to authenticate: ${error}`)
 				return
 			}
 
-			/!*try {
-                let fileManager = FileManager.default
-                let realmUrl = try getRealmURL()
+			try {
+                /*let fileManager = FileManager.default
+                let realmUrl = this.getRealmURL()
 
                 // Check if realm database exists
                 if fileManager.fileExists(atPath: realmUrl.path) {
                     try fileManager.removeItem(at: realmUrl)
-                }
+                }*/
 
-                callback(nil)
+                callback(undefined)
             }
             catch {
-                callback("Could not remove realm database: \(error)")
-            }*!/
-		})*/
-		callback(undefined);
+                callback(`Could not remove realm database: ${error}`)
+            }
+		})
+		//callback(undefined);
 	}
 
 	static clean(callback) { //TODO:
 		//#warning("@Toby, deleting here on realm doesnt remove them from the db and thus this is called every time. Any idea why?")
-		/*DatabaseController.background(true, callback, (realm) => {
-            for (itemType in ItemFamily.allCases) {
-                if itemType == .typeUserState { continue }
-
-                if let type = itemType.getType() as? Item.Type {
-                    let items = realm.objects(type).filter("_action == nil and deleted = true")
-                    for item in items {
+		DatabaseController.background(true, callback, (realm) => {
+            for (let itemType in ItemFamily) {
+                if (itemType == ItemFamily.UserState) { continue }
+				let type = getItemType(ItemFamily[itemType]);
+                if (type) {
+                    let items = realm.objects(type).filtered("_action == undefined and deleted = true")
+                    for (let item of items) {
     //                        item.allEdges.forEach { edge in
     //                            realm.delete(edge)
     //                        }
-                    realm.delete(item.allEdges)
+                    //realm.delete(item.allEdges)
                     realm.delete(item)
                 }
             }
 
-                let edges = realm.objects(Edge.self).filter("_action == nil and deleted = true")
-                for edge in edges {
+                let edges = realm.objects("Edge").filtered("_action == undefined and deleted = true")
+                for (let edge of edges) {
                     realm.delete(edge)
                 }
             }
 
-            callback(nil)
-        }*/
+            callback(undefined)
+        })
 
-		callback(undefined);
 	}
 
 }

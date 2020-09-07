@@ -25,7 +25,7 @@ context.installer.await(context,() => {
         }*/
     })
 });
-context.installer.installLocalAuthForLocalInstallation(context, true, ()=>{});
+console.log(context);
 
 function App() {//TODO: don't ask, please, about link inside div =)
   return <div><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />

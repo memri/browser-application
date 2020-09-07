@@ -55,7 +55,18 @@ export class Realm {
         callback();
     }
     delete(obj) {
-       //TODO:
+        /*if (obj["allEdges"] && obj["allEdges"].length > 0) {
+            let edgesIndexes = [];
+
+            obj["allEdges"].forEach((edge) => {
+                edgesIndexes.unshift(this.db.findIndex((item) => item["uid"] && item["uid"] == edge["uid"]));
+            });
+            edgesIndexes.forEach((index) => {
+                this.db.splice(index, 1);
+            })
+        }*/ //TODO: will do when it's neccessary
+        const index = this.db.indexOf(obj);
+        this.db.splice(index, 1);
     }
     objectSchema() {
 

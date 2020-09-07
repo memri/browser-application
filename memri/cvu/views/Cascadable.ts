@@ -104,6 +104,9 @@ export class Cascadable/* extends CustomStringConvertible*/{
                 this.localCache[name] = expr
                 return this.cascadeProperty(name)
             }
+            if (Array.isArray(expr) && expr.length == 1 && Array.isArray(expr[0]) && expr[0].length == 0) {
+                return null;
+            } //TODO: we need to check def.get result for selection, cause it returns array with empty array
             if (expr != undefined) {
                 this.localCache[name] = expr
                 return this.transformActionArray(expr)

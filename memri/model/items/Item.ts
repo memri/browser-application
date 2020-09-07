@@ -302,7 +302,7 @@ export class Item extends SchemaItem {
                     flattened.push(type)
                 }
             }
-            let filter = `(type = '${flattened.join("' or type = '")}')`; //deleted = false and
+            let filter = `deleted = false and (type = '${flattened.join("' or type = '")}')`;
 
             return this.allEdges.filtered(filter)
         } else {
@@ -314,7 +314,7 @@ export class Item extends SchemaItem {
                 return this.edges(collection)
             }
 
-            return this.allEdges.filtered(`type = '${edgeType}'`) //deleted = false AND
+            return this.allEdges.filtered(`deleted = false AND type = '${edgeType}'`)
         }
 
     }

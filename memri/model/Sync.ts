@@ -162,7 +162,7 @@ export class Sync {
 
 	/// Schedule a syncing round
 	/// - Remark: currently calls mock code
-	schedule(long =  false) {
+	async schedule(long =  false) {
 		// Don't schedule when we are already scheduled
 		if (this.scheduled == 0 || !long && this.scheduled == 2) {
 			// Prevent multiple calls to the dispatch queue
@@ -171,7 +171,7 @@ export class Sync {
 			// Wait 100ms before syncing (should this be longer?)
 			//DispatchQueue.main.asyncAfter(now() + (long ? 18000 : 0.1), () => {//TODO now()
 
-            setTimeout(function(){
+            setTimeout(function() {
                 if (this.syncing) {
                     this.scheduled = 0
                     this.schedule()
@@ -184,13 +184,13 @@ export class Sync {
                 // Start syncing local data to the pod
                 this.syncing = true
                 this.syncToPod()
-            }.bind(this), 200000);
+            }.bind(this), 2000);
 
 			//}) //TODO:
 		}
 	}
 
-	syncToPod() {
+	async syncToPod() {
 		function markAsDone(list, callback) {
 			DatabaseController.background(true, callback,(realm) => {
 				for (var sublist of list) {
