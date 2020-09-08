@@ -18,6 +18,7 @@ import {
     ExprCallNode,
     ExprVariableNode, ExprNilNode, ExprAnyNode
 } from "./ExprNodes";
+import {Settings} from "../../model/Settings";
 
 export class ExprInterpreter {
     ast: ExprNode
@@ -53,9 +54,9 @@ export class ExprInterpreter {
     }
 
     static evaluateString(x) { //TODO: maybe we will need some checks
-        /*if (typeof x == "number") {//TODO: need normal formatting
-            return new Date(x).toLocaleString("en-US");
-        }*/
+        if (x instanceof Date) {//TODO: need normal formatting
+            return x.toLocaleString("en-US")
+        }
         return x == null ? "" : String(x);
     }
     

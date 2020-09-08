@@ -29,7 +29,7 @@ export class MemriButton extends MainUI {
 
 
 
-        var type = this.edge?.type?.capitalizingFirst() ?? (inputItem?.get("itemType") == undefined
+        var type = this.edge?.type?.capitalizingFirst() ?? (inputItem?.objectSchema.properties["itemType"] == undefined
             ? inputItem?.genericType
             : inputItem?.getString("itemType"))
         if (type == "") { type = inputItem?.genericType }

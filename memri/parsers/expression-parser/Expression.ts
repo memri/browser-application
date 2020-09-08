@@ -61,7 +61,7 @@ export class Expression {
                 } else if (obj?.constructor?.name == "Object") { //TODO: RealmObject maybe? Or another check
                     let name = lastProperty.name
 
-                    if (obj.objectSchema[name]?.type != "boolean") {
+                    if (obj.objectSchema.properties[name] != "boolean") {
                         throw `'${name}' is not a boolean property`
                     }
 
@@ -91,17 +91,23 @@ export class Expression {
                 let lookupNode = new ExprLookupNode(sequence)
                 let dataItem = this.lookup(lookupNode, viewArguments)
                 if (dataItem) {//TODO: this is completely different in js
-
-                    return [undefined, dataItem, lastProperty.name]//TODO
-                    /*} else  {
-                        let propType = PropertyType(7)
+                    let propType = dataItem.objectSchema.properties[lastProperty.name]
+                    if (propType) {
+                        return [propType, dataItem, lastProperty.name]
+                    }
+                    else {
+                        // let propType = PropertyType(rawValue: 7)//TODO
                         if (propType) {
-                            //warning("This requires a local version a browsable schema that describes the types of edges")
-                            //                        if let item = dataItem.edge(lastProperty.name)?.item() {
-                            return (propType, dataItem, lastProperty.name)
+                            // #warning(
+                            //     "This requires a local version a browsable schema that describes the types of edges"
+                            // )
+                            //if let item = dataItem.edge(lastProperty.name)?.item() {
+                            return [propType, dataItem, lastProperty.name]
                             //
                         }
-                    }*/
+                    }
+
+                    return [undefined, dataItem, lastProperty.name]//TODO
                 }
             }
         }

@@ -423,7 +423,7 @@ export class CacheMemri {
 		if (itemType) {
 			var dict= new MemriDictionary();
 
-			for (var prop in item) {
+			for (var prop in item.objectSchema.properties) {
 				if (item.hasOwnProperty(prop)) {
 					if (!excludes.includes(prop)) {
 						dict[prop] = item[prop]
@@ -522,7 +522,7 @@ export class CacheMemri {
 
 			if (fromCache) {
 				// mergeFromCache(fromCache, ....)
-				let properties = fromCache/*.objectSchema.properties*/;
+				let properties = fromCache.objectSchema.properties;
 				let excluded = ["uid", "dateCreated", "dateAccessed", "dateModified"]
 
 				var fields = [];
@@ -547,10 +547,8 @@ export class CacheMemri {
 				}
 
 				for (let prop in properties) {
-					if (properties.hasOwnProperty(prop)) {
-						if (!excluded.includes(properties[prop]) && dict[prop] != undefined) {
-							setWhenChanged(prop, dict[prop])
-						}
+					if (!excluded.includes(properties[prop]) && dict[prop] != undefined) {
+						setWhenChanged(prop, dict[prop])
 					}
 				}
 				if (fields.length > 0){
@@ -624,7 +622,7 @@ export class CacheMemri {
 			return edge ?? new Edge()
 		} else {
 			let targetUID = target["uid"];
-			if (target["uid"] != undefined && typeof targetUID == "number") {
+			if (target.objectSchema.properties["uid"] != undefined && typeof targetUID == "number") {
 
 			} else {
 				throw "Cannot link target, no .uid set"

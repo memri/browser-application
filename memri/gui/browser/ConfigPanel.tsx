@@ -232,12 +232,13 @@ export class ConfigPanelSelectionView extends MainUI {
         let item = this.context.currentView?.resultSet.items[0]
 		if (!item) { return [] }
 		
-		let properties = Object.entries(item)//TODO item.objectSchema.properties
+		// let properties = Object.entries(item)//TODO item.objectSchema.properties
+        let properties = Object.entries(item.objectSchema.properties)
         let computedProperties = item.computedVars
 		
         let propertyOptions = properties.map ((prop) => {
             let propName = prop[0]
-            let propType = typeof prop[1]
+            let propType = prop[1]
             if (getSupportedRealmTypes(this.configItem.type).includes(propType) && !ConfigPanelSelectionView.excludedFields.includes(propName) && !(propName.indexOf("_") === 0)) {
                 return new PossibleExpression(propName)//TODO
             }
@@ -288,7 +289,7 @@ export class ConfigPanelSortView extends MainUI {
     //                       .navigationBarTitle(Text("Sort"), displayMode: .inline)
 
         >
-            {options.map((option) => <MemriRealButton action={() => this.onSelect(option)}>
+            {options.map((option) => <MemriRealButton key={option.propertyName} action={() => this.onSelect(option)}>
                 <HStack>
                     <MemriText bold={option.propertyName == currentSort/*TODO*/}>
                         {option.displayName}
@@ -329,7 +330,7 @@ export class ConfigPanelSortView extends MainUI {
         let item = this.context.currentView?.resultSet.items[0]
         if (!item) { return [] }
 
-        let properties = Object.keys(item)//TODO item.objectSchema.properties
+        let properties = Object.keys(item.objectSchema.properties)
         
         return properties.map((prop) => {
             if (!ConfigPanelSelectionView.excludedFields.includes(prop) && !(prop.indexOf("_") === 0)) {

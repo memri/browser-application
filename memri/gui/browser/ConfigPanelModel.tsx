@@ -30,10 +30,10 @@ export enum ConfigItemType {
 
 export var getSupportedRealmTypes = function (configItemType) {//TODO
 	switch (configItemType) {
-		case ConfigItemType.any: return [".bool", ".data", ".date", ".double", ".float", ".int", ".object", ".string"]
-		case ConfigItemType.bool: return [".bool"]
-		case ConfigItemType.string: return [".date", ".double", ".float", ".int", ".string"]
-		case ConfigItemType.number: return [".double", ".float", ".int"]
+		case ConfigItemType.any: return ["bool", "data", "date", "double", "float", "int", "object", "string"]
+		case ConfigItemType.bool: return ["bool"]
+		case ConfigItemType.string: return ["date", "double", "float", "int", "string"]
+		case ConfigItemType.number: return ["double", "float", "int"]
 		case ConfigItemType.special: return []
 	}
 };

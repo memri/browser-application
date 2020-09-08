@@ -68,11 +68,8 @@ export class Views {
 		this.languages.currentLanguage = language
 
 		let definitions = this.fetchDefinitions(undefined, undefined, "language")
-			.map(function (item) {
-				return this.parseDefinition(item)
-			}.bind(this)).filter(function (item) {
-				return item != undefined;
-			})
+			.map((item) => this.parseDefinition(item))
+			.filter((item) => item != undefined)
 
 		this.languages.load(definitions)
 	}

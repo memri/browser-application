@@ -75,8 +75,8 @@ export var allRenderers = new Renderers();
 //FilterPanelRendererButton moved to Action.ts
 
 class RenderGroup {
-    options = new MemriDictionary()
-    body: UIElement = null
+    options: MemriDictionary
+    body: UIElement
     
     constructor(dict: MemriDictionary) {
         if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
