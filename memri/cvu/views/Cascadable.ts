@@ -84,7 +84,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         return (this.cascadeProperty(name)).map((item)=>{ return Number(item) });
     }
 
-    cascadeProperty(name) {
+    cascadeProperty(name, type?) {
         // if (DEBUG//TODO
         //These are temporary checks put in place to catch programmer errors. We should find a safer way that won't lose CVU properties. It is wrapped in DEBUG flag so will not crash in testflight.
         // if T.self == CGFloat.self) { fatalError("You need to use the `cascadePropertyAsCGFloat` function instead") }
@@ -102,6 +102,9 @@ export class Cascadable/* extends CustomStringConvertible*/{
             let expr = def.get(name);
             if (expr?.constructor?.name == "Expression") {
                 this.localCache[name] = expr
+                if (type == "Expression") {
+                    return expr// We're requesting the Expression (not just the resolved value)
+                }
                 return this.cascadeProperty(name)
             }
             if (Array.isArray(expr) && expr.length == 1 && Array.isArray(expr[0]) && expr[0].length == 0) {
