@@ -218,23 +218,24 @@ export class Authentication {
     }
 
     static async getOwnerAndDBKey(callback) {
-        callback(null, "54365395D0C23087C44FF5FC0A2320D276B942AA8A7F0A92585A8368FFBEAA29", "9F293DAA30B642C7885770F824CED595E7B206B670EE476087655EE9BDA6977B")
-        //callback(null, localStorage.ownerKey, localStorage.databaseKey)
-        /*DatabaseController.current { realm in
-            let dbQuery = "name = 'memriDBKey' and active = true"
-            guard let dbKey = realm.objects(CryptoKey.self).filter(dbQuery).first else {
-                callback("Database key is not set", nil, nil)
+        callback(null, localStorage.ownerKey, localStorage.databaseKey)
+        /*DatabaseController.current(false,(realm) => {
+            let dbQuery = "name = 'memriDBKey' and active = true";
+            let dbKey = realm.objects("CryptoKey").filtered(dbQuery)[0];
+            if (!dbKey) {
+                callback("Database key is not set", undefined, undefined)
                 return
             }
-            
+
             let query = "name = 'memriOwnerKey' and role = 'public' and active = true"
-            guard let ownerKey = realm.objects(CryptoKey.self).filter(query).first else {
-                callback("Owner key is not set", nil, nil)
+            let ownerKey = realm.objects("CryptoKey").filtered(query)[0];
+            if (!dbKey) {
+                callback("Owner key is not set", undefined, undefined)
                 return
             }
-            
-            callback(nil, ownerKey.key, dbKey.key)
-        }*/
+
+            callback(null, ownerKey.key, dbKey.key)
+        })*/
     }
 }
 
