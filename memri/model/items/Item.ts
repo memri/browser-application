@@ -54,12 +54,19 @@ export class SchemaItem {
     _updated = []
 
     constructor(objectFromRealm?) {
+
+        let properties = Object.keys(this.objectSchema.properties)
+
         if (objectFromRealm) {
             for (let key in objectFromRealm) {
-                this[key] = objectFromRealm[key];
+                if (properties.includes(key)) {
+                    this[key] = objectFromRealm[key];
+                }
             }
             this.allEdges = objectFromRealm["allEdges"] && objectFromRealm["allEdges"].length > 0 && objectFromRealm["allEdges"][0]["_target"] ? new RealmObjects(...objectFromRealm["allEdges"].map((el) => new Edge(el))) : new RealmObjects();
+            this["_type"] = objectFromRealm["_type"]
         }
+
     }
 
     /*enum CodingKeys {
@@ -77,18 +84,42 @@ export class Item extends SchemaItem {
     // Used by the filter panel to know what computed variables to show
     get computedVars() { return [] }
 
+    get objectSchema() {
+        return {
+            name: 'Item',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]'
+            }
+        }
+    }
+
     functions = {}
 
     /// Primary key used in the realm database of this Item
     primaryKey() {
-            return "uid"
-        }
+        return "uid"
+    }
 
     get toString() {
         var str = `${this.genericType} ${realm == undefined ? "[UNMANAGED] " : ""}{\n`
             + `    uid: ${this.uid == undefined ? "null" : String(this.uid ?? 0)}\n`
             + `    _updated: ${!this["_updated"] || this["_updated"].length == 0 ? "[]" : `[${this["_updated"].join(", ")}]`}\n`
-            + "    " + Object.keys(this)
+            + "    " + Object.keys(this.objectSchema.properties)
                 .filter(item => {
                     return this[item] != undefined && item != "allEdges"
                         && item != "uid" && item != "_updated"
@@ -167,7 +198,7 @@ export class Item extends SchemaItem {
     /// - Parameter name: property name
     /// - Returns: string representation
     getString(name: string) {
-        if (this[name] == undefined) {
+        if (this.objectSchema.properties[name] == undefined) {
             //#if DEBUG
             console.log(`Warning: getting property that this item doesnt have: ${name} for ${this.genericType}:${this.uid ?? -1000}`)
             //#endif
@@ -196,7 +227,7 @@ export class Item extends SchemaItem {
     /// - Parameter propName: name of the property
     /// - Returns: boolean indicating whether Item has the property
     hasProperty(propName: string) {
-        for (let prop in this) {
+        for (let prop in this.objectSchema.properties) {
             if (this.hasOwnProperty(prop)) {
                 if (prop == propName) {
                     return true
@@ -217,13 +248,17 @@ export class Item extends SchemaItem {
     /// - Parameters:
     ///   - name: property name
     get(name: string) {
-        //TODO: maybe it's dirty hack :)
-        if (this.edge(name)) {
-            return this.edge(name).target();
-        } else
-        if (this[name] != undefined) {
-            return this[name]
+        if (this.objectSchema.properties[name] != undefined) {
+            let property = this[name]
+            if (property != undefined && this.objectSchema.properties[name] == "date") {
+                property = new Date(property)
+            }
+            return property
         }
+        else if (this.edge(name)) {
+            return this.edge(name).target();
+        }
+
         return null
     }
 
@@ -233,18 +268,36 @@ export class Item extends SchemaItem {
     ///   - value: value
     set(name: string, value) {
         DatabaseController.write(realm, () => {
-            //let schema = this[name];
-            if  (typeof value != "object" || !value) {
+            let schema = this.objectSchema.properties[name];
+
+
+            if (schema) {
+                if (this.isEqualValue(this[name], value)) { return }
+
                 this[name] = value
                 this.modified([name])
-            } else if (Array.isArray(value)) {
+                // switch (schema) {
+                //     case "int":
+                //         self[name] = value as? Int
+                //     case .float:
+                //         self[name] = value as? Float
+                //     case .double:
+                //         self[name] = value as? Double
+                //     default:
+                //         self[name] = value
+                // }
+                //
+                // self.modified([name])
+            }
+            else if (typeof value == "object") {
+                let obj = value;
+                this.link(obj, name, undefined,undefined,true)
+            }
+            else if (Array.isArray(value) && typeof value[0] == "object") {
                 let list = value;
                 for (let obj of list) {
                     this.link(obj, name);
                 }
-            } else {
-                let obj = value;
-                this.link(obj, name, undefined,undefined,true)
             }
             this.dateModified = Date.now() // Update DateModified
         })
@@ -357,7 +410,7 @@ export class Item extends SchemaItem {
                 break;
             case EdgeSequencePosition.before:
                 let beforeEdge = sequence;
-                if (!this.allEdges.indexOf(beforeEdge) > -1 || beforeEdge.type != edgeType) {
+                if (!(this.allEdges.indexOf(beforeEdge) > -1) || beforeEdge.type != edgeType) {
                     throw "Edge is not part of this set"
                 }
                 let beforeNumber = beforeEdge.sequence;
@@ -381,7 +434,7 @@ export class Item extends SchemaItem {
                 break;
             case EdgeSequencePosition.after:
                 let afterEdge = sequence;
-                if (!this.allEdges.indexOf(afterEdge) > -1 || afterEdge.type != edgeType) {
+                if (!(this.allEdges.indexOf(afterEdge) > -1) || afterEdge.type != edgeType) {
                     throw "Edge is not part of this set"
                 }
                 let afterNumber = afterEdge.sequence;
@@ -417,9 +470,7 @@ export class Item extends SchemaItem {
 
 
         let targetID = item["uid"];
-        if (item["uid"] != undefined && typeof targetID == "number") {
-
-        } else {
+        if (item.objectSchema.properties["uid"] == undefined || typeof targetID != "number") {
             throw "Exception: Missing uid on target"
         }
 
@@ -524,9 +575,9 @@ export class Item extends SchemaItem {
     /// Toggle boolean property
     /// - Parameter name: property name
     toggle(name: string) {
-        /*if (this.objectSchema[name]?.type != "boolean") {
+        if (this.objectSchema.properties[name] != "bool") {
             throw `'${name}' is not a boolean property`
-        }*/
+        }
 
         let val = Boolean(this[name]) ?? false
         this.set(name, !val);
@@ -538,7 +589,7 @@ export class Item extends SchemaItem {
     ///   - item: item to compare against
     /// - Returns: boolean indicating whether the property values are the same
     isEqualProperty(propName: string, item: Item) {
-        let prop = this[propName];
+        let prop = this.objectSchema.properties[propName];
         if (prop) {
             // List
             if (Array.isArray(prop)) {
@@ -548,7 +599,7 @@ export class Item extends SchemaItem {
             }
         } else {
             // TODO: Error handling
-            console.log(`Unable to compare property ${propName}, but ${this} does not have that property`)
+            debugHistory.warn(`Unable to compare property ${propName}, but ${this} does not have that property`)
             return false
         }
     }
@@ -623,7 +674,7 @@ export class Item extends SchemaItem {
     }
 
     doMerge(item: Item, mergeDefaults: boolean = false) {
-        let properties = this
+        let properties = this.objectSchema.properties
         for (let prop in properties) {
             if (properties.hasOwnProperty(prop)) {
                 // Exclude SyncState
@@ -718,9 +769,9 @@ export class Item extends SchemaItem {
 
             var dict = new MemriDictionary()
             for (let field of updatedFields) {
-                /*if (item.objectSchema[field] == undefined) {
+                if (item.objectSchema.properties[field] == undefined) {
                     throw "Invalid update call"
-                }*/
+                }
                 dict[field] = item[field]
             }
 
@@ -1339,7 +1390,7 @@ export var getItemType = function(name) {
         case ItemFamily.Reservation: return Reservation
         case ItemFamily.Resource: return Resource
         case ItemFamily.Route: return Route
-        case "LocalSetting":
+        case "LocalSetting": //TODO:?
         case ItemFamily.Setting: return Setting
         case ItemFamily.Span: return Span
         case ItemFamily.TimeFrame: return TimeFrame
@@ -1394,6 +1445,37 @@ export class Account extends Item {
         return this.edges("organization")?.items(Organization)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Account',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                handle: 'string',
+                displayName: 'string',
+                nameQuality: 'int',
+                enablePresence: 'bool',
+                enableReceipts: 'bool',
+                service: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1411,6 +1493,33 @@ export class AuditItem extends Item {
     /// The Item this Item applies to.
     get appliesTo() {
         return this.edges("appliesTo")?.itemsArray()
+    }
+
+    get objectSchema () {
+        return {
+            name: 'AuditItem',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                date: 'date',
+                content: 'string',
+                action: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -1487,6 +1596,38 @@ export class CreativeWork extends Item {
         return this.edges("review")?.items(Review)
     }
 
+    get objectSchema () {
+        return {
+            name: 'CreativeWork',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1560,6 +1701,38 @@ export class Game extends Item {
         return this.edges("review")?.items(Review)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Game',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1631,6 +1804,38 @@ export class HowTo extends Item {
     /// A review of the Item.
     get review() {
         return this.edges("review")?.items(Review)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'HowTo',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -1719,6 +1924,39 @@ export class Diet extends Item {
         return this.edges("excludedProduct")?.items(Product)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Diet',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+                duration: 'int',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1805,6 +2043,40 @@ export class ExercisePlan extends Item {
     /// The frequency of an Item.
     get frequency() {
         return this.edges("frequency")?.items(Frequency)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'ExercisePlan',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+                duration: 'int',
+                repetitions: 'int',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -1906,6 +2178,40 @@ export class Recipe extends Item {
         return this.edges("toolRequired")?.items(Product)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Recipe',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+                duration: 'int',
+                instructions: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -1977,6 +2283,38 @@ export class MovingImage extends Item {
     /// A review of the Item.
     get review() {
         return this.edges("review")?.items(Review)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'MovingImage',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -2052,6 +2390,38 @@ export class PerformingArt extends Item {
         return this.edges("review")?.items(Review)
     }
 
+    get objectSchema () {
+        return {
+            name: 'PerformingArt',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2123,6 +2493,38 @@ export class Recording extends Item {
     /// A review of the Item.
     get review() {
         return this.edges("review")?.items(Review)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Recording',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -2198,6 +2600,38 @@ export class VisualArt extends Item {
         return this.edges("review")?.items(Review)
     }
 
+    get objectSchema () {
+        return {
+            name: 'VisualArt',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2269,6 +2703,38 @@ export class WrittenWork extends Item {
     /// A review of the Item.
     get review() {
         return this.edges("review")?.items(Review)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'WrittenWork',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -2345,9 +2811,41 @@ export class Article extends Item {
     }
 
     /// A comment on this Item.
-    /*get comment() {
+    get comment() {
         return this.edges("comment")?.items(Comment)
-    }*/
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Article',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -2420,6 +2918,38 @@ export class Comment extends Item {
     /// A review of the Item.
     get review() {
         return this.edges("review")?.items(Review)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Comment',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -2514,6 +3044,41 @@ export class Message extends Item {
     /// The account that received, or is to receive, this Item.
     get receiver() {
         return this.edges("receiver")?.items(Account)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Message',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+                subject: 'string',
+                dateSent: 'date',
+                dateReceived: 'date',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -2626,6 +3191,41 @@ export class EmailMessage extends Item {
         return this.edges("replyTo")?.items(Account)
     }
 
+    get objectSchema () {
+        return {
+            name: 'EmailMessage',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+                subject: 'string',
+                dateSent: 'date',
+                dateReceived: 'date',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2700,13 +3300,45 @@ export class Note extends Item {
     }
 
     /// A comment on this Item.
-    /*get comment() {
+    get comment() {
         return this.edges("comment")?.items(Comment)
-    }*/
+    }
 
     /// List occurs in Note.
     get noteList() {
         return this.edges("noteList")?.items(NoteList)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Note',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -2799,6 +3431,39 @@ export class NoteList extends Item {
         return this.edges("note")?.items(Note)
     }
 
+    get objectSchema () {
+        return {
+            name: 'NoteList',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+                category: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2877,6 +3542,38 @@ export class Review extends Item {
         return this.edges("rating")?.items(Measure)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Review',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                abstract: 'string',
+                datePublished: 'date',
+                keyword: 'string',
+                content: 'string',
+                textContent: 'string',
+                transcript: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2895,6 +3592,35 @@ export class CryptoKey extends Item {
     active: boolean = false
     /// The name of the item.
     name
+
+    get objectSchema () {
+        return {
+            name: 'CryptoKey',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                itemType: 'string',
+                role: 'string',
+                key: 'string',
+                active: 'bool',
+                name: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -2918,6 +3644,37 @@ export class Device extends Item {
     /// The date this Item was lost.
     dateLost: Date
 
+    get objectSchema () {
+        return {
+            name: 'Device',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                deviceID: 'string',
+                make: 'string',
+                manufacturer: 'string',
+                model: 'string',
+                name: 'string',
+                dateAcquired: 'date',
+                dateLost: 'date',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2925,6 +3682,30 @@ export class Device extends Item {
 
 /// A Downloader is used to download data from an external source, to be imported using an Importer.
 export class Downloader extends Item {
+    get objectSchema () {
+        return {
+            name: 'Downloader',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2970,6 +3751,35 @@ export class Event extends Item {
         return this.edges("capacity")?.items(Measure)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Event',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                audience: 'string',
+                startTime: 'date',
+                endTime: 'date',
+                duration: 'int',
+                eventStatus: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -2997,6 +3807,34 @@ export class File extends Item {
         return this.edges("usedBy")?.itemsArray()
     }
 
+    get objectSchema () {
+        return {
+            name: 'File',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                sha256: 'string',
+                nonce: 'string',
+                key: 'string',
+                filename: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3006,6 +3844,31 @@ export class File extends Item {
 export class Frequency extends Item {
     /// The number of occurrences.
     occurrences
+
+    get objectSchema () {
+        return {
+            name: 'Frequency',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                occurrences: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -3027,6 +3890,36 @@ export class GenericAttribute extends Item {
     /// A string value.
     stringValue
 
+    get objectSchema () {
+        return {
+            name: 'GenericAttribute',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                boolValue: 'bool',
+                datetimeValue: 'date',
+                floatValue: 'float',
+                intValue: 'int',
+                stringValue: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3046,6 +3939,34 @@ export class Importer extends Item {
     /// A run of a certain Importer, that defines the details of the specific import.
     get importerRun() {
         return this.edges("importerRun")?.items(ImporterRun)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Importer',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                dataType: 'string',
+                icon: 'string',
+                bundleImage: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3070,6 +3991,35 @@ export class ImporterRun extends Item {
     /// An Importer is used to import data from an external source to the Pod database.
     get importer() {
         return this.edge("importer")?.target(Importer)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'ImporterRun',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                progress: 'int',
+                dataType: 'string',
+                username: 'string',
+                password: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3098,6 +4048,36 @@ export class Indexer extends Item {
         return this.edges("indexerRun")?.items(IndexerRun)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Indexer',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                icon: 'string',
+                query: 'string',
+                bundleImage: 'string',
+                runDestination: 'string',
+                indexerClass: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3120,6 +4100,34 @@ export class IndexerRun extends Item {
         return this.edge("indexer")?.target(Indexer)
     }
 
+    get objectSchema () {
+        return {
+            name: 'IndexerRun',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                query: 'string',
+                progress: 'int',
+                targetDataType: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3129,6 +4137,31 @@ export class IndexerRun extends Item {
 export class Industry extends Item {
     /// The type or (sub)category of some Item.
     itemType
+
+    get objectSchema () {
+        return {
+            name: 'Industry',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                itemType: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -3147,6 +4180,30 @@ export class Invoice extends Item {
         return this.edge("transaction")?.target(Transaction)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Invoice',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3160,13 +4217,39 @@ export class Label extends Item {
     name
 
     /// A comment on this Item.
-    /*get comment() {
+    get comment() {
         return this.edges("comment")?.items(Comment)
-    }*/
+    }
 
     /// The Item this Item applies to.
     get appliesTo() {
         return this.edges("appliesTo")?.itemsArray()
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Label',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                color: 'string',
+                name: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3181,6 +4264,30 @@ export class Lead extends Item {
         return this.edges("offer")?.items(Offer)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Lead',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3192,6 +4299,32 @@ export class Location extends Item {
     latitude
     /// The longitude of a location in WGS84 format.
     longitude
+
+    get objectSchema () {
+        return {
+            name: 'Location',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                latitude: 'float',
+                longitude: 'float',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -3228,6 +4361,38 @@ export class Address extends Item {
         return this.edge("location")?.target(Location)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Address',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                latitude: 'float',
+                longitude: 'float',
+                city: 'string',
+                postalCode: 'string',
+                state: 'string',
+                street: 'string',
+                itemType: 'string',
+                locationAutoLookupHash: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3253,6 +4418,33 @@ export class Country extends Item {
         return this.edge("location")?.target(Location)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Country',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                latitude: 'float',
+                longitude: 'float',
+                name: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3269,6 +4461,32 @@ export class Material extends Item {
     /// defaultQuantity.
     get price() {
         return this.edges("price")?.items(Measure)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Material',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                defaultQuantity: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3297,6 +4515,37 @@ export class Measure extends Item {
     /// A unit, typically from International System of Units (SI).
     get unit() {
         return this.edge("unit")?.target(Unit)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Measure',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                definition: 'string',
+                symbol: 'string',
+                intValue: 'int',
+                floatValue: 'float',
+                stringValue: 'string',
+                datetimeValue: 'date',
+                boolValue: 'bool',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3336,6 +4585,35 @@ export class MediaObject extends Item {
         return this.edges("includes")?.itemsArray()
     }
 
+    get objectSchema () {
+        return {
+            name: 'MediaObject',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                bitrate: 'int',
+                duration: 'int',
+                endTime: 'date',
+                fileLocation: 'string',
+                startTime: 'date',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3373,6 +4651,37 @@ export class Audio extends Item {
     /// Items included within this Item. Included Items can be of any type.
     get includes() {
         return this.edges("includes")?.itemsArray()
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Audio',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                bitrate: 'int',
+                duration: 'int',
+                endTime: 'date',
+                fileLocation: 'string',
+                startTime: 'date',
+                caption: 'string',
+                transcript: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3421,6 +4730,38 @@ export class Photo extends Item {
         return this.edge("thumbnail")?.target(File)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Photo',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                bitrate: 'int',
+                duration: 'int',
+                endTime: 'date',
+                fileLocation: 'string',
+                startTime: 'date',
+                caption: 'string',
+                exifData: 'string',
+                name: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3467,6 +4808,38 @@ export class Video extends Item {
         return this.edges("thumbnail")?.items(File)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Video',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                bitrate: 'int',
+                duration: 'int',
+                endTime: 'date',
+                fileLocation: 'string',
+                startTime: 'date',
+                caption: 'string',
+                exifData: 'string',
+                name: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3479,6 +4852,32 @@ export class MedicalCondition extends Item {
     itemType
     /// The name of the item.
     name
+
+    get objectSchema () {
+        return {
+            name: 'MedicalCondition',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                itemType: 'string',
+                name: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -3504,6 +4903,33 @@ export class MessageChannel extends Item {
         return this.edges("receiver")?.items(Account)
     }
 
+    get objectSchema () {
+        return {
+            name: 'MessageChannel',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                topic: 'string',
+                encrypted: 'bool',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3511,6 +4937,30 @@ export class MessageChannel extends Item {
 
 /// A way of transportation, for instance a bus or airplane.
 export class ModeOfTransport extends Item {
+    get objectSchema () {
+        return {
+            name: 'ModeOfTransport',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3526,6 +4976,34 @@ export class NavigationItem extends Item {
     sequence
     /// The type or (sub)category of some Item.
     itemType
+
+    get objectSchema () {
+        return {
+            name: 'NavigationItem',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                title: 'string',
+                sessionName: 'string',
+                sequence: 'int',
+                itemType: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -3553,6 +5031,31 @@ export class Network extends Item {
         return this.edges("website")?.items(Website)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Network',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3563,6 +5066,30 @@ export class Offer extends Item {
     /// An agreement between a buyer and a seller to exchange an asset for payment.
     get transaction() {
         return this.edges("transaction")?.items(Transaction)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Offer',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3577,6 +5104,30 @@ export class OpeningHours extends Item {
         return this.edges("timeFrame")?.items(TimeFrame)
     }
 
+    get objectSchema () {
+        return {
+            name: 'OpeningHours',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3584,6 +5135,30 @@ export class OpeningHours extends Item {
 
 /// An option for some choice, for instance a Vote.
 export class Option extends Item {
+    get objectSchema () {
+        return {
+            name: 'Option',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3658,6 +5233,34 @@ export class Organization extends Item {
     /// The buying party in a transaction.
     get seller() {
         return this.edges("seller")?.items(Transaction)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Organization',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                dateFounded: 'date',
+                areaServed: 'string',
+                taxId: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3795,6 +5398,42 @@ export class SchemaPerson extends Item {
         return this.edges("seller")?.items(Transaction)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Person',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                birthDate: 'date',
+                email: 'string',
+                deathDate: 'date',
+                firstName: 'string',
+                lastName: 'string',
+                gender: 'string',
+                sexualOrientation: 'string',
+                displayName: 'string',
+                nameQuality: 'int',
+                enablePresence: 'bool',
+                enableReceipts: 'bool',
+                role: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3806,6 +5445,32 @@ export class PhoneNumber extends Item {
     phoneNumber
     /// The type or (sub)category of some Item.
     itemType
+
+    get objectSchema () {
+        return {
+            name: 'PhoneNumber',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                phoneNumber: 'string',
+                itemType: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -3828,6 +5493,30 @@ export class PhysicalEntity extends Item {
     /// where an action takes place.
     get location() {
         return this.edges("location")?.items(Location)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'PhysicalEntity',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3890,6 +5579,40 @@ export class Product extends Item {
         return this.edges("price")?.items(Measure)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Product',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                audience: 'string',
+                color: 'string',
+                manufacturer: 'string',
+                model: 'string',
+                pattern: 'string',
+                dateAcquired: 'date',
+                productCondition: 'string',
+                dateProduced: 'date',
+                datePublished: 'date',
+                service: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3901,6 +5624,32 @@ export class ProductCode extends Item {
     productCodeType
     /// An identifier for Products, for instance a UPC or GTIN.
     productNumber
+
+    get objectSchema () {
+        return {
+            name: 'ProductCode',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                productCodeType: 'string',
+                productNumber: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -3920,6 +5669,31 @@ export class Receipt extends Item {
     /// An agreement between a buyer and a seller to exchange an asset for payment.
     get transaction() {
         return this.edge("transaction")?.target(Transaction)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Receipt',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                dateDue: 'date',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -3960,6 +5734,32 @@ export class Reservation extends Item {
         return this.edges("price")?.items(Measure)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Reservation',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                dateReserved: 'date',
+                reservationStatus: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -3973,6 +5773,31 @@ export class Resource extends Item {
     /// An Item this Item is used by.
     get usedBy() {
         return this.edges("usedBy")?.itemsArray()
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Resource',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                url: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -4024,6 +5849,32 @@ export class Route extends Item {
         return this.edges("ticket")?.items(File)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Route',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                startTime: 'date',
+                endTime: 'date',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -4037,6 +5888,32 @@ export class Setting extends Item {
     /// A string in JSON (JavaScript Object Notation) format.
     json
 
+    get objectSchema () {
+        return {
+            name: 'Setting',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                key: 'string',
+                json: 'string',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -4048,6 +5925,32 @@ export class Span extends Item {
     startIdx
     /// End position of an element.
     endIdx
+
+    get objectSchema () {
+        return {
+            name: 'Span',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                startIdx: 'int',
+                endIdx: 'int',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -4066,6 +5969,32 @@ export class TimeFrame extends Item {
     /// book from January to December. For media, including audio and video, it's the time offset of the
     /// end of a clip within a larger file.
     endTime: Date
+
+    get objectSchema () {
+        return {
+            name: 'TimeFrame',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                startTime: 'date',
+                endTime: 'date',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -4111,6 +6040,35 @@ export class Transaction extends Item {
         return this.edges("discount")?.items(Measure)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Transaction',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                orderStatus: 'bool',
+                orderNumber: 'string',
+                discountCode: 'string',
+                dateOrdered: 'date',
+                dateExecuted: 'date',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -4150,6 +6108,32 @@ export class Trip extends Item {
         return this.edges("price")?.items(Measure)
     }
 
+    get objectSchema () {
+        return {
+            name: 'Trip',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                startTime: 'date',
+                endTime: 'date',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -4161,6 +6145,32 @@ export class Unit extends Item {
     symbol
     /// The name of the item.
     name
+
+    get objectSchema () {
+        return {
+            name: 'Unit',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                symbol: 'string',
+                name: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -4175,6 +6185,31 @@ export class Vote extends Item {
     /// An option for some choice, for instance a Vote.
     get option() {
         return this.edges("option")?.items(Option)
+    }
+
+    get objectSchema () {
+        return {
+            name: 'Vote',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                itemType: 'string',
+            }
+        }
     }
 
     constructor(decoder) {
@@ -4203,6 +6238,31 @@ export class VoteAction extends Item {
         return this.edges("choice")?.items(Option)
     }
 
+    get objectSchema () {
+        return {
+            name: 'VoteAction',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                dateExecuted: 'date',
+            }
+        }
+    }
+
     constructor(decoder) {
         super(decoder)
     }
@@ -4215,6 +6275,32 @@ export class Website extends Item {
     itemType
     /// The url property represents the Uniform Resource Location (URL) of a resource.
     url
+
+    get objectSchema () {
+        return {
+            name: 'Website',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                itemType: 'string',
+                url: 'string',
+            }
+        }
+    }
 
     constructor(decoder) {
         super(decoder)
@@ -4302,6 +6388,8 @@ export function dataItemListToArray(object) {
 
     return collection
 }
+
+//---------------------------------------------------- end schema.ts
 
 
 
@@ -4474,6 +6562,7 @@ Object.defineProperty(Indexer.prototype, "computedTitle",{
     }
 });*/
 
+/// TBD
 export class CVUStoredDefinition extends Item {
     get computedTitle() {
         //#warning("Parse and then create a proper string representation")
@@ -4492,14 +6581,42 @@ export class CVUStoredDefinition extends Item {
     /// TBD
     type?: string
 
+    get objectSchema () {
+        return {
+            name: 'CVUStoredDefinition',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                definition: 'string',
+                domain: 'string',
+                name: 'string',
+                query: 'string',
+                selector: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
     constructor(decoder?) {
         super(decoder);
-        /*for (let key in objectFromRealm) {
-            this[key] = objectFromRealm[key];
-        }*/
     }
 }
 
+/// TBD
 export class CVUStateDefinition extends CVUStoredDefinition {
     static fromCVUStoredDefinition(stored: CVUStoredDefinition) {
         return CacheMemri.createItem("CVUStateDefinition", {
@@ -4523,10 +6640,37 @@ export class CVUStateDefinition extends CVUStoredDefinition {
         })
     }
 
-    constructor(decoder?) {
+    get objectSchema () {
+        return {
+            name: 'CVUStateDefinition',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                definition: 'string',
+                domain: 'string',
+                name: 'string',
+                query: 'string',
+                selector: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
+    constructor(decoder) {
         super(decoder);
-        /*for (let key in objectFromRealm) {
-            this[key] = objectFromRealm[key];
-        }*/
     }
 }
