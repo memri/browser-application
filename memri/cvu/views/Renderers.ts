@@ -458,6 +458,6 @@ export class CascadingEmailThreadRendererConfig extends CascadingRenderConfig {
     type = "email"
 
     get content() {
-        return this.cascadeProperty("content")
+        return this.cascadeProperty("content", "Expression")
     }
 }

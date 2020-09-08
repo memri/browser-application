@@ -31,7 +31,7 @@ export var registerEmailRenderers = function () {
 class EmailThreadRenderer extends RenderersMemri {
     context: MemriContext
 
-    get renderConfig(): CascadingThumbnailConfig {
+    get renderConfig(): CascadingEmailThreadRendererConfig {
         return this.context.currentView?.renderConfig ?? new CascadingEmailThreadRendererConfig()
     }
 
