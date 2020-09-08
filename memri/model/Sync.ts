@@ -34,7 +34,6 @@ export class Sync {
     load() {
         // Periodically sync data from the pod
         // TODO:
-
         // Schedule syncing to the pod to see if (there are any jobs that remain
         this.schedule()
 
@@ -163,7 +162,10 @@ export class Sync {
 	/// Schedule a syncing round
 	/// - Remark: currently calls mock code
 	async schedule(long =  false) {
-		// Don't schedule when we are already scheduled
+        let isLocalInstall = localStorage.getItem("isLocalInstall") == "true"; //TODO: added not to sync with missing pod
+        if (isLocalInstall)
+            return ;
+        // Don't schedule when we are already scheduled
 		if (this.scheduled == 0 || !long && this.scheduled == 2) {
 			// Prevent multiple calls to the dispatch queue
             this.scheduled = long ? 2 : 1

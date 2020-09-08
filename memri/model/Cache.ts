@@ -19,7 +19,7 @@ export class CacheMemri {
 	/// PodAPI object
 	podAPI
 	/// Object that schedules with the POD
-	sync
+	sync: Sync
 	/// Realm Database object
 	realm
 
@@ -193,7 +193,8 @@ export class CacheMemri {
 				callback && callback("Empty Query", null)
 			} else {
 				// Schedule the query to sync from the pod
-				if (syncWithRemote) {this.sync.syncQuery(datasource)}
+				let isLocalInstall = localStorage.getItem("isLocalInstall") == "true"; //TODO: added not to sync with missing pod
+				if (syncWithRemote && !isLocalInstall) {this.sync.syncQuery(datasource)}
 
 				// Parse query
 				let [typeName, filter] = this.parseQuery(q)

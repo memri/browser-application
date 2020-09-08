@@ -91,7 +91,7 @@ export class Installer {
 						callback(error)
 						return
 					}
-
+					localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
 					try {
 						//console.log(`KEY: ${Authentication.getPublicRootKeySync().hexEncodedString(".upperCase")}`) //TODO?
 
@@ -102,6 +102,7 @@ export class Installer {
 
 					Settings.shared.set("user/pod/host", host)
 					this.ready(context)
+
 					context.cache.sync.schedule();
 
 					callback(undefined)
@@ -123,7 +124,7 @@ export class Installer {
 				}
 
 				context.podAPI.host = host
-
+				localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
 				//Authentication.createRootKey(areYouSure)
 
 				context.cache.sync.syncAllFromPod(() => { // TODO error handling
@@ -161,6 +162,7 @@ export class Installer {
 						debugHistory.warn(`${error}`)
 						callback(error)
 					}
+					localStorage.setItem("isLocalInstall", "true"); //TODO: added not to sync with missing pod
 					this.ready(context)
 
 					callback(undefined)
