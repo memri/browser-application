@@ -24,7 +24,7 @@ export class IndexerAPI {
 
 class IndexerAPI {*/
 	executeNoteLabelIndexer(indexerInstance: IndexerRun, items: Note[]) {
-		this.context?.cache.query(new Datasource("Label"), (error, labels) => {
+		this.context?.cache.query(new Datasource("Label"), true, (error, labels) => {
 			if (!labels) {
 				if (error) {
 					console.log(`Aborting, no labels found: ${error}`)
@@ -43,7 +43,7 @@ class IndexerAPI {*/
 					let content = note.get("content")
 					if (!content) { continue }
 
-					let contentString = content.removeHTML().toLowerCase()
+					let contentString = content.strippingHTMLtags().toLowerCase()
 
 					if (allAliases.includes(contentString.contains)) {
 						// If any of the aliases matches

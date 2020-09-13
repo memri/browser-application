@@ -28,6 +28,10 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
-    "worker-loader": "^2.0.0"
+    "worker-loader": "^2.0.0",
+    "slate": "latest",
+    "slate-react": "latest",
+    "slate-history": "latest",
+    "slate-hyperscript": "latest"
   }
 }

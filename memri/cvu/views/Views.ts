@@ -387,7 +387,7 @@ export class Views {
 							case "camelCaseToWords": value = v.camelCaseToWords(); break//TODO
 							case "plural": value = v + "s"; break;
 							case "firstUppercased": value = v.capitalizingFirst(); break
-							case "plainString": value = v/*.strippingHTMLtags()*/; break //TODO: strip html tags
+							case "plainString": value = v.strippingHTMLtags(); break
 							case "count": value = v.length; break
 							default:
 								// TODO: Warn
