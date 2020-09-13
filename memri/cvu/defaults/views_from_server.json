@@ -786,7 +786,7 @@
                     ],
                     "phoneNumbers2":[
                         "EditorRow", {
-                            "title": "{.type}"
+                            "title": "{.itemType}"
                         }, [
                             "Text", {
                                 "text": "{.number}",
@@ -795,7 +795,7 @@
                     ],
                     "addresses2":[
                         "EditorRow", {
-                            "title": "{.type}"
+                            "title": "{.itemType}"
                         }, [
                             "VStack", {
                                 "cornerRadius": 5
@@ -817,7 +817,7 @@
                     ],
                     "onlineProfiles":[
                         "EditorRow", {
-                            "title": "{.type}"
+                            "title": "{.itemType}"
                         }, [
                             "VStack", {
                                 "cornerRadius": 5
@@ -830,7 +830,7 @@
                     ],
                     "websites2":[
                         "EditorRow", {
-                            "title": "{.type}"
+                            "title": "{.itemType}"
                         }, [
                             "VStack", {
                                 "cornerRadius": 5
@@ -854,7 +854,7 @@
                     ],
                     "companies2":[
                         "EditorRow", {
-                            "title": "{.type}"
+                            "title": "{.itemType}"
                         }, [
                             "VStack", {
                                 "cornerRadius": 5
@@ -1035,7 +1035,7 @@
             "virtual": {
                 "generalEditor": [
                     "EditorRow", {
-                        "title": "{.type}",
+                        "title": "{.itemType}",
                         "nopadding": "{!readOnly}"
                     }, [
                         "HStack", {"condition": "{readOnly}"}, [
@@ -1057,7 +1057,7 @@
                         ],
                         "HStack", {"condition": "{!readOnly}"}, [
                             "EditorLabel", {
-                                "title": "{.type}",
+                                "title": "{.itemType}",
                                 "edge": "{edge}",
                                 "hierarchy": "address"
                             },

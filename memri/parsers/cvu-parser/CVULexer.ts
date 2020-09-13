@@ -436,6 +436,8 @@ export class CVULexer {
             ++ch;
 
             if (isMode >= Mode.string) {
+                if (c == "\n") { ln += 1; ch = 0 }
+
                 if (isMode == Mode.escapedString) {
                     keyword.push(c)
                     isMode = Mode.string
@@ -478,6 +480,7 @@ export class CVULexer {
                 else {
                     keyword.push(c)
                     lastChar = c
+                    if (c == "\n") { ln += 1; ch = 0 }
                 }
 
                 continue
@@ -486,6 +489,7 @@ export class CVULexer {
             if (isMode == Mode.comment) {
                 if (c == "/" && lastChar == "*") { isMode = Mode.idle }
                 lastChar = c
+                if (c == "\n") { ln += 1; ch = 0 }
                 continue
             }
 

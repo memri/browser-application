@@ -91,27 +91,20 @@ export class ResultSet {
 	/// - Parameter callback: Callback with params (error: Error, result: [Item]) that is executed on the returned result
 	/// - Throws: empty query error
     load(syncWithRemote: boolean = true, callback) {
-		// Only execute one loading process at the time
 		if (!this.isLoading) {
-			// Validate datasource
 			if (this.datasource.query == "") {
 				throw "Exception: No query specified when loading result set"
 			}
 
-			// Set state to loading
 			this.isLoading = true
 
-			// Make sure the loading state is updated in the UI
 			this.updateUI()
 
-			// Execute the query
             this.cache.query(this.datasource, syncWithRemote, (error, result) => {
 				if (result) {
-					// Set data and count
 					this.items = result
 					this.count = this.items.length
 
-					// Resapply filter
 					if (this._unfilteredItems != undefined) {
 						this._unfilteredItems = null
 						this.filter()
@@ -120,20 +113,16 @@ export class ResultSet {
 					// We've successfully loaded page 0
 					this.setPagesLoaded(0) // TODO: This is not used at the moment
 
-					// First time loading is done
 					this.isLoading = false
 
 					// Done
 					callback(null)
 				} else if (error != undefined) {
-					// Set loading state to error
 					this.isLoading = false
 
-					// Done with errors
 					callback(error)
 				}
 
-				// Make sure the loading state is updated in the UI
 				this.updateUI()
 			})
 		}

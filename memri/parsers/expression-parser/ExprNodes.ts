@@ -23,6 +23,9 @@ export class ExprNumberNode implements ExprNode{
     }
 
     toExprString() {
+        if (this.value % 1 == 0) {
+            return `${Number(this.value)}`
+        }
         return `${this.value}`
     }
 }
@@ -188,8 +191,9 @@ export class ExprBinaryOpNode implements ExprNode{
         return `BinaryOpNode(${this.op}, lhs: ${this.lhs}, rhs: ${this.rhs})`
     }
 
+    //#warning("hide () when possible")
     toExprString() {
-        return `${this.lhs.toExprString()} ${this.op} ${this.rhs.toExprString()}`
+        return `(${this.lhs.toExprString()} ${this.op} ${this.rhs.toExprString()})`
     }
 }
 

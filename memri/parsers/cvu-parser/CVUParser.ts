@@ -27,6 +27,19 @@ export class Color {
     value;
     constructor(value) {
         switch (value) {
+            case "secondaryLabel":
+                this.value = "#3c3c4399";
+                break;
+            case "label":
+                this.value = "#000000"
+                break;
+            case "systemFill":
+                this.value = "#7878805b"
+                break;
+            case "secondarySystemBackground":
+                this.value = "#f2f2f7f";
+                break;
+            case "secondarySystemGroupedBackground":
             case "systemBackground":
             case "white":
                 this.value = "#ffffff";
@@ -325,7 +338,7 @@ export class CVUParser {
 
         var setPropertyValue = () => {
             if (stack.length > 0) {
-                let convert = this.specialTypedProperties[lastKey!];
+                let convert = CVUParser.specialTypedProperties[lastKey!];
                 if (forUIElement && convert) {
                     if (!isArrayMode && stack.length == 1) {
                         dict[lastKey!] = convert(stack[0], uiElementName);
@@ -434,7 +447,7 @@ export class CVUParser {
                     stack.push(this.createExpression(v));
                     break;
                 case CVUToken.Color:
-                    stack.push(new Color(v));
+                    stack.push(new Color(v)); //TODO: stack.append(ColorDefinition.hex(value))
                     break;
                 case CVUToken.Identifier:
                     if (lastKey == undefined) {
@@ -598,7 +611,7 @@ export class CVUParser {
 // Same as above to be converted once per dict
     frameProperties = {"minWidth": 1, "maxWidth": 1, "minHeight": 1, "maxHeight": 1, "align": 1};
 // Based on key when its added to the dict (only needed within rendererDefinition / UIElement)
-    specialTypedProperties = {
+    static specialTypedProperties = {
         "alignment":
             function (value, type) {
                 switch (value) {
@@ -719,7 +732,7 @@ export class CVUParser {
                 delete dict["maxWidth"];
                 delete dict["minHeight"];
                 delete dict["maxHeight"] ;
-                delete dict["align"];
+                //delete dict["align"];
 
                 dict["frame"] = values;
                 break;

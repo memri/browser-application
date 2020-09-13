@@ -4,9 +4,20 @@
 
 import * as React from 'react';
 import {allRenderers, CascadingListConfig} from "../../cvu/views/Renderers";
-import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
 import {ActionDelete, ActionOpenView} from "../../cvu/views/Action";
-import {ASTableView, font, HStack, MainUI, MemriText, padding, RenderersMemri, Spacer, VStack} from "../swiftUI";
+import {
+	ASTableView,
+	font,
+	HStack,
+	MainUI, MemriImage,
+	MemriRealButton,
+	MemriText,
+	padding,
+	RenderersMemri,
+	Spacer,
+	VStack
+} from "../swiftUI";
 import {ListItem} from "@material-ui/core";
 
 export var registerListRenderer = function () {
@@ -55,18 +66,26 @@ export class ListRendererView extends RenderersMemri {
 		return this.context.currentView?.renderConfig ?? new CascadingListConfig()
 	}
 
-	getItems() {
+	get sections() { //contextMenuProvider: contextMenuProvider
 		let items = this.context.items;
 		return items.map((dataItem) => {
-			return <ListItem key={dataItem.uid} onClick={
+			return <><ListItem key={dataItem.uid} onClick={
 				this.executeAction(dataItem)
 			}>
 				{this.renderConfig.render(dataItem)}
-			</ListItem>
-		})
-		/*<ASSection id={0} data={context.items} dataID={this.uid.value} selectedItems={this.selectedIndices} onSwipeToDelete={onSwipeToDelete} alwaysBounce >
 
-		</ASSection>*/
+			</ListItem><MemriRealButton action={this.deleteItem.bind(this, dataItem)}><MemriImage>delete_forever</MemriImage></MemriRealButton></>
+		})
+		/*
+		.padding(EdgeInsets(top: cellContext.isFirstInSection ? 0 : self.renderConfig.spacing.height / 2,
+												leading: self.renderConfig.edgeInset.left,
+												bottom: cellContext.isLastInSection ? 0 : self.renderConfig.spacing.height / 2,
+												trailing: self.renderConfig.edgeInset.right))
+		 */
+	}
+
+	deleteItem = (item) => {
+		this.context.executeAction(new ActionDelete(this.context), item);
 	}
 
 	render() {
@@ -92,8 +111,8 @@ export class ListRendererView extends RenderersMemri {
 				);
 		} else {//TODO:actions
 			innerContent = (
-				<ASTableView editMode={context.currentSession?.editMode ?? false}>
-					{this.getItems()}
+				<ASTableView editMode={context.currentSession?.editMode ?? false} background={this.renderConfig.backgroundColor?.color ?? new Color("systemBackground")}>
+					{this.sections}
 				</ASTableView>
 			);
 		}
@@ -107,6 +126,18 @@ export class ListRendererView extends RenderersMemri {
 			</div>
 		)
 	}
+
+	/*func contextMenuProvider(index: Int, item: Item) -> UIContextMenuConfiguration? {
+	UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak context] (suggested) -> UIMenu? in
+		let children: [UIMenuElement] = self.renderConfig.contextMenuActions.map { [weak context] action in
+		UIAction(title: action.getString("title"),
+			image: nil) { [weak context] (_) in
+		context?.executeAction(action, with: item)
+		}
+		}
+		return UIMenu(title: "", children: children)
+	}
+}*/
 }
 
 /*struct ListRendererView_Previews: PreviewProvider {

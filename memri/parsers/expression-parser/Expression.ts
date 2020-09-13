@@ -9,7 +9,7 @@ import {ExprLookupNode, ExprVariableNode} from "./ExprNodes";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {ExprInterpreter} from "./ExprInterpreter";
-import {DatabaseController, ItemReference} from "../../model/DatabaseController";
+//import {DatabaseController, ItemReference} from "../../storage/DatabaseController";
 import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Expression {
@@ -52,31 +52,28 @@ export class Expression {
             let lastProperty = sequence.pop()
             if (lastProperty?.constructor?.name == "ExprVariableNode") {
                 let lookupNode = new ExprLookupNode(sequence);
-                let lookupValue =  this.lookup(lookupNode, null)
+                let lookupValue = this.lookup(lookupNode, null)
 
-                let context = this.context;
-                if (context) {
-                    let obj = lookupValue;
-                    if (obj?.constructor?.name == "UserState") {
-                        obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
-                        return
-                    } else if (obj?.constructor?.name == "Object") { //TODO: RealmObject maybe? Or another check
-                        let name = lastProperty.name
+                let obj = lookupValue;
+                if (obj?.constructor?.name == "UserState") {
+                    obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
+                    return
+                } else if (obj?.constructor?.name == "Object") { //TODO: RealmObject maybe? Or another check
+                    let name = lastProperty.name
 
-                        if (obj.objectSchema[name]?.type != "boolean") {
-                            throw `'${name}' is not a boolean property`
-                        }
-
-                        DatabaseController.writeSync (function() {
-                            obj[name] = !(typeof obj[name] === "boolean" ?? false)
-                        })
-                        return
+                    if (obj.objectSchema.properties[name] != "boolean") {
+                        throw `'${name}' is not a boolean property`
                     }
-                    else if (typeof obj.subscript == "function") {
-                        obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
-                        return
-                    }
+
+                    DatabaseController.write(undefined,function () {
+                        obj[name] = !(typeof obj[name] === "boolean" ?? false)
+                    })
+                    return
+                } else if (typeof obj.subscript == "function") {
+                    obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
+                    return
                 }
+
             }
         }
 
@@ -94,17 +91,23 @@ export class Expression {
                 let lookupNode = new ExprLookupNode(sequence)
                 let dataItem = this.lookup(lookupNode, viewArguments)
                 if (dataItem) {//TODO: this is completely different in js
-
-                    return [undefined, dataItem, lastProperty.name]//TODO
-                    /*} else  {
-                        let propType = PropertyType(7)
+                    let propType = dataItem.objectSchema.properties[lastProperty.name]
+                    if (propType) {
+                        return [propType, dataItem, lastProperty.name]
+                    }
+                    else {
+                        // let propType = PropertyType(rawValue: 7)//TODO
                         if (propType) {
-                            //warning("This requires a local version a browsable schema that describes the types of edges")
-                            //                        if let item = dataItem.edge(lastProperty.name)?.item() {
-                            return (propType, dataItem, lastProperty.name)
+                            // #warning(
+                            //     "This requires a local version a browsable schema that describes the types of edges"
+                            // )
+                            //if let item = dataItem.edge(lastProperty.name)?.item() {
+                            return [propType, dataItem, lastProperty.name]
                             //
                         }
-                    }*/
+                    }
+
+                    return [undefined, dataItem, lastProperty.name]//TODO
                 }
             }
         }

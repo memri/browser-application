@@ -53,7 +53,7 @@ export class PhotoViewerRenderer extends RenderersMemri {
         if (!item || !file /*|| !url*/) {
             return undefined;
         }
-        let url = file.uri
+        let url = file.filename
         let overlay = this.renderConfig.render(item);
         return (<>
             <UIImage src={"memri/Resources/DemoAssets/" + url + ".jpg"}></UIImage>
@@ -80,39 +80,24 @@ export class PhotoViewerRenderer extends RenderersMemri {
     )
     }
 
-    /*var body: some View {
-        Group {
-            if context.items.isEmpty {
-                Text("No photos found")
-            }
-            else {
-                ZStack(alignment: .topLeading) {
-                    PhotoViewerView(
-                        photoItemProvider: photoItemProvider,
-                        initialIndex: initialIndex
-                    )
-                    .edgesIgnoringSafeArea(isFullScreen ? .all : [])
-                    Button(action: toggleFullscreen) {
-                        Image(systemName: isFullScreen ? "arrow.down.right.and.arrow.up.left" :
-                            "arrow.up.left.and.arrow.down.right")
-                            .padding(12)
-                            .background(RoundedRectangle(cornerRadius: 4).fill(Color(.systemFill)))
-                    }
-                    .padding(.top, 20)
-                    .padding(.leading, 20)
-                }
-            }
-        }
-    }*/
-
-    /*func toggleFullscreen() {
-        isFullScreen.toggle()
+    onToggleOverlayVisibility(visible: boolean) {
+        //withAnimation {
+        this.isFullScreen = !visible
+        //}
     }
 
-    var isFullScreen: Bool {
-        get { context.currentView?.fullscreen ?? false }
-        nonmutating set { context.currentView?.fullscreen = newValue }
-    }*/
+    toggleFullscreen() {
+        this.isFullScreen.toggle()
+    }
+
+    get isFullScreen() {
+        return this.context.currentView?.fullscreen ?? false
+    }
+
+    set isFullScreen(newValue) {
+        if (this.context.currentView)
+            this.context.currentView.fullscreen = newValue
+    }
 }
 
 /*

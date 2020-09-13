@@ -7,7 +7,7 @@
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedSessionDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {DatabaseController} from "../model/DatabaseController";
+import {DatabaseController} from "../storage/DatabaseController";
 import {CascadableView} from "../cvu/views/CascadableView";
 import {Realm} from "../model/RealmLocal";
 import {CacheMemri} from "../model/Cache";
@@ -57,7 +57,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
     uid?: Number
     parsed?: CVUParsedSessionDefinition
     get state() {
-		return DatabaseController.read ((realm) => {
+		return DatabaseController.current (false,(realm) => {
             realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
         })
     }
@@ -126,7 +126,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
             // Or if the views are encoded in the definition
             else if (parsedViews && parsedViews.length > 0 && parsedViews[0]?.constructor?.name == "CVUParsedViewDefinition")
             {
-                DatabaseController.tryWriteSync(() => {
+                DatabaseController.tryCurrent(true,() => {
                     for (let parsed of parsedViews) {
                         let viewState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
                         state.link(viewState, "view", EdgeSequencePosition.last)
@@ -219,7 +219,7 @@ subscript(propName: String) -> Any? {
     }
     
     persist() {
-        DatabaseController.tryWriteSync((realm: Realm) => {
+        DatabaseController.current(false,(realm: Realm) => {
             var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored session CVU. Creating a new one.")
@@ -240,7 +240,7 @@ subscript(propName: String) -> Any? {
             if (stateViewEdges) {
                 var i = 0
                 for (let edge of stateViewEdges) {
-                    if (edge.targetItemID == this.views[i].uid) {
+                    if (edge.targetItemID == this.views[i]?.uid) {
                         i += 1
                         continue
                     }

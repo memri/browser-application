@@ -91,12 +91,10 @@ Importer[] {
     
     [renderer = thumbnail] {
         press: addItem {
-            arguments {
-                template {
-                    _type: ImporterRun
-                    name: {{.name}}
-                    importer: {{.}}
-                }
+            template {
+                _type: ImporterRun
+                name: {{.name}}
+                importer: {{.}}
             }
         }
 

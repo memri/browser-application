@@ -3,11 +3,24 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import {allRenderers, CascadingMessageRendererConfig} from "../../cvu/views/Renderers";
-import {ASTableView, font, frame, HStack, MainUI, MemriText, padding, RenderersMemri, VStack} from "../swiftUI";
+import {
+    ASTableView,
+    font,
+    frame,
+    HStack,
+    MainUI,
+    MemriDivider, MemriImage, MemriRealButton,
+    MemriText,
+    padding,
+    RenderersMemri,
+    VStack
+} from "../swiftUI";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import * as React from "react";
 import {ListItem} from "@material-ui/core";
 import {Alignment, Color, Font, TextAlignment} from "../../parsers/cvu-parser/CVUParser";
+import {FontDefinition} from "../../cvu/views/CVUPropertyResolver";
+import {MemriFittedTextEditor} from "../components/MemriFittedTextEditor/MemriFittedTextEditor";
 
 export var registerMessageRenderer = function () {
     if (allRenderers) {
@@ -75,6 +88,12 @@ export class MessageRenderer extends RenderersMemri {
                 {this.renderConfig.render(dataItem)}
             </ListItem>
         })
+        /* TODO: here should be padding, but i have no idea which :)
+        padding(EdgeInsets(top: cellContext.isFirstInSection ? 0 : self.renderConfig.spacing.height / 2,
+									leading: self.renderConfig.edgeInset.left,
+									bottom: cellContext.isLastInSection ? 0 : self.renderConfig.spacing.height / 2,
+									trailing: self.renderConfig.edgeInset.right))
+        */
     }
 
     render() {
@@ -82,17 +101,55 @@ export class MessageRenderer extends RenderersMemri {
         this.editMode = this.props.editMode;
 
         return (
-            <ASTableView editMode={this.editMode} separatorsEnabled={false} alwaysBounce>
-                {this.section}
-            </ASTableView>
+            <VStack spacing={0}>
+                <ASTableView editMode={this.editMode} separatorsEnabled={false} alwaysBounce
+                             background={this.renderConfig.backgroundColor?.color ?? new Color("systemBackground")}>
+                    {this.section}
+                </ASTableView>
+                <MemriDivider/>
+                {this.messageComposer}
+            </VStack>
         )
         /*
         .scrollPositionSetter($scrollPosition)
             .alwaysBounce()
-            .contentInsets(.init(top: 5, left: 0, bottom: 5, right: 0))
-            .edgesIgnoringSafeArea(.all)
+                .contentInsets(.init(top: renderConfig.edgeInset.top, left: 0, bottom: renderConfig.edgeInset.bottom, right: 0))
+                .edgesIgnoringSafeArea(.all)
          */
-}
+    }
+
+    isEditingComposedMessage: boolean = false
+    composedMessage
+
+    get messageComposer() {
+        /*
+        .padding(.leading, min(max(self.renderConfig.edgeInset.left, 5), 15)) // Follow user-defined insets where within a reasonable range
+        .padding(.trailing, min(max(self.renderConfig.edgeInset.right, 5), 15)) // Follow user-defined insets where within a reasonable range
+        */
+        return (
+            <HStack spacing={6} padding={padding({vertical: 5})} background={new Color("secondarySystemBackground")}>
+                <MemriFittedTextEditor contentBinding={this.composedMessage} placeholder="Type a message..." backgroundColor={new Color("systemBackground")} isEditing={{/*$isEditingComposedMessage*/}}/>
+
+                <MemriRealButton action={this.onPressSend}>
+                    <MemriImage foregroundColor={this.canSend ? "blue" : new Color("systemFill")} font={font({family:"system", size: 20})}>
+                        {/*arrow.up.circle.fill*/}send
+                    </MemriImage>
+                </MemriRealButton>{/*.disabled(!canSend)*/}
+
+            </HStack>
+        )
+    }
+
+    get canSend(): boolean {
+        return !(this.composedMessage?.isOnlyWhitespace ?? true)
+    }
+
+    onPressSend() {
+        //#warning("@Ruben: we will need to decide how `sending` a message is handled")
+        console.log(this.composedMessage ?? "Empty message")
+        this.composedMessage = undefined;
+        this.isEditingComposedMessage = false
+    }
 }
 
 export class MessageBubbleView extends MainUI {
@@ -100,6 +157,7 @@ export class MessageBubbleView extends MainUI {
     sender?: string
     content: string
     outgoing: boolean
+    font: FontDefinition
 
     /*dateFormatter: DateFormatter {
         // TODO: If there is a user setting for a *short* date format, we should use that
@@ -128,14 +186,14 @@ export class MessageBubbleView extends MainUI {
                   <MemriText lineLimit={1} font={font({family:"caption"})} foregroundColor={new Color("secondaryLabel")}>
                       {this.timestamp}
                   </MemriText>
-                  <MemriText multilineTextAlignment={TextAlignment.leading}
+                  <MemriSmartTextView detectLinks={true} font={font(this.font ?? new FontDefinition(undefined, 18))}
                              fixedSize={{horizontal: false, vertical: true}}
-                             padding={padding(10)} foregroundColor={this.outgoing ? "white" : new Color("label")}
+                             padding={padding(10)} color={this.outgoing ? "white" : new Color("label")}
                              background={this.outgoing ? "blue" : new Color("secondarySystemBackground")}
-                             mask={}
+                             mask={""}
                   >
                       {this.content}
-                  </MemriText>
+                  </MemriSmartTextView>
               </VStack>
           </HStack>   //.padding(outgoing ? .leading : .trailing, 20) //TODO?
         )

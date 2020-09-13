@@ -6,7 +6,7 @@ import * as React from "react";
 import {MainUI, ZStack} from "../swiftUI";
 import {Alignment} from "../../parsers/cvu-parser/CVUParser";
 import {ContextPaneBackground} from "./ContextPaneBackground";
-import {ContextPaneForeground} from "./ContextPaneForground";
+import {ContextPaneForeground} from "./ContextPaneForeground";
 import {geom} from "../../../demo-react";
 
 export class ContextPane extends MainUI {
@@ -23,7 +23,8 @@ export class ContextPane extends MainUI {
 	}
 
 	set isVisible (newValue) {
-		this.context.currentSession?.showContextPane = newValue
+		if (this.context.currentSession)
+			this.context.currentSession.showContextPane = newValue
 		this.context.scheduleUIUpdate(true)
 	}
 

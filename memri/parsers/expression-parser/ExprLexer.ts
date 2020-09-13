@@ -248,25 +248,21 @@ export const ExprToken = {
     EOF
 };
 
-export var ExprOperator  = {
-    // ConditionStart: "?",
-    // ConditionElse: ":",
-    // ConditionAND: "AND",
-    // ConditionOR: "OR",
-    // ConditionEquals: "=",
-    // Plus: "+",
-    // Minus: "-",
-    // Multiplication: "*",
-    // Division: "/",
+export var ExprOperator = {
     ConditionStart: "ConditionStart",
     ConditionElse: "ConditionElse",
     ConditionAND: "ConditionAND",
     ConditionOR: "ConditionOR",
     ConditionEquals: "ConditionEquals",
+    ConditionNotEquals: "ConditionNotEquals",
+    ConditionGreaterThan: "ConditionGreaterThan",
+    ConditionGreaterThanOrEqual: "ConditionGreaterThanOrEqual",
+    ConditionLessThan: "ConditionLessThan",
+    ConditionLessThanOrEqual: "ConditionLessThanOrEqual",
     Plus: "Plus",
     Minus: "Minus",
     Multiplication: "Multiplication",
-    Division: "Division",
+    Division: "Division"
 }
     
 export var ExprOperatorPrecedence = {
@@ -275,6 +271,11 @@ export var ExprOperatorPrecedence = {
     ConditionAND: 20,
     ConditionOR: 30,
     ConditionEquals: 35,
+    ConditionNotEquals: 35,
+    ConditionGreaterThan: 35,
+    ConditionGreaterThanOrEqual: 35,
+    ConditionLessThan: 35,
+    ConditionLessThanOrEqual: 35,
     Plus: 40,
     Minus: 40,
     Multiplication: 50,
@@ -299,7 +300,15 @@ let keywords = {
     "or": (i) => { return new ExprToken.Operator(ExprOperator.ConditionOR, i) },
     "OR": (i) => { return new ExprToken.Operator(ExprOperator.ConditionOR, i) },
     "equals": (i) => { return new ExprToken.Operator(ExprOperator.ConditionEquals, i) },
-    "EQUALS": (i) => { return new ExprToken.Operator(ExprOperator.ConditionEquals, i) }
+    "EQUALS": (i) => { return new ExprToken.Operator(ExprOperator.ConditionEquals, i) },
+    "eq": (i) => { return new ExprToken.Operator(ExprOperator.ConditionEquals, i) },
+    "EQ": (i) => { return new ExprToken.Operator(ExprOperator.ConditionEquals, i) },
+    "neq": (i) => { return new ExprToken.Operator(ExprOperator.ConditionNotEquals, i) },
+    "NEQ": (i) => { return new ExprToken.Operator(ExprOperator.ConditionNotEquals, i) },
+    "gt": (i) => { return new ExprToken.Operator(ExprOperator.ConditionGreaterThan, i) },
+    "GT": (i) => { return new ExprToken.Operator(ExprOperator.ConditionGreaterThan, i) },
+    "lt": (i) => { return new ExprToken.Operator(ExprOperator.ConditionLessThan, i) },
+    "LT": (i) => { return new ExprToken.Operator(ExprOperator.ConditionLessThan, i) },
 }
     
 export class ExprLexer {
@@ -319,7 +328,7 @@ export class ExprLexer {
         var keyword = []
         var startChar;
         
-        function addToken(token) {
+        function addToken(token?) {
             if (isMode == Mode.number) {
                 tokens.push(new ExprToken.Number(parseFloat(keyword.join("")), i))
                 keyword = []
@@ -339,10 +348,44 @@ export class ExprLexer {
         }
         var input = this.input;
 
-        var startChar = null
+        var startChar = null, lastChar;
         for (var i = 0; i < input.length; i++) {
             var c = input[i];
-            
+
+            if (lastChar != undefined) {
+                let l = lastChar;
+                lastChar = undefined;
+
+                switch (l) {
+                    case "!":
+                        if (c == "=") {
+                            addToken(new ExprToken.Operator(ExprOperator.ConditionNotEquals, i))
+                            continue
+                        } else {
+                            addToken(new ExprToken.Negation(i))
+                        }
+                        break;
+                    case ">":
+                        if (c == "=") {
+                            addToken(new ExprToken.Operator(ExprOperator.ConditionGreaterThanOrEqual, i))
+                            continue
+                        } else {
+                            addToken(new ExprToken.Operator(ExprOperator.ConditionGreaterThan, i))
+                        }
+                        break;
+                    case "<":
+                        if (c == "=") {
+                            addToken(new ExprToken.Operator(ExprOperator.ConditionLessThanOrEqual, i))
+                            continue
+                        } else {
+                            addToken(new ExprToken.Operator(ExprOperator.ConditionLessThan, i))
+                        }
+                        break;
+                    default:
+                        throw "Should never get here"
+                }
+            }
+
             if (isMode >= Mode.string) {
                 if (isMode == Mode.string
                   && (c == startChar || startChar == null && startInStringMode && c == "{")) {
@@ -375,7 +418,7 @@ export class ExprLexer {
             case "/": addToken(new ExprToken.Operator(ExprOperator.Division, i)); break
             case "+": addToken(new ExprToken.Operator(ExprOperator.Plus, i)); break
             case "-": addToken(new ExprToken.Operator(ExprOperator.Minus, i)); break
-            case "!": addToken(new ExprToken.Negation(i)); break
+            case "!": lastChar = c; continue;
             case "?": addToken(new ExprToken.Operator(ExprOperator.ConditionStart, i)); break
             case ":": addToken(new ExprToken.Operator(ExprOperator.ConditionElse, i)); break
             case "(": addToken(new ExprToken.ParensOpen(i)); break
@@ -383,6 +426,8 @@ export class ExprLexer {
             case "[": addToken(new ExprToken.BracketOpen(i)); break
             case "]": addToken(new ExprToken.BracketClose(i)); break
             case "=": addToken(new ExprToken.Operator(ExprOperator.ConditionEquals, i)); break
+            case ">": lastChar = c; continue
+            case "<": lastChar = c; continue
             case ",": addToken(new ExprToken.Comma(i)); break
             case "'": case '"':
                 isMode = Mode.string
@@ -415,6 +460,8 @@ export class ExprLexer {
                 isMode = Mode.keyword
                 keyword.push(c)
             }
+
+            lastChar = undefined;
         }
         
         if (keyword.length > 0) {

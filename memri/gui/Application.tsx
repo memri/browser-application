@@ -9,9 +9,10 @@ import * as React from 'react';
 import {Color} from "../parsers/cvu-parser/CVUParser";
 import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./navigation/NavigationView";
-import {MainUI, Spacer, VStack} from "./swiftUI";
+import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
 import {SessionSwitcher} from "./SessionSwitcher";
+import {SetupWizard} from "../install/SetupWizard";
 
 /*class View {
 	fullHeight(): View {
@@ -58,8 +59,13 @@ export class Application extends MainUI {
 							? <SessionSwitcher context={this.context}/>
 							: <Browser context={this.context}/>
 						}
+						<HStack>
+							<MemriRealButton action={this.context.cache.sync.schedule.bind(this.context.cache.sync)}>
+								<MemriText>Sync To Pod</MemriText>
+							</MemriRealButton>
+						</HStack>
 					</NavigationWrapper> :
-					<SetupWizard/>
+					<SetupWizard context={this.context}/>
 					}
 				</VStack>
 			</ScreenSizer>

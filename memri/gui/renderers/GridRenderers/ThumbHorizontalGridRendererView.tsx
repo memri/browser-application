@@ -16,7 +16,7 @@ import {
     ZStack
 } from "../../swiftUI";
 import * as React from "react";
-import {Alignment, Font} from "../../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../../parsers/cvu-parser/CVUParser";
 import {Grid} from "@material-ui/core";
 
 export var registerThumbHorizontalGridRenderer = function () {
@@ -103,6 +103,18 @@ export class ThumbHorizontalGridRendererView extends RenderersMemri {
         })
     }
 
+    /*func contextMenuProvider(index: Int, item: Item) -> UIContextMenuConfiguration? {
+    UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak context] (suggested) -> UIMenu? in
+        let children: [UIMenuElement] = self.renderConfig.contextMenuActions.map { [weak context] action in
+        UIAction(title: action.getString("title"),
+            image: nil) { [weak context] (_) in
+        context?.executeAction(action, with: item)
+        }
+        }
+        return UIMenu(title: "", children: children)
+    }
+}*/
+
     render() {
         this.context = this.props.context
         return (
@@ -124,7 +136,7 @@ export class ThumbHorizontalGridRendererView extends RenderersMemri {
                         <Spacer/>
                     </>
                     :
-                    <ASCollectionView images={true}>
+                    <ASCollectionView images={true} background={this.renderConfig.backgroundColor?.color ?? new Color("systemBackground")}>
                         {this.section}
                     </ASCollectionView>
                 }

@@ -1,6 +1,6 @@
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {getItemType, ItemFamily} from "../model/items/Item";
-import {DatabaseController} from "../model/DatabaseController";
+import {getItemType, ItemFamily, Person} from "../model/items/Item";
+import {DatabaseController} from "../storage/DatabaseController";
 
 export var MemriJSONEncoder = function (x) {
     return JSON.stringify(x);
@@ -106,12 +106,25 @@ func withRealm(_ doThis: (_ realm: Realm) -> Any?) -> Any? {
 export function getItem(type: string, uid) {
     type = ItemFamily[type];
     if (type) {
-        let item = getItemType(type);
-        return DatabaseController.read((realm)=> {
-        realm.objectForPrimaryKey(item, uid)
-        })
+        //let item = getItemType(type);
+        return DatabaseController.current(false, (realm) =>
+            realm.objectForPrimaryKey(type, uid)
+        )
     }
     return
 }
 
 export function autoreleasepool(callback){callback()}//TODO
+
+export function me() {
+    try {
+        let realm = DatabaseController.getRealmSync();
+        let myself = realm.objects("Person").filtered("ANY allEdges.type = 'me'")[0];
+        if (!myself) {
+            throw "Unexpected error. Cannot find 'me' in the database"
+        }
+        return myself
+    } catch {
+        return new Person()
+    }
+}

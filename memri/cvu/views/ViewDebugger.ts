@@ -47,7 +47,7 @@ enum InfoType {//TODO
 	}*/
 }
 
-import {settings} from "../../model/Settings";
+import {Settings} from "../../model/Settings";
 
 class InfoState /*extends Hashable*/ {
 	id /*= UUID()*/
@@ -148,7 +148,7 @@ class DebugHistory /*extends ObservableObject */{
 			))
 		}
 
-		if (settings.get("device/debug/autoShowErrorConsole") ?? false) { //TODO
+		if (new Settings().get("device/debug/autoShowErrorConsole") ?? false) { //TODO
 			this.showErrorConsole = true
 		}
 
@@ -260,6 +260,6 @@ class DebugConsole /*extends View*/ {
 
 class ErrorConsole_Previews /*extends PreviewProvider*/ {
 	static previews () {//TODO
-		new DebugConsole().environmentObject(RootContext("", "").mockBoot())//TODO
+		new DebugConsole().environmentObject(RootContext("").mockBoot())//TODO
 	}
 }

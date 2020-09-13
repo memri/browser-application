@@ -6,13 +6,13 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {DatabaseController} from "../model/DatabaseController";
+import {DatabaseController} from "../storage/DatabaseController";
 import {CVUParsedSessionsDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {EdgeSequencePosition, CVUStateDefinition} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "../model/Cache";
 import {Session} from "./Session";
-import {settings} from "../model/Settings";
+import {Settings} from "../model/Settings";
 
 export class Sessions /*: ObservableObject, Equatable*/ {
     /// TBD
@@ -27,7 +27,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     uid
     parsed?: CVUParsedSessionsDefinition
     get state() {
-		return DatabaseController.read((realm) => {
+		return DatabaseController.current(false,(realm) => {
             return realm.objectForPrimaryKey("CVUStateDefinition", this.uid);
         })
     }
@@ -65,14 +65,14 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         } else if (isDefault) {
             this.isDefault = isDefault
             // Load default sessions for this device
-            this.uid = settings.get("device/sessions/uid")
+            this.uid = Settings.shared.get("device/sessions/uid")
         }
         
         // Setup update publishers
         /*this.persistCancellable = persistSubject
             .throttle(for: .milliseconds(300), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] in
-                DatabaseController.writeAsync { _ in
+                DatabaseController.background { _ in
                     try self?.persist()
                 }
             }*/ //TODO: wtf?
@@ -83,7 +83,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
     load(context: MemriContext) {//TODO: added this for JS
         if (this.isDefault && this.uid == undefined) {
-            this.uid = settings.get("device/sessions/uid")
+            this.uid = Settings.shared.get("device/sessions/uid")
             if (this.uid == undefined) {
                 throw "Could not find stored sessions to load from"
             }
@@ -92,7 +92,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         this.context = context
         this.sessions = []
 
-        DatabaseController.tryRead((realm) => {
+        DatabaseController.tryCurrent(false, (realm) => {
             console.log(realm.objects("CVUStateDefinition"));
             let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
             if (state) {
@@ -115,7 +115,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                 // Or if the sessions are encoded in the definition
                 else if (Array.isArray(p.get("sessionDefinitions")) && p.get("sessionDefinitions").length > 0 && p.get("sessionDefinitions")[0]?.constructor?.name == "CVUParsedSessionDefinition") {
                     let parsedSessions = p.get("sessionDefinitions");
-                    DatabaseController.tryWriteSync((realm) => {
+                    DatabaseController.tryCurrent(true, () => {
                         for (let parsed of parsedSessions) {
                             let sessionState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
                             state.link(sessionState, "session", EdgeSequencePosition.last);
@@ -141,31 +141,53 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         this.schedulePersist()
     }
     
-	setCurrentSession(state?: CVUStateDefinition) {
-        if (!(state?.constructor?.name == "CVUStateDefinition"))
-            state = new CVUStateDefinition(state);
-        let storedSession = state ?? this.currentSession?.state;
-        if (!storedSession) {
-            throw "Exception: Unable to fetch stored CVU state for session"
-        }
+	setCurrentSession(state?: CVUStateDefinition|Session) {
+        if (state?.constructor?.name == "Session") {
+            let session = state;
+            // If the session already exists, we simply update the session index
+            let index = this.sessions.findIndex((s) => {
+                return s.uid == session.uid
+            })
+            if (index > -1) {
+                this.currentSessionIndex = index
+            }
 
-        // If the session already exists, we simply update the session index
-        let index = this.sessions.findIndex((session) => {
-            return session.uid == storedSession.uid
-        })
-        if (index > -1) {
-            this.currentSessionIndex = index
+            // Otherwise lets create a new session
+            else {
+                // Add session to list
+                this.sessions.push(session)
+                this.currentSessionIndex = this.sessions.length - 1
+            }
+
+            session.state?.accessed();
+
+            this.schedulePersist()
+        } else {
+            if (!(state?.constructor?.name == "CVUStateDefinition"))
+                state = new CVUStateDefinition(state);
+            let storedSession = state ?? this.currentSession?.state;
+            if (!storedSession) {
+                throw "Exception: Unable to fetch stored CVU state for session"
+            }
+
+            // If the session already exists, we simply update the session index
+            let index = this.sessions.findIndex((session) => {
+                return session.uid == storedSession.uid
+            })
+            if (index > -1) {
+                this.currentSessionIndex = index
+            }
+            // Otherwise lets create a new session
+            else {
+                // Add session to list
+                this.sessions.push(new Session(storedSession, this))
+                this.currentSessionIndex = this.sessions.length - 1
+            }
+
+            storedSession.accessed()
+
+            this.schedulePersist()
         }
-        // Otherwise lets create a new session
-        else {
-            // Add session to list
-            this.sessions.push(new Session(storedSession, this))
-            this.currentSessionIndex = this.sessions.length - 1
-        }
-        
-        storedSession.accessed()
-        
-        this.schedulePersist()
 	}
     
     persistSubject /*= PassthroughSubject<Void, Never>()*///TODO:
@@ -173,8 +195,8 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     schedulePersist() { //this.persistSubject.send()
         }
     
-    persist(state?) {
-        DatabaseController.tryWriteSync ((realm)=>{
+    persist(state) {
+        DatabaseController.tryCurrent (false, (realm)=>{
             //var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored sessions CVU. Creating a new one.")
@@ -187,7 +209,6 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                 
                 this.uid = uid
             }
-            //state = new CVUStateDefinition(state); //TODO: need better way
             state?.set("definition", this.parsed?.toCVUString(0, "    "))
             
             for (let session of this.sessions) {
@@ -205,8 +226,8 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         return state;
     }
 
-	install(context: MemriContext) {
-        DatabaseController.tryWriteSync((realm)=>{
+	install(context: MemriContext, callback) {
+        DatabaseController.current(true, callback, (realm)=>{
             let templateQuery = "selector = '[sessions = defaultSessions]'";
             let template = realm.objects("CVUStoredDefinition").filtered(templateQuery)[0];
             let parsed = context.views.parseDefinition(template);
@@ -225,14 +246,16 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
             // uid is always set
             this.uid = state.uid;
-            settings.set("device/sessions/uid", state.uid ?? -1);
+            Settings.shared.set("device/sessions/uid", state.uid ?? -1);
 
             this.parsed = parsed /*as? CVUParsedSessionsDefinition*/
             console.log(realm.objects("CVUStoredDefinition"));
-            delete this.parsed?.parsed["sessionDefinitions"]; //TODO:
+            //delete this.parsed?.parsed["sessionDefinitions"]; //TODO:
             
             this.persist(state)
             this.load(context)
+
+            callback(undefined);
         })
 	}
 

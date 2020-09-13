@@ -14,7 +14,7 @@ import {
     CVUParsedRendererDefinition, CVUParsedViewDefinition
 } from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "./ViewDebugger";
-import {DatabaseController} from "../../model/DatabaseController";
+import {DatabaseController} from "../../storage/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {CascadableDict} from "./CascadableDict";
 import {CascadingDatasource} from "../../api/Datasource";
@@ -67,7 +67,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     }
 
     get state() {
-        return DatabaseController.read((realm) => {
+        return DatabaseController.current(false, (realm) => {
             return realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
         })
     }
@@ -112,6 +112,9 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     get editActionButton() { return this.cascadeProperty("editActionButton") }
     set editActionButton(value) { this.setState("editActionButton", value) }
+
+    get titleActionButton() { return this.cascadeProperty("titleActionButton") }
+    set titleActionButton(value) { this.setState("titleActionButton", value) }
 
     get sortFields() { return this.cascadeList("sortFields") }
     set sortFields(value) { this.setState("sortFields", value) }
@@ -367,6 +370,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
             case "searchHint": return this.searchHint
             case "actionButton": return this.actionButton
             case "editActionButton": return this.editActionButton
+            case "titleActionButton": return this.titleActionButton
             case "sortFields": return this.sortFields
             case "filterButtons": return this.filterButtons
             case "contextButtons": return this.contextButtons
@@ -419,7 +423,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     }
 
     persist() {
-        DatabaseController.tryWriteSync((realm) => {
+        DatabaseController.tryCurrent(true, (realm) => {
             var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored view CVU. Creating a new one.")
@@ -498,6 +502,17 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
             let parsedDef = this.context?.views.parseDefinition(def);
             if (parsedDef) {
                 parsedDef.domain = domain
+
+                let views = parsedDef["viewDefinitions"]
+                if (Array.isArray(views) && views[0].constructor?.name == "CVUParsedViewDefinition") {
+                    let view = views[parsedDef["currentViewIndex"] ?? 0]
+                    if (view) {
+                        parsedDef = view
+                    }
+                    else {
+                        throw "Unable to find view in named session"
+                    }
+                }
 
                 this.include(parsedDef, domain)
             } else {

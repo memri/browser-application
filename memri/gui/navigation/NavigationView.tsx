@@ -21,9 +21,7 @@ import {
 	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI
 } from "../swiftUI";
 import {geom} from "../../../demo-react";
-import {List, ListItem} from "@material-ui/core";
-import {MainNavigation} from "./MainNavigation";
-
+import {ListItem} from "@material-ui/core";
 
 interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}
 
@@ -140,11 +138,9 @@ class Navigation extends MainUI {
 	}
 
 	getNavigationItems() {
-		// this.context.navigation = new MainNavigation(); //TODO:??
-		this.context.navigation.load()//TODO:??
 		let navigationItems = this.context.navigation.getItems();
 		return navigationItems.map((navItem) => {
-			switch (navItem.type) {
+			switch (navItem.itemType) {
 				case "item":
 					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>/*(navItem, hide: {
 					withAnimation {

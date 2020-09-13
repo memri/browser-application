@@ -2,14 +2,15 @@ import * as React from "react";
 import {
     BaseTextFieldProps,
     Box,
-    Button,
+    Button, Dialog, DialogTitle,
     Divider,
     Grid,
     GridList,
     Icon,
-    List,
+    List, Modal,
     Switch,
-    TextField
+    TextField,
+    DialogContentText, DialogActions
 } from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
@@ -46,11 +47,11 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             "cornerRadius",
             "cornerborder",
             "border",
-            "margin",
             "shadow",
             "offset",
             "blur",
             "opacity",
+            "margin",
             "zindex",
         ]
 
@@ -92,6 +93,17 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                     } else {
                         view["padding"] = padding(value);
                     }
+                           /* else if let value = (value as? String)?
+                            .split(separator: " ")
+                            .compactMap({ CGFloat(Int(String($0)) ?? 0) })
+                        {
+                            return AnyView(padding(EdgeInsets(
+                                top: value[safe: 0] ?? 0,
+                            leading: value[safe: 3] ?? 0,
+                            bottom: value[safe: 2] ?? 0,
+                            trailing: value[safe: 1] ?? 0
+                        )))
+                        }*/
                     break;
                 case "blur":
                     if (value) {
@@ -159,6 +171,10 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                     }
                 case "frame":
                     if (Array.isArray(value)) {
+                        /*if let str = value[4] as? String {
+                            value[4] = CVUParser.specialTypedProperties["align"]?(str, "") ?? nil
+                        }*/ //TODO:
+
                         view["frame"] = frame(
                             {
                                 minWidth: value[0],
@@ -205,7 +221,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             }
         }
 
-        if (properties.length == 0) {
+        if (!properties || properties.length == 0) {
             return view
         }
 
@@ -221,6 +237,21 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                         console.log(`Could not set property. Executing expression ${expr} failed`)
                         continue
                     }
+                } else if (Array.isArray(value)) {
+                    let list = value;
+                    for (let i = 0; i < list.length; i++) {
+                        let expr = list[i];
+                        if (expr?.constructor?.name == "Expression") {
+                            try {
+                                list[i] = expr.execute(viewArguments);
+                            } catch {
+                                // TODO: refactor: Error handling
+                                console.log(`Could not set property. Executing expression ${expr} failed`)
+                                continue
+                            }
+                        }
+                    }
+                    value = list
                 }
 
                 setProperty(name, value);
@@ -342,13 +373,32 @@ export class Content extends MainUI {
 }
 
 export class MemriRealButton extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showAlert: false,
+        };
+        this.onAlert = this.onAlert.bind(this);
+    }
+
+    onAlert() {
+        this.setState({
+            showAlert: true,
+        });
+    }
+
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
-        return (
+        let {alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
+        action = alert ? this.onAlert : (action && typeof action == "function") ? action :  ()=> {};
+         return (
             <div className={"MemriRealButton"}>
             <Button onClick={action} style={this.setStyles()} {...other}>
                 {this.props.children}
             </Button>
+                {this.state.showAlert ?
+                    alert :
+                    null
+                }
             </div>
         )
     }
@@ -360,6 +410,38 @@ export class NavigationView extends MainUI {
             <div className={"NavigationView"}>
                 {this.props.children}
             </div>
+        )
+    }
+}
+
+export class NavigationLink extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showComponent: false,
+        };
+        this._onNavigationLinkClick = this._onNavigationLinkClick.bind(this);
+    }
+
+    _onNavigationLinkClick() {
+        this.setState({
+            showComponent: true,
+        });
+    }
+
+    render() {
+        let {destination, font, padding, foregroundColor, spacing, frame, zIndex, action, ...other} = this.props;
+        return (
+            <>
+                <Button onClick={destination ? this._onNavigationLinkClick : ()=>{}} className={"NavigationLink"}
+                        style={this.setStyles()} {...other}>
+                    {this.props.children}
+                </Button>
+                {this.state.showComponent ?
+                    destination :
+                    null
+                }
+            </>
         )
     }
 }
@@ -396,6 +478,19 @@ export class MemriTextField extends MainUI {
         } = this.props;
         return (
             <TextField style={this.setStyles()} defaultValue={value} {...other}/>
+        )
+    }
+}
+
+export class SecureField extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex,
+            text, textColor, tintColor, clearButtonMode,
+            showPrevNextButtons, layoutPriority,
+            accentColor, background, cornerRadius, ...other
+        } = this.props;
+        return (
+            <TextField type="password" style={this.setStyles()} defaultValue={text} {...other}/>
         )
     }
 }
@@ -447,7 +542,7 @@ export class MemriDivider extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <Divider style={this.setStyles()} className="Spacer" {...other}/>
+            <Divider style={this.setStyles()} className="Divider" {...other}/>
         )
     }
 }
@@ -476,10 +571,12 @@ export class SectionHeader extends MainUI {
 
 export class Section extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {header, footer, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
             <div style={this.setStyles()} className="Section" {...other}>
+                {header ? header: ""}
                 {this.props.children}
+                {footer ? footer: ""}
             </div>
         )
     }
@@ -570,6 +667,86 @@ export class Toggle extends MainUI {
     }
 }
 
+export class MemriStepper extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <input type="number" {...other}/>
+        )
+    }
+}
+
+export class EmptyView extends MainUI {
+    render() {
+        return (
+            <div className="EmptyView">
+            </div>
+        )
+    }
+}
+
+export class Circle extends MainUI {
+    render() {
+        let {fill, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {width: "40px", height: "40px", borderRadius: "50%", backgroundColor: fill, alignItems: "center", justifyContent: "center"})
+        return (
+            <Box display="flex" style={style} className="Circle MuiAvatar-root MuiAvatar-circle" {...other}>
+                {this.props.children}
+            </Box>
+        )
+    }
+}
+
+export class MemriAlert extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {
+            open: true,
+        };
+        this.handleClose = this.handleClose.bind(this);
+    }
+
+    handleClose() {
+        this.setState({
+            open: false,
+        });
+    }
+
+    render() {
+        let {primaryButton, secondaryButton, title, message, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="Alert" {...other}>
+                <Dialog open={this.state.open} onClose={this.handleClose}>
+                    {title &&
+                    <DialogTitle>{title}</DialogTitle>
+                    }
+                    {message &&
+                    <DialogContentText>
+                        {message}
+                    </DialogContentText>
+                    }
+                    {(primaryButton || secondaryButton) &&
+                    <DialogActions>
+                        {primaryButton}
+                        {secondaryButton}
+                    </DialogActions>
+                    }
+                </Dialog>
+            </div>
+        )
+    }
+}
+
+export class Form extends MainUI {
+    render() {
+        return (
+            <div className="Form">
+                {this.props.children}
+            </div>
+        )
+    }
+}
 
 export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
     let frameObj = attrs;

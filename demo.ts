@@ -6,7 +6,6 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-error_marker";
 import "ace-builds/src-noconflict/ext-options";
 import "ace-builds/src-noconflict/ext-prompt";
-import {StatusBar} from "ace-builds/src-noconflict/ext-statusbar";
 import {Mode} from "./playground/cvu-mode";
 
 let DemoWorker = require("worker-loader!./demo-worker")
@@ -391,18 +390,18 @@ window.onbeforeunload = function() {
     saveMetadata();
 }
 
-import {settings} from "./memri/model/Settings"
+import {Settings} from "./memri/model/Settings"
 import {PodAPI} from "./memri/api/PodAPI"
 
 refs.podAddress.addEventListener("input", function() {
-    settings.set("user/pod/host", refs.podAddress.value);
-    localStorage["user/pod/host"] = settings.get("user/pod/host")
+    Settings.shared.set("user/pod/host", refs.podAddress.value);
+    localStorage["user/pod/host"] = Settings.shared.get("user/pod/host")
 })
 refs.podAddress.value = localStorage["user/pod/host"] || "http://localhost:3030/"
-settings.set("user/pod/host", refs.podAddress.value);
+Settings.shared.set("user/pod/host", refs.podAddress.value);
 
 import {mockApi} from "./playground/mockApi"
-var api = new PodAPI(null, mockApi);
+var api = new PodAPI(mockApi, mockApi);
  
  window.api = api
 
@@ -459,7 +458,7 @@ var cache;
 var cacheListeners;
 function listCVUDefinitions(callback) {
     cache = Object.create(null)
-    api.query({query: "CVUStoredDefinition"}, function(err, items) {
+    api.query({query: "CVUStoredDefinition"}, false,function(err, items) {
         if (err) return callback(err);
         items.forEach(function(item) {
             if (!item.definition || item.deleted) return;
@@ -500,9 +499,12 @@ function listCVUDefinitions(callback) {
         });
         callback(null, files)
         
-        if (cacheListeners.length)
+        if (cacheListeners && cacheListeners.length) {
             cacheListeners.forEach(x=>x())
-        cacheListeners.length = 0;
+            cacheListeners.length = 0;
+        }
+
+
     });
 }
 

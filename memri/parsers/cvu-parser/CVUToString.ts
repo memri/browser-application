@@ -52,13 +52,21 @@ export class CVUSerializer {
             } else if (typeof p.toCVUString === "function") {//TODO:
                 return p.toCVUString(depth, tab)
             } else if (p?.constructor?.name == "Item" && p.uid) {
-                return `{{ item(${p.genericType}, ${p.uid}) }}`
+                return `{{ item('${p.genericType}', ${p.uid}) }}`
             } else if (p?.constructor?.name == "ItemReference") {
                 let p1 = p?.resolve();
                 if (p1 && p1.uid)
-                    return `{{ item(${p1.genericType}, ${p1.uid}) }}`
+                    return `{{ item('${p1.genericType}', ${p1.uid}) }}`
             } else if (p?.constructor?.name == "Color") {
                 return String(p.toLowerCase().substr(0, 7));
+                /* TODO:
+                else if case let ColorDefinition.hex(hex) = p {
+				return "#\(hex.trimmingCharacters(in: CharacterSet(charactersIn: "#")))"
+            }
+            else if case let ColorDefinition.system(uiColor) = p {
+                return uiColor.hexString()
+            }
+                 */
             } else if (typeof p == "number") {//TODO: Double;
                 if (p % 1 == 0) {
                     return `${Number(p)}`

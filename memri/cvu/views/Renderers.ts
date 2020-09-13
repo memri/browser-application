@@ -11,7 +11,7 @@ import {UIElement, UIElementFamily} from "./UIElement";
 import {Cascadable} from "./Cascadable";
 import {registerListRenderer} from "../../gui/renderers/ListRendererView";
 import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
-import {Item} from "../../model/items/Item";
+import {Item, UUID} from "../../model/items/Item";
 import {FilterPanelRendererButton} from "./Action";
 import {UIElementView} from "../../gui/common/UIElementView";
 import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
@@ -23,6 +23,8 @@ import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "../../gui/
 import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRenderers/ThumbHorizontalGridRendererView";
 import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
 import {MemriDictionary} from "../../model/MemriDictionary";
+import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {registerEmailRenderers} from "../../gui/renderers/EmailRenderer/EmailThreadRenderer";
 
 export class Renderers {
     all = {}
@@ -59,6 +61,8 @@ export class Renderers {
         // registerCalendarRenderer()
         registerMessageRenderer()
         registerPhotoViewerRenderer()
+        // registerFileViewerRenderer()
+        registerEmailRenderers()
     }
     
     get tuples() {
@@ -71,8 +75,8 @@ export var allRenderers = new Renderers();
 //FilterPanelRendererButton moved to Action.ts
 
 class RenderGroup {
-    options = new MemriDictionary()
-    body: UIElement = null
+    options: MemriDictionary
+    body: UIElement
     
     constructor(dict: MemriDictionary) {
         if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
@@ -109,6 +113,9 @@ export class CascadingRenderConfig extends Cascadable {
     ) {
         super(head, tail, host)
     }
+
+    // Used for ui purposes. Random value that doesn't need to be persisted
+    ui_UUID = UUID()
     
     hasGroup(group) {
         let x = this.cascadeProperty(group)
@@ -177,6 +184,96 @@ export class CascadingRenderConfig extends Cascadable {
     }
 }
 
+//CommonRendererConfig.swift
+Object.defineProperty(CascadingRenderConfig.prototype, "primaryColor", {
+    get(): ColorDefinition {
+        return this.cascadeProperty("color") ?? new Color("systemBlue")
+    },
+    set(value) {
+        this.setState("color", value)
+    },
+})
+
+Object.defineProperty(CascadingRenderConfig.prototype, "backgroundColor", {
+    get() {
+        return this.cascadeProperty("background");
+    },
+    set(value) {
+        this.setState("background", value)
+    },
+})
+
+Object.defineProperty(CascadingRenderConfig.prototype, "spacing", {
+    get() {
+        let spacing = this.cascadeProperty("spacing");
+        if (spacing) {
+            return spacing;
+        }
+        /*else if let x: [Double?] = cascadeProperty("spacing") {
+                let spacingArray = x.compactMap { $0.map { CGFloat($0) } }
+                guard spacingArray.count == 2 else { return .zero }
+                return CGSize(width: spacingArray[0], height: spacingArray[1])
+            }*/
+        return 0;
+    },
+    set(value) {
+        this.setState("spacing", value)
+    }
+})
+
+Object.defineProperty(CascadingRenderConfig.prototype, "contextMenuActions", {
+    get() {
+        return this.cascadeList("contextMenu")
+    },
+    set(value) {
+        this.setState("contextMenu", value)
+    },
+})
+//TODO: edgeInsets
+/*var edgeInset: UIEdgeInsets {
+    get {
+        if let edgeInset = cascadePropertyAsCGFloat("edgeInset") {
+            return UIEdgeInsets(
+                top: edgeInset,
+                left: edgeInset,
+                bottom: edgeInset,
+                right: edgeInset
+        )
+        }
+    else if let x: [Double?] = cascadeProperty("edgeInset") {
+            let insetArray = x.compactMap { $0.map { CGFloat($0) } }
+            switch insetArray.count {
+                case 2: return UIEdgeInsets(
+                    top: insetArray[1],
+                    left: insetArray[0],
+                    bottom: insetArray[1],
+                    right: insetArray[0]
+                )
+                case 4: return UIEdgeInsets(
+                    top: insetArray[0],
+                    left: insetArray[3],
+                    bottom: insetArray[2],
+                    right: insetArray[1]
+                )
+                default: return .init()
+            }
+        }
+        return .init()
+    }
+    set(value) { setState("edgeInset", value) }
+}
+
+var nsEdgeInset: NSDirectionalEdgeInsets {
+    let edgeInset = self.edgeInset
+    return NSDirectionalEdgeInsets(
+        top: edgeInset.top,
+        leading: edgeInset.left,
+        bottom: edgeInset.bottom,
+        trailing: edgeInset.right
+)
+}*/
+//--------------------------
+
 //CascadingListConfig moved from ListRendererView.tsx
 export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRendererDefaults*/ {
     type = "list"
@@ -194,8 +291,8 @@ export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRende
     set slideRightActions(value) { this.setState("slideRightActions", value) }
 
     setDefaultValues(element: UIElement) {
-        if (element.properties["padding"] == undefined) {
-            element.properties["padding"] = [10, 10, 10, 20]
+        if (element.propertyResolver.properties["padding"] == undefined) {
+            element.propertyResolver.properties["padding"] = [10, 10, 10, 20]
         }
     }
 }
@@ -203,6 +300,14 @@ export class CascadingListConfig extends CascadingRenderConfig/*, CascadingRende
 //CascadingCustomConfig moved from CustomRenderer.tsx
 export class CascadingCustomConfig extends CascadingRenderConfig {
     type = "custom"
+
+    showSortInConfig: boolean = false
+
+    configItems(context: MemriContext) {
+        return []
+    }
+
+    showContextualBarInEditMode: boolean = false
 }
 
 //CascadingThumbnailConfig moved from ThumbnailRendererView.tsx
@@ -300,6 +405,14 @@ export class PhotoViewerRendererConfig extends CascadingRenderConfig {
 
     get imageFile() { return this.cascadeProperty("file") }
     get initialItem() { return this.cascadeProperty("initialItem") }
+
+    showSortInConfig: boolean = true
+
+    showContextualBarInEditMode: boolean = false
+
+    configItems(context: MemriContext) {
+        return []
+    }
 }
 
 export class CascadingGeneralEditorConfig extends CascadingRenderConfig {
@@ -330,5 +443,21 @@ export class CascadingGeneralEditorConfig extends CascadingRenderConfig {
             .map((dict) => {
                 return new GeneralEditorLayoutItem(dict, this.viewArguments)
             })
+    }
+
+    showSortInConfig: boolean = false
+
+    showContextualBarInEditMode: boolean = false
+
+    configItems(context: MemriContext) {
+        return []
+    }
+}
+
+export class CascadingEmailThreadRendererConfig extends CascadingRenderConfig {
+    type = "email"
+
+    get content() {
+        return this.cascadeProperty("content", "Expression")
     }
 }

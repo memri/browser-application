@@ -1,4 +1,4 @@
-import {getItemType} from "./items/Item";
+import {Edge, getItemType, SchemaItem} from "./items/Item";
 
 export class Realm {
     db;
@@ -11,20 +11,15 @@ export class Realm {
     objects(type?) {
         let realmObjects = new RealmObjects();
         if (type) {
-            realmObjects.push(...this.db.filter((item) => item["_type"] == type).map((item) => {
-                return new (getItemType(item["_type"]))(item)}));
+            realmObjects.push(...this.db.filter((item) => item["_type"] == type));
             return realmObjects
         }
-        realmObjects.push(...this.db.map((item) => new (getItemType(item["_type"]))(item)));
+        realmObjects.push(...this.db);
         return realmObjects;
     }
 
-    objectForPrimaryKey(type, key) {
-        let obj = this.db.filter((item) => item["_type"] == type && item["uid"] && item["uid"] == key);
-        if (obj.length > 0) {
-            let objType = obj[0]["_type"];
-            return new (getItemType(objType))(obj[0]);
-        }
+    objectForPrimaryKey(type, key, primaryKey="uid") {//TODO: while we don't have objectSchema
+        return this.db.find((item) => item["_type"] == type && item[primaryKey] && item[primaryKey] == key);
     }
 
     create(type, properties) {
@@ -36,11 +31,42 @@ export class Realm {
         return this.db[this.db.length - 1];
     }
 
+    add(obj, update = true) {
+        if (update) {
+            let item = this.objectForPrimaryKey(obj["_type"], obj.uid);
+            if (item) {
+                for (let prop in obj) {
+                    if (obj.hasOwnProperty(prop))
+                        item[prop] = obj[prop];
+                }
+            } else {
+                if (obj instanceof SchemaItem || obj instanceof Edge) {
+                    this.db.push(obj);
+                } else {
+                    this.db.push(new (getItemType(obj["_type"]))(obj));
+                }
+            }
+        } else {
+            this.db.push(new (getItemType(obj["_type"]))(obj));
+        }
+    }
+
     write(callback) {
         callback();
     }
     delete(obj) {
-       //TODO:
+        /*if (obj["allEdges"] && obj["allEdges"].length > 0) {
+            let edgesIndexes = [];
+
+            obj["allEdges"].forEach((edge) => {
+                edgesIndexes.unshift(this.db.findIndex((item) => item["uid"] && item["uid"] == edge["uid"]));
+            });
+            edgesIndexes.forEach((index) => {
+                this.db.splice(index, 1);
+            })
+        }*/ //TODO: will do when it's neccessary
+        const index = this.db.indexOf(obj);
+        this.db.splice(index, 1);
     }
     objectSchema() {
 
@@ -57,15 +83,17 @@ export class RealmObjects extends Array {
 
     filtered(query: string) {
         if (query.indexOf("ANY") > -1) { //TODO:
+            let notQuery = (query.indexOf("NOT ANY") > -1);
             if (/(?<=^|\s)ANY\s([.\w]+)\s*=\s*(\w+|('[^']*'))$/g.test(query)) {
-                let parts = query.split(/(?:AND )?ANY/);
+                let parts = query.split(/(?:AND )?(?:NOT )?ANY/i);
                 query=parts[0];
-                var anyQuery = parts[1].replace(/\s([\w]+)\.(\w+)\s*=\s*(\w+|('[^']*'))/,"item['$1'].some((el)=> el['$2'] == $3)");
+                let replace = notQuery? "item['$1'].some((el)=> el['$2'] != $3)" : "item['$1'].some((el)=> el['$2'] == $3)";
+                var anyQuery = parts[1].replace(/\s([\w]+)\.(\w+)\s*=\s*(\w+|('[^']*'))/, replace);
                 var result = this.filter(new Function("item", "return " + anyQuery))
             }
         }
         //TODO: we need parse query, not eval it... "selector = '[sessions = defaultSessions]'"
-        let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)(\w+)\s*=\s*(\w+|('[^']*'))/g,"item['$1'] == $2").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
+        let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)([_\w]+)\s*(!?=)\s*(\w+|('[^']*'))/g,"item['$1'] $2= $3").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
         if (!result)
             result = this;
         return result.filter(new Function("item", "return " + newquery))

@@ -20,7 +20,7 @@
 import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/items/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CVUParsedDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {settings} from "../model/Settings";
+import {Settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/PodAPI";
 import {Expression} from "../parsers/expression-parser/Expression";
@@ -28,12 +28,13 @@ import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
 import {Sessions} from "../sessions/Sessions";
 import {Installer} from "../install/Installer";
 import {IndexerAPI} from "../api/IndexerAPI";
-import {MainNavigation} from "../gui/navigation/MainNavigation";
+import {MainNavigation} from "../model/MainNavigation";
 import {Renderers} from "../cvu/views/Renderers";
 import {CacheMemri} from "../model/Cache";
 import {Realm} from "../model/RealmLocal";
 import {ViewArguments} from "../cvu/views/CascadableDict";
 import {MemriDictionary} from "../model/MemriDictionary";
+import {DatabaseController} from "../storage/DatabaseController";
 
 export var globalCache
 
@@ -129,16 +130,15 @@ export class MemriContext {
 
 
 
-	scheduleUIUpdate(immediate =  false, check?) { // Update UI
-		if (immediate) {
+	scheduleUIUpdate(updateWithAnimation =  false, check?) { // Update UI
+		if (updateWithAnimation) {
 			if (typeof this.showNavigationBinding == "function")
 				this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
-			// #warning("@Toby how can we prevent the uiUpdateSubject from firing immediate after this?")
 
-			// Do this straight away, usually for the sake of correct animation
-			// DispatchQueue.main.async(() => {
-				// Update UI
-				// this.objectWillChange.send()
+			// DispatchQueue.main.async(() => {//TODO
+			//		withAnimation {
+			// 			this.objectWillChange.send()
+			//		}
 			// })
 			return
 		}
@@ -147,6 +147,7 @@ export class MemriContext {
 			if (!check(this)) { return }
 		}
 
+		// Queue an update
 		//this.uiUpdateSubject.send() TODO
 	}
 
@@ -330,7 +331,9 @@ export class MemriContext {
 			let x = newValue
 			if (typeof x === "boolean") { x ? (alias.on && alias.on()) : (alias.off && alias.off()) }
 
-			this.scheduleUIUpdate(true)
+			let shouldAnimate = (propName == "showNavigation")
+
+			this.scheduleUIUpdate(shouldAnimate)
 		} else {
 			console.log(`Cannot set property ${propName}, does not exist on context`)
 		}
@@ -365,7 +368,6 @@ export class MemriContext {
 
 	setSelection(selection: Item[]) {
 		this.currentView?.userState.set("selection", selection)
-		this.scheduleUIUpdate()
 	}
 
 	constructor(
@@ -392,8 +394,10 @@ export class MemriContext {
 		this.indexerAPI = indexerAPI
 
 		// TODO: FIX
-		this.currentView?.context = this
-		this.indexerAPI?.context = this
+		if (this.currentView)
+			this.currentView.context = this
+		if (this.indexerAPI)
+			this.indexerAPI.context = this
 
         // Setup update publishers //TODO
 		/*this.uiUpdateCancellable = uiUpdateSubject
@@ -498,10 +502,10 @@ export class MemriContext {
 					finalValue = new ViewArguments(dict).resolve(item, viewArgs)
 				}
 				else if (action.argumentTypes[argName] == "ItemFamily") {
-					finalValue = this.getItem(Expression.resolve(dict, viewArguments), item)
+					finalValue = this.getItem(Expression.resolve(dict, viewArgs), item)
 				} //TODO:
 				else if (action.argumentTypes[argName] == "CVUStateDefinition") {
-					let viewDef = new CVUParsedViewDefinition("[view]")
+					let viewDef = new CVUParsedViewDefinition(`[${argName}]`)
 					viewDef.parsed = dict
 					finalValue = CVUStateDefinition.fromCVUParsedDefinition(viewDef)
 				}
@@ -541,13 +545,21 @@ export class MemriContext {
 		}
 
 		// Last element of arguments array is the context data item
-		args["item"] = item ?? this.currentView?.resultSet.singletonItem
+		if (args["item"] == undefined) {
+			args["item"] = item ?? this.currentView?.resultSet.singletonItem
+		}
 
 		return args
 	}
 
 	getItem(dict, dataItem?: Item) {
-		// TODO: refactor: move to function
+		let realm = DatabaseController.getRealmSync()
+
+		if (!dict) {
+			throw "Missing properties"
+		}
+
+
 		let stringType = dict && dict["_type"];
 		if (typeof stringType != "string") {
 			throw "Missing type attribute to indicate the type of the data item"
@@ -560,13 +572,34 @@ export class MemriContext {
 		if (!ItemType) {
 			throw `Cannot find family ${stringType}`
 		}*/
-		var values = dict ?? {}
-		if (typeof dict["uid"] != "number") {
-			delete values["uid"]
-		}
-		delete values["_type"]
+		var values = new MemriDictionary()
+		var edges = new MemriDictionary()
 
-		return CacheMemri.createItem(family, values)
+		for (let [key, value] of Object.entries(dict)) {
+			if (key == "_type" || key == "uid") { continue }
+			// if (schema[key] != nil) { values[key] = value }//TODO
+			else if (value.constructor.name == "Item") { edges[key] = value }
+			else if (Array.isArray(value) && value[0].constructor.name == "Item") { edges[key] = value }
+			else {
+				values[key] = value
+				// throw `Passed invalid value as ${key}`//TODO
+			}
+		}
+
+		let item = CacheMemri.createItem(family, values)
+
+		for (let [edgeType, value] of Object.entries(edges)) {
+			if (Array.isArray(value) && value[0].constructor.name == "Item") {
+				for (let target of value) {
+					item.link(target, edgeType)
+				}
+			}
+			else if (value.constructor.name == "Item") {
+				item.link(value, edgeType, null, null, true)
+			}
+		}
+
+		return item
 	}
 }
 
@@ -605,8 +638,8 @@ export class RootContext extends MemriContext {
 
 	// TODO: Refactor: Should installer be moved to rootmain?
 
-	constructor(name: string, key: string)  {
-		let podAPI = new PodAPI(undefined, key) //TODO: for now
+	constructor(name: string)  {
+		let podAPI = new PodAPI(undefined) //TODO: for now
 		let cache = new CacheMemri(podAPI)
 		let views = new Views()
 
@@ -616,7 +649,7 @@ export class RootContext extends MemriContext {
 			name,
 			podAPI,
 			cache,
-			settings,
+			new Settings(),
 			new Installer(),
 			new Sessions(undefined,true),
 			views,
@@ -624,8 +657,8 @@ export class RootContext extends MemriContext {
 			new Renderers(),
 			new IndexerAPI()
 		)
-
-		this.currentView?.context = this
+		if (this.currentView)
+			this.currentView.context = this
 
 		// TODO: Refactor: This is a mess. Create a nice API, possible using property wrappers
 		// Optimize by only doing this when a property in session/view/dataitem has changed
@@ -648,39 +681,74 @@ export class RootContext extends MemriContext {
 	}
 
 	boot(isTesting:boolean = false, callback?) {
-		//#if (targetEnvironment(simulator)
-		if (!isTesting) {
-			// Reload for easy adjusting
-			this.views.context = this
-			this.views.install()
-			//this.sessions.install(this);
+		let doBoot = () => {
+			try {
+				// Load views configuration
+				this.views.load(this)
+
+				// Stop here is we're testing
+				if (isTesting) {
+					callback && callback(undefined)
+					return
+				}
+
+				// Load session
+				this.sessions.load(this)
+
+				// Update view when sessions changes
+				/*this.cancellable = this.sessions.objectWillChange.sink(function () {
+                    this.scheduleUIUpdate()
+                })*/
+
+				// Load current view
+				this.currentSession?.setCurrentView()
+
+				// Start syncing
+				this.cache.sync.load()
+
+				callback && callback(undefined)
+			} catch (error) {
+				callback && callback(error)
+			}
 		}
-		//	#endif*/
 
-		// Load views configuration
-		this.views.load(this, () => {
-			if (isTesting) { return }
-			// Load session
-			this.sessions.load(this)
+		if (!isTesting) {
+			DatabaseController.clean((error) => {
+				// DispatchQueue.main.async {//TODO
+					if (error) {
+						callback(error)
+						return
+					}
 
-			// Update view when sessions changes
-			/*this.cancellable = this.sessions.objectWillChange.sink(function () {
-				this.scheduleUIUpdate()
-			})*/
+					// #if targetEnvironment(simulator)
+					// Reload for easy adjusting
+					this.views.context = this
 
-			// Load current view
-			this.currentSession?.setCurrentView()
+					this.views.install(null, (error) => {//TODO
+						// DispatchQueue.main.async {
+							if (error) {
+								callback(error)
+								return
+							}
 
-			callback && callback()
-		})
+							doBoot()
+						// }
+					})
+					// #else
+					doBoot()
+					// #endif
+				// }
+			})
+		}
+		else {
+			doBoot()
+		}
+
+
 	}
 
 	mockBoot() {
-		try {
-			this.boot()
-			return this
-		} catch (error) { console.log(error) }
-
+		this.boot(false, function(){})
 		return this
 	}
 }

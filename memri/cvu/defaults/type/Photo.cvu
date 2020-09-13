@@ -10,29 +10,30 @@
 Photo {
     title: "Photo"
     defaultRenderer: thumbnail
-     [datasource = pod] {
-        query: "photo"
-        sortProperty: dateModified
-        sortAscending: false
-    },
-    emptyResultText: "No photo found",
+    emptyResultText: "No photo found"
     
     editActionButton: toggleEditMode
-    filterButtons: [ showStarred toggleFilterPanel ]
+    filterButtons: showStarred toggleFilterPanel
+    
+    [datasource = pod] {
+        query: "Photo"
+        sortProperty: dateModified
+        sortAscending: false
+    }
     
     [renderer = thumbnail] {
         spacing: 1
         column: 1
         edgeInset: 0 0 0 0
         Image {
-            image: {{.file}} /* ALLOW BOTH STRINGS AND FILES*/
+            image: {{.file}} /* TODO: ALLOW BOTH STRINGS AND FILES*/
             resizable: fill
             background: #AAA
         }
     }
 }
 
-Photo[]: {
+Photo[] {
     title: "All Photos"
     editActionButton: toggleEditMode
     filterButtons: showStarred toggleFilterPanel
@@ -44,7 +45,7 @@ Photo[]: {
         sortAscending: false
     }
 
-    defaultRenderer: thumbnail
+    defaultRenderer: thumbnail.grid
 
     [renderer = thumbnail] {
         spacing: 1
@@ -76,6 +77,11 @@ Photo[]: {
 		}
 	}
 	
+    [renderer = fileViewer] {
+        file: {{.file}}
+        itemTitle: {{.caption}}
+        initialItem: {{currentItem}}
+    }
 	
 	[renderer = photoViewer] {
 		file: {{.file}}
@@ -83,18 +89,21 @@ Photo[]: {
 		
 		VStack {
 			padding: 10
+/*            show: {{.caption != ""}}*/ /* TODO: THIS BREAKS PHOTO LOADING */
+            
 			VStack {
 				spacing: 5
 				padding: 12
 				background: #FFFFFF
 				cornerRadius: 5
+                
 				Text {
 					text: "{.caption}"
 					font: 18 bold
 				}
-				Text {
-					text: "Photo taken: {.dateCreated}"
-				}
+/*				Text {*/
+/*					text: "Photo taken: {.dateCreated}"*/
+/*				}*/
 			}
 		}
 	}

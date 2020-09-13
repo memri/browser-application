@@ -77,7 +77,7 @@ export class GeneralEditorLayoutItem {
                 value = expr.execute(this.viewArguments)
             } catch (error) {
                 // TODO: Refactor error handling
-                debugHistory.error(`Could note compute layout property ${propName}\n`
+                debugHistory.error(`Could not compute layout property ${propName}\n`
                     + `Arguments: [${this.viewArguments?.description ?? ""}]\n`
                     + (expr.startInStringMode
                         ? `Expression: "${expr.code}"\n`
@@ -333,8 +333,7 @@ export class GeneralEditorSection extends MainUI {
             </>
         );
         return (
-            <Section>
-                {header}
+            <Section header={header}>
                 {!isEmpty ? content: ""}
             </Section>
 
@@ -342,7 +341,7 @@ export class GeneralEditorSection extends MainUI {
     }
 
     getProperties(item: Item, used) { //TODO:
-        return Object.keys(item).filter(($0) => {
+        return Object.keys(item.objectSchema.properties).filter(($0) => {
             return !used.includes($0)
             /*&& !$0.isArray*/
         }).map(($0) => $0)
@@ -460,7 +459,7 @@ class DefaultGeneralEditorRow extends MainUI {
         this.argumentsJs = this.props.argumentsJs;
 
         // Get the type from the schema, because when the value is nil the type cannot be determined
-        let propType = this.item[this.prop]; //TODO:
+        let propType = this.item.objectSchema.properties[this.prop]; //TODO:
         let propValue = this.item.get(this.prop);
         return (
             <VStack spacing={0}>

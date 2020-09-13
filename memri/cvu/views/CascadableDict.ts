@@ -4,7 +4,7 @@
 
 import {Expression} from "../../parsers/expression-parser/Expression";
 import {Cascadable} from "./Cascadable";
-import {ItemReference} from "../../model/DatabaseController";
+import {ItemReference} from "../../storage/DatabaseController";
 import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
 import {Item} from "../../model/items/Item";
 import {MemriDictionary} from "../../model/MemriDictionary";
@@ -121,7 +121,8 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 		//       Currently the assumption is that tails never change.
 		//       If they do, a copy is required
 
-		this.head.parsed = Expression.resolve(this.head.parsed, viewArguments, true)
+		let args = new ViewArguments(viewArguments, item)
+		this.head.parsed = Expression.resolve(this.head.parsed, args, true)
 		this.set(".", item)
 
 		return this

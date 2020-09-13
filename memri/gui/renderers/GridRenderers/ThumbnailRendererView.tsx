@@ -15,7 +15,7 @@ import {
     ZStack
 } from "../../swiftUI";
 import * as React from "react";
-import {Alignment, Font} from "../../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../../parsers/cvu-parser/CVUParser";
 import {Grid} from "@material-ui/core";
 
 export var registerThumbnailRenderer = function () {
@@ -104,6 +104,19 @@ export class ThumbnailRendererView extends RenderersMemri {
         })
     }
 
+    /*func contextMenuProvider(index: Int, item: Item) -> UIContextMenuConfiguration? {
+    let children: [UIMenuElement] = self.renderConfig.contextMenuActions.map { [weak context] action in
+    UIAction(title: action.getString("title"),
+    image: nil) { [weak context] (_) in
+    context?.executeAction(action, with: item)
+}
+}
+guard !children.isEmpty else { return nil }
+return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (suggested) -> UIMenu? in
+    return UIMenu(title: "", children: children)
+}
+}*/
+
     /*var section: ASCollectionViewSection<Int> {
         ASCollectionViewSection(id: 0,
                                 data: context.items,
@@ -156,7 +169,7 @@ export class ThumbnailRendererView extends RenderersMemri {
                         <Spacer/>
                     </>
                     :
-                    <ASCollectionView alwaysBounceVertical={true} >
+                    <ASCollectionView alwaysBounceVertical={true} background={this.renderConfig.backgroundColor?.color ?? new Color("systemBackground")}>
                         {this.section}
 
                     </ASCollectionView>}
