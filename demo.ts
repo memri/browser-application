@@ -410,11 +410,46 @@ listBox.popup.setData([{value:  "Connect to pod to load data"}]);
 function sortFn(a, b) {
     return a.name.localeCompare(b.name);
 }
+function showDialog() {
+    dom.buildDom(["div", {style: `
+                    margin: 0;
+                    padding: 4px 6px 0 4px;
+                    position: fixed;
+                    top:0; 
+                    bottom:0; 
+                    left:500px; 
+                    right:0;
+                    z-index: 9990;
+                    background-color: #ddd;
+                    color: #666;
+                    border: 1px solid #cbcbcb;
+                    border-top: 0 none;
+                    overflow: hidden;
+                    white-space: normal;
+                    width: 400px;
+                    height: 100px;
+                `},
+        ["div", {}, [
+            ["label", {for: "databaseKey"}, "databaseKey"],
+            ["input", {id: "databaseKey", class: "", name: "databaseKey"}],
+        ]],
+        ["div", {}, [
+            ["label", {for: "userKey"}, "userKey"],
+            ["input", {id: "userKey", class: "", name: "userKey"}],
+        ]],
+        ["div", {}, [
+            ["button", {}, "ok"],
+        ]],
+
+    ], document.body);
+}
 function updateTree() {
     listCVUDefinitions(function(err, files) {
         if (err) {
-            console.error(err)
-            return alert("Could not connect to pod: " + err.message)
+            // console.error(err)
+            // return alert("Could not connect to pod: " + err.message)
+            showDialog()
+            return
         }
         var selected = listBox.popup.getData(listBox.popup.getRow());
         var data = [{className: "header", name: "User"}].concat(
