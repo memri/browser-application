@@ -7,8 +7,8 @@
 //
 
 import {DatabaseController} from "../storage/DatabaseController";
-import {CVUParsedSessionsDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {EdgeSequencePosition, CVUStateDefinition} from "../model/items/Item";
+import {CVUParsedSessionsDefinition} from "../cvu/parsers/cvu-parser/CVUParsedDefinition";
+import {EdgeSequencePosition, CVUStateDefinition} from "../model/schemaExtensions/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "../model/Cache";
 import {Session} from "./Session";
@@ -27,7 +27,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     uid
     parsed?: CVUParsedSessionsDefinition
     get state() {
-		return DatabaseController.current(false,(realm) => {
+		return DatabaseController.sync(false,(realm) => {
             return realm.objectForPrimaryKey("CVUStateDefinition", this.uid);
         })
     }
@@ -72,7 +72,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         /*this.persistCancellable = persistSubject
             .throttle(for: .milliseconds(300), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] in
-                DatabaseController.background { _ in
+                DatabaseController.asyncOnBackgroundThread { _ in
                     try self?.persist()
                 }
             }*/ //TODO: wtf?
@@ -92,7 +92,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         this.context = context
         this.sessions = []
 
-        DatabaseController.tryCurrent(false, (realm) => {
+        DatabaseController.trySync(false, (realm) => {
             console.log(realm.objects("CVUStateDefinition"));
             let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
             if (state) {
@@ -115,7 +115,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                 // Or if the sessions are encoded in the definition
                 else if (Array.isArray(p.get("sessionDefinitions")) && p.get("sessionDefinitions").length > 0 && p.get("sessionDefinitions")[0]?.constructor?.name == "CVUParsedSessionDefinition") {
                     let parsedSessions = p.get("sessionDefinitions");
-                    DatabaseController.tryCurrent(true, () => {
+                    DatabaseController.trySync(true, () => {
                         for (let parsed of parsedSessions) {
                             let sessionState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
                             state.link(sessionState, "session", EdgeSequencePosition.last);
@@ -196,7 +196,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
         }
     
     persist(state) {
-        DatabaseController.tryCurrent (false, (realm)=>{
+        DatabaseController.trySync (false, (realm)=>{
             //var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored sessions CVU. Creating a new one.")
@@ -227,7 +227,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     }
 
 	install(context: MemriContext, callback) {
-        DatabaseController.current(true, callback, (realm)=>{
+        DatabaseController.asyncOnCurrentThread(true, callback, (realm)=>{
             let templateQuery = "selector = '[sessions = defaultSessions]'";
             let template = realm.objects("CVUStoredDefinition").filtered(templateQuery)[0];
             let parsed = context.views.parseDefinition(template);

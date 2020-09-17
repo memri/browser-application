@@ -2,7 +2,7 @@
 // MessageRenderer.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {allRenderers, CascadingMessageRendererConfig} from "../../cvu/views/Renderers";
+import {allRenderers, CascadingMessageRendererConfig} from "./Renderers";
 import {
     ASTableView,
     font,
@@ -18,7 +18,7 @@ import {
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import * as React from "react";
 import {ListItem} from "@material-ui/core";
-import {Alignment, Color, Font, TextAlignment} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font, TextAlignment} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {FontDefinition} from "../../cvu/views/CVUPropertyResolver";
 import {MemriFittedTextEditor} from "../components/MemriFittedTextEditor/MemriFittedTextEditor";
 

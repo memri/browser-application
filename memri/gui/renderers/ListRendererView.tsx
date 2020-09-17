@@ -3,8 +3,8 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {allRenderers, CascadingListConfig} from "../../cvu/views/Renderers";
-import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
+import {allRenderers, CascadingListConfig} from "./Renderers";
+import {Alignment, Color, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {ActionDelete, ActionOpenView} from "../../cvu/views/Action";
 import {
 	ASTableView,

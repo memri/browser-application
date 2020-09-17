@@ -31,8 +31,8 @@
 //        }
 //    }
 
-import {ActionFamily, ActionProperties, validateActionType} from "../../cvu/views/Action";
-import {UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../cvu/views/UIElement";
+import {ActionFamily, ActionProperties, validateActionType} from "../../views/Action";
+import {UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../views/UIElement";
 
 export class CVUValidator {
     // Based on keyword when its added to the dict

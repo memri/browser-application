@@ -19,7 +19,7 @@ import {
     MemriAlert, SecureField, Form
 } from "../gui/swiftUI";
 import * as React from "react";
-import {Alignment, Font} from "../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../cvu/parsers/cvu-parser/CVUParser";
 import {MemriContext} from "../context/MemriContext";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
@@ -66,6 +66,13 @@ export class SetupWizard extends MainUI {
         let buttonForLocalInstall = () => {
             this.context.installer.installLocalAuthForLocalInstallation(this.context, true, (error) => {
                 error && error.map(($0) => debugHistory.error(`${$0}`))// TODO: show this to the user
+            })
+        }
+
+        let buttonForDemoInstall = () => {
+            this.context.installer.installDemoDatabase(this.context, () => {
+                this.context.settings.set("user/pod/host", "")
+                this.context.installer.ready(this.context)
             })
         }
 
@@ -208,6 +215,9 @@ export class SetupWizard extends MainUI {
                         </MemriText>}>
                             <MemriRealButton action={buttonForLocalInstall}>
                                 <MemriText>Use memri without a pod</MemriText>
+                            </MemriRealButton>
+                            <MemriRealButton action={buttonForDemoInstall}>
+                                <MemriText>Play around with the DEMO database</MemriText>
                             </MemriRealButton>
                         </Section>
                     </>

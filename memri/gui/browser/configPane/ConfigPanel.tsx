@@ -17,10 +17,10 @@ import {
     MemriTextField, NavigationLink,
     NavigationView, padding, Toggle,
     VStack
-} from "../swiftUI";
-import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
-import {MemriButton} from "../common/MemriButton";
-import {Expression} from "../../parsers/expression-parser/Expression";
+} from "../../swiftUI";
+import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {MemriButton} from "../../common/MemriButton";
+import {Expression} from "../../../cvu/parsers/expression-parser/Expression";
 import {ConfigItem, ConfigItemType, getSupportedRealmTypes, PossibleExpression, SpecialTypes} from "./ConfigPanelModel";
 require("../../extension/common/string");
 
@@ -62,7 +62,7 @@ export class ConfigPanel extends MainUI {
     get noConfigItem() {
         if (this.showSortItem) {
             return <ConfigPanelSortView context={this.context}/>
-        } else {
+        } else {//.navigationBarItems(trailing: EmptyView())
             return <MemriText padding foregroundColor={new Color("secondaryLabel").toLowerCase()} multilineTextAlignment={Alignment.center}>
                 {"No configurable settings"}
             </MemriText>

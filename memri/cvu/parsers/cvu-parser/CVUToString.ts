@@ -4,7 +4,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import {HorizontalAlignment, Alignment, Color, VerticalAlignment, TextAlignment, Font, CGFloat} from "./CVUParser";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {MemriDictionary} from "../../../model/MemriDictionary";
 
 //function UIElement() {}
 

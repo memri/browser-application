@@ -3,7 +3,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 
-import {allRenderers, CascadingThumbnailConfig} from "../../../cvu/views/Renderers";
+import {allRenderers, CascadingThumbnailConfig} from "../Renderers";
 import {
     ASCollectionView,
     font,
@@ -16,7 +16,7 @@ import {
     ZStack
 } from "../../swiftUI";
 import * as React from "react";
-import {Alignment, Color, Font} from "../../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
 import {Grid} from "@material-ui/core";
 
 export var registerThumbHorizontalGridRenderer = function () {

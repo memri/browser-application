@@ -14,7 +14,7 @@ import {
 	VStack
 } from "../swiftUI";
 import {ActionNoop} from "../../cvu/views/Action";
-import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {ActionButton} from "../ActionView";
 
 export class ContextPaneForeground extends MainUI {

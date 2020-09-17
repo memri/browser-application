@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import {MainUI, ZStack} from "../swiftUI";
-import {Alignment} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {ContextPaneBackground} from "./ContextPaneBackground";
 import {ContextPaneForeground} from "./ContextPaneForeground";
 import {geom} from "../../../demo-react";

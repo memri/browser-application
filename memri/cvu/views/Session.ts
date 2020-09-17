@@ -7,7 +7,7 @@
 
 import {jsonDataFromFile, MemriJSONDecoder, realmWriteIfAvailable} from "../../gui/util";
 import {SessionView} from "./SessionView";
-import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {DataItem} from "../../model/DataItem";
 import {Views} from "./Views";
 

@@ -4,7 +4,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {CVUSerializer} from "../parsers/cvu-parser/CVUToString";
 import {
 	Alignment,
 	CGFloat,
@@ -12,9 +12,9 @@ import {
 	HorizontalAlignment,
 	TextAlignment,
 	VerticalAlignment
-} from "../../parsers/cvu-parser/CVUParser";
+} from "../parsers/cvu-parser/CVUParser";
 import {debugHistory} from "./ViewDebugger";
-import {dataItemListToArray, UUID} from "../../model/items/Item";
+import {dataItemListToArray, UUID} from "../../model/schemaExtensions/Item";
 import {ViewArguments} from "./CascadableDict";
 import {MemriDictionary} from "../../model/MemriDictionary";
 import {CVUPropertyResolver} from "./CVUPropertyResolver";
@@ -61,7 +61,7 @@ export class UIElement /*extends CVUToString */{
 						let list = x
 						if (Array.isArray(list) && list.length > 0 && list[0]?.constructor?.name == "Edge") {//TODO
 							for (var edge of list) {
-								let d = edge.item()
+								let d = edge.target()
 								if (d) {
 									result.push(d)
 								}
@@ -194,8 +194,10 @@ export enum UIElementFamily {
 	Empty = "Empty",
 	TimelineItem = "TimelineItem",
 	MessageBubble = "MessageBubble",
+	EmailContent = "EmailContent",
 	EmailHeader = "EmailHeader",
-	SmartText = "SmartText"
+	SmartText = "SmartText",
+	Toggle = "Toggle"
 }
 
 export enum UIElementProperties {

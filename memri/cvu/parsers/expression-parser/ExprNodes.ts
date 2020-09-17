@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {debugHistory} from "../../cvu/views/ViewDebugger";
+import {debugHistory} from "../../views/ViewDebugger";
 
 interface ExprNode {
     toExprString()

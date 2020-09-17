@@ -22,13 +22,13 @@ import {
     VStack,
     ZStack
 } from "../swiftUI";
-import {CVUStateDefinition, Item} from "../../model/items/Item";
+import {CVUStateDefinition, Item} from "../../model/schemaExtensions/Item";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import * as React from "react";
 import {UIElementFamily} from "../../cvu/views/UIElement";
-import {Alignment, Color, CVUParser, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, CVUParser, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {Action, ActionUnlink} from "../../cvu/views/Action";
-import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedViewDefinition} from "../../cvu/parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
 import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";

@@ -4,8 +4,8 @@
 
 import {EmptyView, font, Group, HStack, MainUI, MemriText, padding} from "../swiftUI";
 import * as React from "react";
-import {backgroundColor, foregroundColor, ItemFamily} from "../../model/items/Item";
-import {Font, Color} from "../../parsers/cvu-parser/CVUParser";
+import {backgroundColor, foregroundColor, ItemFamily} from "../../model/schemaExtensions/Item";
+import {Font, Color} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {me} from "../util";
 require("../../extension/common/string");
 

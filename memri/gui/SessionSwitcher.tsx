@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import {font, frame, HStack, MainUI, offset, padding, ZStack} from "./swiftUI";
-import {Alignment} from "../parsers/cvu-parser/CVUParser";
+import {Alignment} from "../cvu/parsers/cvu-parser/CVUParser";
 import {ActionButton} from "./ActionView";
 import {ActionShowSessionSwitcher} from "../cvu/views/Action";
 

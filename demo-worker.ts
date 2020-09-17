@@ -6,8 +6,8 @@ importScripts(require("file-loader?esModule=false!ace-builds/src-noconflict/work
 
 
 
-import {ExprParser} from "./memri/parsers/expression-parser/ExprParser"
-import {ExprLexer} from "./memri/parsers/expression-parser/ExprLexer"
+import {ExprParser} from "./memri/cvu/parsers/expression-parser/ExprParser"
+import {ExprLexer} from "./memri/cvu/parsers/expression-parser/ExprLexer"
 
 
 
@@ -16,10 +16,10 @@ var tokens = new ExprLexer("true ? x : false").tokenize()
 new ExprParser(tokens).parse()
 
 
-import {CVUValidator} from "./memri/parsers/cvu-parser/CVUValidator"
-import {CVUParser} from "./memri/parsers/cvu-parser/CVUParser"
-import {CVULexer} from "./memri/parsers/cvu-parser/CVULexer"
-import {CVUSerializer} from "./memri/parsers/cvu-parser/CVUToString";
+import {CVUValidator} from "./memri/cvu/parsers/cvu-parser/CVUValidator"
+import {CVUParser} from "./memri/cvu/parsers/cvu-parser/CVUParser"
+import {CVULexer} from "./memri/cvu/parsers/cvu-parser/CVULexer"
+import {CVUSerializer} from "./memri/cvu/parsers/cvu-parser/CVUToString";
 
 
 import {parseCVU} from "./playground/parser/cvu";

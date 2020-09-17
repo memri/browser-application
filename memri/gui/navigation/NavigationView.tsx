@@ -6,7 +6,7 @@
 //
 
 import * as React from 'react';
-import {Alignment, Color, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {ActionOpenSessionByName} from "../../cvu/views/Action";
 import {
 	frame,

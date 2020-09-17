@@ -2,9 +2,9 @@
 // GeneralEditorView.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {allRenderers, CascadingGeneralEditorConfig} from "../../cvu/views/Renderers";
+import {allRenderers, CascadingGeneralEditorConfig} from "./Renderers";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
-import {Item, UUID} from "../../model/items/Item";
+import {Item, UUID} from "../../model/schemaExtensions/Item";
 import {
     font,
     frame,
@@ -19,12 +19,12 @@ import {
     VStack
 } from "../swiftUI";
 import * as React from "react";
-import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {ActionButton} from "../ActionView";
 import {ItemCell} from "../common/ItemCell";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import {ActionOpenViewByName, RenderType} from "../../cvu/views/Action";
-import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
+import {ExprInterpreter} from "../../cvu/parsers/expression-parser/ExprInterpreter";
 import {MemriButton} from "../common/MemriButton";
 import {MemriDictionary} from "../../model/MemriDictionary";
 require("../../extension/common/string");

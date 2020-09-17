@@ -3,7 +3,7 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import {MemriDictionary} from "../../model/MemriDictionary";
-import {Font} from "../../parsers/cvu-parser/CVUParser";
+import {Font} from "../parsers/cvu-parser/CVUParser";
 
 export class CVUPropertyResolver {
     properties = new MemriDictionary()

@@ -4,7 +4,7 @@
 
 // Intended for use in message composer. Will self-adjust size as needed
 import {frame, MainUI, MemriText, MemriTextField, padding} from "../../swiftUI";
-import {Color} from "../../../parsers/cvu-parser/CVUParser";
+import {Color} from "../../../cvu/parsers/cvu-parser/CVUParser";
 import * as React from "react";
 
 export class MemriFittedTextEditor extends MainUI {

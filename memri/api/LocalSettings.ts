@@ -20,7 +20,7 @@ export class LocalSetting {
     }
     
     static set(key: string, value: string) {
-        DatabaseController.current(true, ($0) => { debugHistory.warn(`${$0}`) }, (realm: Realm) => {
+        DatabaseController.asyncOnCurrentThread(true, ($0) => { debugHistory.warn(`${$0}`) }, (realm: Realm) => {
             let setting = realm.objectForPrimaryKey("LocalSetting", key, "key") //TODO: while we don't have objectSchema
 
             if (setting) {
@@ -33,7 +33,7 @@ export class LocalSetting {
     }
 
     static get(key: string): string {
-        return DatabaseController.current(true, (realm) => {
+        return DatabaseController.sync(true, (realm) => {
             let setting = realm.objectForPrimaryKey("LocalSetting", key, "key")
             if (setting) {
                 return setting["value"]

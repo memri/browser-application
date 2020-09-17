@@ -5,10 +5,10 @@
 
 import * as React from 'react';
 import {MemriContext} from "../../context/MemriContext";
-import {Item} from "../../model/items/Item";
+import {Item} from "../../model/schemaExtensions/Item";
 import {HStack, MainUI, MemriRealButton, MemriDivider, MemriImage, padding, Spacer, VStack} from "../swiftUI";
 import {ActionDelete} from "../../cvu/views/Action";
-import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {Color} from "../../cvu/parsers/cvu-parser/CVUParser";
 
 export class ContextualBottomBar extends MainUI {
 	context: MemriContext

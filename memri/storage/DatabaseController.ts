@@ -10,7 +10,7 @@ import {debugHistory} from "../cvu/views/ViewDebugger";
 //import * as path from "path";
 import {Realm} from "../model/RealmLocal";
 import {Authentication} from "../api/Authentication";
-import {getItemType, ItemFamily} from "../model/items/Item";
+import {getItemType, ItemFamily} from "../model/schemaExtensions/Item";
 
 export var realm;
 
@@ -22,7 +22,8 @@ export class ItemReference {
 		let uid = to.uid;
 		let type = to.getType();
 		if (!uid || !type /*|| to.realm == undefined*/) {
-			throw "Trying to get a reference to an item that is not in realm or has no uid"; //TODO:
+			console.log("Trying to get a reference to an item that is not in realm or has no uid");
+			return
 		}
         this.uid = uid
         this.type = type
@@ -30,7 +31,7 @@ export class ItemReference {
 
 	resolve() {
 		try {
-			return DatabaseController.tryCurrent(false,(realm) => {
+			return DatabaseController.trySync(false,(realm) => {
 				return realm.objectForPrimaryKey(this.type?.constructor?.name, this.uid)
 			})
 		} catch (e) {
@@ -58,7 +59,7 @@ export class EdgeReference {
 
 	resolve() {
 		try {
-			return DatabaseController.tryCurrent(false,(realm: Realm) => {
+			return DatabaseController.trySync(false,(realm: Realm) => {
 				return realm.objects("Edge")
 					.filtered(`type = '${this.type}' AND sourceItemID = ${this.sourceItemID} AND targetItemID = ${this.targetItemID}`)[0]
 			})
@@ -198,49 +199,50 @@ export class DatabaseController {
 //		DispatchQueue.getSpecific(key: realmQueueSpecificKey) ?? false
 //	}
 
-	static current(write = false, error = this.globalErrorHandler, exec?) {
-		if (arguments.length == 3) {
-			this.getRealmAsync((err, realm) => {
-				if (err) {
-					error(err)
-					return;
-				}
-				if (!realm) {
-					error("Unable to initialize realm")
-					return
-				}
-
-				try {
-					if (write) {
-						if (realm.isInWriteTransaction) {
-							exec(realm)
-							return;
-						}
-
-						realm.write(() => {
-							exec(realm)
-						})
-					} else {
-						exec(realm)
-					}
-				} catch (err) {
-					error(err)
-				}
-			});
-		} else {
-			exec = error;
-			try {
-				return this.tryCurrent(write, exec);
-			} catch (error) {
-				debugHistory.warn(`${error}`)
+	static asyncOnCurrentThread(write = false, error, exec?) {
+		if (error == undefined) { //TODO: made this not to use this.globalErrorHandler again and again @mkslanc
+			error = this.globalErrorHandler;
+		}
+		this.getRealmAsync((err, realm) => {
+			if (err) {
+				error(err)
 				return;
 			}
-		}
+			if (!realm) {
+				error("Unable to initialize realm")
+				return
+			}
 
+			try {
+				if (write) {
+					if (realm.isInWriteTransaction) {
+						exec(realm)
+						return;
+					}
+
+					realm.write(() => {
+						exec(realm)
+					})
+				} else {
+					exec(realm)
+				}
+			} catch (err) {
+				error(err)
+			}
+		});
+	}
+
+	static sync(write = false, exec) {
+		try {
+			return this.trySync(write, exec);
+		} catch (error) {
+			debugHistory.warn(`${error}`)
+			return;
+		}
 	}
 
 	/// Execute a realm based function that throws and returns a value on the main thread
-	static tryCurrent(
+	static trySync(
 		write = false,
 		exec) {
 		let realm = this.getRealmSync()
@@ -259,22 +261,22 @@ export class DatabaseController {
 	}
 
 	/// Execute a realm based function on a background thread
-	static background(write = false, error, exec) { //TODO:
-		if (error == undefined) {
+	static asyncOnBackgroundThread(write = false, error, exec) {
+		if (error == undefined) { //TODO: made this not to use this.globalErrorHandler again and again @mkslanc
 			error = this.globalErrorHandler;
 		}
 		//this.realmQueue.async(() => {
 			/*autoreleasepool {*/
-            this.current(write, error, exec);
+            this.asyncOnCurrentThread(write, error, exec);
         //})
 		//})
 	}
 
 	/// Execute a realm based function on the main thread (warning this blocks the UI)
-	static main(write: boolean = false, error = this.globalErrorHandler, exec) {
+	static asyncOnMainThread(write: boolean = false, error = this.globalErrorHandler, exec) {
 		/*DispatchQueue.main.async {
         autoreleasepool {*/
-		this.current(write, error, exec)
+		this.asyncOnCurrentThread(write, error, exec)
 		//}
 		//}
 	}
@@ -323,7 +325,7 @@ export class DatabaseController {
 
 	static clean(callback) { //TODO:
 		//#warning("@Toby, deleting here on realm doesnt remove them from the db and thus this is called every time. Any idea why?")
-		DatabaseController.background(true, callback, (realm) => {
+		DatabaseController.asyncOnBackgroundThread(true, callback, (realm) => {
             for (let itemType in ItemFamily) {
                 if (itemType == ItemFamily.UserState) { continue }
 				let type = getItemType(ItemFamily[itemType]);

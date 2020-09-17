@@ -2,15 +2,15 @@
 //  Action.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {CVUSerializer, orderKeys} from "../../parsers/cvu-parser/CVUToString";
-import {Expression} from "../../parsers/expression-parser/Expression";
+import {CVUSerializer, orderKeys} from "../parsers/cvu-parser/CVUToString";
+import {Expression} from "../parsers/expression-parser/Expression";
 import {ActionError} from "./ActionErrors";
-import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {Color} from "../parsers/cvu-parser/CVUParser";
 import {debugHistory} from "./ViewDebugger";
 import {Settings} from "../../model/Settings";
 import {Datasource} from "../../api/Datasource";
 import {CacheMemri} from "../../model/Cache";
-import {CVUStateDefinition, EdgeSequencePosition, Item} from "../../model/items/Item";
+import {CVUStateDefinition, EdgeSequencePosition, Item, UUID} from "../../model/schemaExtensions/Item";
 import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class Action/* : HashableClass, CVUToString*/ {
@@ -40,11 +40,8 @@ export class Action/* : HashableClass, CVUToString*/ {
         "showTitle": false,
         "opensView": false,
         "color": new Color("#999999"),
-        "backgroundColor": new Color("white"),
         "activeColor": new Color("#ffdb00"),
         "inactiveColor": new Color("#999999"),
-        "activeBackgroundColor": new Color("white"),
-        "inactiveBackgroundColor": new Color("white"),
         "withAnimation": true
     });
 
@@ -68,13 +65,13 @@ export class Action/* : HashableClass, CVUToString*/ {
     get color() {
         let active = this.isActive();
         if (active) {
-            if (active) {//TODO:WTF?
-                return this.get("activeColor") ?? this.getColor("color")
+            if (active) {
+                return this.get("activeColor") ?? this.getColor("color") ?? new Color("black")
             } else {
-                return this.get("inactiveColor") ?? this.getColor("color")
+                return this.get("inactiveColor") ?? this.getColor("color") ?? new Color("black")
             }
         } else {
-            return this.getColor("color")
+            return this.getColor("color") ?? new Color("black")
         }
     }
 
@@ -82,18 +79,20 @@ export class Action/* : HashableClass, CVUToString*/ {
         let active = this.isActive();
         if (active) {
             if (active) {
-                return this.get("activeBackgroundColor") ?? this.getColor("backgroundolor")
+                return this.get("activeBackgroundColor") ?? this.getColor("backgrounColor") ?? new Color("clear")
             } else {
-                return this.get("inactiveBackgroundColor") ?? this.getColor("backgroundolor")
+                return this.get("inactiveBackgroundColor") ?? this.getColor("backgrounColor") ?? new Color("clear")
             }
         } else {
-            return this.getColor("backgroundColor")
+            return this.getColor("backgroundColor") ?? new Color("clear")
         }
     }
 
     get toString(): string {
         return this.toCVUString(0, "    ")
     }
+
+    transientUID = UUID()
 
     constructor(context: MemriContext, name: string, values?) {
         this.context = context;
@@ -145,7 +144,7 @@ export class Action/* : HashableClass, CVUToString*/ {
     }
 
     getColor(key:string, viewArguments = null) {
-        let x = this.get(key, viewArguments) ?? new Color("black");//TODO
+        let x = this.get(key, viewArguments);
         return x;
     }
 

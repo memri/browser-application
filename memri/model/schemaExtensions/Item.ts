@@ -1,15 +1,15 @@
-import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {CVUSerializer} from "../../cvu/parsers/cvu-parser/CVUToString";
 import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder} from "../../gui/util";
-import {ExprInterpreter} from "../../parsers/expression-parser/ExprInterpreter";
+import {ExprInterpreter} from "../../cvu/parsers/expression-parser/ExprInterpreter";
 import {CacheMemri} from "../Cache";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {DatabaseController, ItemReference, realm} from "../../storage/DatabaseController";
 import {RealmObjects} from "../RealmLocal";
-import {Color} from "../../parsers/cvu-parser/CVUParser";
+import {Color} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {Datasource} from "../../api/Datasource";
 import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
 import {MemriDictionary} from "../MemriDictionary";
-import {ComputedPropertyLink} from "../../gui/browser/ConfigPanel";
+import {ComputedPropertyLink} from "../../gui/browser/configPane/ConfigPanel";
 
 enum ItemError {
     cannotMergeItemWithDifferentId
@@ -321,24 +321,14 @@ export class Item extends SchemaItem {
         }
 
         // TODO: collection support
-        //#warning("Not implemented fully yet")
+        //#warning("Reverse EdgeCollection support not implemented yet")
 
-        // Should this create a temporary edge for which item() is source() ?
         return realm?.objects("Edge") //TODO:
             .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}'`)
     }
 
     reverseEdge(edgeType: string) {
-        if (realm && !this.uid) {
-            return null;
-        }
-
-        // TODO: collection support
-        //#warning("Not implemented fully yet")
-
-        // Should this create a temporary edge for which item() is source() ?
-        return realm?.objects("Edge") //TODO:
-            .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}'`)[0]
+        return this.reverseEdges(edgeType)[0];
     }
 
     edges(edgeType: string|string[]) {
@@ -707,8 +697,8 @@ export class Item extends SchemaItem {
     /// update the dateAccessed property to the current date
     accessed() {
         let safeSelf = new ItemReference(this) //TODO:
-        DatabaseController.background(true, undefined,() => {
-            let item = safeSelf.resolve();
+        DatabaseController.asyncOnBackgroundThread(true, undefined,() => {
+            let item = safeSelf?.resolve();
             if (!item) {
                 return
             }
@@ -737,8 +727,8 @@ export class Item extends SchemaItem {
         }
 
         let safeSelf = new ItemReference(this) //TODO:
-        DatabaseController.background(true, undefined, (realm: Realm) => {
-            let item = safeSelf.resolve();
+        DatabaseController.asyncOnBackgroundThread(true, undefined, (realm: Realm) => {
+            let item = safeSelf?.resolve();
             if (!item) {
                 return
             }
@@ -749,21 +739,21 @@ export class Item extends SchemaItem {
                 item["_updated"] = [];
             }
 
-            /*if (previousModified?.distance(new Date()) ?? 0 < 300) /!* 5 minutes *!/ {
-                //#warning("Test that .last gives the last added audit item")
-                let itemEdges = item.edges("changelog").filtered("_type = AuditItem");
-                let auditItem = itemEdges[itemEdges.length - 1];
-                let content = auditItem.content;
-                var dict = unserialize(content);
-                if (auditItem && content && dict) {
-                    for (let field of updatedFields) {
-                        if (item.objectSchema[field] == undefined) {
-                            throw "Invalid update call"
-                        }
-                        dict[field] = item[field];
+            /*if previousModified?.distance(to: Date()) ?? 0 < 300  {
+                #warning("Test that .last gives the last added audit item")
+                if
+                    let auditItem = item.edges("changelog")?.last?.target(type: AuditItem.self),
+                let content = auditItem.content,
+                    var dict = try unserialize(content, type: [String: AnyCodable?].self) {
+                    for field in updatedFields {
+                        guard item.objectSchema[field] != nil else { throw "Invalid update call" }
+                        dict[field] = AnyCodable(item[field])
                     }
-                    auditItem.content = String(MemriJSONEncoder(dict)) ?? ""
-                    return;
+                    auditItem.content = String(
+                        data: try MemriJSONEncoder.encode(dict),
+                        encoding: .utf8
+                ) ?? ""
+                    return
                 }
             }*/
 
@@ -844,7 +834,7 @@ Object.assign(RealmObjects.prototype, {
         }
 
         try {
-            return DatabaseController.tryCurrent(false,(realm) => {
+            return DatabaseController.trySync(false,(realm) => {
                 let filter = "uid = "
                     + this.map ( (item) => {
                         let value = (dir == Direction.target ? item.targetItemID : item.sourceItemID);
@@ -965,16 +955,16 @@ export class Edge {
         return getItemType(ItemFamily[this.sourceItemType ?? ""]);
     }
 
-    item(type) {
-        return this.target(type)
-    }
-
     target() {
         try {
-            return DatabaseController.tryCurrent(false,(item) => {
+            return DatabaseController.trySync(false,(item) => {
                 let itemType = this.targetType;
                 if (itemType) {
-                    return item.objectForPrimaryKey(itemType.name, this.targetItemID);
+                    let object = item.objectForPrimaryKey(itemType.name, this.targetItemID);
+                    if (!object || object.deleted == true) {
+                        return null; // Check the edge doesn't point to a deleted item
+                    }
+                    return object
                 } else {
                     throw `Could not resolve edge target: ${this}`
                 }
@@ -988,10 +978,14 @@ export class Edge {
 
     source() {
         try {
-            return DatabaseController.tryCurrent(false,(item) => {
+            return DatabaseController.trySync(false,(item) => {
                 let itemType = this.sourceType;
                 if (itemType) {
-                    return item.objectForPrimaryKey(itemType.name, this.sourceItemID);
+                    let object = item.objectForPrimaryKey(itemType.name, this.sourceItemID);
+                    if (!object || object.deleted == true) {
+                        return null; // Check the edge doesn't point to a deleted item
+                    }
+                    return object
                 } else {
                     throw `Could not resolve edge source: ${this}`
                 }
@@ -6423,7 +6417,7 @@ Object.defineProperty(Address.prototype, "computedTitle", {
         return `${this.street ?? ""}
 ${this.city ?? ""}
 ${this.postalCode == undefined ? "" : this.postalCode! + ","} ${this.state ?? ""}
-${this.edge("country")?.item()?.computedTitle ?? ""}`
+${this.edge("country")?.target()?.computedTitle ?? ""}`
     }
 });
 
@@ -6672,5 +6666,34 @@ export class CVUStateDefinition extends CVUStoredDefinition {
 
     constructor(decoder) {
         super(decoder);
+    }
+}
+
+/// retrieves item from realm by type and uid.
+/// - Parameters:
+///   - type: realm type
+///   - memriID: item memriID
+/// - Returns: retrieved item. If the item does not exist, returns nil.
+export function getItem(type: string, uid) {
+    type = ItemFamily[type];
+    if (type) {
+        //let item = getItemType(type);
+        return DatabaseController.sync(false, (realm) =>
+            realm.objectForPrimaryKey(type, uid)
+        )
+    }
+    return
+}
+
+export function me() {
+    try {
+        let realm = DatabaseController.getRealmSync();
+        let myself = realm.objects("Person").filtered("ANY allEdges.type = 'me'")[0];
+        if (!myself) {
+            throw "Unexpected error. Cannot find 'me' in the database"
+        }
+        return myself
+    } catch {
+        return new Person()
     }
 }

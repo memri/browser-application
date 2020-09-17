@@ -3,7 +3,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {MemriContext} from "../../context/MemriContext";
 import {
 	ActionBack,

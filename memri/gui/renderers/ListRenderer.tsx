@@ -6,7 +6,7 @@ import {ActionFamily} from "../../cvu/views/Action";
 import {DataItem} from "../../model/DataItem";
 import * as React from "react";
 import {font, frame, MainUI, MemriList, MemriText, NavigationView, VStack, ZStack} from "../swiftUI";
-import {Alignment} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment} from "../../cvu/parsers/cvu-parser/CVUParser";
 
 class ListConfig/* extends RenderConfig*/ {
 	cascadeOrder = []

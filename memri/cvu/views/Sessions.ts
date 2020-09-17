@@ -16,7 +16,7 @@ import {
 	unserialize
 } from "../../gui/util";
 import {Session} from "./Session";
-import {CVUParsedSessionDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedSessionDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
 
 class Sessions extends DataItem {
 	genericType() { return "Sessions" }

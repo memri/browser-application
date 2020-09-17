@@ -9,7 +9,7 @@
 
 import {Circle, font, HStack, MainUI, MemriText, padding, Spacer, VStack} from "../../swiftUI";
 import * as React from "react";
-import {Alignment, Color} from "../../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color} from "../../../cvu/parsers/cvu-parser/CVUParser";
 
 export class EmailHeaderView extends MainUI {
     senderName: string

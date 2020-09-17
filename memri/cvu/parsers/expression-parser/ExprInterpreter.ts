@@ -18,7 +18,7 @@ import {
     ExprCallNode,
     ExprVariableNode, ExprNilNode, ExprAnyNode
 } from "./ExprNodes";
-import {Settings} from "../../model/Settings";
+import {Settings} from "../../../model/Settings";
 
 export class ExprInterpreter {
     ast: ExprNode

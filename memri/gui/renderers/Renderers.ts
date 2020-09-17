@@ -7,83 +7,52 @@
 
 // Potential solution: https://stackoverflow.com/questions/42746981/list-all-subclasses-of-one-class
 
-import {UIElement, UIElementFamily} from "./UIElement";
-import {Cascadable} from "./Cascadable";
-import {registerListRenderer} from "../../gui/renderers/ListRendererView";
-import {orderKeys} from "../../parsers/cvu-parser/CVUToString";
-import {Item, UUID} from "../../model/items/Item";
-import {FilterPanelRendererButton} from "./Action";
-import {UIElementView} from "../../gui/common/UIElementView";
-import {registerCustomRenderer} from "../../gui/renderers/CustomRenderer";
-import {registerThumbnailRenderer} from "../../gui/renderers/GridRenderers/ThumbnailRendererView";
-import {registerThumbGridRenderer} from "../../gui/renderers/GridRenderers/ThumbGridRendererView";
-import {registerMessageRenderer} from "../../gui/renderers/MessageRenderer";
-import {registerPhotoViewerRenderer} from "../../gui/renderers/PhotoViewerRenderer/PhotoViewerRenderer";
-import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "../../gui/renderers/GeneralEditorView";
-import {registerThumbHorizontalGridRenderer} from "../../gui/renderers/GridRenderers/ThumbHorizontalGridRendererView";
-import {registerThumbWaterfallRenderer} from "../../gui/renderers/GridRenderers/ThumbWaterfallRendererView";
+import {UIElement, UIElementFamily} from "../../cvu/views/UIElement";
+import {Cascadable} from "../../cvu/views/Cascadable";
+import {registerListRenderer} from "./ListRendererView";
+import {orderKeys} from "../../cvu/parsers/cvu-parser/CVUToString";
+import {Item, UUID} from "../../model/schemaExtensions/Item";
+import {FilterPanelRendererButton} from "../../cvu/views/Action";
+import {UIElementView} from "../common/UIElementView";
+import {registerCustomRenderer} from "./CustomRenderer";
+import {registerThumbnailRenderer} from "./GridRenderers/ThumbnailRendererView";
+import {registerThumbGridRenderer} from "./GridRenderers/ThumbGridRendererView";
+import {registerMessageRenderer} from "./MessageRenderer";
+import {registerPhotoViewerRenderer} from "./PhotoViewerRenderer/PhotoViewerRenderer";
+import {GeneralEditorLayoutItem, registerGeneralEditorRenderer} from "./GeneralEditorView";
+import {registerThumbHorizontalGridRenderer} from "./GridRenderers/ThumbHorizontalGridRendererView";
+import {registerThumbWaterfallRenderer} from "./GridRenderers/ThumbWaterfallRendererView";
 import {MemriDictionary} from "../../model/MemriDictionary";
-import {Color} from "../../parsers/cvu-parser/CVUParser";
-import {registerEmailRenderers} from "../../gui/renderers/EmailRenderer/EmailThreadRenderer";
+import {Color} from "../../cvu/parsers/cvu-parser/CVUParser";
+import {registerEmailRenderers} from "./EmailRenderer/EmailThreadRenderer";
 
 export class Renderers {
-    all = {}
-    allViews = {}
-    allConfigTypes = {}
-
-    register(name, title, order, icon =  "", view, renderConfigType, canDisplayResults) {
-        this.all[name] = function (context)  {
-            return new FilterPanelRendererButton(context, name, order, title, icon, canDisplayResults)
-        }
-        this.allViews[name] = view
-        this.allConfigTypes[name] = renderConfigType
-    }
-    
-    /*register(name, title, order, icon =  "", view, renderConfigType, canDisplayResults) {//TODO
-        
-        allRenderers.register(name, title, order, icon, view,
-                               renderConfigType,
-                               canDisplayResults)
-    }*/
-    
-    constructor() {
-        //if (allRenderers == null) { allRenderers = this }
-        
-        registerCustomRenderer()//TODO
-        registerListRenderer()
-        registerGeneralEditorRenderer()
-        registerThumbnailRenderer()
-        registerThumbGridRenderer()
-        registerThumbHorizontalGridRenderer()
-        registerThumbWaterfallRenderer()
-        //registerMapRenderer()
-        //registerChartRenderer()
-        // registerCalendarRenderer()
-        registerMessageRenderer()
-        registerPhotoViewerRenderer()
-        // registerFileViewerRenderer()
-        registerEmailRenderers()
-    }
-    
-    get tuples() {
-        return orderKeys(this.all)
+    static get rendererTypes() {
+        /*return new MemriDictionary()
+            [
+            ListRendererController.rendererType,
+                GridRendererController.rendererType,
+                GeneralEditorRendererController.rendererType,
+                CustomRendererController.rendererType,
+                MapRendererController.rendererType,
+                FileRendererController.rendererType,
+                LabelAnnotationRendererController.rendererType,
+                MessageRendererController.rendererType,
+                CalendarRendererController.rendererType,
+                TimelineRendererController.rendererType,
+                ChartRendererController.rendererType,
+                PhotoViewerRendererController.rendererType,
+                EmailThreadRendererController.rendererType
+            ].map(($0 => {
+            ($0.name, $0)
+        }))*/
     }
 }
 
-export var allRenderers = new Renderers();
 
 //FilterPanelRendererButton moved to Action.ts
 
-class RenderGroup {
-    options: MemriDictionary
-    body: UIElement
-    
-    constructor(dict: MemriDictionary) {
-        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
-        delete dict["children"]
-        this.options = dict
-    }
-}
+
 
 interface CascadingRendererDefaults {
     setDefaultValues(element)
@@ -103,86 +72,6 @@ interface CascadingRendererDefaults {
 //
 //        return null
 //    }
-
-export class CascadingRenderConfig extends Cascadable {
-    
-    constructor(
-        head?: CVUParsedDefinition,
-        tail?: CVUParsedDefinition[],
-        host?: Cascadable
-    ) {
-        super(head, tail, host)
-    }
-
-    // Used for ui purposes. Random value that doesn't need to be persisted
-    ui_UUID = UUID()
-    
-    hasGroup(group) {
-        let x = this.cascadeProperty(group)
-        return x != null
-    }
-    
-    getGroupOptions(group) {
-        let renderGroup = this.getRenderGroup(group)
-        if (renderGroup) {
-            return renderGroup.options
-        }
-        return new MemriDictionary()
-    }
-    
-    getRenderGroup(group) {
-        let renderGroup = this.localCache[group]
-        if (renderGroup?.constructor?.name == "RenderGroup") {
-            return renderGroup
-        }
-        else if (group == "*" && this.cascadeProperty("*") == null) {
-            let list = this.cascadeProperty("children")
-            if (list) {
-                var dict = new MemriDictionary({"children": list})
-                let renderGroup = new RenderGroup(dict)
-                this.localCache[group] = renderGroup
-                return renderGroup
-            }
-        }
-        else {
-            var dict: MemriDictionary = this.cascadeProperty(group)
-            if (dict) {
-                let renderGroup = new RenderGroup(dict)
-                this.localCache[group] = renderGroup
-                return renderGroup
-            }
-        }
-
-
-        return null
-    }
- 
-    render(item, group =  "*", argumentsJs =  null) {
-        
-        let doRender = (renderGroup, item) => {
-            let body = renderGroup.body
-            if (body) {
-                let s = this;//TODO
-                if (s.setDefaultValues && typeof s.setDefaultValues === "function") {//TODO
-                    s.setDefaultValues(body)
-                }
-                let uiElement = new UIElementView({context: this.host.context, gui: body, dataItem: item, viewArguments: argumentsJs/* ?? viewArguments*/});
-                //(body, item, argumentsJs ?? viewArguments)
-                return uiElement.render();
-            }
-
-            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
-        }
-
-        let renderGroup = this.getRenderGroup(group)
-        if (item && renderGroup) {
-            return doRender(renderGroup, item)
-        }
-        else {
-            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
-        }
-    }
-}
 
 //CommonRendererConfig.swift
 Object.defineProperty(CascadingRenderConfig.prototype, "primaryColor", {

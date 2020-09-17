@@ -13,7 +13,7 @@ import {
     DialogContentText, DialogActions
 } from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
-import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
+import {Alignment, Font, TextAlignment} from "../cvu/parsers/cvu-parser/CVUParser";
 
 interface MemriUIProps {
     foregroundColor?

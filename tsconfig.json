@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "./dist/",
     "noImplicitAny": false,
     "module": "commonjs",
-    "target": "es2019",
+    "target": "es2020",
     "jsx": "react",
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "noEmitOnError": false,
-    "resolveJsonModule": true,
-    "sourceMap": true
+    "resolveJsonModule": true
   }
 }

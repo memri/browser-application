@@ -174,7 +174,7 @@ export class Authentication {
     }
 
     static setOwnerAndDBKey(privateKey: string, publicKey: string, dbKey: string) {
-        DatabaseController.tryCurrent(true, (realm) => {
+        DatabaseController.trySync(true, (realm) => {
             realm.objects("CryptoKey").filtered("name = 'memriDBKey'").forEach((key) => {
                 key.active = false
             });
@@ -219,7 +219,7 @@ export class Authentication {
 
     static async getOwnerAndDBKey(callback) {
         callback(null, localStorage.ownerKey, localStorage.databaseKey)
-        /*DatabaseController.current(false,(realm) => {
+        /*DatabaseController.asyncOnCurrentThread(false,(realm) => {
             let dbQuery = "name = 'memriDBKey' and active = true";
             let dbKey = realm.objects("CryptoKey").filtered(dbQuery)[0];
             if (!dbKey) {

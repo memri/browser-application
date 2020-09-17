@@ -3,10 +3,10 @@
 // Copyright © 2020 memri. All rights reserved.
 
 
-import {allRenderers, CascadingCustomConfig} from "../../cvu/views/Renderers";
+import {allRenderers, CascadingCustomConfig} from "./Renderers";
 import {MainUI, VStack} from "../swiftUI";
 import * as React from "react";
-import {Item} from "../../model/items/Item";
+import {Item} from "../../model/schemaExtensions/Item";
 
 export var registerCustomRenderer = function () {
     if (allRenderers) {

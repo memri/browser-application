@@ -3,11 +3,11 @@
 // Copyright © 2020 memri. All rights reserved.
 
 
-import {allRenderers, PhotoViewerRendererConfig} from "../../../cvu/views/Renderers";
+import {allRenderers, PhotoViewerRendererConfig} from "../Renderers";
 import {Group, MemriText, padding, RenderersMemri, UIImage, ZStack} from "../../swiftUI";
 import {ViewArguments} from "../../../cvu/views/CascadableDict";
 import * as React from "react";
-import {Alignment} from "../../../parsers/cvu-parser/CVUParser";
+import {Alignment} from "../../../cvu/parsers/cvu-parser/CVUParser";
 
 export var registerPhotoViewerRenderer = function () {
     if (allRenderers) {

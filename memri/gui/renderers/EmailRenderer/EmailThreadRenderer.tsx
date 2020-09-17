@@ -6,13 +6,13 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {allRenderers, CascadingEmailThreadRendererConfig, CascadingThumbnailConfig} from "../../../cvu/views/Renderers";
+import {allRenderers, CascadingEmailThreadRendererConfig, CascadingThumbnailConfig} from "../Renderers";
 import {MainUI, RenderersMemri} from "../../swiftUI";
 import {ViewArguments} from "../../../cvu/views/CascadableDict";
 import * as React from "react";
-import {Color} from "../../../parsers/cvu-parser/CVUParser";
+import {Color} from "../../../cvu/parsers/cvu-parser/CVUParser";
 import {EmailThreadItem} from "./EmailThreadCell";
-import {UUID} from "../../../model/items/Item";
+import {UUID} from "../../../model/schemaExtensions/Item";
 
 export var registerEmailRenderers = function () {
     if (allRenderers) {

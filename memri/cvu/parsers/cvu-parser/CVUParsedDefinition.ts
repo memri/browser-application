@@ -1,5 +1,5 @@
 import {CVUSerializer} from "./CVUToString";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {MemriDictionary} from "../../../model/MemriDictionary";
 
 export enum CompileScope {
     all="all",
@@ -42,6 +42,10 @@ export class CVUParsedDefinition {
 
     get description(): string {
         return this.toCVUString(0, "    ")
+    }
+
+    get selectorIsForList(): boolean {
+        return /\[\]$/.test(this.selector) ?? false
     }
     
     toCVUString(depth: number, tab: string): string {

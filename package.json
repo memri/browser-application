@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx ts-mocha 'memri/parsers/**/*Tests.ts'",
+    "test": "npx ts-mocha 'memri/cvu/parsers/**/*Tests.ts'",
     "build": "webpack; cp editor.html dist",
     "publish-gh-pages": "cd dist; git init .;git add .; git commit -am build-demo; git push  git@gitlab.memri.io:memri/browser-application.git +HEAD:gh-pages",
     "start": "webpack-dev-server"
@@ -29,6 +29,7 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
     "worker-loader": "^2.0.0",
+    "ftst-loader": "latest",
     "slate": "latest",
     "slate-react": "latest",
     "slate-history": "latest",
