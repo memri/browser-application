@@ -2,7 +2,7 @@
 // ThumbGridRendererView.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {allRenderers, CascadingThumbnailConfig} from "../Renderers";
+import {allRenderers, CascadingThumbnailConfig} from "../../../Renderers";
 import {
     ASCollectionView,
     font,
@@ -13,8 +13,8 @@ import {
     Spacer,
     VStack,
     ZStack
-} from "../../swiftUI";
-import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+} from "../../../../swiftUI";
+import {Alignment, Color, Font} from "../../../../../cvu/parsers/cvu-parser/CVUParser";
 import * as React from "react";
 import {Grid, GridListTile} from "@material-ui/core";
 

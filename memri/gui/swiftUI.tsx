@@ -309,10 +309,12 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
 }
 
 export class RenderersMemri extends MainUI {
+    controller
+
     executeAction = (dataItem) => () => {
-        let press = this.renderConfig.press
+        let press = this.controller.config.press
         if (press) {
-            this.context.executeAction(press, dataItem)
+            this.controller.context.executeAction(press, dataItem)
         }
     }
 }

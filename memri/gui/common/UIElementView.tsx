@@ -32,7 +32,7 @@ import {CVUParsedViewDefinition} from "../../cvu/parsers/cvu-parser/CVUParsedDef
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
 import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
-import {MessageBubbleView} from "../renderers/MessageRenderer";
+//import {MessageBubbleView} from "../renderers/contentRenderers/MessageRenderer";
 
 import {SubView} from "./SubView";
 import {Grid} from "@material-ui/core";
@@ -585,12 +585,15 @@ export class UIElementView extends MainUI {
     renderToggle() {
         let [_, dataItem, propName] = this.from.getType("value", this.item, this.viewArguments)
 
-        return (<Toggle isOn={dataItem.get(propName) ?? false}
-                        onChange={(e) => {
-                            dataItem.set(propName, e.target.value)
-                        }}
-                        labelsHidden
-        ><EmptyView/></Toggle>)
+        return (
+            <Toggle isOn={dataItem.get(propName) ?? false}
+                    onChange={(e) => {
+                        dataItem.set(propName, e.target.value)
+                    }}
+                    labelsHidden>
+                <EmptyView/>
+            </Toggle>
+        )
     }
 
     renderTextfield() {

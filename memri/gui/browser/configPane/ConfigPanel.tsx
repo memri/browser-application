@@ -15,14 +15,13 @@ import {
     MemriRealButton, MemriStepper,
     MemriText,
     MemriTextField, NavigationLink,
-    NavigationView, padding, Toggle,
+    NavigationView, Toggle,
     VStack
 } from "../../swiftUI";
-import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
-import {MemriButton} from "../../common/MemriButton";
+import {Alignment, Color} from "../../../cvu/parsers/cvu-parser/CVUParser";
 import {Expression} from "../../../cvu/parsers/expression-parser/Expression";
 import {ConfigItem, ConfigItemType, getSupportedRealmTypes, PossibleExpression, SpecialTypes} from "./ConfigPanelModel";
-require("../../extension/common/string");
+require("../../../extension/common/string.ts");
 
 export class ConfigPanel extends MainUI {
     // keyboard = KeyboardResponder.shared

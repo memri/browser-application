@@ -11,10 +11,20 @@ import {ActionShowSessionSwitcher} from "../cvu/views/Action";
 export class SessionSwitcher extends MainUI {
     items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    offset = 0
+    _globalOffset = 0;
+    dragOffset = 0
 
-    lastGlobalOffset = 0
-    globalOffset = 0
+    get count() {
+        return Math.min(10, this.context.sessions.count);
+    }
+
+    get countIndexOffset() {
+        return this.context.sessions.count - this.count;
+    }
+
+    get globalOffset() {
+        return Math.min(this.count * this.height / 2, Math.max(0, this._globalOffset + this.dragOffset))
+    }
 
     height = 738
 
@@ -23,11 +33,6 @@ export class SessionSwitcher extends MainUI {
 
     bounds = [0.0, 0.17, 0.2, 0.23, 0.245, 0.266, 0.5, 1.0]
 
-    iterate() {
-        this.globalOffset += 0.1
-        if (this.globalOffset > 1.1) { this.globalOffset = 0 }
-    }
-
     getOffsetX(i, geometry) {
         return (geometry.size.width - this.getWidth(i)) / 2
     }
@@ -35,12 +40,6 @@ export class SessionSwitcher extends MainUI {
     getWidth() {
         return 360
     }
-
-    //    let heightInPoints = image.size.height
-    //    let heightInPixels = heightInPoints * image.scale
-//
-    //    let widthInPoints = image.size.width
-    //    let widthInPixels = widthInPoints * image.scale
 
     getAnchorZ(i, geometry) {
         let speeds = [0, -2000, -4000, 0, 1000, 0, 0] // [0, -1000, -2000, 1000, 0, 0, 0]
@@ -109,8 +108,8 @@ export class SessionSwitcher extends MainUI {
     }
 
     getRelativePosition(i, geometry) {//TODO _: GeometryProxy???
-        let normalizedPosition = i / Number(this.context.sessions.count)
-        let maxGlobalOffset = Number(this.context.sessions.count) * this.height
+        let normalizedPosition = i / this.count;
+        let maxGlobalOffset = this.count * this.height
         let normalizedGlobalState = Math.min(1, Math.max(0, this.globalOffset / maxGlobalOffset))
         let translatedRelativePosition = normalizedGlobalState + (normalizedPosition / 2)
         return translatedRelativePosition / 2.0

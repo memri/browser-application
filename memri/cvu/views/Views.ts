@@ -16,7 +16,6 @@ import {CacheMemri} from "../../model/Cache";
 //import {RealmObjects} from "../../model/RealmLocal";
 import {CVUStateDefinition, dataItemListToArray, Item} from "../../model/schemaExtensions/Item";
 import {ViewArguments} from "./CascadableDict";
-import {CascadingRenderConfig} from "../../gui/renderers/Renderers";
 import {MemriDictionary} from "../../model/MemriDictionary";
 import {ParseErrors} from "../parsers/cvu-parser/CVUParseErrors";
 import {CascadingRendererConfig} from "./CascadingRendererConfig";

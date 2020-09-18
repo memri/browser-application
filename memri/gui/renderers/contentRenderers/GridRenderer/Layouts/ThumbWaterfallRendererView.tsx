@@ -4,7 +4,7 @@
 
 
 
-import {allRenderers, CascadingThumbnailConfig} from "../Renderers";
+import {allRenderers, CascadingThumbnailConfig} from "../../../Renderers";
 import {ThumbHorizontalGridRendererView} from "./ThumbHorizontalGridRendererView";
 import {
     ASCollectionView,
@@ -16,9 +16,9 @@ import {
     Spacer,
     VStack,
     ZStack
-} from "../../swiftUI";
+} from "../../../../swiftUI";
 import {Grid} from "@material-ui/core";
-import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../../../../cvu/parsers/cvu-parser/CVUParser";
 import * as React from "react";
 
 export var registerThumbWaterfallRenderer = function () {

@@ -19,7 +19,7 @@ import {Renderers} from "../../renderers/Renderers";
 import {Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
 
 
-export class RendererSelectionPanel extends MainUI{
+export class RendererSelectionPanel extends MainUI {
 
     render() {
         this.context = this.props.context

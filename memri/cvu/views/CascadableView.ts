@@ -19,7 +19,8 @@ import {CacheMemri} from "../../model/Cache";
 import {CascadableDict} from "./CascadableDict";
 import {CascadingDatasource} from "../../api/Datasource";
 import {CascadableContextPane} from "./CascadableContextPane";
-import {allRenderers, CascadingRenderConfig, Renderers} from "../../gui/renderers/Renderers";
+import {Renderers} from "../../gui/renderers/Renderers";
+import {CascadingRendererConfig} from "./CascadingRendererConfig";
 
 
 
@@ -94,9 +95,11 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     makeRendererController(forRendererType?) {
         let context = this.context;
-        if (!context) { return }
-        return Renderers.rendererTypes[forRendererType ?? this.activeRenderer]?.makeController(context, this.renderConfig)
-}
+        if (!context) {
+            return
+        }
+        return new Renderers.rendererTypes[forRendererType ?? this.activeRenderer].makeController(context, this.renderConfig)
+    }
 
     get fullscreen() { return this.viewArguments?.get("fullscreen") ?? this.cascadeProperty("fullscreen") ?? false }
     set fullscreen(value) { this.setState("fullscreen", value) }

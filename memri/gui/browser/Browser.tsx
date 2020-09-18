@@ -5,16 +5,14 @@
 import * as React from 'react';
 import {Alignment, Color} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {MemriContext} from "../../context/MemriContext";
-import {Capsule, ColorArea, frame, MainUI, MemriText, offset, padding, Spacer, VStack, ZStack} from "../swiftUI";
+import {Capsule, ColorArea, frame, MainUI, MemriText, offset, padding, VStack, ZStack} from "../swiftUI";
 import {TopNavigation} from "./TopNavigation";
-import {allRenderers} from "../renderers/Renderers";
 import {FilterPanel} from "./configPane/FilterPanel";
 import {ContextPane} from "./contextPane/ContextPane";
 import {CascadableView} from "../../cvu/views/CascadableView";
 import {ContextualBottomBar} from "./ContextualBottomBar";
 import {BottomBarView} from "./BottomBar";
 import { SearchView } from './SearchView';
-import {ContextPaneForeground} from "./contextPane/ContextPaneForeground";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends MainUI {
@@ -71,7 +69,7 @@ export class Browser extends MainUI {
 							<ZStack>
 								<VStack alignment={Alignment.center} spacing={0}>
 									{this.activeRendererController != undefined
-										? <></>/*TODO*/
+										? this.activeRendererController.makeView()
 										: <MemriText padding={padding({})} frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}>
 											{"No active renderer"}
 										</MemriText>

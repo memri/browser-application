@@ -2,47 +2,96 @@
 // GeneralEditorView.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {allRenderers, CascadingGeneralEditorConfig} from "./Renderers";
-import {debugHistory} from "../../cvu/views/ViewDebugger";
-import {Item, UUID} from "../../model/schemaExtensions/Item";
+import {debugHistory} from "../../../../cvu/views/ViewDebugger";
+import {Item, UUID} from "../../../../model/schemaExtensions/Item";
 import {
     font,
     frame,
     Group,
     HStack,
-    MainUI, MemriRealButton, MemriDivider,
+    MainUI, MemriDivider,
     MemriText, MemriTextField,
     padding,
     RenderersMemri,
     ScrollView,
     Section, Toggle,
     VStack
-} from "../swiftUI";
+} from "../../../swiftUI";
 import * as React from "react";
-import {Alignment, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
-import {ActionButton} from "../ActionView";
-import {ItemCell} from "../common/ItemCell";
-import {ViewArguments} from "../../cvu/views/CascadableDict";
-import {ActionOpenViewByName, RenderType} from "../../cvu/views/Action";
-import {ExprInterpreter} from "../../cvu/parsers/expression-parser/ExprInterpreter";
-import {MemriButton} from "../common/MemriButton";
-import {MemriDictionary} from "../../model/MemriDictionary";
-require("../../extension/common/string");
+import {Alignment, Font} from "../../../../cvu/parsers/cvu-parser/CVUParser";
+import {ActionButton} from "../../../ActionView";
+import {ItemCell} from "../../../common/ItemCell";
+import {ViewArguments} from "../../../../cvu/views/CascadableDict";
+import {ActionOpenViewByName, RenderType} from "../../../../cvu/views/Action";
+import {ExprInterpreter} from "../../../../cvu/parsers/expression-parser/ExprInterpreter";
+import {MemriButton} from "../../../common/MemriButton";
+import {MemriDictionary} from "../../../../model/MemriDictionary";
+import {CascadingRendererConfig} from "../../../../cvu/views/CascadingRendererConfig";
+require("../../../../extension/common/string");
 
-export var registerGeneralEditorRenderer = function () {
-    if (allRenderers) {
-        allRenderers.register(
-            "generalEditor",
-            "Default",
-            0,
-            "pencil.circle.fill",
-            new GeneralEditorView(),
-            CascadingGeneralEditorConfig,
-            function(items) { return items.length == 1 }
-        )
+export class GeneralEditorRendererController {
+    static rendererType = {name:"generalEditor",icon: "pencil.circle.fill", makeController:GeneralEditorRendererController, makeConfig:GeneralEditorRendererController.makeConfig}
+
+    constructor(context: MemriContext, config?: CascadingRendererConfig) {
+        this.context = context
+        this.config = config ?? new GeneralEditorRendererConfig()
+    }
+
+    context: MemriContext
+    config: GeneralEditorRendererConfig
+
+    makeView() {
+        return new GeneralEditorRendererView({controller: this, context: this.context}).render();
+    }
+
+    update() {
+        /*objectWillChange.send()*/
+        return
+    }
+
+    static makeConfig(head?: CVUParsedDefinition, tail?: CVUParsedDefinition[], host?: Cascadable) {
+        return new GeneralEditorRendererConfig(head, tail, host)
     }
 }
 
+export class GeneralEditorRendererConfig extends CascadingRendererConfig {
+    type = "generalEditor"
+
+    get layout() {
+        return this.cascadeList(
+            "layout",
+            (item) => {
+                return String(item["section"]) ?? ""
+            },
+            (old, newJs) => {
+                var result = old;
+                for (let [key, value] of Object.entries(newJs)) { //TODO: need to check
+                    if (old[key] == undefined) {
+                        result[key] = value
+                    } else if (key == "exclude") {
+                        var dict = old[key];
+                        if (Array.isArray(dict)) {
+                            result[key] = dict.push(...(newJs[key] ?? []))
+                        }
+                    }
+                }
+
+                return result
+            }
+        )
+            .map((dict) => {
+                return new GeneralEditorLayoutItem(dict, this.viewArguments)
+            })
+    }
+
+    showSortInConfig: boolean = false
+
+    showContextualBarInEditMode: boolean = false
+
+    configItems(context: MemriContext) {
+        return []
+    }
+}
 
 export class GeneralEditorLayoutItem {
     id = UUID()
@@ -102,23 +151,25 @@ export class GeneralEditorLayoutItem {
     }
 }
 
-export class GeneralEditorView extends RenderersMemri {
+export class GeneralEditorRendererView extends RenderersMemri {
+    controller: GeneralEditorRendererController
     context: MemriContext
 
     name = "generalEditor"
 
     render(){
         this.context = this.props.context;
+        this.controller = this.props.controller;
         let item = this.getItem()
-        let layout = this.getLayout()
-        let renderConfig = this.getRenderConfig()
+        let layout = this.controller.config.layout
+        let renderConfig = this.controller.config
         let usedFields = this.getUsedFields(layout)
+
         return (
             <ScrollView>
                 <VStack alignment={Alignment.leading} spacing={0}
                         frame={frame({maxWidth: ".infinity", maxHeight: ".infinity"})}>
-                    {(renderConfig == undefined) ?
-                        <MemriText>Unable to render this view</MemriText> :
+                    { layout.length > 0 &&
                         layout.map((layoutSection) => {
                             return (
                                 <GeneralEditorSection context={this.context} item={item} renderConfig={renderConfig}
@@ -134,15 +185,6 @@ export class GeneralEditorView extends RenderersMemri {
         )
     }
 
-    getLayout() {
-        let l = this.getRenderConfig()?.layout;
-        if (l) {
-            return l
-        } else {
-            return [new GeneralEditorLayoutItem({"section": "other", "fields": "*"})]
-        }
-    }
-
     getItem(): Item {
         let dataItem = this.context.currentView?.resultSet.singletonItem;
         if (dataItem) {
@@ -152,10 +194,6 @@ export class GeneralEditorView extends RenderersMemri {
             debugHistory.warn("Could not load item from result set, creating empty item")
             return new Item()
         }
-    }
-
-    getRenderConfig(): CascadingGeneralEditorConfig {
-        return this.context.currentView?.renderConfig;
     }
 
     getUsedFields(layout) {
@@ -194,7 +232,7 @@ export class GeneralEditorSection extends MainUI {
     context: MemriContext
 
     item: Item
-    renderConfig: CascadingGeneralEditorConfig
+    renderConfig: GeneralEditorRendererConfig
     layoutSection: GeneralEditorLayoutItem
     usedFields
 
@@ -280,7 +318,7 @@ export class GeneralEditorSection extends MainUI {
                             }) || //TODO: ?
                             edges.length > 0 &&
                             edges.map((edge) => {
-                                let targetItem = edge.item()
+                                let targetItem = edge.target()
                                 return renderConfig.render(
                                     targetItem,
                                     groupKey,
@@ -316,7 +354,7 @@ export class GeneralEditorSection extends MainUI {
                             trailing: paddingCur[1]
                         })}>
                             {edges.map((edge) => {
-                                let targetItem = edge.item()
+                                let targetItem = edge.target()
                                 return <ItemCell context={this.context} item={targetItem} rendererNames={["generalEditor"]}
                                                  argumentsJs={this._args(groupKey,
                                                      edge.type ?? "",
@@ -584,55 +622,8 @@ class DefaultGeneralEditorRow extends MainUI {
     }*/
 
     defaultRow(caption?: string) {
-        return <MemriText>{caption ?? this.prop}</MemriText>
+        return <MemriText>{caption ?? this.prop.camelCaseToWords().toLowerCase().capitalizingFirst()}</MemriText>
         /*Text(caption ?? prop.camelCaseToWords().toLowerCase().capitalizingFirst())
             .generalEditorCaption()*/
     }
 }
-/*
-public extension View {
-    func generalEditorLabel() -> some View { modifier(GeneralEditorLabel()) }
-    func generalEditorCaption() -> some View { modifier(GeneralEditorCaption()) }
-    func generalEditorHeader() -> some View { modifier(GeneralEditorHeader()) }
-    func generalEditorInput() -> some View { modifier(GeneralEditorInput()) }
-}*/ //TODO:
-
-/*private struct GeneralEditorInput: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .fullHeight()
-            .font(.system(size: 16, weight: .regular))
-            .padding(10)
-            .border(width: [0, 0, 1, 1], color: Color(hex: "#eee"))
-            .generalEditorCaption()
-    }
-}
-
-private struct GeneralEditorLabel: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .foregroundColor(Color(hex: "#38761d"))
-            .font(.system(size: 14, weight: .regular))
-            .padding(.top, 10)
-    }
-}
-
-private struct GeneralEditorCaption: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .font(.system(size: 18, weight: .regular))
-            .foregroundColor(Color(hex: "#223322"))
-    }
-}
-
-private struct GeneralEditorHeader: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .font(Font.system(size: 15, weight: .regular))
-            .foregroundColor(Color(hex: "#434343"))
-            .padding(.bottom, 5)
-            .padding(.top, 24)
-            .padding(.horizontal, 36)
-            .foregroundColor(Color(hex: "#333"))
-    }
-}*/
