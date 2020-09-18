@@ -184,6 +184,18 @@
         "sessionName": "filter-starred"
     },
     {
+        "_type": "NavigationItem",
+        "type": "item",
+        "title": "Email Annotation UI",
+        "sessionName": "annotationUIExample"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
+        "title": "Email Annotation List",
+        "sessionName": "annotationListExample"
+    },
+    {
         "_type": "Importer",
         "name": "iCloud notes",
         "datatype": "Note",
@@ -2887,7 +2899,7 @@
         "dateSent": 1589691670000,
         "allEdges": [
             {
-                "targetType": "Message",
+                "targetType": "EmailMessage",
                 "uid": 22000000008,
                 "_type": "message"
             },
@@ -2912,7 +2924,7 @@
                 "_type": "photo"
             },
             {
-                "targetType": "Message",
+                "targetType": "EmailMessage",
                 "uid": 22000000009,
                 "_type": "message"
             },
@@ -2932,7 +2944,7 @@
         "dateSent": 1589691690000,
         "allEdges": [
             {
-                "targetType": "Message",
+                "targetType": "EmailMessage",
                 "uid": 22000000010,
                 "_type": "message"
             },

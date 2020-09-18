@@ -1,4 +1,4 @@
-[renderer = thumbnail] {
+[renderer = grid] {
     press: openView
     longPress: select
 }

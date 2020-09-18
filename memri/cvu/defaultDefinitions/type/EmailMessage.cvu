@@ -7,14 +7,11 @@
     }
 }
 
-/*EmailMessage {*/
-/*    */
-/*}*/
 
 EmailMessage[] {
     title: "All Emails"
     emptyResultText: "There are no emails here yet"
-    defaultRenderer: email
+    defaultRenderer: emailThread
     filterButtons: showStarred toggleFilterPanel
     sortFields: subject dateModified dateAccessed dateCreated
     
@@ -93,7 +90,7 @@ EmailMessage[] {
         }
     }
     
-    [renderer = email] {
+    [renderer = emailThread] {
         background: #D3E4D1
         content: {{.content}}
         
@@ -104,4 +101,5 @@ EmailMessage[] {
             rightSubtitle: "{.dateSent}"
         }
     }
+    
 }

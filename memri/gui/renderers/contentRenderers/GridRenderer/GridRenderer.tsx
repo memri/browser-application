@@ -91,7 +91,7 @@ func onSelectSingleItem(index: Int) {
 
 }
 
-export class CascadingThumbnailConfig extends CascadingRendererConfig {
+export class GridRendererConfig extends CascadingRendererConfig {
 
     get longPress() { return this.cascadeProperty("longPress") }
     set longPress(value) { this.setState("longPress", value) }

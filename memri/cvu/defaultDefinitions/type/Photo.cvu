@@ -9,7 +9,7 @@
 
 Photo {
     title: "Photo"
-    defaultRenderer: thumbnail
+    defaultRenderer: grid
     emptyResultText: "No photo found"
     
     editActionButton: toggleEditMode
@@ -21,7 +21,7 @@ Photo {
         sortAscending: false
     }
     
-    [renderer = thumbnail] {
+    [renderer = grid] {
         spacing: 1
         column: 1
         edgeInset: 0 0 0 0
@@ -45,9 +45,9 @@ Photo[] {
         sortAscending: false
     }
 
-    defaultRenderer: thumbnail.grid
+    defaultRenderer: grid
 
-    [renderer = thumbnail] {
+    [renderer = grid] {
         spacing: 1
         edgeInset: 0 0 0 0 /* inset edges */
 		
@@ -69,7 +69,7 @@ Photo[] {
     }
 	
 	[renderer = calendar] {
-		dateTime: {{.dateCreated}}
+		timeProperty: {{.dateCreated}}
 		
 		TimelineItem {
 			icon: "camera"
@@ -87,9 +87,8 @@ Photo[] {
 		file: {{.file}}
 		initialItem: {{currentItem}}
 		
-		VStack {
+		/*VStack {
 			padding: 10
-/*            show: {{.caption != ""}}*/ /* TODO: THIS BREAKS PHOTO LOADING */
             
 			VStack {
 				spacing: 5
@@ -101,10 +100,7 @@ Photo[] {
 					text: "{.caption}"
 					font: 18 bold
 				}
-/*				Text {*/
-/*					text: "Photo taken: {.dateCreated}"*/
-/*				}*/
 			}
-		}
+		}*/
 	}
 }

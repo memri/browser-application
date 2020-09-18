@@ -11,7 +11,7 @@ Session[] {
     name: "all-sessions"
     title: "All Sessions"
     emptyResultText: "There are no sessions here yet"
-    defaultRenderer: thumbnail
+    defaultRenderer: grid
     
     sortFields: title dateModified dateAccessed dateCreated
     
@@ -60,7 +60,7 @@ Session[] {
         }
     }
     
-    [renderer = thumbnail] {
+    [renderer = grid] {
         columns: 2
         spacing: 20 10
         edgeInset: 10

@@ -11,7 +11,7 @@ Label[]: {
     name: "all-labels"
     title: "All Labels"
     emptyResultText: "You have not added any labels yet"
-    defaultRenderer: thumbnail
+    defaultRenderer: grid
     
     actionButton: addItem {
         template: {
@@ -59,7 +59,7 @@ Label[]: {
         }
     }
     
-    [renderer = thumbnail] {
+    [renderer = grid] {
         spacing: 10
         edgeInset: 10
         VStack {

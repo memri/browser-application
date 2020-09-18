@@ -30,7 +30,7 @@
         ]
     }
     
-    [renderer = thumbnail]{
+    [renderer = grid]{
         press: [
             link {
                 subject: {{subject}}

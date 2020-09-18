@@ -39,7 +39,7 @@
         }
     },
     
-    "[renderer = thumbnail]": {
+    "[renderer = grid]": {
         "renderConfigs": {
             "thumbnail": {
                 "press": { "actionName": "openView" },
@@ -238,7 +238,7 @@
                         }
                     },
                     "datasource": {
-                        "query": "data:Log appliesTo:{.id}",
+                        "query": "data:Log appliesTo:{.uid}",
                         "sortProperty": "dateCreated",
                         "sortAscending": true
                     }
@@ -895,7 +895,7 @@
                         }
                     },
                     "datasource": {
-                        "query": "data:Log appliesTo:{.id}",
+                        "query": "data:Log appliesTo:{.uid}",
                         "sortProperty": "dateCreated",
                     }
                 }]
@@ -935,7 +935,7 @@
                         }
                     },
                     "datasource": {
-                        "query": "type:audititem appliesTo:{.id}",
+                        "query": "type:audititem appliesTo:{.uid}",
                         "sortProperty": "dateCreated",
                     }
                 }]

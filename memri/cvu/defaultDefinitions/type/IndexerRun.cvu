@@ -1,14 +1,14 @@
-[session = all-importer-instances] {
+[session = all-indexer-instances] {
     [view] {
-        title: "All ImporterRuns"
+        title: "All IndexerRuns"
         [datasource = pod] {
-            query: "ImporterRun"
+            query: "IndexerRun"
         }
     }
 }
 
-ImporterRun {
-    title: "{.name} importer run"
+IndexerRun {
+    title: "{.name}"
     defaultRenderer: generalEditor
     editActionButton: toggleEditMode
     filterButtons: [
@@ -20,7 +20,7 @@ ImporterRun {
                 defaultRenderer: timeline
                 
                 [datasource = pod] {
-                    query: "AuditItem appliesTo:{.id}"
+                    query: "AuditItem appliesTo:{.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
@@ -42,14 +42,14 @@ ImporterRun {
             duplicate { title: "Duplicate Note" }
         ]
         
-        navigate: [
+        navigateItems: [
             openView {
-                title: "Timeline of this importer run"
+                title: "Timeline of this indexer run"
                 view: {
                     defaultRenderer: timeline
                     
                      [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
+                        query: "AuditItem appliesTo:{.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
@@ -60,15 +60,15 @@ ImporterRun {
                 }
             }
             openViewByName {
-                title: "Starred importer runs"
+                title: "Starred indexer runs"
                 viewName: "filter-starred"
                 viewArguments: {
                     include: "all-notes"
                 }
             }
             openSessionByName {
-                title: "All importer runs"
-                viewName: "all-importer-instances"
+                title: "All indexer runs"
+                sessionName: "all-indexer-instances"
             }
         ]
     }
@@ -76,8 +76,7 @@ ImporterRun {
     [renderer = generalEditor] {
         layout: [
             { section: iconHeading }
-            { section: name, readOnly: true }
-            { section: run }
+            { section: info, exclude: name run }
             { section: labels }
             { section: other, fields: * }
             { section: dates }
@@ -85,25 +84,29 @@ ImporterRun {
         
         iconHeading {
             showTitle: false
+            dividers: false
             
-            HStack{
+            HStack {
                 align: center
-                padding: 30 0 0 0
+                padding: 20 0 20 0
+                show: {{ .indexer.icon or .indexer.bundleImage }}
                 
                 Image {
+                    /** todo, this padding is hacky but necessary now*/
+                    padding: 8 0 8 0
                     align: center
                     resizable: fill
-                    show: {{.importer.icon}}
-                    systemName: {{.importer.icon}}
-                    color: #2480d6
+                    show: {{.indexer.icon}}
+                    systemName: {{.indexer.icon}}
+                    color: #d64f4f
                     maxWidth: 100
                     maxHeight: 100
                 }
                 
                 Image {
                     align: center
-                    show: {{!.importer.icon and .importer.bundleImage}}
-                    bundleImage: {{.importer.bundleImage}}
+                    show: {{!.indexer.icon}}
+                    bundleImage: {{.indexer.bundleImage}}
                     color: #2480d6
                     resizable: fill
                     minWidth: 100
@@ -114,19 +117,38 @@ ImporterRun {
             }
         }
 
-        run {
+        info {
             showTitle: false
+            dividers: false
             
             VStack {
+                Divider
+                EditorRow {
+                    title: "Name"
+                    readOnly: true
+                    
+                    Text {
+                        text: {{.name}}
+                    }
+                }
+                EditorRow {
+                    Text {
+                        text: {{.indexer.itemDescription}}
+                        font: 14 regular
+                        color: #555
+                        padding: 8 36 8 0
+                    }
+                    Divider
+                }
                 HStack {
                     align: left
                     background: #f9f9f9
                     
                     Button {
-                        margin: 5 5 5 35
+                        margin: 0 5 10 35
                         
-                        press: runImporter {
-                            importer: {{.}}
+                        press: runIndexer {
+                            indexer: {{.}}
                         }
                         
                         Text {
@@ -145,23 +167,23 @@ ImporterRun {
     }
 }
 
-ImporterRun[] {
-    name: "all-importer-instances"
-    title: "All ImporterRuns"
-    emptyResultText: "There are no ImporterRuns"
-    defaultRenderer: thumbnail
+IndexerRun[] {
+    name: "all-indexer-instances"
+    title: "All IndexerRuns"
+    emptyResultText: "There are no IndexerRuns"
+    defaultRenderer: grid
     sortFields: datatype dateModified dateAccessed dateCreated
     
     [datasource = pod] {
-        query: "ImporterRun"
+        query: "IndexerRun"
         sortProperty: dateModified
         sortAscending: false
     }
-    
+
     actionButton:
         addItem {
             template {
-                _type: ImporterRunInstance
+                _type: IndexerRunInstance
                 name: {{.name}}
             }
         }
@@ -169,7 +191,7 @@ ImporterRun[] {
     editActionButton: toggleEditMode
     filterButtons: showStarred toggleFilterPanel
     
-    [renderer = thumbnail] {
+    [renderer = grid] {
         VStack {
             alignment: left
             rowInset: 12 20 -12 20

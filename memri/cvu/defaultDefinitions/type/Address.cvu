@@ -13,7 +13,8 @@ Address[] {
     filterButtons: showStarred toggleFilterPanel
     editActionButton: toggleEditMode
 
-    [renderer = list]{
+    [renderer = list] {
+        spacing: 10
         HStack {
             Text {
                 text: "{.computedTitle()}"
@@ -29,7 +30,6 @@ Address[] {
                 maxHeight: 150
                 cornerRadius: 10
                 border: #DDD 1
-                margin: 0 0 10 0
             }
         }
     }

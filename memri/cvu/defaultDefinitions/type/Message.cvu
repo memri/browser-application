@@ -20,7 +20,7 @@ Message {
                 defaultRenderer: timeline
                 
                 [datasource = pod] {
-                    query: "AuditItem appliesTo:{.id}"
+                    query: "AuditItem appliesTo:{.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
@@ -49,7 +49,7 @@ Message {
                     defaultRenderer: timeline
                     
                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.id}"
+                        query: "AuditItem appliesTo:{.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
@@ -88,19 +88,20 @@ Message[] {
     filterButtons: showStarred toggleFilterPanel
     
     [renderer = list] {
+        spacing: 8
         MessageBubble {
             sender: {{.subject}}
             content: {{.content.plainString}}
-            dateTime: {{.dateSent}}
+            timeProperty: {{.dateSent}}
             isOutgoing: {{.sender.owner = me}}
         }
     }
     
-    [renderer = thumbnail] {
+    [renderer = grid] {
         MessageBubble {
             sender: {{.sender.displayName}}
             content: {{.content.plainString}}
-            dateTime: {{.dateSent}}
+            timeProperty: {{.dateSent}}
             isOutgoing: {{.sender.owner = me}}
         }
     }
