@@ -22,7 +22,7 @@ export class MemriButton extends MainUI {
 
         var inputItem = this.item
         if (this.edge != undefined) {
-            inputItem = this.edge?.item()
+            inputItem = this.edge?.target()
         }
 
         let family = ItemFamily[inputItem?.genericType ?? "Note"]

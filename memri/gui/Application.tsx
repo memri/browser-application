@@ -8,7 +8,7 @@
 import * as React from 'react';
 import {Color} from "../cvu/parsers/cvu-parser/CVUParser";
 import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
-import {NavigationWrapper} from "./navigation/NavigationView";
+import {NavigationWrapper} from "./browser/navigationPane/NavigationView";
 import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
 import {SessionSwitcher} from "./SessionSwitcher";

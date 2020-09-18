@@ -3,11 +3,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from "react";
-import {MainUI, ZStack} from "../swiftUI";
-import {Alignment} from "../../cvu/parsers/cvu-parser/CVUParser";
+import {MainUI, ZStack} from "../../swiftUI";
+import {Alignment} from "../../../cvu/parsers/cvu-parser/CVUParser";
 import {ContextPaneBackground} from "./ContextPaneBackground";
 import {ContextPaneForeground} from "./ContextPaneForeground";
-import {geom} from "../../../demo-react";
+import {geom} from "../../../../demo-react";
 
 export class ContextPane extends MainUI {
 	widthRatio = 0.75

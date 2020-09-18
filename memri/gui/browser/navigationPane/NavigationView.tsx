@@ -6,8 +6,8 @@
 //
 
 import * as React from 'react';
-import {Alignment, Color, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
-import {ActionOpenSessionByName} from "../../cvu/views/Action";
+import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {ActionOpenSessionByName} from "../../../cvu/views/Action";
 import {
 	frame,
 	ZStack,
@@ -19,8 +19,8 @@ import {
 	Content,
 	MemriRealButton,
 	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI
-} from "../swiftUI";
-import {geom} from "../../../demo-react";
+} from "../../swiftUI";
+import {geom} from "../../../../demo-react";
 import {ListItem} from "@material-ui/core";
 
 interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}

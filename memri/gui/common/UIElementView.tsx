@@ -20,7 +20,7 @@ import {
     Spacer,
     UIImage,
     VStack,
-    ZStack
+    ZStack, Toggle, EmptyView
 } from "../swiftUI";
 import {CVUStateDefinition, Item} from "../../model/schemaExtensions/Item";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
@@ -367,6 +367,18 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.ItemCell:
                     //TODO:
                     return (<div className="ItemCell"></div>)
+                case UIElementFamily.EmailContent:
+                    //TODO:
+                    return (<div className="EmailContent">
+                        {this.get("content")}
+                    </div>)
+                case UIElementFamily.Toggle:
+                    return this.renderToggle()
+                        /*.setProperties(//TODO
+                            from.propertyResolver.properties,
+                            self.item,
+                            context,
+                            self.viewArguments*/
                 case UIElementFamily.SubView:
                     return (
                         (this.has("viewName")) ?
@@ -568,6 +580,17 @@ export class UIElementView extends MainUI {
                                headingFontSize: titleFontSize ?? 26,
                                filterText: filterTextBinding)
             .eraseToAnyView()*/ //TODO:
+    }
+
+    renderToggle() {
+        let [_, dataItem, propName] = this.from.getType("value", this.item, this.viewArguments)
+
+        return (<Toggle isOn={dataItem.get(propName) ?? false}
+                        onChange={(e) => {
+                            dataItem.set(propName, e.target.value)
+                        }}
+                        labelsHidden
+        ><EmptyView/></Toggle>)
     }
 
     renderTextfield() {

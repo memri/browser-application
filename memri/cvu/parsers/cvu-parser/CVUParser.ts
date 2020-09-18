@@ -110,7 +110,8 @@ export var Font = {
         heavy: "heavy",
         light: "light",
         ultraLight: "ultraLight",
-        black: "black"
+        black: "black",
+        medium: "medium"//TODO
     }
 }
 

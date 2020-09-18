@@ -637,6 +637,17 @@ export class RoundedRectangle extends MainUI {
     }
 }
 
+export class Capsule extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="Capsule" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
 export class ASCollectionView extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;

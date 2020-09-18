@@ -12,10 +12,10 @@ import {
 	padding,
 	ScrollView, Spacer,
 	VStack
-} from "../swiftUI";
-import {ActionNoop} from "../../cvu/views/Action";
-import {Alignment, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
-import {ActionButton} from "../ActionView";
+} from "../../swiftUI";
+import {ActionNoop} from "../../../cvu/views/Action";
+import {Alignment, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {ActionButton} from "../../ActionView";
 
 export class ContextPaneForeground extends MainUI {
 	paddingLeft = 25
