@@ -12,6 +12,7 @@ import {GridRendererController} from "./contentRenderers/GridRenderer/GridRender
 import {CustomRendererController} from "./contentRenderers/CustomRenderer";
 import {GeneralEditorRendererController} from "./contentRenderers/GeneralEditorRenderer/GeneralEditorView";
 import {MessageRendererController} from "./contentRenderers/MessageRenderer";
+import {PhotoViewerRendererController} from "./contentRenderers/PhotoViewerRenderer/PhotoViewerRenderer";
 
 export class Renderers {
     static get rendererTypes() {
@@ -21,6 +22,7 @@ export class Renderers {
         renderers[GeneralEditorRendererController.rendererType.name] = GeneralEditorRendererController.rendererType;
         renderers[CustomRendererController.rendererType.name] = CustomRendererController.rendererType;
         renderers[MessageRendererController.rendererType.name] = MessageRendererController.rendererType;
+        renderers[PhotoViewerRendererController.rendererType.name] = PhotoViewerRendererController.rendererType;
         return  renderers;
         /*return {
             MapRendererController.rendererType,
@@ -51,26 +53,6 @@ export class RendererType {
 }
 
 /*
-
-
-
-
-export class PhotoViewerRendererConfig extends CascadingRenderConfig {
-    type = "photoViewer"
-
-    get imageFile() { return this.cascadeProperty("file") }
-    get initialItem() { return this.cascadeProperty("initialItem") }
-
-    showSortInConfig: boolean = true
-
-    showContextualBarInEditMode: boolean = false
-
-    configItems(context: MemriContext) {
-        return []
-    }
-}
-
-
 export class CascadingEmailThreadRendererConfig extends CascadingRenderConfig {
     type = "email"
 
