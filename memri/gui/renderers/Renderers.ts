@@ -13,6 +13,7 @@ import {CustomRendererController} from "./contentRenderers/CustomRenderer";
 import {GeneralEditorRendererController} from "./contentRenderers/GeneralEditorRenderer/GeneralEditorView";
 import {MessageRendererController} from "./contentRenderers/MessageRenderer";
 import {PhotoViewerRendererController} from "./contentRenderers/PhotoViewerRenderer/PhotoViewerRenderer";
+import {EmailThreadRendererController} from "./contentRenderers/EmailThreadRenderer/EmailThreadRenderer";
 
 export class Renderers {
     static get rendererTypes() {
@@ -23,6 +24,7 @@ export class Renderers {
         renderers[CustomRendererController.rendererType.name] = CustomRendererController.rendererType;
         renderers[MessageRendererController.rendererType.name] = MessageRendererController.rendererType;
         renderers[PhotoViewerRendererController.rendererType.name] = PhotoViewerRendererController.rendererType;
+        renderers[EmailThreadRendererController.rendererType.name] = EmailThreadRendererController.rendererType;
         return  renderers;
         /*return {
             MapRendererController.rendererType,
@@ -51,12 +53,3 @@ export class RendererType {
         this.makeConfig = makeConfig;
     }
 }
-
-/*
-export class CascadingEmailThreadRendererConfig extends CascadingRenderConfig {
-    type = "email"
-
-    get content() {
-        return this.cascadeProperty("content", "Expression")
-    }
-}*/

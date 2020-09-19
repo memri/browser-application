@@ -106,9 +106,6 @@ export class PhotoViewerRendererConfig extends CascadingRendererConfig {
 
 export class PhotoViewerRendererView extends RenderersMemri {
     controller: PhotoViewerRendererController
-    get renderConfig(): PhotoViewerRendererConfig {
-        return this.context.currentView?.renderConfig ?? new PhotoViewerRendererConfig()
-    }
 
     render() {
         this.controller = this.props.controller;

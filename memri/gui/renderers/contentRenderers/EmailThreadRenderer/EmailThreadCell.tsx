@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {MainUI} from "../../swiftUI";
+import {MainUI} from "../../../swiftUI";
 import * as React from "react";
 
 export class EmailThreadItem extends MainUI {
@@ -92,6 +92,9 @@ export class EmailThreadCell extends MainUI/*: UITableViewCell*/ {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         emailView.translatesAutoresizingMaskIntoConstraints = false
         emailHeaderView.view.translatesAutoresizingMaskIntoConstraints = false
+
+        emailView.enableHeightConstraint = true
+
         let outerInset: CGFloat = 10
         let innerInset: CGFloat = 10
         NSLayoutConstraint.activate([
