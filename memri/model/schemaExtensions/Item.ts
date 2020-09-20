@@ -1150,6 +1150,9 @@ export enum ItemFamily {
     Vote = "Vote",
     VoteAction = "VoteAction",
     Website = "Website",
+    LabelAnnotation = "LabelAnnotation",
+    LabelAnnotationCollection = "LabelAnnotationCollection",
+    PhotoAnnotation = "PhotoAnnotation"
 }
 
 export var backgroundColor = function(name) {
@@ -1231,6 +1234,7 @@ export var backgroundColor = function(name) {
         case ItemFamily.Vote: return new Color("#93c47d")
         case ItemFamily.VoteAction: return new Color("#93c47d")
         case ItemFamily.Website: return new Color("#3d57e2")
+        default: return new Color("#93c47d")
     }
 }
 
@@ -1313,6 +1317,7 @@ export var foregroundColor = function(name) {
         case ItemFamily.Vote: return new Color("#ffffff")
         case ItemFamily.VoteAction: return new Color("#ffffff")
         case ItemFamily.Website: return new Color("#ffffff")
+        default: return new Color("white")
     }
 }
 
@@ -1396,6 +1401,9 @@ export var getItemType = function(name) {
         case ItemFamily.Vote: return Vote
         case ItemFamily.VoteAction: return VoteAction
         case ItemFamily.Website: return Website
+        case ItemFamily.LabelAnnotation: return LabelAnnotation
+        case ItemFamily.LabelAnnotationCollection: return LabelAnnotationCollection
+        case ItemFamily.PhotoAnnotation: return PhotoAnnotation
     }
 }
 
@@ -6697,3 +6705,75 @@ export function me() {
         return new Person()
     }
 }
+
+//schema-manual
+
+export class LabelAnnotation extends Item {
+
+    /// The type of label this represents
+    labelType: string
+
+    /// The labels for this type
+    labels: string
+
+    allowSharing: boolean = true
+
+    get annotatedItem() {
+        return this.edges("annotatedItem")?.items()[0];
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+
+    get labelsSet() {
+        return this.labels.split(",") ?? []; //TODO:
+    }
+
+    set labelsSet(newValue) {
+        this.labels = newValue.length == 0 ? undefined : newValue.join(",");
+    }
+}
+
+/// A group of annotations. This could be used for making a collection of annotations to share for ML training.
+export class LabelAnnotationCollection extends Item {
+    get annotations() {
+        return this.edges("annotations")?.itemsArray()
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+
+}
+
+/// An annotation on a photo
+export class PhotoAnnotation extends Item {
+    /// The x-coordinate of the top-left point, as a fraction of image width (0-1)
+    x: Double = 0
+    /// The y-coordinate of the top-left point, as a fraction of image height (0-1)
+    y: Double = 0
+    /// The width of the bounding-box, as a fraction of image width (0-1)
+    width: Double = 0
+    /// The height of the bounding-box, as a fraction of image height (0-1)
+    height: Double = 0
+
+    /// A label that this rectangle represents
+    annotationLabel: string
+
+    /// An item that this rectangle represents
+    get annotationLinkedItem() {
+        return this.edges("annotationLinkedItem")?.items()[0]
+    }
+
+    /// The photo that this annotation belongs to
+    get annotatedPhoto() {
+        return this.edges("annotatedPhoto")?.items()[0]
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+}
+
+///////////////////////////////

@@ -10,8 +10,9 @@
 //import {DatabaseController} from "../storage/DatabaseController";
 
 import {DatabaseController} from "../storage/DatabaseController";
-import {me} from "../gui/util";
+
 import {CacheMemri} from "../model/Cache";
+import {me} from "../model/schemaExtensions/Item";
 
 export class Authentication {
     autologin = true

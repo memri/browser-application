@@ -105,7 +105,7 @@ export class ListRendererView extends RenderersMemri {
 	}
 
 	deleteItem = (item) => {
-		this.context.executeAction(new ActionDelete(this.controller.context), item);
+		this.controller.context.executeAction(new ActionDelete(this.controller.context), item);
 	}
 
 	render() {

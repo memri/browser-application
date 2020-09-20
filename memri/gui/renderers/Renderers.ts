@@ -12,6 +12,7 @@ import {GridRendererController} from "./contentRenderers/GridRenderer/GridRender
 import {CustomRendererController} from "./contentRenderers/CustomRenderer";
 import {GeneralEditorRendererController} from "./contentRenderers/GeneralEditorRenderer/GeneralEditorView";
 import {MessageRendererController} from "./contentRenderers/MessageRenderer";
+import {LabelAnnotationRendererController} from "./annotationRenderers/LabelAnnotationRenderer";
 import {PhotoViewerRendererController} from "./contentRenderers/PhotoViewerRenderer/PhotoViewerRenderer";
 import {EmailThreadRendererController} from "./contentRenderers/EmailThreadRenderer/EmailThreadRenderer";
 
@@ -22,6 +23,7 @@ export class Renderers {
         renderers[GridRendererController.rendererType.name] = GridRendererController.rendererType;
         renderers[GeneralEditorRendererController.rendererType.name] = GeneralEditorRendererController.rendererType;
         renderers[CustomRendererController.rendererType.name] = CustomRendererController.rendererType;
+        renderers[LabelAnnotationRendererController.rendererType.name] = LabelAnnotationRendererController.rendererType;
         renderers[MessageRendererController.rendererType.name] = MessageRendererController.rendererType;
         renderers[PhotoViewerRendererController.rendererType.name] = PhotoViewerRendererController.rendererType;
         renderers[EmailThreadRendererController.rendererType.name] = EmailThreadRendererController.rendererType;
@@ -29,7 +31,6 @@ export class Renderers {
         /*return {
             MapRendererController.rendererType,
             FileRendererController.rendererType,
-            LabelAnnotationRendererController.rendererType,
 
             CalendarRendererController.rendererType,
             TimelineRendererController.rendererType,
