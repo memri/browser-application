@@ -97,7 +97,11 @@ export class Cascadable/* extends CustomStringConvertible*/{
         // #endif
         let expr = this.localCache[name]
         if (expr?.constructor?.name == "Expression") {
-            return this.execExpression(expr)
+            if (type == "Expression") {
+                return expr// We're requesting the Expression (not just the resolved value)
+            } else {
+                return this.execExpression(expr)
+            }
         } else
         if (expr) {
             return this.transformActionArray(expr)
