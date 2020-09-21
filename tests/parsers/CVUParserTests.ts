@@ -1,16 +1,15 @@
-import {CVU} from "./CVU";
-
 var fs = require("fs");
-import {CVUParser} from "./CVUParser";
-import {CVULexer} from "./CVULexer";
+import {CVU} from "../../memri/cvu/parsers/cvu-parser/CVU";
+import {CVUParser} from "../../memri/cvu/parsers/cvu-parser/CVUParser";
+import {CVULexer} from "../../memri/cvu/parsers/cvu-parser/CVULexer";
 
 const assert = require("assert");
 
-var testCases = fs.readFileSync("tests/CVUParserTests.json", "utf8");
+var testCases = fs.readFileSync("tests/parsers/CVUParserTests.json", "utf8");
 const CVUParserTests = JSON.parse(testCases);
 
 function toCVUString(list) {
-    return list.map(x => x.toCVUString(0, "    ")).join("\n\n")
+    return list.map(x => x.toCVUString(0, "    ")).join("\n\n").replace(/\n\s+\n"/, "\n\n")
 }
 
 function parse(snippet) {
@@ -44,7 +43,7 @@ describe("CVUParser", function() {
     });
 
     it("testSerialization", function () {
-        let fileURL = "playground/example.view";
+        let fileURL = "tests/parsers/example/example.view";
         let code = fs.readFileSync(fileURL, "utf8");
 
         let viewDef = new CVU(code, "" , undefined, undefined);

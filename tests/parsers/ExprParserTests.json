@@ -19,6 +19,30 @@
     "snippet": "true ? false and true ? -1 : false or true ? 'yes' : 'no' : -1",
     "result": "ConditionNode(condition: BoolNode(true), trueExp: ConditionNode(condition: BinaryOpNode(ConditionAND, lhs: BoolNode(false), rhs: BoolNode(true)), trueExp: BinaryOpNode(Multiplication, lhs: NumberNode(-1.0), rhs: NumberNode(1.0)), falseExp: ConditionNode(condition: BinaryOpNode(ConditionOR, lhs: BoolNode(false), rhs: BoolNode(true)), trueExp: StringNode(yes), falseExp: StringNode(no))), falseExp: BinaryOpNode(Multiplication, lhs: NumberNode(-1.0), rhs: NumberNode(1.0)))"
   },
+  "testConditionEquals": {
+    "snippet": "true = false",
+    "result": "BinaryOpNode(ConditionEquals, lhs: BoolNode(true), rhs: BoolNode(false))"
+  },
+  "testConditionNotEquals": {
+    "snippet": "true != false",
+    "result": "BinaryOpNode(ConditionNotEquals, lhs: BoolNode(true), rhs: BoolNode(false))"
+  },
+  "testConditionGreaterThan": {
+    "snippet": "5 > 10",
+    "result": "BinaryOpNode(ConditionGreaterThan, lhs: NumberNode(5.0), rhs: NumberNode(10.0))"
+  },
+  "testConditionGreaterThanOrEqual": {
+    "snippet": "5 >= 10",
+    "result": "BinaryOpNode(ConditionGreaterThanOrEqual, lhs: NumberNode(5.0), rhs: NumberNode(10.0))"
+  },
+  "testConditionLessThan": {
+    "snippet": "5 < 10",
+    "result": "BinaryOpNode(ConditionLessThan, lhs: NumberNode(5.0), rhs: NumberNode(10.0))"
+  },
+  "testConditionLessThanOrEqual": {
+    "snippet": "5 <= 10",
+    "result": "BinaryOpNode(ConditionLessThanOrEqual, lhs: NumberNode(5.0), rhs: NumberNode(10.0))"
+  },
   "testLookup": {
     "snippet": ".bar and bar.foo(10) and bar[foo = 10] or shouldNeverGetHere",
     "result": "BinaryOpNode(ConditionAND, lhs: BinaryOpNode(ConditionAND, lhs: LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(bar, type:propertyOrItem, list:single)]), rhs: CallNode(lookup: LookupNode([VariableNode(bar, type:propertyOrItem, list:single), VariableNode(foo, type:propertyOrItem, list:single)]), argument: [NumberNode(10.0)])), rhs: BinaryOpNode(ConditionOR, lhs: LookupNode([VariableNode(bar, type:propertyOrItem, list:list), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(foo, type:propertyOrItem, list:single)]), rhs: NumberNode(10.0))])]), rhs: LookupNode([VariableNode(shouldNeverGetHere, type:propertyOrItem, list:single)])))"
@@ -80,7 +104,7 @@
   "testStringModeUsingOr": {
     "snippet": "{.title or \"test\"} — {.content.plainString}",
     "startMode": "string",
-    "result": "StringModeNode(expressions: [CallNode(lookup: LookupNode([VariableNode(fetchName)]), argument: []), StringNode( Hello)])"
+    "result": "StringModeNode(expressions: [BinaryOpNode(ConditionOR, lhs: LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(title, type:propertyOrItem, list:single)]), rhs: StringNode(test)), StringNode( — ), LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(content, type:propertyOrItem, list:single), VariableNode(plainString, type:propertyOrItem, list:single)])])"
   },
   "testStringModeStartWithExpression": {
     "snippet": "{fetchName()} Hello",
@@ -90,11 +114,11 @@
   "testStringModeWithQuote": {
     "snippet": "Photo AND ANY includes.uid = {.uid}",
     "startMode": "string",
-    "result": "StringModeNode(expressions: [StringNode(Photo AND ANY includes.uid = ), LookupNode([VariableNode(@@DEFAULT@@), VariableNode(uid)]), StringNode()])"
+    "result": "StringModeNode(expressions: [StringNode(Photo AND ANY includes.uid = ), LookupNode([VariableNode(@@DEFAULT@@, type:propertyOrItem, list:single), VariableNode(uid, type:propertyOrItem, list:single)])])"
   },
   "testExample": {
-    "snippet": "!(test + -5.63537) or 4/3 ? variable.function() : me.address[primary = true].country ? ((4+5 * 10) + test[10]) : 'asdads\\'asdad' + ''",
-    "result": "ConditionNode(condition: BinaryOpNode(ConditionOR, lhs: NegationNode(BinaryOpNode(Plus, lhs: LookupNode([VariableNode(test, type:propertyOrItem, list:single)]), rhs: BinaryOpNode(Multiplication, lhs: NumberNode(-1.0), rhs: NumberNode(5.63537)))), rhs: BinaryOpNode(Division, lhs: NumberNode(4.0), rhs: NumberNode(3.0))), trueExp: CallNode(lookup: LookupNode([VariableNode(variable, type:propertyOrItem, list:single), VariableNode(function, type:propertyOrItem, list:single)]), argument: []), falseExp: ConditionNode(condition: LookupNode([VariableNode(me, type:propertyOrItem, list:single), VariableNode(address, type:propertyOrItem, list:list), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(primary, type:propertyOrItem, list:single)]), rhs: BoolNode(true))]), VariableNode(country, type:propertyOrItem, list:single)]), trueExp: BinaryOpNode(Plus, lhs: BinaryOpNode(Plus, lhs: NumberNode(4.0), rhs: BinaryOpNode(Multiplication, lhs: NumberNode(5.0), rhs: NumberNode(10.0))), rhs: LookupNode([VariableNode(test, type:propertyOrItem, list:list), LookupNode([NumberNode(10.0)])])), falseExp: BinaryOpNode(Plus, lhs: StringNode(asdads'asdad), rhs: StringNode())))"
+    "snippet": "!(test + -5.63537) or 4/3 ? variable.func() : me.address[primary = true].country ? ((4+5 * 10) + test[10]) : 'asdads\\'asdad' + ''",
+    "result": "ConditionNode(condition: BinaryOpNode(ConditionOR, lhs: NegationNode(BinaryOpNode(Plus, lhs: LookupNode([VariableNode(test, type:propertyOrItem, list:single)]), rhs: BinaryOpNode(Multiplication, lhs: NumberNode(-1.0), rhs: NumberNode(5.63537)))), rhs: BinaryOpNode(Division, lhs: NumberNode(4.0), rhs: NumberNode(3.0))), trueExp: CallNode(lookup: LookupNode([VariableNode(variable, type:propertyOrItem, list:single), VariableNode(func, type:propertyOrItem, list:single)]), argument: []), falseExp: ConditionNode(condition: LookupNode([VariableNode(me, type:propertyOrItem, list:single), VariableNode(address, type:propertyOrItem, list:list), LookupNode([BinaryOpNode(ConditionEquals, lhs: LookupNode([VariableNode(primary, type:propertyOrItem, list:single)]), rhs: BoolNode(true))]), VariableNode(country, type:propertyOrItem, list:single)]), trueExp: BinaryOpNode(Plus, lhs: BinaryOpNode(Plus, lhs: NumberNode(4.0), rhs: BinaryOpNode(Multiplication, lhs: NumberNode(5.0), rhs: NumberNode(10.0))), rhs: LookupNode([VariableNode(test, type:propertyOrItem, list:list), LookupNode([NumberNode(10.0)])])), falseExp: BinaryOpNode(Plus, lhs: StringNode(asdads'asdad), rhs: StringNode())))"
   },
   "testErrorIncompleteCondition": {
     "snippet": "true ? 'yes'",

@@ -4,12 +4,12 @@
 //  Created by Ruben Daniels on 5/15/20.
 //  Copyright © 2020 Memri. All rights reserved.
 //
-import {ExprParser} from "./ExprParser";
-import {ExprLexer} from "./ExprLexer";
+import {ExprParser} from "../../memri/cvu/parsers/expression-parser/ExprParser";
+import {ExprLexer} from "../../memri/cvu/parsers/expression-parser/ExprLexer";
 const assert = require("assert");
 var fs = require("fs");
 
-var testCases = fs.readFileSync("tests/ExprParserTests.json", "utf8");
+var testCases = fs.readFileSync("tests/parsers/ExprParserTests.json", "utf8");
 const ExprParserTests = JSON.parse(testCases);
 
 function parse(snippet, mode) {

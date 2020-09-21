@@ -49,17 +49,17 @@ export class Color {
                 break;
             default:
                 if (value.charAt(0) == "#") {
-                    if (value.length == 4) {
+                    /*if (value.length == 4) {
                         this.value = value.charAt(0) + value.charAt(1) + value.charAt(1) + value.charAt(2) + value.charAt(2) + value.charAt(3) + value.charAt(3);
-                    } else {
+                    } else {*/
                         this.value = value;
-                    }
+                    //}
                 } else {
-                    if (value.length == 3) {
+                    /*if (value.length == 3) {
                         this.value = "#" + value.charAt(0) + value.charAt(0) + value.charAt(1) + value.charAt(1) + value.charAt(2) + value.charAt(2);
-                    } else {
+                    } else {*/
                         this.value = "#" + value;
-                    }
+                    //}
                 }
                 break;
         }

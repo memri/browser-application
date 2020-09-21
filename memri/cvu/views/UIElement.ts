@@ -135,7 +135,7 @@ export class UIElement /*extends CVUToString */{
 	toCVUString(depth, tab) {
 		let tabs = tab.repeat(depth + 1);
 		let tabsPlus = tab.repeat(depth + 2);
-		//let tabsEnd = (depth - 1 > 0)? tab.repeat(depth - 1) : ""; //TODO:
+		let tabsEnd = (depth > 0)? tab.repeat(depth) : ""; //TODO:
 		let properties = this.propertyResolver.properties
 
 		let propertiesLength = Object.keys(properties).length ?? 0
@@ -144,15 +144,15 @@ export class UIElement /*extends CVUToString */{
 		return propertiesLength > 0 || childrenLength > 0
 			? `${this.type} {\n`
 			+ (propertiesLength > 0
-				? `${tabsPlus}${CVUSerializer.dictToString(properties, depth + 1, tab, false)}`
+				? `${tabs}${CVUSerializer.dictToString(properties, depth + 1, tab, false)}`
 				: "")
 			+ (propertiesLength > 0 && childrenLength > 0
 				? "\n\n"
 				: "")
 			+ (childrenLength > 0
-				? `${tabsPlus}${CVUSerializer.arrayToString(this.children, depth + 1, tab, false, true)}`
+				? `${tabs}${CVUSerializer.arrayToString(this.children, depth + 1, tab, false, true)}`
 				: "")
-			+ `\n${tabs}}`
+			+ `\n${tabsEnd}}`
 			: `${this.type}\n`
 	}
 
@@ -306,7 +306,7 @@ export var validateUIElementProperties = function (key, value) {
 		case UIElementProperties.color:
 		case UIElementProperties.background:
 		case UIElementProperties.rowbackground:
-			return value?.constructor?.name == "ColorDefinition"
+			return value?.constructor?.name == "Color"
 		case UIElementProperties.font:
 			if (Array.isArray(value)) {
 			return value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number" || (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
@@ -321,11 +321,11 @@ export var validateUIElementProperties = function (key, value) {
 			}
 		case UIElementProperties.border:
 			if (Array.isArray(value)) {
-			return value[0]?.constructor?.name == "ColorDefinition" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+			return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
 		} else { return false }
 		case UIElementProperties.shadow:
 			if (Array.isArray(value)) {
-				return value[0]?.constructor?.name == "ColorDefinition" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+				return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
 					&& (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
 			} else {
 				return false

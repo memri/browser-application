@@ -140,8 +140,24 @@ export class ExprVariableNode implements ExprNode{
             }
         }
     };
+
     toString() {
-        return `VariableNode(${this.name}, type:${this.type}, list:${this.list})`
+        let type;
+        switch (this.type) {
+            case ExprVariableType.reverseEdge:
+                type = "reverseEdge";
+                break;
+            case ExprVariableType.reverseEdgeItem:
+                type = "reverseEdgeItem";
+                break;
+            case ExprVariableType.edge:
+                type = "edge";
+                break;
+            case ExprVariableType.propertyOrItem:
+                type = "propertyOrItem";
+                break;
+        }
+        return `VariableNode(${this.name}, type:${type}, list:${this.list})`
     }
 
     toExprString() {

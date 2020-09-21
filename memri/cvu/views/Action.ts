@@ -338,8 +338,6 @@ export var validateActionType = function (key: string, value): boolean {
         case ActionProperties.showTitle:
         case ActionProperties.icon:
             return typeof value == "string";
-        case ActionProperties.arguments:
-            return Array.isArray(value) // TODO do better by implementing something similar to executeAction
         case ActionProperties.renderAs:
             return (value?.constructor?.name == "RenderType"); //TODO
         case ActionProperties.opensView:

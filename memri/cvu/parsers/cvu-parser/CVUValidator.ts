@@ -31,7 +31,7 @@
 //        }
 //    }
 
-import {ActionFamily, ActionProperties, validateActionType} from "../../views/Action";
+import {Action, ActionFamily, ActionProperties, validateActionType} from "../../views/Action";
 import {UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../views/UIElement";
 
 export class CVUValidator {
@@ -149,17 +149,17 @@ export class CVUValidator {
                 if (value?.constructor?.name == "Expression") { continue }
 
                 try {
-                    if (Array.isArray(value)) {
+                    /*if (Array.isArray(value)) {
                         value.map(function (el) {
                             if (validate(key, el) == false) {
                                 this.errors.push(`Invalid property value '${this.valueToTruncatedString(el)}' for '${key}' at definition ${definition.selector != null ? definition.selector : ""}.`)
                             }
                         }.bind(this))
-                    } else {
+                    } else {*/
                         if (validate(key, value) == false) {
                             this.errors.push(`Invalid property value '${this.valueToTruncatedString(value)}' for '${key}' at definition ${definition.selector != null ? definition.selector : ""}.`)
                         }
-                    }
+                    //}
                     //TODO
                 }
                 catch {
@@ -200,11 +200,11 @@ export class CVUValidator {
                         // #warning("Add validation for contextPane")
                     case "contextPane": return value?.constructor?.name == "CVUParsedObjectDefinition"
                     case "datasourceDefinition":
-                    case "datasource": //TODO: in original file there is no such key, but i think this is correct
+                    //case "datasource": //TODO: in original file there is no such key, but i think this is correct
                         return value?.constructor?.name == "CVUParsedDatasourceDefinition"
                     case "showLabels": return typeof value == "boolean"
                     case "actionButton": case "editActionButton":
-                    if (value?.constructor?.name == "Action") { this.validateAction(value) }
+                    if (value instanceof Action) { this.validateAction(value) }
                     else { return false }
                     break;
                     case "sortFields":
@@ -213,19 +213,19 @@ export class CVUValidator {
                     case "editButtons": case "filterButtons": case "actionItems": case
                 "navigateItems": case "contextButtons":
                     if (Array.isArray(value)) {
-                        for (let action in value) {
-                            if (action?.constructor?.name == "Action") { this.validateAction(action) }
+                        for (let action of value) {
+                            if (action instanceof Action) { this.validateAction(action) }
                             else {
                                 this.errors.push(`Expected action definition but found '${this.valueToTruncatedString(action)}' at property '${key}' of ${definition.selector != null ? definition.selector : ""}`)
                             }
                         }
                     }
-                    else if (value?.constructor?.name == "Action") { this.validateAction(value) }
+                    else if (value instanceof Action) { this.validateAction(value) }
                     else { return false }
                     break;
                     case "include":
                         if (Array.isArray(value)) {
-                            return typeof value[0] == "string" && Array.isArray(value[1]) && typeof value[1][0].isCVUObject === "function"
+                            return typeof value[0] == "string" && typeof value[1].isCVUObject === "function"
                         }
                         else { return typeof value == "string" || typeof value.isCVUObject === "function" }//TODO: in original file there is no such check, but i think this is correct to pass tests
                     case "rendererDefinitions": return Array.isArray(value) && value[0]?.constructor?.name == "CVUParsedRendererDefinition"

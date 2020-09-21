@@ -31,8 +31,8 @@
     "warnings": 1
   },
   "testActionProperties": {
-    "snippet": "Person {\n    viewArguments: { readonly: true }\n\n    navigateItems: [\n        openView {\n            title: 10\n            arguments: {\n                view: {\n                    defaultRenderer: timeline\n\n                    datasource {\n                        query: \"AuditItem appliesTo:{.id}\"\n                        sortProperty: dateCreated\n                        sortAscending: true\n                    }\n\n                    [renderer = \"timeline\"] {\n                        timeProperty: dateCreated\n                    }\n                }\n            }\n        }\n        openViewByName {\n            title: \"{$starred} {type.plural()}\"\n            arguments: {\n                name: \"filter-starred\"\n                include: \"all-{type}\"\n            }\n        }\n        openViewByName {\n            title: \"{$all} {type.lowercased().plural()}\"\n            arguments: {\n                name: \"all-{type}\"\n            }\n        }\n    ]\n}",
-    "errors": 1,
-    "warnings": 0
+    "snippet": "Person {\n    viewArguments: { readonly: true }\n\n    navigateItems: [\n        openView {\n            title: 10\n            view: {\n                defaultRenderer: timeline\n\n                datasource {\n                    query: \"AuditItem appliesTo:{.uid}\"\n                    sortProperty: dateCreated\n                    sortAscending: true\n                }\n\n                    [renderer = \"timeline\"] {\n            timeProperty: dateCreated\n        }\n}\n}\n    openViewByName {\n        title: \"{$starred} {type.plural()}\"\n        viewName: \"filter-starred\"\n        include: \"all-{type}\"\n    }\n    openSessionByName {\n        title: \"{$all} {type.lowercased().plural()}\"\n        arguments: {\n            sessionName: \"all-{type}\"\n        }\n    }\n]\n}",
+    "errors": 2,
+    "warnings": 1
   }
 }

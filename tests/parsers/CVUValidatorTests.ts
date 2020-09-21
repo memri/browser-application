@@ -1,13 +1,13 @@
-import {CVU} from "./CVU";
-import {CVUValidator} from "./CVUValidator";
+import {CVU} from "../../memri/cvu/parsers/cvu-parser/CVU";
+import {CVUValidator} from "../../memri/cvu/parsers/cvu-parser/CVUValidator";
 
 var fs = require("fs");
-import {CVUParser} from "./CVUParser";
-import {CVULexer} from "./CVULexer";
+import {CVUParser} from "../../memri/cvu/parsers/cvu-parser/CVUParser";
+import {CVULexer} from "../../memri/cvu/parsers/cvu-parser/CVULexer";
 
 const assert = require("assert");
 
-var testCases = fs.readFileSync("tests/CVUValidatorTests.json", "utf8");
+var testCases = fs.readFileSync("tests/parsers/CVUValidatorTests.json", "utf8");
 const CVUValidatorTests = JSON.parse(testCases);
 
 function parse(snippet) {
@@ -42,8 +42,8 @@ describe("CVUValidator", function() {
         });
     });
 
-    it("testSerialization", function () {
-        let fileURL = "playground/example.view";
+    it("testLargeCVU", function () {
+        let fileURL = "tests/parsers/example/example.view";
         let code = fs.readFileSync(fileURL, "utf8");
 
         let viewDef = new CVU(code, "" , undefined, undefined);
@@ -53,7 +53,7 @@ describe("CVUValidator", function() {
         let validator = new CVUValidator();
         validator.validate(parsed);
 
-        assert.equal(validator.errors.length, 0);
+        assert.equal(validator.errors.length, 5);
         assert.equal(validator.warnings.length, 1);
     });
 })

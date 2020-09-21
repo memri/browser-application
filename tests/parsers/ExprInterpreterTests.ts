@@ -4,9 +4,9 @@
 //  Created by Ruben Daniels on 5/15/20.
 //  Copyright © 2020 Memri. All rights reserved.
 //
-import {ExprParser} from "./ExprParser";
-import {ExprLexer} from "./ExprLexer";
-import {ExprInterpreter} from "./ExprInterpreter";
+import {ExprParser} from "../../memri/cvu/parsers/expression-parser/ExprParser";
+import {ExprLexer} from "../../memri/cvu/parsers/expression-parser/ExprLexer";
+import {ExprInterpreter} from "../../memri/cvu/parsers/expression-parser/ExprInterpreter";
 const assert = require("assert");
 
 const ExprInterpreterTests = {
@@ -55,6 +55,36 @@ const ExprInterpreterTests = {
         snippet: "true ? false and true ? -1 : false or true ? 'yes' : 'no' : -1",
         result: "yes",
     },
+
+    testConditionEquals: {
+        snippet: "true = false",
+        result: false,
+    },
+
+    testConditionNotEquals: {
+        snippet: "true != false",
+        result: true,
+    },
+
+    testConditionGreaterThan: {
+        snippet: "5 > 10",
+        result: false,
+    },
+
+    testConditionGreaterThanOrEqual: {
+        snippet: "5 >= 5",
+        result: true,
+    },
+
+    testConditionLessThan: {
+        snippet: "5 < 10",
+        result: true,
+    },
+
+    testConditionLessThanOrEqual: {
+        snippet: "5 <= 5",
+        result: true,
+    },
     
     testLookup: {
         snippet: ".bar and bar.foo(10) and bar[foo = 10] or shouldNeverGetHere",
@@ -90,7 +120,7 @@ const ExprInterpreterTests = {
 
     testNegationWithLookup: {
         snippet: "!.label",
-        result: false,
+        result: true,
         lookup: function (lookup) {
             return null
         },
@@ -120,6 +150,11 @@ const ExprInterpreterTests = {
     testTypeConversionToBool: {
         snippet: "0 ? -1 : 1 ? '' ? -1 : 'yes' : -1",
         result: "yes",
+    },
+
+    testTypeConversionStringToBool: {
+        snippet: "''",
+        result: false,
     },
     
     testStringModeStartWithString: {

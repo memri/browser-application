@@ -92,8 +92,8 @@
     "result": "Person {\n    title: null\n}"
   },
   "testIdentifierProperty": {
-    "snippet": "Person { defaultRenderer: thumbnail.grid }",
-    "result": "Person {\n    defaultRenderer: \"thumbnail.grid\"\n}"
+    "snippet": "Person { defaultRenderer: grid }",
+    "result": "Person {\n    defaultRenderer: \"grid\"\n}"
   },
   "testColorProperty": {
     "snippet": "Person { color: #f0f }",
@@ -109,19 +109,19 @@
   },
   "testCSSLikeSyntax": {
     "snippet": "Person {\n    background: #fff;\n    border: 1 red;\n    padding: 1 2 3 4;\n}",
-    "result": "Person {\n    background: #ffffff\n    border: 1 \"red\"\n    padding: 1 2 3 4\n}"
+    "result": "Person {\n    background: #fff\n    border: 1 \"red\"\n    padding: 1 2 3 4\n}"
   },
   "testSingleLineCSSLikeSyntax": {
     "snippet": "Person { background: #fff; border: 1 red; padding: 1 2 3 4; }",
-    "result": "Person {\n    background: #ffffff\n    border: 1 \"red\"\n    padding: 1 2 3 4\n}"
+    "result": "Person {\n    background: #fff\n    border: 1 \"red\"\n    padding: 1 2 3 4\n}"
   },
   "testSingleLineSyntax": {
     "snippet": "Person { background: #fff, border: 1 red, padding: 1 2 3 4, object: { test: 1 } }",
-    "result": "Person {\n    background: #ffffff\n    border: 1 \"red\"\n    padding: 1 2 3 4\n    \n    object: {\n        test: 1\n    }\n}"
+    "result": "Person {\n    background: #fff\n    border: 1 \"red\"\n    padding: 1 2 3 4\n    \n    object: {\n        test: 1\n    }\n}"
   },
   "testCurlyBracketsOnSeparateLine": {
     "snippet": "Person\n{\n    background: #fff\n    object:\n        { test: 1 }\n    bla:\n    {\n        test: 1\n    }\n}",
-    "result": "Person {\n    background: #ffffff\n    \n    bla: {\n        test: 1\n    }\n    \n    object: {\n        test: 1\n    }\n}"
+    "result": "Person {\n    background: #fff\n    \n    bla: {\n        test: 1\n    }\n    \n    object: {\n        test: 1\n    }\n}"
   },
   "testComments": {
     "snippet": "/* Hello */\nPerson {\n    /* World */\n    key: value\n}",
@@ -132,6 +132,9 @@
   },
   "testUserState": {
     "snippet": "Person {\n    userState: {\n        showStarred: true\n    }\n}"
+  },
+  "testEmptyArray": {
+    "snippet": "Person {\n    userState: {\n        selection: []\n    }\n}"
   },
   "testViewArguments": {
     "snippet": "Person {\n    viewArguments: {\n        readOnly: true\n    }\n}"
@@ -147,10 +150,10 @@
     "snippet": "Person {\n    [renderer = list] {\n        Action {\n            press: star\n        }\n    }\n}"
   },
   "testActionAddItem": {
-    "snippet": "Person {\n    [renderer = list] {\n        press: addItem {\n            arguments: {\n                template: {\n                    _type: \"ImporterInstance\"\n                    name: {{.name}}\n                }\n            }\n        }\n    }\n}"
+    "snippet": "Person {\n    [renderer = list] {\n        press: addItem {\n            template: {\n                name: {{.name}}\n                _type: \"ImporterRun\"\n            }\n        }\n    }\n}"
   },
   "testMultipleActions": {
-    "snippet": "Person {\n    [renderer = list] {\n        press: [\n            link {\n                arguments: {\n                    property: {{property}}\n                    dataItem: {{dataItem}}\n                }\n            }\n            closePopup\n        ]\n    }\n}"
+    "snippet": "Person {\n    [renderer = list] {\n        press: [\n            link {\n                dataItem: {{dataItem}}\n        property: {{property}}\n    }\n        closePopup\n    ]\n    }\n}"
   },
   "testErrorMissingCurlBracketClose": {
     "snippet": "Person {\n    test: 1",
@@ -162,11 +165,11 @@
   },
   "testErrorMissingExprCloseBracket": {
     "snippet": "Person {\n    expr: {{.test}\n}",
-    "error": "MissingExpressionClose(EOF,1,21)"
+    "error": "MissingExpressionClose(EOF,2,2)"
   },
   "testErrorMissingExprCloseBrackets": {
     "snippet": "Person {\n    expr: {{.test\n}",
-    "error": "MissingExpressionClose(EOF,1,20)"
+    "error": "MissingExpressionClose(EOF,2,2)"
   },
   "testErrorExtraBracket": {
     "snippet": "Person {\n    expr: [adasd, 5[]\n}",
@@ -190,6 +193,6 @@
   },
   "testErrorMissingQuoteClose": {
     "snippet": "Person {\n    string: \"value\n}",
-    "error": "MissingQuoteClose(EOF,1,21)"
+    "error": "MissingQuoteClose(EOF,2,2)"
   }
 }
