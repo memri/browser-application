@@ -53,7 +53,7 @@ export class PhotoViewerRendererController {
     }
 
     get hasItems() {
-        return !this.context.items.isEmpty //TODO: ?
+        return this.context.items.length != 0
     }
 
 

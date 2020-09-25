@@ -58,7 +58,7 @@ export class GridRendererController {
     }
 
     get hasItems() {
-        return !this.context.items.isEmpty //TODO: ?
+        return this.context.items.length != 0
     }
 
     get items() {

@@ -6,13 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-/*struct LabelOption {
-    var labelID: String
-    var text: String
-    var icon: Image
 
-    var id: String { labelID }
-}*/
 
 import {CascadingRendererConfig} from "../../../cvu/views/CascadingRendererConfig";
 import {DatabaseController} from "../../../storage/DatabaseController";
@@ -28,8 +22,23 @@ import {
     RenderersMemri,
     VStack
 } from "../../swiftUI";
-import {Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
 import * as React from "react";
+import {LabelAnnotation} from "../../../model/schemaExtensions/Item";
+
+class LabelOption {
+    labelID: string
+    text: string
+    icon
+
+    constructor(labelID: string, text: string, icon) {
+        this.labelID = labelID
+        this.text = text
+        this.icon = icon
+    }
+
+    get id(): string {return this.labelID}
+}
 
 export class LabelAnnotationRendererController {
     static rendererType = {name: "labelAnnotation", icon: "tag.circle.fill", makeController:LabelAnnotationRendererController, makeConfig:LabelAnnotationRendererController.makeConfig}
@@ -75,22 +84,29 @@ export class LabelAnnotationRendererController {
     get labelType() {
         return this.config.labelType
     }
-/*
+
     get labelOptions() {
-    return this.config.labelOptions.indexed().map { label in
-    LabelOption(labelID: label.element, text: label.element.titleCase(), icon: Image(systemName: config.labelOptionIcons[safe: label.index] ?? "tag"))
-}
-}*/ //TODO:
+        //TODO labelOptions.indexed
+        return Object.entries(this.config.labelOptions).map((label) =>
+            new LabelOption(label[1], label[1].titleCase(), <MemriImage>{this.config.labelOptionIcons[label[0]] ?? "tag"}</MemriImage>)
+        )
+    }
 
     moveToPreviousItem() {
         if (this.currentIndex <= 0) { return;}
         this.currentIndex--;
+        this.loadExistingAnnotation()
+        this.context.scheduleCascadableViewUpdate(false)
     }
+    moveToPreviousItem = this.moveToPreviousItem.bind(this)
 
     moveToNextItem() {
-        if (this.currentIndex >= this.context.items.length - 1 - 1) { return;}
+        if (this.currentIndex >= this.context.items.length - 1) { return;}
         this.currentIndex++;
+        this.loadExistingAnnotation()
+        this.context.scheduleCascadableViewUpdate(false)
     }
+    moveToNextItem = this.moveToNextItem.bind(this)
 
     loadExistingAnnotation() {
         this.selectedLabels = this.currentAnnotationLabels
@@ -103,12 +119,12 @@ export class LabelAnnotationRendererController {
 
         let oldAnnotation = this.currentAnnotation()
         DatabaseController.sync(true, (realm) => {
-            let annotationItem: Item = oldAnnotation ?? new LabelAnnotation()
+            let annotationItem: Item = oldAnnotation ?? new LabelAnnotation({"_type": "LabelAnnotation"})//TODO
             annotationItem.labelType = this.labelType
             annotationItem.labelsSet = this.selectedLabels
             try {
                 if (oldAnnotation == undefined) {
-                    annotationItem.uid.value = annotationItem.uid ?? CacheMemri.incrementUID()
+                    annotationItem.uid = annotationItem.uid ?? CacheMemri.incrementUID()
                     realm.add(annotationItem)
                 }
                 annotationItem.link(this.currentItem, "annotatedItem", undefined, undefined, true, true)
@@ -119,11 +135,12 @@ export class LabelAnnotationRendererController {
 
         this.moveToNextItem()
     }
+    applyCurrentItem = this.applyCurrentItem.bind(this)
 
-    get currentAnnotation() {
+    currentAnnotation() {
         return DatabaseController.sync(false, (realm) => {
             let edge = this.currentItem?.reverseEdges("annotatedItem")?.find(($0) => {
-                return $0.source()?.labelType == labelType
+                return $0.source()?.labelType == this.labelType
             }) //TODO:
             return edge?.source()
         })
@@ -142,7 +159,7 @@ export class LabelAnnotationRendererController {
     }
 
     get progressText() {
-        if (this.context.items.isEmpty) {
+        if (this.context.items.length == 0) {
             return
         }
         return `Item ${this.currentIndex + 1} of ${this.context.items.length}`
@@ -153,7 +170,7 @@ export class LabelAnnotationRendererController {
     }
 
     get enableSkipButton() {
-        return this.currentIndex < this.context.items.length - 1 - 1
+        return this.currentIndex < this.context.items.length - 1
     }
 
 }
@@ -175,6 +192,23 @@ class LabelAnnotationRendererConfig extends CascadingRendererConfig {
     }
 
     get labelOptionIcons() {
+        let labelOptionIcons = this.cascadeList("labelOptionIcons")
+        let changedLabelOptions = {//TODO
+            "person.circle": "person",
+            "bell": "notifications_none",
+            "creditcard": "credit_card",
+            "cart": "shopping_cart",
+            "hand.thumbsdown": "thumb_down"
+        }
+        let resultLabelOptions = []
+        for (let i in labelOptionIcons) {
+            let labelOption = labelOptionIcons[i]
+            if (changedLabelOptions[labelOption]) {
+                labelOption = changedLabelOptions[labelOption]
+            }
+            resultLabelOptions.push(labelOption)
+        }
+        return resultLabelOptions
         return this.cascadeList("labelOptionIcons")
     }
 }
@@ -196,22 +230,28 @@ export class LabelAnnotationRendererView extends RenderersMemri {
         }
     }
 
-    selectedLabelBinding() {
+    selectedLabelBinding = {//TODO!!!
+        get: () => {
+            return this.controller.selectedLabels
+        },
+        set: ($0) => {
+            this.controller.selectedLabels = $0
+            this.controller.context.scheduleCascadableViewUpdate(false)
+        }
       /*  Binding(
             get: { self.controller.selectedLabels },
         set: {
             self.controller.selectedLabels = $0
         })*/
-      return
     }
 
     render() {
         this.controller = this.props.controller;
         return (
-            <LabelSelectionView options={this.controller.labelOptions} selected={this.selectedLabelBinding()}
+            <LabelSelectionView options={this.controller.labelOptions} selected={this.selectedLabelBinding}
                                 enabled={this.controller.currentItem != undefined}
-                                onBackPressed={this.controller.moveToPreviousItem()}
-                                onCheckmarkPressed={this.controller.applyCurrentItem()}
+                                onBackPressed={this.controller.moveToPreviousItem}
+                                onCheckmarkPressed={this.controller.applyCurrentItem}
                                 onSkipPressed={this.controller.moveToNextItem}
                                 enableBackButton={this.controller.enableBackButton}
                                 enableCheckmarkButton={true}
@@ -227,7 +267,7 @@ export class LabelAnnotationRendererView extends RenderersMemri {
 class LabelSelectionView extends MainUI {
     options
 
-    selected
+    selected: string[]
     enabled: boolean
 
     onBackPressed
@@ -245,7 +285,7 @@ class LabelSelectionView extends MainUI {
 
     render(){
         this.options = this.props.options;
-        this.selected = this.props.selected;
+        this.selected = this.props.selected.get();
         this.enabled = this.props.enabled;
         this.onBackPressed = this.props.onBackPressed;
         this.onCheckmarkPressed = this.props.onCheckmarkPressed;
@@ -270,11 +310,16 @@ class LabelSelectionView extends MainUI {
                     {this.options.map((option) => {
                         return (
                             <MemriRealButton action={() => {
-                                if (this.selected.remove(option.id) == undefined) {
-                                    this.selected.insert(option.id)
-                                } //TODO:?
+                                this.selected.includes(option.id)
+                                    ? this.selected.splice(this.selected.findIndex((id) => id === option.id), 1)
+                                    : this.selected.push(option.id)
+                                this.props.selected.set(this.selected);
                             }}>
-                                <HStack>
+                                <HStack frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
+                                        foregroundColor={this.selected.includes(option.id) ? "white" : ""}
+                                        background={this.selected.includes(option.id) ? "blue" : ""}
+                                        /*TODO*/
+                                >
                                     {option.icon}
                                     <MemriText>
                                         {option.text}
@@ -290,7 +335,7 @@ class LabelSelectionView extends MainUI {
                     <MemriRealButton action={this.onBackPressed} disabled={!this.enableBackButton}>
                         <MemriImage font={font({family: "system", size: 20})} padding={padding({horizontal: 20})}
                                     foregroundColor={this.enableBackButton ? "blue" : "gray"}>
-                            arrow.uturn.left
+                            undo
                         </MemriImage>
                     </MemriRealButton>
                     <MemriRealButton action={this.onCheckmarkPressed} disabled={!this.enableCheckmarkButton}>
