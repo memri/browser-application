@@ -79,7 +79,8 @@ export class Browser extends MainUI {
 
 									{!currentView.fullscreen &&
 										<BottomBarView onSearchPressed={() => {
-											this.isSearchActive = true
+											this.isSearchActive = true;
+											this.context.scheduleCascadableViewUpdate();
 										}} context={this.context} zIndex={8}/>
 									}
 								</VStack>
@@ -87,7 +88,7 @@ export class Browser extends MainUI {
 								{this.showFilterPanel &&
 									<ColorArea color={"black"}
 											   opacity={0.15}
-											   click={() => {this.showFilterPanel = false}}
+											   click={() => {this.showFilterPanel = false; this.context.scheduleCascadableViewUpdate();}}
 									/>
 								}
 							</ZStack>
