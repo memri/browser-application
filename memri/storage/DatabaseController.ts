@@ -330,7 +330,7 @@ export class DatabaseController {
                 if (itemType == ItemFamily.UserState) { continue }
 				let type = getItemType(ItemFamily[itemType]);
                 if (type) {
-                    let items = realm.objects(type).filtered("_action == undefined and deleted = true")
+                    let items = realm.objects(type).filtered("_action = undefined and deleted = true")
                     for (let item of items) {
     //                        item.allEdges.forEach { edge in
     //                            realm.delete(edge)
@@ -340,7 +340,7 @@ export class DatabaseController {
                 }
             }
 
-                let edges = realm.objects("Edge").filtered("_action == undefined and deleted = true")
+                let edges = realm.objects("Edge").filtered("_action = undefined and deleted = true")
                 for (let edge of edges) {
                     realm.delete(edge)
                 }

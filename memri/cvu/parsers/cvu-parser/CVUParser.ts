@@ -34,10 +34,10 @@ export class Color {
                 this.value = "#000000"
                 break;
             case "systemFill":
-                this.value = "#7878805b"
+                this.value = "#7878805bb"
                 break;
             case "secondarySystemBackground":
-                this.value = "#f2f2f7f";
+                this.value = "#f2f2f7ff";
                 break;
             case "secondarySystemGroupedBackground":
             case "systemBackground":
@@ -48,7 +48,7 @@ export class Color {
                 this.value = "#000000";
                 break;
             default:
-                if (value.charAt(0) == "#") {
+                if (value.charAt(0) == "#") {//"#f2f2f7f"
                     /*if (value.length == 4) {
                         this.value = value.charAt(0) + value.charAt(1) + value.charAt(1) + value.charAt(2) + value.charAt(2) + value.charAt(3) + value.charAt(3);
                     } else {*/

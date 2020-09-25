@@ -1033,7 +1033,7 @@ export class Edge {
             let realmObj = type;
             if (realmObj) {
                 this.type = realmObj["type"] ?? realmObj["_type"] ?? this.type
-                //this._type = realmObj["_type"] ?? this._type //TODO: just in case
+                this._type = realmObj["_type"] ?? this._type //TODO: just in case
                 this.targetItemType = realmObj["targetItemType"] ?? realmObj["targetType"] ?? this.targetItemType
                 this.targetItemID = realmObj["targetItemID"] ?? realmObj["uid"] ?? this.targetItemID
                 this.sourceItemType = realmObj["sourceItemType"] ?? realmObj["sourceType"] ?? this.sourceItemType

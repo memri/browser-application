@@ -134,7 +134,7 @@ export class Installer {
 
 				context.podAPI.host = host
 				localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
-				localStorage.setItem("ownerKey", privateKey); //TODO:
+				localStorage.setItem("ownerKey", publicKey); //TODO:
 				localStorage.setItem("databaseKey", dbKey); //TODO:
 				//Authentication.createRootKey(areYouSure)
 

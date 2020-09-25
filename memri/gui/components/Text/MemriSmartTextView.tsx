@@ -15,7 +15,7 @@ export class MemriSmartTextView extends MainUI {
 	// This uses a rather hacky implementation to get around SwiftUI sizing limitations
 	// We use a simple text element to do the sizing, but display our custom element
     render(){
-		let {string, detectLinks, font, color, maxLines, ...other} = this.props;
+		let {string, detectLinks, font, background, color, maxLines, ...other} = this.props;
 	    this.string = string;
 	    this.detectLinks = detectLinks;
 	    this.font = font;
