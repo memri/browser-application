@@ -32,7 +32,6 @@ import {CVUParsedViewDefinition} from "../../cvu/parsers/cvu-parser/CVUParsedDef
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
 import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
-//import {MessageBubbleView} from "../renderers/contentRenderers/MessageRenderer";
 
 import {SubView} from "./SubView";
 import {Grid} from "@material-ui/core";
@@ -40,6 +39,7 @@ import {MemriDictionary} from "../../model/MemriDictionary";
 import {MemriButton} from "./MemriButton";
 import {MemriSmartTextView} from "../components/Text/MemriSmartTextView";
 import {EmailHeaderView} from "../components/Email/EmailHeaderView";
+import {MessageBubbleView} from "../components/MessageBubbleView";
 require("../../extension/common/string");
 
 export class UIElementView extends MainUI {

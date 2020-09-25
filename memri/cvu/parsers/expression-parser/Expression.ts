@@ -9,8 +9,8 @@ import {ExprLookupNode, ExprVariableNode} from "./ExprNodes";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {ExprInterpreter} from "./ExprInterpreter";
-//import {DatabaseController, ItemReference} from "../../storage/DatabaseController";
 import {MemriDictionary} from "../../../model/MemriDictionary";
+import {DatabaseController, ItemReference} from "../../../storage/DatabaseController";
 
 export class Expression {
     code: string;
@@ -160,10 +160,8 @@ export class Expression {
         if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value) }
         if (typeof value == "number") { return ExprInterpreter.evaluateNumber(value) }
         if (typeof value == "string") { return ExprInterpreter.evaluateString(value) }
+        if (value instanceof Date) { return ExprInterpreter.evaluateDateTime(value) }
         if (typeof value == "object") { return value }
-        //TODO: dateTime
-        //TODO: this should be quite the same
-        return null;
     }
 
     execute(args = null) {

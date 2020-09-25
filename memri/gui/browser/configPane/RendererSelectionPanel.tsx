@@ -29,28 +29,33 @@ export class RendererSelectionPanel extends MainUI {
             <div className={"RendererSelectionPanel"}>
                 {this.getSupported().map((rendererName) => {
                     let rendererType = Renderers.rendererTypes[rendererName];
-                    return (
-                        <ListItem key={rendererName}>
-                            <MemriRealButton action={() => this.activateRenderer(rendererType.name)}>
-                                <HStack>
-                                    <MemriImage frame={frame({width:30})}>
-                                        {rendererType.icon}
-                                    </MemriImage>
-                                    <MemriText font={font(this.isActive(rendererType.name) ? {weight: Font.Weight.bold} : {weight: Font.Weight.regular})}>
-                                        {rendererType.name.titleCase()}
-                                    </MemriText>
-                                    <Spacer/>
-                                </HStack>
-                            </MemriRealButton>
-                        </ListItem>)
+                    if (rendererType) {
+                        return (
+                            <ListItem key={rendererName}>
+                                <MemriRealButton action={() => this.activateRenderer(rendererType.name)}>
+                                    <HStack>
+                                        <MemriImage frame={frame({width: 30})}>
+                                            {rendererType.icon}
+                                        </MemriImage>
+                                        <MemriText
+                                            font={font(this.isActive(rendererType.name) ? {weight: Font.Weight.bold} : {weight: Font.Weight.regular})}>
+                                            {rendererType.name.titleCase()}
+                                        </MemriText>
+                                        <Spacer/>
+                                    </HStack>
+                                </MemriRealButton>
+                            </ListItem>)
+                    }
                 })}
             </div>
         )
     }
 
     activateRenderer(name: String) {
-        if (this.context.currentView)
+        if (this.context.currentView) {
             this.context.currentView.activeRenderer = name
+        }
+        this.context.scheduleCascadableViewUpdate()
     }
 
     isActive(renderer: string) {

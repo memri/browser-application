@@ -10,7 +10,7 @@ import {
     List, Modal,
     Switch,
     TextField,
-    DialogContentText, DialogActions
+    DialogContentText, DialogActions, ListSubheader
 } from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
 import {Alignment, Font, TextAlignment} from "../cvu/parsers/cvu-parser/CVUParser";
@@ -274,7 +274,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             zIndex: this.props.zIndex ?? fixedProps?.zIndex,
             backgroundColor: this.props.background?.value ?? this.props.background ?? fixedProps?.backgroundColor,
             borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
-            opacity: this.props.opacity ?? fixedProps?.opacity
+            opacity: this.props.opacity ?? fixedProps?.opacity,
+            height: this.props.height
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
@@ -409,7 +410,7 @@ export class MemriRealButton extends MainUI {
 export class NavigationView extends MainUI {
     render() {
         return (
-            <div className={"NavigationView"}>
+            <div style={this.setStyles()} className={"NavigationView"}>
                 {this.props.children}
             </div>
         )
@@ -608,9 +609,14 @@ export class Group extends MainUI {
 
 export class MemriList extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {navigationBarTitle, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {overflow: "auto", width: "fit-content", height: "inherit"})
         return (
-            <List style={this.setStyles()} className="MemriList" {...other}>
+            <List style={style} className="MemriList" {...other}>
+                {navigationBarTitle &&
+                <ListSubheader>{navigationBarTitle}</ListSubheader>
+                }
                 {this.props.children}
             </List>
         )

@@ -16,7 +16,7 @@ import {CascadingRendererConfig} from "../../../../cvu/views/CascadingRendererCo
 import {PhotoViewerRendererConfig, PhotoViewerRendererView} from "../PhotoViewerRenderer/PhotoViewerRenderer";
 
 export class EmailThreadRendererController {
-    static rendererType = {name: "emailThread", icon: "envelope.fill", makeController: EmailThreadRendererController, makeConfig: EmailThreadRendererController.makeConfig}
+    static rendererType = {name: "emailThread", icon: "email"/*envelope.fill*/, makeController: EmailThreadRendererController, makeConfig: EmailThreadRendererController.makeConfig}
 
     constructor(context: MemriContext, config?: CascadingRendererConfig) {
         this.context = context

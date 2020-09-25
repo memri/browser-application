@@ -50,7 +50,7 @@ export class ExprInterpreter {
     }
 
     static evaluateDateTime(x) {
-        return x//TODO as? Date
+        return x.toLocaleString("en-US") //TODO as? Date
     }
 
     static evaluateString(x) { //TODO: maybe we will need some checks

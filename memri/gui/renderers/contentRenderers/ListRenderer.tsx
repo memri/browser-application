@@ -36,7 +36,7 @@ export class ListRendererConfig extends CascadingRendererConfig {
 }
 
 export class ListRendererController {
-	static rendererType = {name:"list",icon: "line.horizontal.3", makeController:ListRendererController, makeConfig:ListRendererController.makeConfig}
+	static rendererType = {name:"list",icon: "list"/*line.horizontal.3*/, makeController:ListRendererController, makeConfig:ListRendererController.makeConfig}
 
 	constructor(context: MemriContext, config?: CascadingRendererConfig) {
 		this.context = context

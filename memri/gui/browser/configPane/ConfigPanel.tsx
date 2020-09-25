@@ -21,6 +21,7 @@ import {
 import {Alignment, Color} from "../../../cvu/parsers/cvu-parser/CVUParser";
 import {Expression} from "../../../cvu/parsers/expression-parser/Expression";
 import {ConfigItem, ConfigItemType, getSupportedRealmTypes, PossibleExpression, SpecialTypes} from "./ConfigPanelModel";
+import {ListItem} from "@material-ui/core";
 require("../../../extension/common/string.ts");
 
 export class ConfigPanel extends MainUI {
@@ -33,7 +34,7 @@ export class ConfigPanel extends MainUI {
 
         return (
             <div className={"ConfigPanel"}>
-            <NavigationView
+            <NavigationView height={200}
                 // .environment(\.verticalSizeClass, .compact)
                 // .clipShape(RoundedRectangle(cornerRadius: shouldMoveAboveKeyboard ? 15 : 0))
                 // .overlay(RoundedRectangle(cornerRadius: 15).strokeBorder(shouldMoveAboveKeyboard ? Color(.systemFill) : .clear))
@@ -288,14 +289,14 @@ export class ConfigPanelSortView extends MainUI {
     //                       .navigationBarTitle(Text("Sort"), displayMode: .inline)
 
         >
-            {options.map((option) => <MemriRealButton key={option.propertyName} action={() => this.onSelect(option)}>
+            {options.map((option) => <ListItem><MemriRealButton key={option.propertyName} action={() => this.onSelect(option)}>
                 <HStack>
                     <MemriText bold={option.propertyName == currentSort/*TODO*/}>
                         {option.displayName}
                         {currentSort == option.propertyName && this.sortDirectionImage}
                     </MemriText>
                 </HStack>
-            </MemriRealButton>)}
+            </MemriRealButton></ListItem>)}
         </MemriList>
     }
     
