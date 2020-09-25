@@ -27,6 +27,7 @@ import {ExprInterpreter} from "../../../../cvu/parsers/expression-parser/ExprInt
 import {MemriButton} from "../../../common/MemriButton";
 import {MemriDictionary} from "../../../../model/MemriDictionary";
 import {CascadingRendererConfig} from "../../../../cvu/views/CascadingRendererConfig";
+import {DefaultGeneralEditorRow} from "./GeneralEditorRows";
 require("../../../../extension/common/string");
 
 export class GeneralEditorRendererController {
@@ -211,22 +212,6 @@ export class GeneralEditorRendererView extends RenderersMemri {
         return result
     }
 }
-
-/*struct GeneralEditorView_Previews: PreviewProvider {
-    static var previews: some View {
-        let context = try! RootContext(name: "", key: "").mockBoot()
-
-        return ZStack {
-            VStack(alignment: .center, spacing: 0) {
-                TopNavigation()
-                GeneralEditorView()
-                Search()
-            }.fullHeight()
-
-            ContextPane()
-        }.environmentObject(context)
-    }
-}*/
 
 export class GeneralEditorSection extends MainUI {
     context: MemriContext
@@ -430,7 +415,7 @@ export class GeneralEditorSection extends MainUI {
         let allPadding = this.getValue(groupKey, s["padding"], "CGFloat") ?? 0
 
         return new SectionStyle(
-            this.getValue(groupKey, s["title"], "String")?.toUpperCase()/*?.uppercased()*/,
+            this.getValue(groupKey, s["title"], "String")?.toUpperCase(),
             this.getValue(groupKey, s["dividers"], "Bool"),
             this.getValue(groupKey, s["showTitle"], "Bool"),
             this.getValue(groupKey, s["action"], "Action"),
@@ -477,153 +462,3 @@ class SectionStyle {
     }
 }
 
-class DefaultGeneralEditorRow extends MainUI {
-    context: MemriContext
-
-    item: Item
-    prop: string
-    readOnly: boolean
-    isLast: boolean
-    renderConfig: CascadingRenderConfig
-    argumentsJs?: ViewArguments
-
-    render() {
-        this.context = this.props.context;
-        this.item = this.props.item;
-        this.prop = this.props.prop;
-        this.readOnly = this.props.readOnly;
-        this.isLast = this.props.isLast;
-        this.renderConfig = this.props.renderConfig;
-        this.argumentsJs = this.props.argumentsJs;
-
-        // Get the type from the schema, because when the value is nil the type cannot be determined
-        let propType = this.item.objectSchema.properties[this.prop]; //TODO:
-        let propValue = this.item.get(this.prop);
-        return (
-            <VStack spacing={0}>
-                {(propValue != undefined || !this.readOnly) &&
-                <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10, horizontal: 36})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
-                    <MemriText>
-                        {this.prop
-                            .camelCaseToWords()
-                            .toLowerCase()
-                            .capitalizingFirst()
-                            // .generalEditorLabel()
-                        }
-                    </MemriText>
-                    {this.renderConfig.hasGroup(this.prop) ?
-                    this.renderConfig.render(this.item, this.prop, this.argumentsJs) :
-                        (this.readOnly) ?
-                            (typeof propValue != "object") ?
-                                this.defaultRow(ExprInterpreter.evaluateString(propValue)) :
-                                (typeof propValue == "object") ?
-                                    (propValue instanceof Item) ?
-                                        <MemriButton context={this.context} item={propValue}>
-
-                                        </MemriButton> :
-                                        this.defaultRow() :
-                                    this.defaultRow() :
-                            (typeof propValue != "string") ?
-                                this.stringRow() :
-                                (typeof propValue != "boolean") ?
-                                    this.boolRow() :
-                                    (typeof propValue != "number") ?
-                                        this.intRow() :
-                                        this.defaultRow()
-                    }
-                </VStack> ||
-                (!this.isLast) &&
-                <MemriDivider padding={padding({leading: 35})}/>
-                }
-            </VStack>
-        )
-    }
-
-    stringRow()  {
-        return <MemriTextField value={this.item.getString(this.prop)} onChange={(el)=>this.item.set(this.prop, el)}/>
-            /*.onEditingBegan {
-                self.context.currentSession?.editMode = true
-            }
-            .generalEditorCaption()*/
-    }
-
-    boolRow() {
-
-        return (<>
-                <Toggle isOn={this.item[this.prop] ?? false} onChange={() => {
-                    try {
-                        this.item.toggle(this.prop)
-                        //this.context.objectWillChange.send()
-                    } catch {
-                    }
-                }}/>
-                <MemriText>
-                    {this.prop}
-                </MemriText>
-            </>
-        )
-
-        /*Toggle(isOn: binding) {
-            Text(prop
-                .camelCaseToWords()
-                .toLowerCase()
-                .capitalizingFirst())
-        }
-        .toggleStyle(MemriToggleStyle())
-        .generalEditorCaption()*/
-    }
-
-    intRow()  {
-        /*let binding = Binding<Int>(
-            get: { self.item[self.prop] as? Int ?? 0 },
-            set: {
-                self.item.set(self.prop, $0)
-                self.context.objectWillChange.send()
-            }
-        )*/
-
-        return <MemriTextField value={this.item[this.prop]} onChange={(el)=>this.item.set(this.prop, el)}/>
-        /*MemriTextField(value: binding)
-            .onEditingBegan {
-                self.context.currentSession?.editMode = true
-            }
-            .generalEditorCaption()*/
-    }
-
-    /*func doubleRow() -> some View {
-        let binding = Binding<Double>(
-            get: { self.item[self.prop] as? Double ?? 0 },
-            set: {
-                self.item.set(self.prop, $0)
-                self.context.objectWillChange.send()
-            }
-        )
-
-        return MemriTextField(value: binding)
-            .onEditingBegan {
-                self.context.currentSession?.editMode = true
-            }
-            .generalEditorCaption()
-    }*/
-
-    /*func dateRow() -> some View {
-        let binding = Binding<Date>(
-            get: { self.item[self.prop] as? Date ?? Date() },
-            set: {
-                self.item.set(self.prop, $0)
-                self.context.objectWillChange.send()
-            }
-        )
-
-        return DatePicker("", selection: binding, displayedComponents: .date)
-            .frame(width: 300, height: 80, alignment: .center)
-            .clipped()
-            .padding(8)
-    }*/
-
-    defaultRow(caption?: string) {
-        return <MemriText>{caption ?? this.prop.camelCaseToWords().toLowerCase().capitalizingFirst()}</MemriText>
-        /*Text(caption ?? prop.camelCaseToWords().toLowerCase().capitalizingFirst())
-            .generalEditorCaption()*/
-    }
-}

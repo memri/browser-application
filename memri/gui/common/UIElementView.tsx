@@ -40,7 +40,11 @@ import {MemriButton} from "./MemriButton";
 import {MemriSmartTextView} from "../components/Text/MemriSmartTextView";
 import {EmailHeaderView} from "../components/Email/EmailHeaderView";
 import {MessageBubbleView} from "../components/MessageBubbleView";
-require("../../extension/common/string");
+import {
+    GeneralEditorCaption, GeneralEditorHeader,
+    GeneralEditorLabel
+} from "../renderers/contentRenderers/GeneralEditorRenderer/GeneralEditorRows";
+require("../../extension/common/string.ts");
 
 export class UIElementView extends MainUI {
     context: MemriContext
@@ -241,12 +245,14 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.EditorSection:
                     if (this.has("title")) {
                         return (
-                            <Section header={(this.get("title") ?? "").toUpperCase()} generalEditorHeader
+                            <Section header={(this.get("title") ?? "").toUpperCase()}
                                      clipped
                                      setProperties={setProperties(this.from.propertyResolver.properties, this.item, this.context, this.viewArguments)}>
-                                <MemriDivider/>
-                                {this.renderChildren}
-                                <MemriDivider/>
+                                <GeneralEditorHeader>
+                                    <MemriDivider/>
+                                    {this.renderChildren}
+                                    <MemriDivider/>
+                                </GeneralEditorHeader>
                             </Section>
                         )
                     } else {
@@ -271,14 +277,16 @@ export class UIElementView extends MainUI {
                                         ? "#f9f9f9"
                                         : "#f7fcf5"}>
                                 {(this.has("title") && this.get("nopadding") != true) &&
-                                <MemriText generalEditorLabel>
-                                    {(this.get("title") ?? "")
-                                        .camelCaseToWords()
-                                        .toLowerCase()
-                                        .capitalizingFirst()}
+                                <MemriText>
+                                    <GeneralEditorLabel>
+                                        {(this.get("title") ?? "")
+                                            .toLowerCase()
+                                            .camelCaseToWords()
+                                            .capitalizingFirst()}
+                                    </GeneralEditorLabel>
                                 </MemriText>
                                 }
-                                {this.renderChildren /*//TODO: .generalEditorCaption()*/}
+                                <GeneralEditorCaption>{this.renderChildren} </GeneralEditorCaption>
                             </VStack>
                             {(this.has("title")) &&
                             <MemriDivider padding={padding({leading: 35})}/>
