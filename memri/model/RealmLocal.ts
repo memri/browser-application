@@ -92,12 +92,16 @@ export class RealmObjects extends Array {
                 var result = this.filter(new Function("item", "return " + anyQuery))
             }
         }
-        //TODO: we need parse query, not eval it... "selector = '[sessions = defaultSessions]'"
-        let newquery = query.replace(/deleted = false/i,"!item['deleted']").replace(/(?<=^|\s)([_\w]+)\s*(!?=)\s*(\w+|('[^']*'))/g,"item['$1'] $2= $3").replace(/\bAND\b/gi,"&&").replace(/\bOR\b/gi,"||")
+
         if (!result)
             result = this;
-        return result.filter(new Function("item", "return " + newquery))
-        //return this;
+
+        if (query != "") {
+            let newquery = query.replace(/deleted = false/i, "!item['deleted']").replace(/(?<=^|\s)([_\w]+)\s*(!?=)\s*(\w+|('[^']*'))/g, "item['$1'] $2= $3").replace(/\bAND\b/gi, "&&").replace(/\bOR\b/gi, "||")
+            return result.filter(new Function("item", "return " + newquery))
+        } else {
+            return result
+        }
     }
 
     sorted(descriptor: string, reverse?: boolean) {

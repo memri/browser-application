@@ -66,7 +66,7 @@ export class Browser extends MainUI {
 												  inSubView={this.inSubView}
 												  showCloseButton={this.showclosebutton}/>
 							}
-							<ZStack>
+							<ZStack width="100%">
 								<VStack alignment={Alignment.center} spacing={0}>
 									{this.activeRendererController != undefined
 										? this.activeRendererController.makeView()
