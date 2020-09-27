@@ -40,6 +40,13 @@ export var geom = {
     }//TODO: for testing
 }
 
+function updateSize() {
+    geom.size.height = window.innerHeight;
+    geom.size.width = Math.min(window.innerWidth, 414);
+}
+window.onresize = updateSize
+updateSize();
+
 var div = document.body.appendChild(document.createElement("div"))
 
 ReactDOM.render(App(), div)

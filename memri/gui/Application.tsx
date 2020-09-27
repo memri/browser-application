@@ -60,7 +60,7 @@ export class Application extends MainUI {
 							: <Browser context={this.context}/>
 						}
 						<HStack>
-							<MemriRealButton action={this.context.cache.sync.schedule.bind(this.context.cache.sync)}>
+							<MemriRealButton action={this.context.cache.sync.schedule.bind(this.context.cache.sync)} height={20} width={100}>
 								<MemriText>Sync To Pod</MemriText>
 							</MemriRealButton>
 						</HStack>

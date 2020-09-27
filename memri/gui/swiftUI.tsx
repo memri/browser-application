@@ -275,7 +275,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             backgroundColor: this.props.background?.value ?? this.props.background ?? fixedProps?.backgroundColor,
             borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
             opacity: this.props.opacity ?? fixedProps?.opacity,
-            height: this.props.height
+            height: this.props.height ?? this.props.frame?.height ?? "100%",
+            width: this.props.width ?? this.props.frame?.width ?? "100%"
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
@@ -767,8 +768,20 @@ export class Form extends MainUI {
     }
 }
 
-export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
-    let frameObj = attrs;
+export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment? }) { //TODO:
+    let frameObj = Object.assign({}, attrs);
+    for (let prop in frameObj) {
+        if (frameObj[prop] == ".infinity")
+            delete frameObj[prop]
+    }
+    if (frameObj.idealHeight) {
+        frameObj["height"] = frameObj.idealHeight
+        delete frameObj.idealHeight;
+    }
+    if (frameObj.idealWidth) {
+        frameObj["width"] = frameObj.idealWidth
+        delete frameObj.idealWidth;
+    }
 
     return frameObj;
 }
