@@ -26,9 +26,8 @@ export class EmailHeaderView extends MainUI {
         this.recipientList = this.props.recipientList;
         this.dateString = this.props.dateString;
         this.color = this.props.color;
-        //TODO: settings for outter HStack taken from EmailThreadCell, should be a better way to solve this @mkslanc
         return (
-            <HStack background={new Color("secondarySystemGroupedBackground")} cornerRadius={10} padding={padding(10)} spacing={10}>
+            <HStack>
                 <Circle fill={this.color?.value ?? "blue"}
                         frame={50} aspectRatio={""/*1, contentMode: .fit*/}>
                     <MemriText foregroundColor={"white"}>{this.senderInitials}</MemriText>

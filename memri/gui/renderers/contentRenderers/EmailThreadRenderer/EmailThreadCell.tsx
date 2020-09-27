@@ -6,8 +6,9 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {MainUI} from "../../../swiftUI";
+import {MainUI, padding, VStack} from "../../../swiftUI";
 import * as React from "react";
+import {Color} from "../../../../cvu/parsers/cvu-parser/CVUParser";
 
 export class EmailThreadItem extends MainUI {
     uuid: string
@@ -58,10 +59,10 @@ export class EmailThreadCell extends MainUI/*: UITableViewCell*/ {
         this.init();
 
         return (
-            <div style={this.setStyles()} key={this.props.uuid}>
+            <VStack background={new Color("secondarySystemGroupedBackground")} cornerRadius={10} padding={padding(10)} spacing={10} key={this.props.uuid}>
                 {this.headerView}
                 {this.contentHTML}
-            </div>
+            </VStack>
         )
     }
 
