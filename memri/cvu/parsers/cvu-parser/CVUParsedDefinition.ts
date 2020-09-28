@@ -14,7 +14,7 @@ export class CVUParsedDefinition {
     get definitionType() {return ""}
     isCompiled: boolean = false
 
-    constructor(selector  = "", name?, domain = "user", parsed?) {
+    constructor(selector: string|MemriDictionary  = "", name?, domain = "user", parsed?) {
         //super(selector, name, domain, parsed)
         if (typeof selector != "string") {
             parsed = selector;
@@ -24,7 +24,7 @@ export class CVUParsedDefinition {
         this.selector = selector
         this.name = name
         this.domain = domain;
-        this.parsed = parsed ?? new MemriDictionary()
+        this.parsed = new MemriDictionary(parsed)
     }
     
     get(propName:string) {
