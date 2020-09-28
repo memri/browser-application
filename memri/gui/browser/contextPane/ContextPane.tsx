@@ -50,7 +50,7 @@ export class ContextPane extends MainUI {
 		this.context = this.props.context
 
 		return (
-			<div className="ContextPane">
+			<div className="ContextPane" style={{position:"absolute"}}>
 			<ZStack alignment={Alignment.trailing}>
 				{this.isVisible && <ContextPaneBackground
 					opacity={this.fractionVisible(geom) * 0.5}
@@ -58,7 +58,6 @@ export class ContextPane extends MainUI {
 					transition={"opacity"}
 					zIndex={"-1"}
 				/>}
-
 				{this.isVisible && <ContextPaneForeground
 					context={this.context}
 					frame={this.paneWidth(geom)}

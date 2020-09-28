@@ -280,6 +280,8 @@ export class Views {
 				}
 				throw "Exception: Missing object for property getter"
 			default:
+				if (/^\$/.test(name))
+					name = name.substr(1);
 				let value = viewArguments?.get(name)
 				if (value) { return value }
 

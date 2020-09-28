@@ -357,13 +357,14 @@ export class Item extends SchemaItem {
                 return this.edges(collection)
             }
 
-            return this.allEdges.filtered(`deleted = false AND type = '${edgeType}'`)
+            return this.allEdges && this.allEdges.filtered(`deleted = false AND type = '${edgeType}'`)
         }
 
     }
 
     edge(edgeType: string) {
-        return this.edges(edgeType)[0];
+        let edges = this.edges(edgeType);
+        return edges && edges[0];
     }
 
     determineSequenceNumber(edgeType: string, sequence?: EdgeSequencePosition) {
