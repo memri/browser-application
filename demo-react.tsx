@@ -25,6 +25,16 @@ context.installer.await(context,() => {
         }*/
     })
 });
+
+var queryString = window.location.search;
+let params = new URLSearchParams(queryString);
+let pod = params.get("pod");
+if (pod == "none") {
+    context.installer.installLocalAuthForLocalInstallation(context, true, (error) => {
+        error && error.map(($0) => debugHistory.error(`${$0}`))
+    })
+}
+
 console.log(context);
 
 function App() {//TODO: don't ask, please, about link inside div =)
