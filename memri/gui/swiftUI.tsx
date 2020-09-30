@@ -325,9 +325,9 @@ export class VStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Box display="flex" {...this.setAlignment()} flexDirection="column" style={this.setStyles()} className="VStack" {...other}>
+            <div {...this.setAlignment()} flexDirection="column" style={this.setStyles()} className="VStack" {...other}>
                 {this.props.children}
-            </Box>
+            </div>
         )
     }
 }
@@ -336,9 +336,9 @@ export class ZStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Box {...this.setAlignment()} style={this.setStyles()} className="ZStack" {...other}>
+            <div {...this.setAlignment()} style={this.setStyles()} className="ZStack" {...other}>
                 {this.props.children}
-            </Box>
+            </div>
         )
     }
 }
@@ -347,9 +347,9 @@ export class HStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Box display="flex" flexDirection="row" {...this.setAlignment()} style={this.setStyles()} className="HStack" {...other}>
+            <div {...this.setAlignment()} style={this.setStyles()} className="HStack" {...other}>
                 {this.props.children}
-            </Box>
+            </div>
         )
     }
 }

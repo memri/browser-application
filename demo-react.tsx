@@ -6,6 +6,39 @@ import {Application} from "./memri/gui/Application";
 import {RootContext} from "./memri/context/MemriContext";
 import {debugHistory} from "./memri/cvu/views/ViewDebugger";
 
+
+import { makeStyles } from '@material-ui/core/styles';
+
+function importCssString(cssText, id) {
+    cssText += "\n/*# sourceURL=css:/" + id + " */";
+    var style = document.createElement("style");
+    style.appendChild(document.createTextNode(cssText));
+    document.head.appendChild(style);
+};
+
+importCssString(`
+body {margin: 0}
+.Application {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ScreenSizer {
+    outline: solid;
+}
+.HStack {
+    flex-direction: row;
+    display: flex;
+}
+.VStack {
+    flex-direction: column;
+    display: flex;
+}
+.ZStack {
+    position: relative;
+}
+`, "main.css")
+
 let context = new RootContext("Memri GUI");
 context.installer.await(context,() => {
     context.boot(false, (error) => {
@@ -41,7 +74,7 @@ export var geom = {
 }
 
 function updateSize() {
-    geom.size.height = window.innerHeight;
+    geom.size.height = window.innerHeight - 4;
     geom.size.width = Math.min(window.innerWidth, 414);
 }
 window.onresize = updateSize
