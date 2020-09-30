@@ -269,13 +269,14 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         }
         let styles = {
             color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor ?? fixedProps?.color,
-            margin: this.props.spacing ?? fixedProps?.margin,
+            gap: this.props.spacing,
+            margin: fixedProps?.margin,
             offset: this.props.offset ?? fixedProps?.offset,
             zIndex: this.props.zIndex ?? fixedProps?.zIndex,
             backgroundColor: this.props.background?.value ?? this.props.background ?? fixedProps?.backgroundColor,
             borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
             opacity: this.props.opacity ?? fixedProps?.opacity,
-            height: this.props.height
+            height: this.props.height,
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
@@ -523,7 +524,7 @@ export class MemriImage extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Icon style={this.setStyles()} {...other}>
+            <Icon style={this.setStyles()} fontSize="small" {...other}>
                 {this.props.children}
             </Icon>
         )
