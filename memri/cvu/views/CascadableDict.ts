@@ -16,7 +16,7 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 
 	get(name: string, type = CascadableDict) {
 		let value = this.cascadeProperty(name)
-		if (!value) {
+		if (value == undefined) {
 			return null
 		}
 

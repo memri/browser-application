@@ -48,13 +48,10 @@ export class Browser extends MainUI {
 		this.init() //fullHeight layoutPriority={1}
 
 		let currentView = this.context.currentView ?? new CascadableView()
-		currentView.showToolbar = true
-		currentView.fullscreen = false
-
 		this.currentView = currentView
 
 		return (
-			<div className={"Browser"}>
+			<div className={"Browser"} style={this.setStyles()}>
 			<ZStack>
 				{this.context.currentView == undefined ? <MemriText padding={padding({})} frame={frame({maxWidth: "infinity"})}>{"Loading..."}</MemriText> :
 					<>
