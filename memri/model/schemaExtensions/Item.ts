@@ -1,15 +1,16 @@
-import {CVUSerializer} from "../../cvu/parsers/cvu-parser/CVUToString";
-import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder} from "../../gui/util";
-import {ExprInterpreter} from "../../cvu/parsers/expression-parser/ExprInterpreter";
-import {CacheMemri} from "../Cache";
-import {debugHistory} from "../../cvu/views/ViewDebugger";
-import {DatabaseController, ItemReference, realm} from "../../storage/DatabaseController";
-import {RealmObjects} from "../RealmLocal";
-import {Color} from "../../cvu/parsers/cvu-parser/CVUParser";
-import {Datasource} from "../../api/Datasource";
-import {UserState, ViewArguments} from "../../cvu/views/CascadableDict";
-import {MemriDictionary} from "../MemriDictionary";
+import {CVUSerializer} from "../../../router";
+import {jsonDataFromFile, MemriJSONDecoder, MemriJSONEncoder} from "../../../router";
+import {ExprInterpreter} from "../../../router";
+import {CacheMemri} from "../../../router";
+import {debugHistory} from "../../../router";
+import {DatabaseController, ItemReference, realm} from "../../../router";
+import {RealmObjects} from "../../../router";
+import {Color} from "../../../router";
+import {Datasource} from "../../../router";
+import {UserState, ViewArguments} from "../../../router";
+import {MemriDictionary} from "../../../router";
 import {ComputedPropertyLink} from "../../gui/browser/configPane/ConfigPanel";
+
 
 enum ItemError {
     cannotMergeItemWithDifferentId

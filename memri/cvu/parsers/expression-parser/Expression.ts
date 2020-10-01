@@ -5,12 +5,12 @@
 //  Created by Ruben Daniels on 5/16/20.
 //  Copyright © 2020 Memri. All rights reserved.
 //
-import {ExprLookupNode, ExprVariableNode} from "./ExprNodes";
+import {ExprLookupNode, ExprVariableNode} from "../../../../router";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {ExprInterpreter} from "./ExprInterpreter";
-import {MemriDictionary} from "../../../model/MemriDictionary";
-import {DatabaseController, ItemReference} from "../../../storage/DatabaseController";
+import {MemriDictionary} from "../../../../router";
+import {DatabaseController, ItemReference} from "../../../../router";
 
 export class Expression {
     code: string;

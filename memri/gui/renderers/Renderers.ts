@@ -35,8 +35,6 @@ export class Renderers {
             CalendarRendererController.rendererType,
             TimelineRendererController.rendererType,
             ChartRendererController.rendererType,
-            PhotoViewerRendererController.rendererType,
-            EmailThreadRendererController.rendererType
         }*/
     }
 }

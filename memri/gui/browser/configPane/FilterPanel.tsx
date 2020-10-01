@@ -3,7 +3,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from "react";
-import {Alignment} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment} from "../../../../router";
 import {
     frame,
     HStack,

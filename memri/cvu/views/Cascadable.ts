@@ -2,11 +2,11 @@
 //  Cascadable.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {ActionMultiAction} from "./Action";
-import {debugHistory} from "./ViewDebugger";
-import {CVUParsedDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {CVUSerializer} from "../parsers/cvu-parser/CVUToString";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {ActionMultiAction} from "../../../router";
+import {debugHistory} from "../../../router";
+import {CVUParsedDefinition} from "../../../router";
+import {CVUSerializer} from "../../../router";
+import {MemriDictionary} from "../../../router";
 
 export enum SelectorType {
     singleItem,

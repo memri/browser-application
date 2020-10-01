@@ -3,13 +3,12 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Color} from "../../cvu/parsers/cvu-parser/CVUParser";
-import {MemriContext} from "../../context/MemriContext";
+import {Alignment, Color} from "../../../router";
 import {Capsule, ColorArea, frame, MainUI, MemriText, offset, padding, VStack, ZStack} from "../swiftUI";
 import {TopNavigation} from "./TopNavigation";
 import {FilterPanel} from "./configPane/FilterPanel";
 import {ContextPane} from "./contextPane/ContextPane";
-import {CascadableView} from "../../cvu/views/CascadableView";
+import {CascadableView} from "../../../router";
 import {ContextualBottomBar} from "./ContextualBottomBar";
 import {BottomBarView} from "./BottomBar";
 import { SearchView } from './SearchView';

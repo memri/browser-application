@@ -14,9 +14,9 @@ import {
     ZStack
 } from "../../../swiftUI";
 import * as React from "react";
-import {Alignment, Color, Font} from "../../../../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../../../../router";
 import {Grid} from "@material-ui/core";
-import {CascadingRendererConfig} from "../../../../cvu/views/CascadingRendererConfig";
+import {CascadingRendererConfig} from "../../../../../router";
 
 export class GridRendererController {
     static rendererType = {name:"grid",icon: "apps", makeController:GridRendererController, makeConfig:GridRendererController.makeConfig}

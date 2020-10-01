@@ -1,6 +1,4 @@
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {getItemType, ItemFamily, Person} from "../model/schemaExtensions/Item";
-import {DatabaseController} from "../storage/DatabaseController";
+import {debugHistory} from "../../router";
 
 export var MemriJSONEncoder = function (x) {
     return JSON.stringify(x);

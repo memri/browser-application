@@ -18,8 +18,8 @@ import {
     NavigationView, Toggle,
     VStack
 } from "../../swiftUI";
-import {Alignment, Color} from "../../../cvu/parsers/cvu-parser/CVUParser";
-import {Expression} from "../../../cvu/parsers/expression-parser/Expression";
+import {Alignment, Color} from "../../../../router";
+import {Expression} from "../../../../router";
 import {ConfigItem, ConfigItemType, getSupportedRealmTypes, PossibleExpression, SpecialTypes} from "./ConfigPanelModel";
 import {ListItem} from "@material-ui/core";
 require("../../../extension/common/string.ts");

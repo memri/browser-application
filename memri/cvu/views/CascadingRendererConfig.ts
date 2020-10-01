@@ -2,12 +2,12 @@
 // Renderers.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {MemriDictionary} from "../../model/MemriDictionary";
-import {UIElement, UIElementFamily} from "./UIElement";
-import {Cascadable} from "./Cascadable";
-import {Item, UUID} from "../../model/schemaExtensions/Item";
+import {MemriDictionary} from "../../../router";
+import {UIElement, UIElementFamily} from "../../../router";
+import {Cascadable} from "../../../router";
+import {Item, UUID} from "../../../router";
 import {UIElementView} from "../../gui/common/UIElementView";
-import {Color} from "../parsers/cvu-parser/CVUParser";
+import {Color} from "../../../router";
 
 export class RenderGroup {
     options: MemriDictionary

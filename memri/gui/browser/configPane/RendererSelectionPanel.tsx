@@ -13,9 +13,9 @@ import {
     HStack,
     MainUI, MemriImage, MemriRealButton, MemriText, Spacer,
 } from "../../swiftUI";
-import {SelectorType} from "../../../cvu/views/Cascadable";
+import {SelectorType} from "../../../../router";
 import {ListItem} from "@material-ui/core";
-import {Renderers} from "../../renderers/Renderers";
+import {Renderers} from "../../../../router";
 import {Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
 
 

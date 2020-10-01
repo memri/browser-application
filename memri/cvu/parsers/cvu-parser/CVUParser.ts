@@ -19,9 +19,9 @@ import {
     CVUParsedSessionDefinition, CVUParsedObjectDefinition
 
 } from "./CVUParsedDefinition"
-import {ActionFamily, getActionType} from "../../views/Action";
-import {UIElement, UIElementFamily} from "../../views/UIElement";
-import {MemriDictionary} from "../../../model/MemriDictionary";
+import {ActionFamily, getActionType} from "../../../../router";
+import {UIElement, UIElementFamily} from "../../../../router";
+import {MemriDictionary} from "../../../../router";
 
 export class Color {
     value;

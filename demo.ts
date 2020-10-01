@@ -107,6 +107,7 @@ var {TabManager} = require("./playground/ui-lib/tabManager");
 
 var mainBox
 var listBox
+var testBox
 var baseBox = new Box({
     vertical: false,
     toolBars: {
@@ -120,14 +121,23 @@ var baseBox = new Box({
             0: listBox = new ListBox({
                 size: "200px",
             }),
-            1: mainBox = new Box({
-                ratio: 1,
+            1: new Box({
                 isMain: true,
+                0: mainBox = new Box({
+                    ratio: 0.5,
+                    isMain: true,
+                }),
+                1: testBox = new Box({
+                    isMain: false,
+                    size: "420px"
+                }),
             }),
+
         }),
         toolBars: {},
     }),
 });
+
 
 
 var onResize = function() {
@@ -139,6 +149,11 @@ document.body.innerHTML = ""
 document.body.appendChild(baseBox.draw());
 onResize()
 
+let memriApp = document.createElement("iframe");
+memriApp.width = testBox.size;
+memriApp.height = window.innerHeight + "px";
+memriApp.src="http://localhost:9000/app.html?pod=mock"
+testBox.element.appendChild(memriApp);
 
 baseBox.toolBars.top.element.textContent = "";
 dom.buildDom([
@@ -390,8 +405,8 @@ window.onbeforeunload = function() {
     saveMetadata();
 }
 
-import {Settings} from "./memri/model/Settings"
-import {PodAPI} from "./memri/api/PodAPI"
+import {Settings} from "./router"
+import {PodAPI} from "./router"
 
 refs.podAddress.addEventListener("input", function() {
     Settings.shared.set("user/pod/host", refs.podAddress.value);

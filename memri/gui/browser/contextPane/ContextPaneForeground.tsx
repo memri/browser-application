@@ -13,8 +13,8 @@ import {
 	ScrollView, Spacer,
 	VStack
 } from "../../swiftUI";
-import {ActionNoop} from "../../../cvu/views/Action";
-import {Alignment, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {ActionNoop} from "../../../../router";
+import {Alignment, Font} from "../../../../router";
 import {ActionButton} from "../../ActionView";
 
 export class ContextPaneForeground extends MainUI {

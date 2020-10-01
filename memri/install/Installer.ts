@@ -6,13 +6,13 @@
 //
 
 
-import {MemriContext} from "../context/MemriContext";
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {DatabaseController} from "../storage/DatabaseController";
-import {CacheMemri} from "../model/Cache";
-import {Settings} from "../model/Settings";
-import {Authentication} from "../api/Authentication";
-import {LocalSetting} from "../api/LocalSettings";
+import {MemriContext} from "../../router";
+import {debugHistory} from "../../router";
+import {DatabaseController} from "../../router";
+import {CacheMemri} from "../../router";
+import {Settings} from "../../router";
+import {Authentication} from "../../router";
+import {LocalSetting} from "../../router";
 
 enum InstallerState {
 	inactive,

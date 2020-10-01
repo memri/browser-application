@@ -3,9 +3,8 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from "react";
-import {Color} from "../../cvu/parsers/cvu-parser/CVUParser";
+import {Color} from "../../../router";
 import {font, HStack, MainUI, MemriDivider, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
-import {ActionButton} from "../ActionView";
 
 export class SearchView extends MainUI{
 	isActive//TODO

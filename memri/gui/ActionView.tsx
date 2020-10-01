@@ -9,9 +9,8 @@
 
 import {MainUI, MemriRealButton, MemriImage, MemriText, padding, VStack} from "./swiftUI";
 import * as React from "react";
-import {Action, ActionFamily, ActionNoop, RenderType} from "../cvu/views/Action";
-import {MemriContext} from "../context/MemriContext";
-import {ViewArguments} from "../cvu/views/CascadableDict";
+import {Action, ActionFamily, ActionNoop, RenderType} from "../../router";
+import {ViewArguments} from "../../router";
 import {SubView} from "./common/SubView";
 
 export class ActionButton extends MainUI {

@@ -2,12 +2,12 @@
 //  CascadableDict.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {Expression} from "../parsers/expression-parser/Expression";
-import {Cascadable} from "./Cascadable";
-import {ItemReference} from "../../storage/DatabaseController";
-import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {Item} from "../../model/schemaExtensions/Item";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {Expression} from "../../../router";
+import {Cascadable} from "../../../router";
+import {ItemReference} from "../../../router";
+import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../../../router";
+import {Item} from "../../../router";
+import {MemriDictionary} from "../../../router";
 
 export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptable*/ {
 	subscript() {

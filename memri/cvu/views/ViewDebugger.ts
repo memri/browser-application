@@ -47,7 +47,7 @@ enum InfoType {//TODO
 	}*/
 }
 
-import {Settings} from "../../model/Settings";
+import {Settings} from "../../../router";
 
 class InfoState /*extends Hashable*/ {
 	id /*= UUID()*/

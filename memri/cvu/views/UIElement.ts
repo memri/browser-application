@@ -4,7 +4,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {CVUSerializer} from "../parsers/cvu-parser/CVUToString";
+import {CVUSerializer} from "../../../router";
 import {
 	Alignment,
 	CGFloat,
@@ -12,12 +12,12 @@ import {
 	HorizontalAlignment,
 	TextAlignment,
 	VerticalAlignment
-} from "../parsers/cvu-parser/CVUParser";
-import {debugHistory} from "./ViewDebugger";
-import {dataItemListToArray, UUID} from "../../model/schemaExtensions/Item";
-import {ViewArguments} from "./CascadableDict";
-import {MemriDictionary} from "../../model/MemriDictionary";
-import {CVUPropertyResolver} from "./CVUPropertyResolver";
+} from "../../../router";
+import {debugHistory} from "../../../router";
+import {dataItemListToArray, UUID} from "../../../router";
+import {ViewArguments} from "../../../router";
+import {MemriDictionary} from "../../../router";
+import {CVUPropertyResolver} from "../../../router";
 
 export class UIElement /*extends CVUToString */{
 	id = UUID()

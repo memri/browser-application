@@ -3,7 +3,7 @@
 //
 //  Copyright © 2020 Memri. All rights reserved.
 //
-import {ExprParseErrors} from "./ExprParser";
+import {ExprParseErrors} from "../../../../router"
 
 class Token {
     type: any;

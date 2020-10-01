@@ -20,8 +20,8 @@ import {
 } from "../gui/swiftUI";
 import * as React from "react";
 import {Alignment, Font} from "../cvu/parsers/cvu-parser/CVUParser";
-import {MemriContext} from "../context/MemriContext";
-import {debugHistory} from "../cvu/views/ViewDebugger";
+import {MemriContext} from "../../router";
+import {debugHistory} from "../../router";
 
 export class SetupWizard extends MainUI {
     context: MemriContext

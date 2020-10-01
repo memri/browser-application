@@ -8,9 +8,9 @@
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
 //import * as path from "path";
-import {Realm} from "../model/RealmLocal";
-import {Authentication} from "../api/Authentication";
-import {getItemType, ItemFamily} from "../model/schemaExtensions/Item";
+import {Realm} from "../../router";
+import {Authentication} from "../../router";
+import {getItemType, ItemFamily} from "../../router";
 
 export var realm;
 

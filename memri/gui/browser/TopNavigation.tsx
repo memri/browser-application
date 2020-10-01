@@ -3,15 +3,14 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
-import {MemriContext} from "../../context/MemriContext";
+import {Alignment, Font} from "../../../router";
 import {
 	ActionBack,
 	ActionBackAsSession, ActionClosePopup,
 	ActionForward,
 	ActionForwardToFront,
 	ActionOpenViewByName, ActionShowNavigation, ActionShowSessionSwitcher
-} from "../../cvu/views/Action";
+} from "../../../router";
 import {
 	ColorArea,
 	font,
@@ -24,7 +23,7 @@ import {
 	padding,
 	VStack
 } from "../swiftUI";
-import {debugHistory} from "../../cvu/views/ViewDebugger";
+import {debugHistory} from "../../../router";
 import {ActionButton} from "../ActionView";
 
 export class TopNavigation extends MainUI {

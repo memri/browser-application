@@ -2,8 +2,8 @@
 // CVUPropertyResolver.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {MemriDictionary} from "../../model/MemriDictionary";
-import {Font} from "../parsers/cvu-parser/CVUParser";
+import {MemriDictionary} from "../../../router";
+import {Font} from "../../../router";
 
 export class CVUPropertyResolver {
     properties = new MemriDictionary()

@@ -6,13 +6,13 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {DatabaseController} from "../storage/DatabaseController";
-import {CVUParsedSessionsDefinition} from "../cvu/parsers/cvu-parser/CVUParsedDefinition";
-import {EdgeSequencePosition, CVUStateDefinition} from "../model/schemaExtensions/Item";
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CacheMemri} from "../model/Cache";
-import {Session} from "./Session";
-import {Settings} from "../model/Settings";
+import {DatabaseController} from "../../router";
+import {CVUParsedSessionsDefinition} from "../../router";
+import {EdgeSequencePosition, CVUStateDefinition} from "../../router";
+import {debugHistory} from "../../router";
+import {CacheMemri} from "../../router";
+import {Session} from "../../router";
+import {Settings} from "../../router";
 
 export class Sessions /*: ObservableObject, Equatable*/ {
     /// TBD

@@ -8,9 +8,9 @@
 
 
 
-import {CascadingRendererConfig} from "../../../cvu/views/CascadingRendererConfig";
-import {DatabaseController} from "../../../storage/DatabaseController";
-import {CacheMemri} from "../../../model/Cache";
+import {CascadingRendererConfig} from "../../../../router";
+import {DatabaseController} from "../../../../router";
+import {CacheMemri} from "../../../../router";
 import {
     font, frame,
     HStack,
@@ -22,9 +22,9 @@ import {
     RenderersMemri,
     VStack
 } from "../../swiftUI";
-import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment, Color, Font} from "../../../../router";
 import * as React from "react";
-import {LabelAnnotation} from "../../../model/schemaExtensions/Item";
+import {LabelAnnotation} from "../../../../router";
 
 class LabelOption {
     labelID: string

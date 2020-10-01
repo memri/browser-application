@@ -4,7 +4,7 @@
 //  Copyright © 2020 Memri. All rights reserved.
 //
 
-import {ExprOperator} from "./ExprLexer";
+import {ExprOperator} from "../../../../router"
 import {
     ExprBinaryOpNode,
     ExprConditionNode,
@@ -17,8 +17,7 @@ import {
     ExprLookupNode,
     ExprCallNode,
     ExprVariableNode, ExprNilNode, ExprAnyNode
-} from "./ExprNodes";
-import {Settings} from "../../../model/Settings";
+} from "../../../../router"
 
 export class ExprInterpreter {
     ast: ExprNode

@@ -3,8 +3,8 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 
-import {MemriContext} from "../context/MemriContext";
-import {Datasource} from "./Datasource";
+import {MemriContext} from "../../router";
+import {Datasource} from "../../router";
 
 export class IndexerAPI {
 	context?: MemriContext

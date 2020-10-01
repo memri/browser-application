@@ -2,7 +2,7 @@
 //  Datasource.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {Cascadable} from "../cvu/views/Cascadable";
+import {Cascadable} from "../../router";
 
 interface UniqueString {
 	uniqueString

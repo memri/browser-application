@@ -17,24 +17,23 @@
  */
 
 // TODO: Remove this and find a solution for Edges
-import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/schemaExtensions/Item";
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedDefinition, CVUParsedViewDefinition} from "../cvu/parsers/cvu-parser/CVUParsedDefinition";
-import {Settings} from "../model/Settings";
-import {Views} from "../cvu/views/Views";
-import {PodAPI} from "../api/PodAPI";
-import {Expression} from "../cvu/parsers/expression-parser/Expression";
-import {ExprInterpreter} from "../cvu/parsers/expression-parser/ExprInterpreter";
-import {Sessions} from "../sessions/Sessions";
-import {Installer} from "../install/Installer";
-import {IndexerAPI} from "../api/IndexerAPI";
-import {MainNavigation} from "../model/MainNavigation";
-import {Renderers} from "../gui/renderers/Renderers";
-import {CacheMemri} from "../model/Cache";
-import {Realm} from "../model/RealmLocal";
-import {ViewArguments} from "../cvu/views/CascadableDict";
-import {MemriDictionary} from "../model/MemriDictionary";
-import {DatabaseController} from "../storage/DatabaseController";
+import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../../router";
+import {debugHistory} from "../../router";
+import {CVUParsedDefinition, CVUParsedViewDefinition} from "../../router";
+import {Settings} from "../../router";
+import {Views} from "../../router";
+import {PodAPI} from "../../router";
+import {Expression} from "../../router";
+import {ExprInterpreter} from "../../router";
+import {Sessions} from "../../router";
+import {Installer} from "../../router";
+import {IndexerAPI} from "../../router";
+import {MainNavigation} from "../../router";
+import {CacheMemri} from "../../router";
+import {Realm} from "../../router";
+import {ViewArguments} from "../../router";
+import {MemriDictionary} from "../../router";
+import {DatabaseController} from "../../router";
 
 export var globalCache
 

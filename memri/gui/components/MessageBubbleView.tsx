@@ -1,7 +1,7 @@
 import {font, frame, HStack, MainUI, MemriText, padding, VStack} from "../swiftUI";
 import * as React from "react";
-import {FontDefinition} from "../../cvu/views/CVUPropertyResolver";
-import {Alignment, Color, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
+import {FontDefinition} from "../../../router";
+import {Alignment, Color, Font} from "../../../router";
 import {MemriSmartTextView} from "./Text/MemriSmartTextView";
 
 export class MessageBubbleView extends MainUI {

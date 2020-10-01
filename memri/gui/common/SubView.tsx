@@ -4,8 +4,8 @@
 
 import * as React from "react";
 import {MainUI} from "../swiftUI";
-import {ViewArguments} from "../../cvu/views/CascadableDict";
-import {debugHistory} from "../../cvu/views/ViewDebugger";
+import {ViewArguments} from "../../../router";
+import {debugHistory} from "../../../router";
 import {Browser} from "../browser/Browser";
 
 

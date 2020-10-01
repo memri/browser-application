@@ -3,8 +3,8 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Color, Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
-import {ActionDelete} from "../../../cvu/views/Action";
+import {Alignment, Color, Font} from "../../../../router";
+import {ActionDelete} from "../../../../router";
 import {
 	ASTableView,
 	font,
@@ -16,7 +16,7 @@ import {
 	VStack
 } from "../../swiftUI";
 import {ListItem} from "@material-ui/core";
-import {CascadingRendererConfig} from "../../../cvu/views/CascadingRendererConfig";
+import {CascadingRendererConfig} from "../../../../router";
 
 export class ListRendererConfig extends CascadingRendererConfig {
 	get longPress() { return this.cascadeProperty("longPress") }

@@ -15,7 +15,7 @@ import {
     Spacer,
     VStack
 } from "../swiftUI";
-import {Color, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
+import {Color, Font} from "../../../router";
 import {ActionButton} from "../ActionView";
 
 export class BottomBarView extends MainUI {

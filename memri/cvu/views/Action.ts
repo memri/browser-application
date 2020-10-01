@@ -2,16 +2,16 @@
 //  Action.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {CVUSerializer, orderKeys} from "../parsers/cvu-parser/CVUToString";
-import {Expression} from "../parsers/expression-parser/Expression";
-import {ActionError} from "./ActionErrors";
-import {Color} from "../parsers/cvu-parser/CVUParser";
-import {debugHistory} from "./ViewDebugger";
-import {Settings} from "../../model/Settings";
-import {Datasource} from "../../api/Datasource";
-import {CacheMemri} from "../../model/Cache";
-import {CVUStateDefinition, EdgeSequencePosition, Item, UUID} from "../../model/schemaExtensions/Item";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {CVUSerializer, orderKeys} from "../../../router";
+import {Expression} from "../../../router";
+import {ActionError} from "../../../router";
+import {Color} from "../../../router";
+import {debugHistory} from "../../../router";
+import {Settings} from "../../../router";
+import {Datasource} from "../../../router";
+import {CacheMemri} from "../../../router";
+import {CVUStateDefinition, EdgeSequencePosition, Item, UUID} from "../../../router";
+import {MemriDictionary} from "../../../router";
 
 export class Action/* : HashableClass, CVUToString*/ {
     name = ActionFamily.noop;

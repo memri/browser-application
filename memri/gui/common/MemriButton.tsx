@@ -4,8 +4,8 @@
 
 import {EmptyView, font, Group, HStack, MainUI, MemriText, padding} from "../swiftUI";
 import * as React from "react";
-import {backgroundColor, foregroundColor, ItemFamily, me} from "../../model/schemaExtensions/Item";
-import {Font, Color} from "../../cvu/parsers/cvu-parser/CVUParser";
+import {backgroundColor, foregroundColor, ItemFamily, me} from "../../../router";
+import {Font, Color} from "../../../router";
 require("../../extension/common/string");
 
 export class MemriButton extends MainUI {

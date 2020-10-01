@@ -22,20 +22,20 @@ import {
     VStack,
     ZStack, Toggle, EmptyView
 } from "../swiftUI";
-import {CVUStateDefinition, Item} from "../../model/schemaExtensions/Item";
-import {ViewArguments} from "../../cvu/views/CascadableDict";
+import {CVUStateDefinition, Item} from "../../../router";
+import {ViewArguments} from "../../../router";
 import * as React from "react";
-import {UIElementFamily} from "../../cvu/views/UIElement";
-import {Alignment, Color, CVUParser, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
-import {Action, ActionUnlink} from "../../cvu/views/Action";
-import {CVUParsedViewDefinition} from "../../cvu/parsers/cvu-parser/CVUParsedDefinition";
-import {debugHistory} from "../../cvu/views/ViewDebugger";
+import {UIElementFamily} from "../../../router";
+import {Alignment, Color, CVUParser, Font} from "../../../router";
+import {Action, ActionUnlink} from "../../../router";
+import {CVUParsedViewDefinition} from "../../../router";
+import {debugHistory} from "../../../router";
 import {ActionButton} from "../ActionView";
 import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
 
 import {SubView} from "./SubView";
 import {Grid} from "@material-ui/core";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {MemriDictionary} from "../../../router";
 import {MemriButton} from "./MemriButton";
 import {MemriSmartTextView} from "../components/Text/MemriSmartTextView";
 import {EmailHeaderView} from "../components/Email/EmailHeaderView";

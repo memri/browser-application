@@ -6,7 +6,7 @@
 //
 
 import * as React from 'react';
-import {Color} from "../cvu/parsers/cvu-parser/CVUParser";
+import {Color} from "../../router";
 import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./browser/navigationPane/NavigationView";
 import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swiftUI";

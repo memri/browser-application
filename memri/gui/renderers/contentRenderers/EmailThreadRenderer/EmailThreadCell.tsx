@@ -8,7 +8,7 @@
 
 import {MainUI, padding, VStack} from "../../../swiftUI";
 import * as React from "react";
-import {Color} from "../../../../cvu/parsers/cvu-parser/CVUParser";
+import {Color} from "../../../../../router";
 
 export class EmailThreadItem extends MainUI {
     uuid: string

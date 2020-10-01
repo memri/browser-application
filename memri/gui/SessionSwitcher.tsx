@@ -4,9 +4,9 @@
 
 import * as React from 'react';
 import {font, frame, HStack, MainUI, offset, padding, ZStack} from "./swiftUI";
-import {Alignment} from "../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment} from "../../router";
 import {ActionButton} from "./ActionView";
-import {ActionShowSessionSwitcher} from "../cvu/views/Action";
+import {ActionShowSessionSwitcher} from "../../router";
 
 export class SessionSwitcher extends MainUI {
     items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]

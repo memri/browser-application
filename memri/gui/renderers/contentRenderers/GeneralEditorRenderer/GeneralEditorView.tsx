@@ -2,8 +2,8 @@
 // GeneralEditorView.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {debugHistory} from "../../../../cvu/views/ViewDebugger";
-import {Item, UUID} from "../../../../model/schemaExtensions/Item";
+import {debugHistory} from "../../../../../router";
+import {Item, UUID} from "../../../../../router";
 import {
     font,
     frame,
@@ -18,15 +18,13 @@ import {
     VStack
 } from "../../../swiftUI";
 import * as React from "react";
-import {Alignment, Font} from "../../../../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../../../../router";
 import {ActionButton} from "../../../ActionView";
 import {ItemCell} from "../../../common/ItemCell";
-import {ViewArguments} from "../../../../cvu/views/CascadableDict";
-import {ActionOpenViewByName, RenderType} from "../../../../cvu/views/Action";
-import {ExprInterpreter} from "../../../../cvu/parsers/expression-parser/ExprInterpreter";
-import {MemriButton} from "../../../common/MemriButton";
-import {MemriDictionary} from "../../../../model/MemriDictionary";
-import {CascadingRendererConfig} from "../../../../cvu/views/CascadingRendererConfig";
+import {ViewArguments} from "../../../../../router";
+import {ActionOpenViewByName, RenderType} from "../../../../../router";
+import {MemriDictionary} from "../../../../../router";
+import {CascadingRendererConfig} from "../../../../../router";
 import {DefaultGeneralEditorRow} from "./GeneralEditorRows";
 require("../../../../extension/common/string");
 

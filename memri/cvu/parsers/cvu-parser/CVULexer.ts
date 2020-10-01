@@ -4,7 +4,7 @@
 //  Copyright © 2020 Memri. All rights reserved.
 //
 
-import {CVUParseErrors} from "./CVUParseErrors"
+import {CVUParseErrors} from "../../../../router";
 
 class Token {
     type: any;

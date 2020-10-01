@@ -5,14 +5,14 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedSessionDefinition} from "../cvu/parsers/cvu-parser/CVUParsedDefinition";
-import {DatabaseController} from "../storage/DatabaseController";
-import {CascadableView} from "../cvu/views/CascadableView";
-import {Realm} from "../model/RealmLocal";
-import {CacheMemri} from "../model/Cache";
-import {ActionFamily} from "../cvu/views/Action";
-import {CVUStateDefinition, EdgeSequencePosition} from "../model/schemaExtensions/Item";
+import {debugHistory} from "../../router";
+import {CVUParsedSessionDefinition} from "../../router";
+import {DatabaseController} from "../../router";
+import {CascadableView} from "../../router";
+import {Realm} from "../../router";
+import {CacheMemri} from "../../router";
+import {ActionFamily} from "../../router";
+import {CVUStateDefinition, EdgeSequencePosition} from "../../router";
 
 export class Session  /*extends Equatable, Subscriptable*/ {
     subscript() {

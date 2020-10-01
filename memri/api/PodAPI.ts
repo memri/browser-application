@@ -1,7 +1,7 @@
-import {Settings} from "../model/Settings"
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Authentication} from "./Authentication";
-import {getItemType, SchemaItem} from "../model/schemaExtensions/Item";
+import {Settings} from "../../router"
+import {debugHistory} from "../../router";
+import {Authentication} from "../../router";
+import {getItemType, SchemaItem} from "../../router";
 
 export class PodAPI {
     key;
