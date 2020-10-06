@@ -13,6 +13,7 @@ import {CacheMemri} from "../../router";
 import {Settings} from "../../router";
 import {Authentication} from "../../router";
 import {LocalSetting} from "../../router";
+import {mockApi} from "../../playground/mockApi";
 
 enum InstallerState {
 	inactive,
@@ -131,12 +132,15 @@ export class Installer {
 					callback(error)
 					throw `Unable to authenticate: ${error}`
 				}
-
+				if (host == "mock") {
+					context.podAPI=new mockApi();
+				}
 				context.podAPI.host = host
 				localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
 				localStorage.setItem("ownerKey", publicKey); //TODO:
 				localStorage.setItem("databaseKey", dbKey); //TODO:
 				//Authentication.createRootKey(areYouSure)
+
 
 				context.cache.sync.syncAllFromPod(() => { // TODO error handling
 					Settings.shared.set("user/pod/host", host)
@@ -173,7 +177,7 @@ export class Installer {
 						debugHistory.warn(`${error}`)
 						callback(error)
 					}
-					localStorage.setItem("isLocalInstall", "true"); //TODO: added not to sync with missing pod
+					localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
 					this.ready(context)
 
 					callback(undefined)

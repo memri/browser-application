@@ -151,18 +151,19 @@ onResize()
 
 let memriApp = document.createElement("iframe");
 memriApp.width = testBox.size;
-memriApp.height = window.innerHeight + "px";
-memriApp.src="http://localhost:9000/app.html?pod=mock"
+memriApp.height = window.innerHeight - 20 + "px";
+
 testBox.element.appendChild(memriApp);
 
 baseBox.toolBars.top.element.textContent = "";
 dom.buildDom([
     ["input", { 
         ref: "podAddress", 
-        value: "http://localhost:3030", 
+        value: "http://localhost:3030",
         onkeypress: function(e) {
             if (e.key == "Enter") {
                 updateTree()
+                memriApp.src = "http://localhost:9000/app.html?pod=" + localStorage["user/pod/host"]
             }
         }
     }],
@@ -173,6 +174,7 @@ dom.buildDom([
         onclick: (e)=> {
             e.preventDefault();
             updateTree();
+            memriApp.src = "http://localhost:9000/app.html?pod=" + localStorage["user/pod/host"]
         }
     }, "Connect To Pod"],
     ["span", {class: "spacer"}],
@@ -416,7 +418,7 @@ refs.podAddress.value = localStorage["user/pod/host"] || "http://localhost:3030/
 Settings.shared.set("user/pod/host", refs.podAddress.value);
 
 import {mockApi} from "./playground/mockApi"
-var api = new PodAPI(mockApi, mockApi);
+var api = new PodAPI(undefined, new mockApi());
  
  window.api = api
 
@@ -507,7 +509,7 @@ function listCVUDefinitions(callback) {
             if (!files[domain]) return;
             var name = path.slice(domain.length + 1);
             files[domain].push({
-                readOnly: domain == "dafaults",
+                readOnly: domain == "defaults",
                 path,
                 name,
             });
@@ -589,6 +591,7 @@ function saveCVUDefinition(path, value, parts, callback) {
     Promise.all(promises).then(function() {
         updateTree()
         callback()
+        memriApp.contentWindow.updateCVU();
     })
 }
 

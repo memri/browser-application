@@ -26,10 +26,10 @@ import {debugHistory} from "../../router";
 export class SetupWizard extends MainUI {
     context: MemriContext
 
-    host: string = "http://192.168.88.24:3030"
-    privateKey: string = "54365395D0C23087C44FF5FC0A2320D276B942AA8A7F0A92585A8368FFBEAA29"
-    publicKey: string = "401E34DC78BF9588554A3CBACF6528A6CED7AD2CBF1ED56EB19DDF6924903F59"
-    databaseKey: string = "9F293DAA30B642C7885770F824CED595E7B206B670EE476087655EE9BDA6977B"
+    host: string = "http://192.168.88.31:3030"
+    privateKey: string = "98D7A78E0FE878B20915BE65083FEBBA1E15EE6E110EB8395C040CF23F1AB74B"
+    publicKey: string = "CDFA58CEDDD92508FCA6C509B56BE2693B63C6063902D25151F40E84E6740771"
+    databaseKey: string = "C070BDD19BD248C2A31DCBBE85FF701C9C4E54C6AB474405B5B7C298F49188D0"
     showingAlert = false;
 
     render(){
@@ -102,7 +102,7 @@ export class SetupWizard extends MainUI {
                                             <MemriText frame={frame({width:100, alignment: Alignment.topLeading})}>
                                                 Host:
                                             </MemriText>
-                                            <MemriTextField value={this.host}/>
+                                            <MemriTextField value={this.host} onChange={(e) => this.host = e.target.value}/>
                                         </HStack>
                                         <HStack>
                                             <MemriRealButton action={() => {
@@ -158,7 +158,7 @@ export class SetupWizard extends MainUI {
                                             <MemriText frame={frame({width:100, alignment: Alignment.leading})}>
                                                 Host:
                                             </MemriText>
-                                            <MemriTextField value={this.host}/>
+                                            <MemriTextField value={this.host} onChange={(e) => this.host = e.target.value}/>
                                         </HStack>
                                         <HStack>
                                             <MemriText frame={frame({width:100, alignment: Alignment.leading})}>

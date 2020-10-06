@@ -39,27 +39,32 @@ export class Views {
 
 		 this.setCurrentLanguage(this.context.settings.get("user/language") ?? "English")
 
-		/*this.settingWatcher = this.context.settings.subscribe("device/debug/autoReloadCVU").forEach(function (item) {
-			let value = item;
-			if (typeof item == "boolean") {
+		this.settingWatcher = this.context.settings.subscribe("device/debug/autoReloadCVU", ($0) => {
+			let value = $0;
+			if (value) {
 				if (value && this.cvuWatcher == undefined) {
 					this.listenForChanges()
 				} else if (!value && this.cvuWatcher) {
-					this.cvuWatcher.cancel()
+					let c = this.cvuWatcher;
+					c.cancel()
 					this.cvuWatcher = undefined;
 				}
 			}
-		}.bind(this)) //TODO: maybe i wrong;*/
+		})
 	}
 
 	listenForChanges() {
-		if (!this.context?.podAPI.isConfigured) { return }
-		if (DatabaseController.realmTesting) { return }
+		if (!this.context?.podAPI.isConfigured) {
+			return
+		}
+		if (DatabaseController.realmTesting) {
+			return
+		}
 
 		// Subscribe to changes in CVUStoredDefinition
-		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition").forEach(function (items) { // CVUStoredDefinition AND domain='user'
-		this.reloadViews(items)
-		}.bind(this))
+		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition", (items) => { // CVUStoredDefinition AND domain='user'
+			this.reloadViews();
+		})
 	}
 
 	// TODO: refactor when implementing settings UI call this when changing the language
@@ -76,7 +81,7 @@ export class Views {
 	// TODO: Refactor: distinguish between views and sessions
 	// Load the default views from the package
 	install(overrideCodeForTesting: string, callback) {
-		if (!this.context) {
+		if (overrideCodeForTesting && !this.context) {//TODO:
 			callback("Context is not set")
 			return
 		}

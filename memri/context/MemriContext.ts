@@ -17,7 +17,7 @@
  */
 
 // TODO: Remove this and find a solution for Edges
-import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../../router";
+import {CVUStateDefinition, Item, ItemFamily} from "../../router";
 import {debugHistory} from "../../router";
 import {CVUParsedDefinition, CVUParsedViewDefinition} from "../../router";
 import {Settings} from "../../router";
@@ -34,6 +34,7 @@ import {Realm} from "../../router";
 import {ViewArguments} from "../../router";
 import {MemriDictionary} from "../../router";
 import {DatabaseController} from "../../router";
+
 
 export var globalCache
 
@@ -636,7 +637,7 @@ export class RootContext extends MemriContext {
 	// TODO: Refactor: Should installer be moved to rootmain?
 
 	constructor(name: string)  {
-		let podAPI = new PodAPI(undefined) //TODO: for now
+		let podAPI = new PodAPI(undefined, undefined) //TODO: for now
 		let cache = new CacheMemri(podAPI)
 		let views = new Views()
 

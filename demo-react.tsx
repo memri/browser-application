@@ -5,16 +5,32 @@ import * as ReactDOM from 'react-dom';
 
 import {debugHistory} from "./router";
 import {contextJs} from "./install";
-
+import {mockApi} from "./playground/mockApi";
 
 
 var queryString = window.location.search;
 let params = new URLSearchParams(queryString);
 let pod = params.get("pod");
-if (pod == "none" && contextJs.installer.isInstalled == false) {
-    contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
-        error && error.map(($0) => debugHistory.error(`${$0}`))
-    })
+switch (pod) {
+    case "none":
+        contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
+            error && error.map(($0) => debugHistory.error(`${$0}`))
+        })
+        break;
+    case "mock":
+        contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
+            error && error.map(($0) => debugHistory.error(`${$0}`))
+        })
+        contextJs.podAPI = new mockApi();
+        break;
+    case undefined:
+    case null:
+        break;
+    default:
+        contextJs.installer.installLocalAuthForExistingPod(contextJs, true, pod, "", localStorage.ownerKey, localStorage.databaseKey, (error) => {
+            error && error.map(($0) => debugHistory.error(`${$0}`))
+        })
+        break;
 }
 
 console.log(contextJs);
