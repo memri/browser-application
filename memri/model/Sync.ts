@@ -208,16 +208,16 @@ export class Sync {
                                 resolvedItem._action = undefined;
 							}
 							else {
-								resolvedItem._action = ""
-								resolvedItem._updated.removeAll()
+								resolvedItem._action = undefined
+								resolvedItem._updated = [];
 							}
 						} else if (item?.constructor?.name == "EdgeReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 resolvedItem._action = undefined;
 							}
 							else {
-								resolvedItem._action = ""
-								resolvedItem._updated.removeAll()
+								resolvedItem._action = undefined
+								resolvedItem._updated = [];
 							}
 						}
 					}

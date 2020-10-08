@@ -5,8 +5,6 @@ import * as ReactDOM from 'react-dom';
 
 import {debugHistory} from "./router";
 import {contextJs} from "./install";
-import {mockApi} from "./playground/mockApi";
-
 
 var queryString = window.location.search;
 let params = new URLSearchParams(queryString);
@@ -18,10 +16,12 @@ switch (pod) {
         })
         break;
     case "mock":
+        contextJs.podAPI = parent.api
+
         contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
             error && error.map(($0) => debugHistory.error(`${$0}`))
         })
-        contextJs.podAPI = new mockApi();
+        contextJs.cache.podAPI = parent.api
         break;
     case undefined:
     case null:
