@@ -177,7 +177,7 @@ export class Installer {
 						debugHistory.warn(`${error}`)
 						callback(error)
 					}
-					localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
+					localStorage.setItem("isLocalInstall", "true"); //TODO: added not to sync with missing pod
 					this.ready(context)
 
 					callback(undefined)

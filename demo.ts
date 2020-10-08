@@ -422,6 +422,18 @@ var api = new PodAPI(undefined, new mockApi());
  
  window.api = api
 
+if (localStorage["user/pod/host"] && localStorage["user/pod/host"] == "mock") {
+    for (let [key, value] of Object.entries(localStorage)) {
+        if (/^file-user\//.test(key)) {
+            sharedWorker.call("split", [value], function(result) {
+                saveCVUDefinition(key, value, result.parts, function() {
+                    //updateSaveButton(false, tab.editor);
+                });
+            })
+        }
+    }
+}
+
 listBox.popup.setData([{value:  "Connect to pod to load data"}]);
  
 function sortFn(a, b) {
