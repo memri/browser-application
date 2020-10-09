@@ -3,16 +3,16 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Color} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {MemriContext} from "../../context/MemriContext";
-import {MainUI, Spacer, VStack, ZStack} from "../swiftUI";
+import {Capsule, ColorArea, frame, MainUI, MemriText, offset, padding, VStack, ZStack} from "../swiftUI";
 import {TopNavigation} from "./TopNavigation";
-import {allRenderers} from "../../cvu/views/Renderers";
-import {Search} from "./Search";
-import {FilterPanel} from "./FilterPanel";
-import {ContextPane} from "../contextpane/ContextPane";
+import {FilterPanel} from "./configPane/FilterPanel";
+import {ContextPane} from "./contextPane/ContextPane";
 import {CascadableView} from "../../cvu/views/CascadableView";
 import {ContextualBottomBar} from "./ContextualBottomBar";
+import {BottomBarView} from "./BottomBar";
+import { SearchView } from './SearchView';
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends MainUI {
@@ -27,27 +27,33 @@ export class Browser extends MainUI {
 		this.showCloseButton = this.props.showCloseButton ?? false;
 	}
 
-	get activeRenderer() {
-		let activeRenderer = allRenderers?.allViews[this.context.currentView?.activeRenderer ?? ""] ?? new Spacer({})
-		activeRenderer.props = activeRenderer.props ?? {}
-		activeRenderer.props.context = this.context
-		activeRenderer.props.background = this.currentView.fullscreen ? "black" : "clear"//TODO
-		return activeRenderer
+	get activeRendererController(): RendererController {
+		return this.context.currentRendererController
 	}
+
+	isSearchActive = false
+
+	get showFilterPanel(): boolean {
+		return this.context.currentSession?.showFilterPanel ?? false
+	}
+
+	set showFilterPanel(newValue) {
+		this.context.currentSession && (this.context.currentSession.showFilterPanel = newValue)
+		this.context.scheduleUIUpdate(true)
+	}
+
+	filterPanelGestureOffset = 0
 
 	render() {
 		this.init() //fullHeight layoutPriority={1}
 
 		let currentView = this.context.currentView ?? new CascadableView()
-		currentView.showToolbar = true
-		currentView.fullscreen = false
-
 		this.currentView = currentView
 
 		return (
-			<div className={"Browser"}>
+			<div className={"Browser"} style={this.setStyles()}>
 			<ZStack>
-				{this.context.currentView == undefined ? "Loading..." :
+				{this.context.currentView == undefined ? <MemriText padding={padding({})} frame={frame({maxWidth: "infinity"})}>{"Loading..."}</MemriText> :
 					<>
 						<VStack alignment={Alignment.center} spacing={0}>
 							{currentView.showToolbar
@@ -57,21 +63,55 @@ export class Browser extends MainUI {
 												  inSubView={this.inSubView}
 												  showCloseButton={this.showclosebutton}/>
 							}
-							{this.activeRenderer.render()}
+							<ZStack width="100%">
+								<VStack alignment={Alignment.center} spacing={0}>
+									{this.activeRendererController != undefined
+										? this.activeRendererController.makeView()
+										: <MemriText padding={padding({})} frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}>
+											{"No active renderer"}
+										</MemriText>
+									}
 
-							<ContextualBottomBar context={this.context}/>
+									<ContextualBottomBar context={this.context}/>
 
-							{currentView.showSearchbar && !currentView.fullscreen &&
-								<>
-									<Search context={this.context}/>
-									{this.context.currentSession?.showFilterPanel &&
-										<FilterPanel context={this.context}/>}
-								</>
-							}
+									{!currentView.fullscreen &&
+										<BottomBarView onSearchPressed={() => {
+											this.isSearchActive = true;
+											this.context.scheduleCascadableViewUpdate();
+										}} context={this.context} zIndex={8}/>
+									}
+								</VStack>
+
+								{this.showFilterPanel &&
+									<ColorArea color={"black"}
+											   opacity={0.15}
+											   click={() => {this.showFilterPanel = false; this.context.scheduleCascadableViewUpdate();}}
+									/>
+								}
+							</ZStack>
 						</VStack>
-						{currentView.contextPane ? <ContextPane context={this.context}/> : ""}
+
+						<SearchView context={this.context} isActive={this.isSearchActive}/>
+
+						{this.showFilterPanel &&
+							<VStack offset={offset({y: this.filterPanelGestureOffset})}
+									zIndex={9}
+									// transition={move("bottom")}
+							>
+								<Capsule fill={new Color("secondarySystemBackground").toLowerCase()}
+										 frame={frame({width: 40, height: 5, maxWidth: "infinity"/*, height: 15*/})}
+								/>
+								<FilterPanel context={this.context}/>
+							</VStack>
+						}
+						{currentView.contextPane.isSet() &&
+							<ContextPane context={this.context}
+										 zIndex={15}/>
+						}
 					</>
 				}
+
+
 			</ZStack>
 			</div>
 		);

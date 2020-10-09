@@ -5,7 +5,7 @@
 /// Based on a query, Sync checks whether it still has the latest version of the resulting Items. It does this asynchronous and in the
 /// background, items are updated automatically.
 import {Datasource} from "../api/Datasource";
-import {Edge,AuditItem, getItemType, ItemFamily} from "./items/Item";
+import {Edge,AuditItem, getItemType, ItemFamily} from "./schemaExtensions/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {CacheMemri} from "./Cache";
 import {DatabaseController, EdgeReference, ItemReference} from "../storage/DatabaseController";
@@ -53,7 +53,7 @@ export class Sync {
             })
             
             // Add to realm
-			DatabaseController.background(true, undefined,(realm) => {
+			DatabaseController.asyncOnBackgroundThread(true, undefined,(realm) => {
                 var safeRef: ItemReference
                 if (auditable) {
                     // Store query in a log item
@@ -75,7 +75,7 @@ export class Sync {
                 this.prioritySync(datasource, () => {
                     if (auditable) {
                         // We no longer need to process this log item
-                        DatabaseController.background(true, undefined, () => {
+                        DatabaseController.asyncOnBackgroundThread(true, undefined, () => {
                             safeRef.resolve()._action = undefined;
                         })
                     }
@@ -194,7 +194,7 @@ export class Sync {
 
 	async syncToPod() {
 		function markAsDone(list, callback) {
-			DatabaseController.background(true, callback,(realm) => {
+			DatabaseController.asyncOnBackgroundThread(true, callback,(realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
                         let resolvedItem = (item?.constructor?.name == "ItemReference" || item?.constructor?.name == "EdgeReference") && item.resolve()
@@ -229,8 +229,8 @@ export class Sync {
 		
 		/*if (this.syncing) { return }
         this.syncing = true*/
-        //#warning("Why is this not in the background?")
-        DatabaseController.current(false,(realm) => {
+
+        DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
             var found = 0
             var itemQueue = {create: [], update: [], delete: []}
             var edgeQueue = {create: [], update: [], delete: []}
@@ -317,7 +317,7 @@ export class Sync {
 	}
 
     syncFilesFromPod(callback) {
-        DatabaseController.background(false, undefined, (realm) => {
+        DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
             var list = [];
             let items = realm.objects("LocalFileSyncQueue").filtered("task = 'upload'")
             items.forEach(($0) => {
@@ -334,7 +334,7 @@ export class Sync {
 
 
             function validate(sha256: string) {
-                return DatabaseController.current(false, (realm) => {
+                return DatabaseController.sync(false, (realm) => {
                     let file = realm.objects("File").filtered(`sha256 = '${sha256}'`)[0];
                     if (!file || file._action == "create" || file._updated.includes("sha256")) {
                         return false
@@ -380,7 +380,7 @@ export class Sync {
     }
 
     syncFilesToPod(callback) {
-        DatabaseController.background(false, undefined, (realm) => {
+        DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
             var list = [];
             let items = realm.objects("LocalFileSyncQueue").filtered("task = 'upload'")
             items.forEach(($0) => {
@@ -397,7 +397,7 @@ export class Sync {
 
 
             function validate(sha256: string) {
-                return DatabaseController.current(false, (realm) => {
+                return DatabaseController.sync(false, (realm) => {
                     let file = realm.objects("File").filtered(`sha256 = '${sha256}'`)[0];
                     if (!file || file._action == "create" || file._updated.includes("sha256")) {
                         return false

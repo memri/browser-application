@@ -2,7 +2,7 @@
 // MemriTextView.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {MainUI, MemriText, font} from "../../swiftUI";
+import {MainUI, MemriText, font as fontF} from "../../swiftUI";
 import * as React from "react";
 
 export class MemriSmartTextView extends MainUI {
@@ -15,17 +15,21 @@ export class MemriSmartTextView extends MainUI {
 	// This uses a rather hacky implementation to get around SwiftUI sizing limitations
 	// We use a simple text element to do the sizing, but display our custom element
     render(){
-	    this.string = this.props.string;
-	    this.detectLinks = this.props.detectLinks;
-	    this.font = this.props.font;
-	    this.color = this.props.color;
-	    this.maxLines = this.props.maxLines;
+		let {string, detectLinks, font, background, color, maxLines, ...other} = this.props;
+	    this.string = string;
+	    this.detectLinks = detectLinks;
+	    this.font = font;
+	    this.color = color;
+	    this.maxLines = maxLines;
 
 	    return (
-	        <MemriText lineLimit={this.maxLines != 0 ? this.maxLines : undefined} font={font(this.font)} fixedSize={{horizontal: false, vertical: true}}>
-                {this.string}
-            </MemriText>
-        )
+			<div className={"MemriSmartTextView"} style={this.setStyles()} {...other}>
+				<MemriText lineLimit={this.maxLines != 0 ? this.maxLines : undefined} font={fontF(this.font)}
+						   fixedSize={{horizontal: false, vertical: true}}>
+					{this.string}
+				</MemriText>
+			</div>
+		)
     }
 
     /*var body: some View {

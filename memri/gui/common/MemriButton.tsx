@@ -4,9 +4,8 @@
 
 import {EmptyView, font, Group, HStack, MainUI, MemriText, padding} from "../swiftUI";
 import * as React from "react";
-import {backgroundColor, foregroundColor, ItemFamily} from "../../model/items/Item";
-import {Font, Color} from "../../parsers/cvu-parser/CVUParser";
-import {me} from "../util";
+import {backgroundColor, foregroundColor, ItemFamily, me} from "../../model/schemaExtensions/Item";
+import {Font, Color} from "../../cvu/parsers/cvu-parser/CVUParser";
 require("../../extension/common/string");
 
 export class MemriButton extends MainUI {
@@ -22,7 +21,7 @@ export class MemriButton extends MainUI {
 
         var inputItem = this.item
         if (this.edge != undefined) {
-            inputItem = this.edge?.item()
+            inputItem = this.edge?.target()
         }
 
         let family = ItemFamily[inputItem?.genericType ?? "Note"]

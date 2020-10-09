@@ -4,9 +4,14 @@
 
 import {ActionMultiAction} from "./Action";
 import {debugHistory} from "./ViewDebugger";
-import {CVUParsedDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
-import {CVUSerializer} from "../../parsers/cvu-parser/CVUToString";
+import {CVUParsedDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUSerializer} from "../parsers/cvu-parser/CVUToString";
 import {MemriDictionary} from "../../model/MemriDictionary";
+
+export enum SelectorType {
+    singleItem,
+    list
+}
 
 export class Cascadable/* extends CustomStringConvertible*/{
     host?: Cascadable
@@ -92,7 +97,11 @@ export class Cascadable/* extends CustomStringConvertible*/{
         // #endif
         let expr = this.localCache[name]
         if (expr?.constructor?.name == "Expression") {
-            return this.execExpression(expr)
+            if (type == "Expression") {
+                return expr// We're requesting the Expression (not just the resolved value)
+            } else {
+                return this.execExpression(expr)
+            }
         } else
         if (expr) {
             return this.transformActionArray(expr)
@@ -122,7 +131,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
 
     // TODO support deleting items
     cascadeList(name, uniqueKey?, merging?) {
-        if (arguments.length === 3) {
+        if (typeof uniqueKey == "function") {
             let x = this.localCache[name]
             if (Array.isArray(x)) {
                 return x
@@ -161,8 +170,9 @@ export class Cascadable/* extends CustomStringConvertible*/{
                 return {}
             });
         } else {
-            if (!uniqueKey)
-                uniqueKey = true;
+            let selectorType = uniqueKey;
+            let merge = merging ?? true;
+
             let x = this.localCache[name];
             if (Array.isArray(x)) {
                 return x
@@ -170,16 +180,31 @@ export class Cascadable/* extends CustomStringConvertible*/{
 
             var result = [];
             for (let def of this.cascadeStack) {
+                if (selectorType) {
+                    // Check if this matches the selector type, otherwise continue to next definition
+                    switch (selectorType) {
+                        case SelectorType.list:
+                            // Only include definitions for list selectors
+                            if (!def.selectorIsForList)
+                                continue;
+                            break;
+                        case SelectorType.singleItem:
+                            // Only include definitions for single item selectors
+                            if (def.selectorIsForList)
+                                continue;
+                            break;
+                    }
+                }
                 let x: CVUParsedDefinition = def.get(name);
                 if (Array.isArray(x)) {
-                    if (!uniqueKey) {
+                    if (!merge) {
                         this.localCache[name] = x
                         return x
                     } else {
                         result.push(...x)
                     }
                 } else if (def[name]) {
-                    if (!uniqueKey) {
+                    if (!merge) {
                         this.localCache[name] = [x]
                         return [x]
                     } else {
@@ -187,9 +212,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
                     }
                 }
             }
-            result = Array.from(new Set(result))//TODO
         }
-
 
         this.localCache[name] = list ?? result
 

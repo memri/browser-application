@@ -10,10 +10,10 @@ import {
     List, Modal,
     Switch,
     TextField,
-    DialogContentText, DialogActions
+    DialogContentText, DialogActions, ListSubheader
 } from "@material-ui/core";
 import {MemriContext} from "../context/MemriContext";
-import {Alignment, Font, TextAlignment} from "../parsers/cvu-parser/CVUParser";
+import {Alignment, Font, TextAlignment} from "../cvu/parsers/cvu-parser/CVUParser";
 
 interface MemriUIProps {
     foregroundColor?
@@ -269,12 +269,14 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         }
         let styles = {
             color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor ?? fixedProps?.color,
-            margin: this.props.spacing ?? fixedProps?.margin,
+            gap: this.props.spacing,
+            margin: fixedProps?.margin,
             offset: this.props.offset ?? fixedProps?.offset,
             zIndex: this.props.zIndex ?? fixedProps?.zIndex,
             backgroundColor: this.props.background?.value ?? this.props.background ?? fixedProps?.backgroundColor,
             borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
-            opacity: this.props.opacity ?? fixedProps?.opacity
+            opacity: this.props.opacity ?? fixedProps?.opacity,
+            height: this.props.height,
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
@@ -309,10 +311,12 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
 }
 
 export class RenderersMemri extends MainUI {
+    controller
+
     executeAction = (dataItem) => () => {
-        let press = this.renderConfig.press
+        let press = this.controller.config.press
         if (press) {
-            this.context.executeAction(press, dataItem)
+            this.controller.context.executeAction(press, dataItem)
         }
     }
 }
@@ -407,7 +411,7 @@ export class MemriRealButton extends MainUI {
 export class NavigationView extends MainUI {
     render() {
         return (
-            <div className={"NavigationView"}>
+            <div style={this.setStyles()} className={"NavigationView"}>
                 {this.props.children}
             </div>
         )
@@ -520,7 +524,7 @@ export class MemriImage extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Icon style={this.setStyles()} {...other}>
+            <Icon style={this.setStyles()} fontSize="small" {...other}>
                 {this.props.children}
             </Icon>
         )
@@ -606,9 +610,14 @@ export class Group extends MainUI {
 
 export class MemriList extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {navigationBarTitle, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {overflow: "auto", width: "fit-content", height: "inherit"})
         return (
-            <List style={this.setStyles()} className="MemriList" {...other}>
+            <List style={style} className="MemriList" {...other}>
+                {navigationBarTitle &&
+                <ListSubheader>{navigationBarTitle}</ListSubheader>
+                }
                 {this.props.children}
             </List>
         )
@@ -631,6 +640,17 @@ export class RoundedRectangle extends MainUI {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
         return (
             <div style={this.setStyles()} className="RoundedRectangle" {...other}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+export class Capsule extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        return (
+            <div style={this.setStyles()} className="Capsule" {...other}>
                 {this.props.children}
             </div>
         )

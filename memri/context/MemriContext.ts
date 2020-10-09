@@ -17,19 +17,19 @@
  */
 
 // TODO: Remove this and find a solution for Edges
-import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/items/Item";
+import {CVUStateDefinition, Item, getItemType, ItemFamily} from "../model/schemaExtensions/Item";
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedDefinition, CVUParsedViewDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedDefinition, CVUParsedViewDefinition} from "../cvu/parsers/cvu-parser/CVUParsedDefinition";
 import {Settings} from "../model/Settings";
 import {Views} from "../cvu/views/Views";
 import {PodAPI} from "../api/PodAPI";
-import {Expression} from "../parsers/expression-parser/Expression";
-import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
+import {Expression} from "../cvu/parsers/expression-parser/Expression";
+import {ExprInterpreter} from "../cvu/parsers/expression-parser/ExprInterpreter";
 import {Sessions} from "../sessions/Sessions";
 import {Installer} from "../install/Installer";
 import {IndexerAPI} from "../api/IndexerAPI";
 import {MainNavigation} from "../model/MainNavigation";
-import {Renderers} from "../cvu/views/Renderers";
+import {Renderers} from "../gui/renderers/Renderers";
 import {CacheMemri} from "../model/Cache";
 import {Realm} from "../model/RealmLocal";
 import {ViewArguments} from "../cvu/views/CascadableDict";
@@ -75,6 +75,8 @@ export class MemriContext {
 		return this.sessions?.currentSession?.currentView
 	}
 
+	currentRendererController: RendererController
+
 	views: Views
 
 	settings: Settings
@@ -88,8 +90,6 @@ export class MemriContext {
 	cache: CacheMemri
 
 	navigation: MainNavigation
-
-	renderers: Renderers
 
 	get items(){
 		return this.currentView?.resultSet.items ?? []
@@ -134,7 +134,7 @@ export class MemriContext {
 		if (updateWithAnimation) {
 			if (typeof this.showNavigationBinding == "function")
 				this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
-
+				this.currentRendererController?.update()
 			// DispatchQueue.main.async(() => {//TODO
 			//		withAnimation {
 			// 			this.objectWillChange.send()
@@ -379,7 +379,6 @@ export class MemriContext {
 		sessions: Sessions,
 		views: Views,
 		navigation: MainNavigation,
-		renderers: Renderers,
 		indexerAPI: IndexerAPI
 	) {
 		this.name = name
@@ -390,7 +389,6 @@ export class MemriContext {
 		this.sessions = sessions
 		this.views = views
 		this.navigation = navigation
-		this.renderers = renderers
 		this.indexerAPI = indexerAPI
 
 		// TODO: FIX
@@ -405,6 +403,7 @@ export class MemriContext {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.objectWillChange.send()
+                self?.currentRendererController?.update()
             }*/
 
         // Setup update publishers
@@ -617,7 +616,6 @@ export class SubContext extends MemriContext {
 			new Sessions(state),
 			views,
 			context.navigation,
-			context.renderers,
 			context.indexerAPI
 		)
 		this.parent = context;
@@ -654,7 +652,6 @@ export class RootContext extends MemriContext {
 			new Sessions(undefined,true),
 			views,
 			new MainNavigation(),
-			new Renderers(),
 			new IndexerAPI()
 		)
 		if (this.currentView)

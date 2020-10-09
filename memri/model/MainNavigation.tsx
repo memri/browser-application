@@ -37,7 +37,7 @@ export class MainNavigation {
 
 	getItems() {
 		let needle = this.filterText.toLowerCase();
-		let items = DatabaseController.current (false,($0)=> {
+		let items = DatabaseController.sync (false,($0)=> {
 			return $0.objects("NavigationItem").sorted("sequence")
 		})
 		return items.filter(function (item) {

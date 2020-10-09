@@ -1,11 +1,11 @@
 var tree = require('./treehugger/tree');
 var traverse = require("./treehugger/traverse");
 
-import {ActionFamily, UIElementFamily} from "../../memri/parsers/cvu-parser/CVUParser";
-import {CVULexer} from "../../memri/parsers/cvu-parser/CVULexer";
-import {Expression} from "../../memri/parsers/expression-parser/Expression";
-import {CVUToken, CVUOperator} from "../../memri/parsers/cvu-parser/CVULexer";
-import {CVUParseErrors} from "../../memri/parsers/cvu-parser/CVUParseErrors";
+import {ActionFamily, UIElementFamily} from "../../memri/cvu/parsers/cvu-parser/CVUParser";
+import {CVULexer} from "../../memri/cvu/parsers/cvu-parser/CVULexer";
+import {Expression} from "../../memri/cvu/parsers/expression-parser/Expression";
+import {CVUToken, CVUOperator} from "../../memri/cvu/parsers/cvu-parser/CVULexer";
+import {CVUParseErrors} from "../../memri/cvu/parsers/cvu-parser/CVUParseErrors";
 
 
 export var parseCVU = function(text) {

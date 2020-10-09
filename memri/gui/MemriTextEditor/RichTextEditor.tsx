@@ -115,6 +115,9 @@ const deserialize = string => {
         } else if (el.nodeName === 'BR') {
             return '\n'
         }
+        if (el?.textContent == "") {
+            return [{ text: '' }]
+        }
 
         const { nodeName } = el
         let parent = el

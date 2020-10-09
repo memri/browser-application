@@ -12,14 +12,15 @@ import {
     CVUParsedDatasourceDefinition, CVUParsedDefinition,
     CVUParsedObjectDefinition,
     CVUParsedRendererDefinition, CVUParsedViewDefinition
-} from "../../parsers/cvu-parser/CVUParsedDefinition";
+} from "../parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "./ViewDebugger";
 import {DatabaseController} from "../../storage/DatabaseController";
 import {CacheMemri} from "../../model/Cache";
 import {CascadableDict} from "./CascadableDict";
 import {CascadingDatasource} from "../../api/Datasource";
 import {CascadableContextPane} from "./CascadableContextPane";
-import {allRenderers, CascadingRenderConfig} from "./Renderers";
+import {Renderers} from "../../gui/renderers/Renderers";
+import {CascadingRendererConfig} from "./CascadingRendererConfig";
 
 
 
@@ -67,7 +68,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     }
 
     get state() {
-        return DatabaseController.current(false, (realm) => {
+        return DatabaseController.sync(false, (realm) => {
             return realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
         })
     }
@@ -78,15 +79,26 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     get activeRenderer(): string {
         let s = this.cascadeProperty("defaultRenderer")
-        if (s) { return s }
-        debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
-        return ""
+        if (!s) {
+            debugHistory.error("Exception: Unable to determine the active renderer. Missing defaultRenderer in view?")
+            return ""
+        }
+        return s
     }
 
     set activeRenderer(value) {
-        //delete this.localCache[value] // Remove renderConfig reference
-        // #warning("TODO: Store value in userstate for other context based on .")
         this.setState("defaultRenderer", value)
+        if (this.context?.currentRendererController?.rendererTypeName != value) {
+            this.context.currentRendererController = this.makeRendererController(value)
+        }
+    }
+
+    makeRendererController(forRendererType?) {
+        let context = this.context;
+        if (!context) {
+            return
+        }
+        return new Renderers.rendererTypes[forRendererType ?? this.activeRenderer].makeController(context, this.renderConfig)
     }
 
     get fullscreen() { return this.viewArguments?.get("fullscreen") ?? this.cascadeProperty("fullscreen") ?? false }
@@ -241,9 +253,9 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
         }
     }
 
-    get renderConfig(): CascadingRenderConfig {
+    get renderConfig(): CascadingRendererConfig {
         let x = this.localCache[this.activeRenderer]
-        if (x && x instanceof CascadingRenderConfig) { return x }
+        if (x && x instanceof CascadingRendererConfig) { return x }
 
         let getConfig = function(a: CVUParsedDefinition) {
             let definitions = (a.get("rendererDefinitions") ?? [])
@@ -263,16 +275,11 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
         this.insertRenderDefs(tail)
 
-        let all = allRenderers
-        let RenderConfigType
+        let rendererType = Renderers.rendererTypes[this.activeRenderer]
 
-        if (all) {
-            RenderConfigType = all.allConfigTypes[this.activeRenderer]
-        }
-
-        if (all && RenderConfigType) {
+        if (rendererType) {
             // swiftformat:disable:next redundantInit
-            let renderConfig = new RenderConfigType(head, tail, this)
+            let renderConfig = rendererType.makeConfig(head, tail, this)
             // Not actively preventing conflicts in namespace - assuming chance to be low
             this.localCache[this.activeRenderer] = renderConfig
             return renderConfig
@@ -281,7 +288,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
             debugHistory.error(`Unable to cascade render config for ${this.activeRenderer}`)
         }
 
-        return new CascadingRenderConfig()
+        return new CascadingRendererConfig()
     }
 
 
@@ -423,7 +430,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     }
 
     persist() {
-        DatabaseController.tryCurrent(true, (realm) => {
+        DatabaseController.trySync(true, (realm) => {
             var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored view CVU. Creating a new one.")

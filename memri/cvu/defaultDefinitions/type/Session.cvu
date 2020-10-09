@@ -1,0 +1,96 @@
+[session = all-sessions] {
+    [view] {
+        title: "All Sessions"
+        [datasource = pod] {
+            query: "Session"
+        }
+    }
+}
+
+Session[] {
+    name: "all-sessions"
+    title: "All Sessions"
+    emptyResultText: "There are no sessions here yet"
+    defaultRenderer: grid
+    
+    sortFields: title dateModified dateAccessed dateCreated
+    
+    [datasource = pod] {
+        query: "session"
+        sortProperty: dateAccessed
+        sortAscending: false
+    }
+    
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+
+    [renderer = list] {
+        press: openSession
+        
+        VStack {
+            alignment: left
+            rowInset: 12 20 -12 20
+        
+            HStack {
+                VStack {
+                    Text {
+                        text: "Name: {.name}"
+                        font: 18 semibold
+                        color: #333
+                        padding: 5 0 0 0
+                    }
+                    Text {
+                        text: "Accessed: {.dateModified}"
+                        font: 11 regular
+                        color: #888
+                        padding: 5 0 5 0
+                    }
+                }
+                Spacer
+                Image {
+                    image: {{.screenshot}}
+                    border: #ccc 1
+                    resizable: fill
+                    maxWidth: 150
+                    maxHeight: 150
+                    cornerRadius: 10
+                    padding: -5 0 0 0
+                }
+            }
+        }
+    }
+    
+    [renderer = grid] {
+        columns: 2
+        spacing: 20 10
+        edgeInset: 10
+        press: openSession
+        
+        VStack {
+            minWidth: 10
+            padding: 0 0 5 0
+            alignment: center
+            
+            Image {
+                image: {{.screenshot}}
+                border: #ccc 1
+                resizable: fill
+                maxHeight: 180
+                cornerRadius: 10
+            }
+            Text {
+                text: "{.name}"
+                padding: 5 0 0 0
+                color: #333
+                font: 12 semibold
+                maxChar: 100
+            }
+            Text {
+                text: "{.dateModified}"
+                font: 9 regular
+                color: #888
+                padding: 3 0 0 0
+            }
+        }
+    }
+}

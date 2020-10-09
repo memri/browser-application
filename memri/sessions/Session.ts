@@ -6,13 +6,13 @@
 //
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CVUParsedSessionDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedSessionDefinition} from "../cvu/parsers/cvu-parser/CVUParsedDefinition";
 import {DatabaseController} from "../storage/DatabaseController";
 import {CascadableView} from "../cvu/views/CascadableView";
 import {Realm} from "../model/RealmLocal";
 import {CacheMemri} from "../model/Cache";
 import {ActionFamily} from "../cvu/views/Action";
-import {CVUStateDefinition, EdgeSequencePosition} from "../model/items/Item";
+import {CVUStateDefinition, EdgeSequencePosition} from "../model/schemaExtensions/Item";
 
 export class Session  /*extends Equatable, Subscriptable*/ {
     subscript() {
@@ -38,7 +38,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
 
     /// TBD
     get screenshot(){
-        return this.state?.edge("screenshot")?.item(File)
+        return this.state?.edge("screenshot")?.target("File")
     }
     set screenshot(value) {
         let file = value
@@ -57,7 +57,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
     uid?: Number
     parsed?: CVUParsedSessionDefinition
     get state() {
-		return DatabaseController.current (false,(realm) => {
+		return DatabaseController.sync (false,(realm) => {
             realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
         })
     }
@@ -126,7 +126,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
             // Or if the views are encoded in the definition
             else if (parsedViews && parsedViews.length > 0 && parsedViews[0]?.constructor?.name == "CVUParsedViewDefinition")
             {
-                DatabaseController.tryCurrent(true,() => {
+                DatabaseController.trySync(true,() => {
                     for (let parsed of parsedViews) {
                         let viewState = CVUStateDefinition.fromCVUParsedDefinition(parsed)
                         state.link(viewState, "view", EdgeSequencePosition.last)
@@ -219,7 +219,7 @@ subscript(propName: String) -> Any? {
     }
     
     persist() {
-        DatabaseController.current(false,(realm: Realm) => {
+        DatabaseController.asyncOnCurrentThread(true,undefined,(realm: Realm) => {
             var state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid)
             if (state == undefined) {
                 debugHistory.warn("Could not find stored session CVU. Creating a new one.")
@@ -333,6 +333,8 @@ subscript(propName: String) -> Any? {
 
             this.schedulePersist()
         }
+
+        this.context.currentRendererController = this.currentView?.makeRendererController()
         
         // Update the UI
         this.currentView?.context?.scheduleUIUpdate(true)

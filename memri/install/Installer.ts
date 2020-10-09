@@ -14,9 +14,18 @@ import {Settings} from "../model/Settings";
 import {Authentication} from "../api/Authentication";
 import {LocalSetting} from "../api/LocalSettings";
 
+enum InstallerState {
+	inactive,
+	downloadingDemoData
+	, extractingDemoData
+	, installingDatabase
+}
+
 export class Installer {
 	isInstalled: boolean = false
 	debugMode: boolean = false
+
+	state = InstallerState.inactive //TODO: InstallerState
 
 	readyCallback;
 
@@ -125,7 +134,7 @@ export class Installer {
 
 				context.podAPI.host = host
 				localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
-				localStorage.setItem("ownerKey", privateKey); //TODO:
+				localStorage.setItem("ownerKey", publicKey); //TODO:
 				localStorage.setItem("databaseKey", dbKey); //TODO:
 				//Authentication.createRootKey(areYouSure)
 
@@ -201,10 +210,55 @@ export class Installer {
 
 	installDemoDatabase(context: MemriContext, callback) {
 		debugHistory.info("Installing demo database")
+		/*
+		// Download database file
+        let destinationURL = FileStorageController.getURLForFile(withUUID: "ios-demo-resources.zip")
+
+        let destination: DownloadRequest.Destination = { _, _ in
+            return (destinationURL, [])
+        }
+
+        let url = "https://gitlab.memri.io/memri/demo-data/-/raw/master/data/ios-demo-resources.zip?inline=false"
+        AF.download(url, method: .get, requestModifier: {
+            $0.timeoutInterval = 5
+            $0.addValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+            $0.allowsExpensiveNetworkAccess = false
+            $0.allowsConstrainedNetworkAccess = false
+            $0.cachePolicy = .reloadIgnoringCacheData
+            $0.timeoutInterval = .greatestFiniteMagnitude
+        }, to: destination)
+        .downloadProgress { progress in
+            self.state = .downloadingDemoData(progress.fractionCompleted)
+            callback(nil, progress.fractionCompleted)
+        }
+        .response { response in
+            guard let httpResponse = response.response else {
+                callback(response.error ?? "Unknown error", nil)
+                return
+            }
+
+            guard httpResponse.statusCode < 400 else {
+                let httpError = PodAPI.HTTPError.ClientError(
+                    httpResponse.statusCode,
+                    "URL: \(url)"
+                )
+                callback(httpError, nil)
+                return
+            }
+
+            self.state = .extractingDemoData
+            try? FileStorageController.unzipFile(from: destinationURL)
+            try? FileStorageController.deleteFile(at: destinationURL)
+            print("PROGRESS: Unzip completed, attempt install of database")
+
+            self.install(context, dbName: "demo_database", { error in callback(error, nil) })
+
+		 */ //TODO:
 		this.install(context, "demo_database", callback)
 	}
 
 	install(context: MemriContext, dbName: string, callback) {
+		this.state = InstallerState.installingDatabase
 		try {
 			// Load default objects in database
 			context.cache.install(dbName, (error) => {
@@ -229,7 +283,8 @@ export class Installer {
 						}
 
 						// Installation complete
-						LocalSetting.set("memri/installed", Date()) //TODO:
+						LocalSetting.set("memri/installed", Date())
+						this.state = InstallerState.inactive
 
 						callback(undefined)
 					})
@@ -246,7 +301,7 @@ export class Installer {
 	}
 
 	clearDatabase(context: MemriContext, callback) {
-		DatabaseController.current(true,(realm) => {
+		DatabaseController.asyncOnCurrentThread(true, undefined,(realm) => {
 			realm.deleteAll()
 
 			CacheMemri.cacheUIDCounter = -1
@@ -260,7 +315,7 @@ export class Installer {
 	}
 
 	clearSessions(context: MemriContext, callback) {
-		DatabaseController.current(true, callback, () => {
+		DatabaseController.asyncOnCurrentThread(true, callback, () => {
 			// Create a new default session
 			context.sessions.install(context, (error) => {
 				if (error) {

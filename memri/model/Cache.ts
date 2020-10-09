@@ -6,10 +6,10 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import * as DB from "../install/default_database.json";
-import {getItem, serialize} from "../gui/util";
+import {serialize} from "../gui/util";
 
 import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Item, Edge, getItemType, ItemFamily} from "./items/Item";
+import {getItem, Item, Edge, getItemType, ItemFamily} from "./schemaExtensions/Item";
 import {ResultSet} from "./ResultSet";
 import {DatabaseController} from "../storage/DatabaseController";
 import {Sync} from "./Sync";
@@ -44,7 +44,7 @@ export class CacheMemri {
 
 	/// gets default item from database, and adds them to realm
 	install(dbName: string, callback) {
-		DatabaseController.background(true, callback, (realm) => {
+		DatabaseController.asyncOnBackgroundThread(true, callback, (realm) => {
 			this._install(realm, dbName)
 			callback(undefined);
 		})
@@ -58,8 +58,6 @@ export class CacheMemri {
 			dicts.forEach(function(x, i) {
 				if (!x.uid)
 					x.uid = (i + 1) + 1000000
-				/*else
-                    console.log(x.uid)*/
 			})
 
 			let items = new Map();
@@ -70,7 +68,8 @@ export class CacheMemri {
 				let type = dict["_type"];
 				let itemType = getItemType(type);
 				if (typeof type != "string" || !itemType) {
-					throw "Exception: Unable to determine type for item"
+					console.log(`DEMO DATABASE ERROR: Type does not exist: ${dict["_type"] ?? "No type"}`)
+					return
 				}
 
 				for (let [key, value] of Object.entries(dict)) {
@@ -124,7 +123,7 @@ export class CacheMemri {
 
 					var edge: Edge;
 					let targetDict = edgeDict["_target"];
-					if (typeof targetDict == "object") {
+					if (typeof targetDict == "object") { //TODO?
 						let target = recur(targetDict);
 						edge = CacheMemri.createEdge(
 							item,
@@ -136,9 +135,14 @@ export class CacheMemri {
 					} else {
 						let targetType = edgeDict["targetType"];
 						let _itemUID = edgeDict["uid"];
-						let itemUID = lut[_itemUID];
-						if (typeof targetType != "string" || typeof _itemUID != "number" || !itemUID) {
+
+						if (typeof targetType != "string" || typeof _itemUID != "number") {
 							throw `Exception: Ill defined edge: ${edgeDict}`
+						}
+						let itemUID = lut[_itemUID];
+						if (!itemUID) {
+							console.log(`DEMO DATABASE ERROR: Pointing to non-existing UID: ${_itemUID}`)
+							return
 						}
 
 						edge = CacheMemri.createEdge(
@@ -150,7 +154,7 @@ export class CacheMemri {
 						)
 					}
 
-					DatabaseController.current(true,() => {
+					DatabaseController.asyncOnCurrentThread(true,undefined, () => {
 						item.allEdges.push(edge)
 					})
 				}
@@ -182,7 +186,7 @@ export class CacheMemri {
 	///   - datasource: datasource for the query, containing datatype(s), filters, sortInstructions etc.
 	///   - callback: action exectued on the result
 	query(datasource, syncWithRemote =true, callback?) {
-		DatabaseController.tryCurrent(false, (realm) => {
+		DatabaseController.trySync(false, (realm) => {
 			// Do nothing when the query is empty. Should not happen.
 			let q = datasource.query ?? ""
 
@@ -314,7 +318,7 @@ export class CacheMemri {
 			}
 
 			// Add item to realm
-			DatabaseController.tryCurrent(true,($0) => { $0.add(item, "modified") }) //TODO
+			DatabaseController.trySync(true,($0) => { $0.add(item, "modified") }) //TODO
 		} catch (error) {
 			console.log(`Could not add to cache: ${error}`)
 		}
@@ -386,9 +390,13 @@ export class CacheMemri {
 	delete(item: Item|Item[]) {
 		if (!Array.isArray(item)) {
 			if (!item.deleted) {
-				DatabaseController.tryCurrent(true,() => {//TODO
+				DatabaseController.trySync(true,() => {//TODO
 					item.deleted = true
 					item["_action"] = "delete";
+					item.allEdges.forEach(($0) => {
+						$0.deleted = true
+						$0._action = "delete"
+					})
 					let auditItem = CacheMemri.createItem("AuditItem", {"action": "delete"})
 					item.link(auditItem, "changelog");
 
@@ -396,11 +404,15 @@ export class CacheMemri {
 				})
 			}
 		} else {
-			DatabaseController.tryCurrent(true,() => {//TODO
+			DatabaseController.trySync(true,() => {//TODO
 				for (let el of item) {
 					if (!el.deleted) {
 						el.deleted = true
 						el["_action"] = "delete";
+						el.allEdges.forEach(($0) => {
+							$0.deleted = true
+							$0._action = "delete"
+						})
 						let auditItem = CacheMemri.createItem("AuditItem", {"action": "delete"})
 						el.link(auditItem, "changelog");
 					}
@@ -445,7 +457,7 @@ export class CacheMemri {
 	static cacheUIDCounter: Int = -1
 
 	static incrementUID() {
-		DatabaseController.tryCurrent(true,(realm: Realm) => {
+		DatabaseController.trySync(true,(realm: Realm) => {
 			if (CacheMemri.cacheUIDCounter == -1) {
 				let setting = realm.objects("Setting").filtered(`key = '${this.getDeviceID()}/uid-counter'`)[0];
 				if (setting && setting.json) {
@@ -505,7 +517,7 @@ export class CacheMemri {
 	//#warning("This doesnt trigger syncToPod()")
 	static createItem(type, values = new MemriDictionary(), unique?: string) {
 		var item
-		DatabaseController.tryCurrent(true,(realm: Realm) => {
+		DatabaseController.trySync(true,(realm: Realm) => {
 			var dict = values
 
 			// TODO:
@@ -598,7 +610,7 @@ export class CacheMemri {
 			   label?: string, sequence?: number) {
 		if (Array.isArray(target)) {
 			var edge: Edge;
-			DatabaseController.tryCurrent(true,(realm) => {
+			DatabaseController.trySync(true,(realm) => {
 				// TODO:
 				// Always overwrite (see also link())
 

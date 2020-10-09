@@ -1,7 +1,7 @@
 import {Settings} from "../model/Settings"
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {Authentication} from "./Authentication";
-import {getItemType, SchemaItem} from "../model/items/Item";
+import {getItemType, SchemaItem} from "../model/schemaExtensions/Item";
 
 export class PodAPI {
     key;
@@ -226,7 +226,8 @@ export class PodAPI {
                 }
             }
             if (typeof result["uid"] != "number") {
-                throw `Exception: Item does not have uid set: ${item}`
+                debugHistory.warn(`Exception: Item does not have uid set: ${item}`);
+                return
             }
             return result
         } else {
@@ -258,8 +259,8 @@ export class PodAPI {
             }
 
             if (result["_source"] == undefined || result["_target"] == undefined) {
-                console.log(result);
-                throw `Exception: Edge is not properly formed: ${item}`
+                debugHistory.warn(`Exception: Edge is not properly formed: ${item}`)
+                return
             }
 
             return result
@@ -295,12 +296,12 @@ export class PodAPI {
          deleteEdges?,
          callback?) {
 		var result = {}
-		if (createItems?.length ?? 0 > 0) { result["createItems"] = createItems?.map (function(item){ return this.simplify(item, true) }.bind(this)) }
-		if (updateItems?.length ?? 0 > 0) { result["updateItems"] = updateItems?.map (function(item){ return this.simplify(item) }.bind(this)) }
+		if (createItems?.length ?? 0 > 0) { result["createItems"] = createItems?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined) }
+		if (updateItems?.length ?? 0 > 0) { result["updateItems"] = updateItems?.map (function(item){ return this.simplify(item) }.bind(this)).filter(el => el != undefined) }
 		if (deleteItems?.length ?? 0 > 0) { result["deleteItems"] = deleteItems?.map (function(item){ return this.simplify(item) }.bind(this)) }
-		if (createEdges?.length ?? 0 > 0) { result["createEdges"] = createEdges?.map (function(item){ return this.simplify(item, true) }.bind(this)) }
-		if (updateEdges?.length ?? 0 > 0) { result["updateEdges"] = updateEdges?.map (function(item){ return this.simplify(item) }.bind(this)) }
-		if (deleteEdges?.length ?? 0 > 0) { result["deleteEdges"] = deleteEdges?.map (function(item){ return this.simplify(item) }.bind(this)) }
+		if (createEdges?.length ?? 0 > 0) { result["createEdges"] = createEdges?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined) }
+		if (updateEdges?.length ?? 0 > 0) { result["updateEdges"] = updateEdges?.map (function(item){ return this.simplify(item) }.bind(this)).filter(el => el != undefined) }
+		if (deleteEdges?.length ?? 0 > 0) { result["deleteEdges"] = deleteEdges?.map (function(item){ return this.simplify(item) }.bind(this)).filter(el => el != undefined) }
 
 
         await this.http({method: "POST", path: "bulk_action", payload: result}, function (error) {
@@ -365,6 +366,9 @@ export class PodAPI {
         if (matches) {
             let type = matches[1]
             let uid = matches[2]
+
+            if (typeof uid != "number")
+                callback("Invalid UID (not an integer)", null)
 
             payload._type = type
             payload.uid = uid

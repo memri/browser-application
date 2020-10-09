@@ -8,7 +8,7 @@
 
 import {realmWriteIfAvailable} from "../../gui/util";
 import {Datasource} from "../../api/Datasource";
-import {CVUStoredDefinition} from "../../model/items/Item";
+import {CVUStoredDefinition} from "../../model/schemaExtensions/Item";
 import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class SessionView /*extends DataItem */{

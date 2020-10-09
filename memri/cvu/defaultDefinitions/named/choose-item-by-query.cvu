@@ -1,0 +1,43 @@
+.choose-item-by-query {
+    title: {{ title or "Choose a {type}" }}
+    editMode: true
+    
+    editActionButton: toggleEditMode
+    actionButton:
+        addItem {
+            type: {{type}}
+        }
+        
+    defaultRenderer: {{ renderer or "list" }}
+    
+    /* TODO this breaks when removing the : */
+    userstate: {
+        selection: {{ selection }}
+    }
+    
+    [datasource = pod] {
+       query: "{query}"
+    }
+    
+    [renderer = list]{
+        press: [
+            link {
+                subject: {{subject}}
+                edgeType: {{edgeType}}
+                distinct: {{distinct}}
+            }
+            closePopup
+        ]
+    }
+    
+    [renderer = grid]{
+        press: [
+            link {
+                subject: {{subject}}
+                edgeType: {{edgeType}}
+                distinct: {{distinct}}
+            }
+            closePopup
+        ]
+    }
+}

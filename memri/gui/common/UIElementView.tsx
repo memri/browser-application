@@ -20,19 +20,18 @@ import {
     Spacer,
     UIImage,
     VStack,
-    ZStack
+    ZStack, Toggle, EmptyView
 } from "../swiftUI";
-import {CVUStateDefinition, Item} from "../../model/items/Item";
+import {CVUStateDefinition, Item} from "../../model/schemaExtensions/Item";
 import {ViewArguments} from "../../cvu/views/CascadableDict";
 import * as React from "react";
 import {UIElementFamily} from "../../cvu/views/UIElement";
-import {Alignment, Color, CVUParser, Font} from "../../parsers/cvu-parser/CVUParser";
+import {Alignment, Color, CVUParser, Font} from "../../cvu/parsers/cvu-parser/CVUParser";
 import {Action, ActionUnlink} from "../../cvu/views/Action";
-import {CVUParsedViewDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
+import {CVUParsedViewDefinition} from "../../cvu/parsers/cvu-parser/CVUParsedDefinition";
 import {debugHistory} from "../../cvu/views/ViewDebugger";
 import {ActionButton} from "../ActionView";
 import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
-import {MessageBubbleView} from "../renderers/MessageRenderer";
 
 import {SubView} from "./SubView";
 import {Grid} from "@material-ui/core";
@@ -40,7 +39,12 @@ import {MemriDictionary} from "../../model/MemriDictionary";
 import {MemriButton} from "./MemriButton";
 import {MemriSmartTextView} from "../components/Text/MemriSmartTextView";
 import {EmailHeaderView} from "../components/Email/EmailHeaderView";
-require("../../extension/common/string");
+import {MessageBubbleView} from "../components/MessageBubbleView";
+import {
+    GeneralEditorCaption, GeneralEditorHeader,
+    GeneralEditorLabel
+} from "../renderers/contentRenderers/GeneralEditorRenderer/GeneralEditorRows";
+require("../../extension/common/string.ts");
 
 export class UIElementView extends MainUI {
     context: MemriContext
@@ -241,12 +245,14 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.EditorSection:
                     if (this.has("title")) {
                         return (
-                            <Section header={(this.get("title") ?? "").toUpperCase()} generalEditorHeader
+                            <Section header={(this.get("title") ?? "").toUpperCase()}
                                      clipped
                                      setProperties={setProperties(this.from.propertyResolver.properties, this.item, this.context, this.viewArguments)}>
-                                <MemriDivider/>
-                                {this.renderChildren}
-                                <MemriDivider/>
+                                <GeneralEditorHeader>
+                                    <MemriDivider/>
+                                    {this.renderChildren}
+                                    <MemriDivider/>
+                                </GeneralEditorHeader>
                             </Section>
                         )
                     } else {
@@ -271,14 +277,16 @@ export class UIElementView extends MainUI {
                                         ? "#f9f9f9"
                                         : "#f7fcf5"}>
                                 {(this.has("title") && this.get("nopadding") != true) &&
-                                <MemriText generalEditorLabel>
-                                    {(this.get("title") ?? "")
-                                        .camelCaseToWords()
-                                        .toLowerCase()
-                                        .capitalizingFirst()}
+                                <MemriText>
+                                    <GeneralEditorLabel>
+                                        {(this.get("title") ?? "")
+                                            .toLowerCase()
+                                            .camelCaseToWords()
+                                            .capitalizingFirst()}
+                                    </GeneralEditorLabel>
                                 </MemriText>
                                 }
-                                {this.renderChildren /*//TODO: .generalEditorCaption()*/}
+                                <GeneralEditorCaption>{this.renderChildren} </GeneralEditorCaption>
                             </VStack>
                             {(this.has("title")) &&
                             <MemriDivider padding={padding({leading: 35})}/>
@@ -367,6 +375,18 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.ItemCell:
                     //TODO:
                     return (<div className="ItemCell"></div>)
+                case UIElementFamily.EmailContent:
+                    //TODO:
+                    return (<div className="EmailContent">
+                        {this.get("content")}
+                    </div>)
+                case UIElementFamily.Toggle:
+                    return this.renderToggle()
+                        /*.setProperties(//TODO
+                            from.propertyResolver.properties,
+                            self.item,
+                            context,
+                            self.viewArguments*/
                 case UIElementFamily.SubView:
                     return (
                         (this.has("viewName")) ?
@@ -568,6 +588,20 @@ export class UIElementView extends MainUI {
                                headingFontSize: titleFontSize ?? 26,
                                filterText: filterTextBinding)
             .eraseToAnyView()*/ //TODO:
+    }
+
+    renderToggle() {
+        let [_, dataItem, propName] = this.from.getType("value", this.item, this.viewArguments)
+
+        return (
+            <Toggle isOn={dataItem.get(propName) ?? false}
+                    onChange={(e) => {
+                        dataItem.set(propName, e.target.value)
+                    }}
+                    labelsHidden>
+                <EmptyView/>
+            </Toggle>
+        )
     }
 
     renderTextfield() {

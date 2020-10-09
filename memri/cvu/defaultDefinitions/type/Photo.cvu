@@ -1,0 +1,106 @@
+[session = all-photos] {
+    [view] {
+        title: "All Photos"
+        [datasource = pod] {
+            query: "Photo"
+        }
+    }
+}
+
+Photo {
+    title: "Photo"
+    defaultRenderer: grid
+    emptyResultText: "No photo found"
+    
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+    
+    [datasource = pod] {
+        query: "Photo"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+    
+    [renderer = grid] {
+        spacing: 1
+        column: 1
+        edgeInset: 0 0 0 0
+        Image {
+            image: {{.file}} /* TODO: ALLOW BOTH STRINGS AND FILES*/
+            resizable: fill
+            background: #AAA
+        }
+    }
+}
+
+Photo[] {
+    title: "All Photos"
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+    emptyResultText: "There are no photos here yet"
+
+    [datasource = pod] {
+        query: "Photo"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+
+    defaultRenderer: grid
+
+    [renderer = grid] {
+        spacing: 1
+        edgeInset: 0 0 0 0 /* inset edges */
+		
+		press: openView {
+            view: {
+                inherit: {{currentView}}
+                defaultRenderer: "photoViewer"
+            }
+			viewArguments: {
+				currentItem: {{.}}
+			}
+		}
+        
+        Image {
+            image: {{.file}}
+            resizable: fill
+            background: #AAA
+        }
+    }
+	
+	[renderer = calendar] {
+		timeProperty: {{.dateCreated}}
+		
+		TimelineItem {
+			icon: "camera"
+			title: "Photo"
+		}
+	}
+	
+    [renderer = fileViewer] {
+        file: {{.file}}
+        itemTitle: {{.caption}}
+        initialItem: {{currentItem}}
+    }
+	
+	[renderer = photoViewer] {
+		file: {{.file}}
+		initialItem: {{currentItem}}
+		
+		/*VStack {
+			padding: 10
+            
+			VStack {
+				spacing: 5
+				padding: 12
+				background: #FFFFFF
+				cornerRadius: 5
+                
+				Text {
+					text: "{.caption}"
+					font: 18 bold
+				}
+			}
+		}*/
+	}
+}

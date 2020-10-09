@@ -7,7 +7,7 @@
 import {CacheMemri} from "./Cache";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 import {DatabaseController} from "../storage/DatabaseController";
-import {Setting} from "./items/Item";
+import {Setting} from "./schemaExtensions/Item";
 import {Realm} from "./RealmLocal";
 import {serialize, unserialize} from "../gui/util";
 import {MemriDictionary} from "./MemriDictionary";
@@ -19,7 +19,7 @@ export class Settings {
     listeners = {}
     callbacks = {}
 
-    /// Init settings with the relam database
+    /// Init settings with the realm database
     /// - Parameter rlm: realm database object
     constructor() {
 
@@ -108,7 +108,7 @@ export class Settings {
     /// - Parameter path: path for the setting
     /// - Returns: setting value
     getSetting(path: string) {
-        return DatabaseController.tryCurrent(false, (realm: Realm) => {
+        return DatabaseController.trySync(false, (realm: Realm) => {
             let item = realm.objects("Setting").find(($0) => $0.key == path)
 
             if (item && item.json) {
@@ -133,7 +133,7 @@ export class Settings {
     ///   - path: path of the setting
     ///   - value: setting Value
     setSetting(path: string, value) {
-        DatabaseController.tryCurrent(true, (realm: Realm) => {
+        DatabaseController.trySync(true, (realm: Realm) => {
             let s = realm.objects("Setting").find(($0) => $0.key == path)
 
             if (s) {

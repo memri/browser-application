@@ -2,11 +2,11 @@
 //  CascadableDict.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {Expression} from "../../parsers/expression-parser/Expression";
+import {Expression} from "../parsers/expression-parser/Expression";
 import {Cascadable} from "./Cascadable";
 import {ItemReference} from "../../storage/DatabaseController";
-import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../../parsers/cvu-parser/CVUParsedDefinition";
-import {Item} from "../../model/items/Item";
+import {CVUParsedDefinition, CVUParsedObjectDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
+import {Item} from "../../model/schemaExtensions/Item";
 import {MemriDictionary} from "../../model/MemriDictionary";
 
 export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptable*/ {
@@ -16,7 +16,7 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 
 	get(name: string, type = CascadableDict) {
 		let value = this.cascadeProperty(name)
-		if (!value) {
+		if (value == undefined) {
 			return null
 		}
 
