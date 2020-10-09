@@ -1,10 +1,6 @@
 "use strict";
-import {getItemType, Views} from "../router";
+import {Views} from "../router";
 import {realm} from "../router";
-
-
-
-
 
 export class mockApi {
     constructor() {
@@ -12,10 +8,10 @@ export class mockApi {
     }
 
     realmInit() {
-        let objects = realm.objects("CVUStoredDefinition");//
+        let objects = realm.objects("CVUStoredDefinition");
         if (objects.length == 0) {
             new Views().install(undefined);
-            objects = realm.objects();
+            objects = realm.objects("CVUStoredDefinition");
         }
         this.mockdata = objects
     }
@@ -26,26 +22,30 @@ export class mockApi {
         }
         if (path == "search_by_fields" || path == "get_items_with_edges" && method == "POST") {
             var payload = JSON.parse(body);
-            return callback(null, JSON.parse(JSON.stringify(this.mockdata.filter(el => {
+            var callFunc = JSON.parse(JSON.stringify(this.mockdata.filter(el => {
                 for (let [key, value] of Object.entries(payload)) {
                     if (el[key] != value) {
                         return false;
                     }
                 }
                 return true;
-            }))));
+            })));
+
+            return callback(null, callFunc);
         }
         if (method == "POST") {
             var payload = JSON.parse(body);
             if (path == "create_item") {
-                let item = new (getItemType(payload["_type"]))(payload);
-                this.mockdata.push(item)
+                if (payload.version == undefined) {
+                    payload.version = 0;
+                }
+                this.mockdata.push(payload)
                 return callback()
             }
 
             if (path == "bulk_action") {
                 if (payload["createItems"]) {
-                    this.mockdata.push(...payload["createItems"].map(el => new (getItemType(el["_type"]))(el)))
+                    this.mockdata.push(...payload["createItems"])
                 }
                 if (payload["updateItems"]) {
                     console.log(payload["updateItems"])
@@ -79,20 +79,3 @@ export class mockApi {
         }
     }
 }
-
-
-
-/*
-if (contextJs.installer.isInstalled == false) {
-    contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
-        error && error.map(($0) => debugHistory.error(`${$0}`))
-    })
-    contextJs.podAPI = new mockApi()
-}
-
-
-*/
-
-
-
-

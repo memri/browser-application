@@ -22,6 +22,7 @@ switch (pod) {
             error && error.map(($0) => debugHistory.error(`${$0}`))
         })
         contextJs.cache.podAPI = parent.api
+        parent.setUserCVUs();
         break;
     case undefined:
     case null:

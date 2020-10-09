@@ -199,7 +199,7 @@ window.tabManager = tabManager;
 var newTabCounter = 1
 tabManager.addNewTab = function(pane) {
     pane.tabBar.addTab({
-        tabTitle: `Untitled ${newTabCounter++}.cvu`,
+        tabTitle: `Untitled${newTabCounter++}.cvu`,
         active: true,
     })
 };
@@ -285,7 +285,7 @@ function saveCurrentFile() {
         if (/^defaults\//.test(tab.path)) {
             return
         }
-        var name = tab.path.split("/").pop();
+        var name = tab.path.replace(/\s+/g,"").split("/").pop();
         tab.path  = "user/" + name;
         tab.tabTitle = name
         tab.$title.textContent = tab.tabTitle;
@@ -420,19 +420,22 @@ Settings.shared.set("user/pod/host", refs.podAddress.value);
 import {mockApi} from "./playground/mockApi"
 var api = new PodAPI(undefined, new mockApi());
  
- window.api = api
+window.api = api
 
-if (localStorage["user/pod/host"] && localStorage["user/pod/host"] == "mock") {
-    for (let [key, value] of Object.entries(localStorage)) {
-        if (/^file-user\//.test(key)) {
-            sharedWorker.call("split", [value], function(result) {
-                saveCVUDefinition(key, value, result.parts, function() {
-                    //updateSaveButton(false, tab.editor);
-                });
-            })
+window.setUserCVUs = () => {
+    if (localStorage["user/pod/host"] && localStorage["user/pod/host"] == "mock") {
+        for (let [key, value] of Object.entries(localStorage)) {
+            if (/^file-user\//.test(key)) {
+                sharedWorker.call("split", [value], function(result) {
+                    saveCVUDefinition(key.substr(5), value, result.parts, function() {
+                        //updateSaveButton(false, tab.editor);
+                    });
+                })
+            }
         }
     }
 }
+
 
 listBox.popup.setData([{value:  "Connect to pod to load data"}]);
  
@@ -603,9 +606,11 @@ function saveCVUDefinition(path, value, parts, callback) {
     Promise.all(promises).then(function() {
         updateTree()
         callback()
-        memriApp.contentWindow.updateCVU();
+        if (typeof memriApp.contentWindow.updateCVU == "function")
+            memriApp.contentWindow.updateCVU();
     })
 }
 
 
-updateTree() 
+updateTree()
+window.setUserCVUs()
