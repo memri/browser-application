@@ -70,7 +70,7 @@ export class GeneralEditorRendererConfig extends CascadingRendererConfig {
                     } else if (key == "exclude") {
                         var dict = old[key];
                         if (Array.isArray(dict)) {
-                            result[key] = dict.push(...(newJs[key] ?? []))
+                            result[key] = dict.push(...(Array.isArray(newJs[key])? newJs[key] : [newJs[key]] ?? []))
                         }
                     }
                 }
@@ -200,11 +200,11 @@ export class GeneralEditorRendererView extends RenderersMemri {
         for (let item of layout) {
             let list = item.get("fields", "[String]");
             if (list) {
-                result.push(...list);
+                result.push(...[list]); //TODO:
             }
             list = item.get("exclude", "[String]");
             if (list) {
-                result.push(...list)
+                result.push(...[list]) //TODO:
             }
         }
         return result
