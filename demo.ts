@@ -177,6 +177,15 @@ dom.buildDom([
             memriApp.src = "http://localhost:9000/app.html?pod=" + localStorage["user/pod/host"]
         }
     }, "Connect To Pod"],
+    ["button", {
+        onmousedown: (e)=> {
+            e.preventDefault()
+        },
+        onclick: (e)=> {
+            e.preventDefault();
+            showDialog();
+        }
+    }, "Settings"],
     ["span", {class: "spacer"}],
     ["button", {
         ref: "saveButton",
@@ -185,6 +194,7 @@ dom.buildDom([
         },
         onclick: (e)=> {
             e.preventDefault()
+            saveCurrentFile();
         }
     }, "Save"],
 ], baseBox.toolBars.top.element, refs);
@@ -442,45 +452,86 @@ listBox.popup.setData([{value:  "Connect to pod to load data"}]);
 function sortFn(a, b) {
     return a.name.localeCompare(b.name);
 }
-function showDialog() {
-    dom.buildDom(["div", {style: `
-                    margin: 0;
-                    padding: 4px 6px 0 4px;
-                    position: fixed;
-                    top:0; 
-                    bottom:0; 
-                    left:500px; 
-                    right:0;
-                    z-index: 9990;
-                    background-color: #ddd;
-                    color: #666;
-                    border: 1px solid #cbcbcb;
-                    border-top: 0 none;
-                    overflow: hidden;
-                    white-space: normal;
-                    width: 400px;
-                    height: 100px;
-                `},
+
+function showDialog(message?) {
+    function destroyDialog() {
+        document.getElementById("dialogContainer").outerHTML = "";
+    }
+
+    dom.buildDom(["div", {
+        style: `
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: block;
+    background-color: rgba(22,22,22,0.5);
+    z-index: 40;
+    top: 0;
+    left: 0;
+    `,
+        id: "dialogContainer",
+        onclick: (e) => {
+            e.preventDefault();
+            if (e.target.id == "dialogContainer") {
+                destroyDialog()
+            }
+        }
+    }, [["div", {
+        style: `
+            margin: 0 auto;
+            min-width: 550px;
+            width: 20%;
+            position:relative; 
+            z-index:41;
+            top: 25%;
+            padding:30px; 
+            background-color: #ddd;
+            color: #666;
+            border: 1px solid #cbcbcb;
+            border-top: 0 none;
+            overflow: hidden;
+            white-space: normal;
+                `
+    },
+        ["span", {style: "color: red"}, message ?? ""],
         ["div", {}, [
-            ["label", {for: "databaseKey"}, "databaseKey"],
-            ["input", {id: "databaseKey", class: "", name: "databaseKey"}],
+            ["label", {for: "databaseKey"}, "Database Key"],
+            ["input", {
+                id: "databaseKey",
+                class: "",
+                name: "databaseKey",
+                size: 70,
+                value: localStorage["databaseKey"]
+            }],
         ]],
         ["div", {}, [
-            ["label", {for: "userKey"}, "userKey"],
-            ["input", {id: "userKey", class: "", name: "userKey"}],
+            ["label", {for: "userKey"}, "Public Key"],
+            ["input", {id: "publicKey", class: "", name: "publicKey", size: 70, value: localStorage["ownerKey"]}],
         ]],
         ["div", {}, [
-            ["button", {}, "ok"],
+            ["button", {
+                id: "okDialog",
+                onclick: (e) => {
+                    e.preventDefault();
+                    let publicKey = document.getElementById("publicKey").value;
+                    let databaseKey = document.getElementById("databaseKey").value;
+                    localStorage.setItem("ownerKey", publicKey);
+                    localStorage.setItem("databaseKey", databaseKey);
+                    destroyDialog();
+                    updateTree();
+                }
+            }, "ok"],
         ]],
 
-    ], document.body);
+    ]]], document.body);
 }
+
 function updateTree() {
     listCVUDefinitions(function(err, files) {
         if (err) {
             // console.error(err)
             // return alert("Could not connect to pod: " + err.message)
-            showDialog()
+            showDialog(err.message)
             return
         }
         var selected = listBox.popup.getData(listBox.popup.getRow());
