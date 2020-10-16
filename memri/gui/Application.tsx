@@ -6,7 +6,7 @@
 //
 
 import * as React from 'react';
-import {Color} from "../cvu/parsers/cvu-parser/CVUParser";
+import {CacheMemri, Color, Datasource, getItem, realm} from "../../router";
 import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./browser/navigationPane/NavigationView";
 import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swiftUI";
@@ -49,6 +49,39 @@ export class Application extends MainUI {
 	render() {
 		this.context = this.props.context;
 		this.context.showNavigationBinding = this.showNavigationBinding;
+
+
+		window.updateCVU = () => {
+			this.context.cache.podAPI.query(new Datasource("CVUStoredDefinition"), false, (error, items) => {
+				if (error) {
+					return
+				}
+				else if (items) {
+					try {
+						var changes = [];
+						for (let i = 0; i < items.length; i++) {
+							let item = items[i]
+							let uid = item.uid;
+							if (uid) {
+								let cachedItem = getItem(item.genericType, uid)
+								if (cachedItem) {
+                                    if (item.version <= cachedItem.version) {
+										continue
+                                    }
+                                }
+								cachedItem = CacheMemri.addToCache(items[i])
+								changes.push(cachedItem)
+							}
+						}
+
+					}
+					catch {
+						return
+					}
+				}
+				this.context.scheduleCascadableViewUpdate();
+			})
+		};
 		return (
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
@@ -59,11 +92,6 @@ export class Application extends MainUI {
 							? <SessionSwitcher context={this.context}/>
 							: <Browser context={this.context}/>
 						}
-						<HStack>
-							<MemriRealButton action={this.context.cache.sync.schedule.bind(this.context.cache.sync)}>
-								<MemriText>Sync To Pod</MemriText>
-							</MemriRealButton>
-						</HStack>
 					</NavigationWrapper> :
 					<SetupWizard context={this.context}/>
 					}
@@ -73,6 +101,7 @@ export class Application extends MainUI {
 			);
 	}
 }
+
 
 
 /*struct Application_Previews: PreviewProvider {

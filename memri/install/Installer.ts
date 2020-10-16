@@ -6,13 +6,14 @@
 //
 
 
-import {MemriContext} from "../context/MemriContext";
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {DatabaseController} from "../storage/DatabaseController";
-import {CacheMemri} from "../model/Cache";
-import {Settings} from "../model/Settings";
-import {Authentication} from "../api/Authentication";
-import {LocalSetting} from "../api/LocalSettings";
+import {MemriContext} from "../../router";
+import {debugHistory} from "../../router";
+import {DatabaseController} from "../../router";
+import {CacheMemri} from "../../router";
+import {Settings} from "../../router";
+import {Authentication} from "../../router";
+import {LocalSetting} from "../../router";
+import {mockApi} from "../../playground/mockApi";
 
 enum InstallerState {
 	inactive,
@@ -131,12 +132,15 @@ export class Installer {
 					callback(error)
 					throw `Unable to authenticate: ${error}`
 				}
-
+				if (host == "mock") {
+					context.podAPI=new mockApi();
+				}
 				context.podAPI.host = host
 				localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
 				localStorage.setItem("ownerKey", publicKey); //TODO:
 				localStorage.setItem("databaseKey", dbKey); //TODO:
 				//Authentication.createRootKey(areYouSure)
+
 
 				context.cache.sync.syncAllFromPod(() => { // TODO error handling
 					Settings.shared.set("user/pod/host", host)

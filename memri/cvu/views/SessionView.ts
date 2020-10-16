@@ -6,10 +6,10 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {realmWriteIfAvailable} from "../../gui/util";
-import {Datasource} from "../../api/Datasource";
-import {CVUStoredDefinition} from "../../model/schemaExtensions/Item";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {realmWriteIfAvailable} from "../../../router";
+import {Datasource} from "../../../router";
+import {CVUStoredDefinition} from "../../../router";
+import {MemriDictionary} from "../../../router";
 
 export class SessionView /*extends DataItem */{
  

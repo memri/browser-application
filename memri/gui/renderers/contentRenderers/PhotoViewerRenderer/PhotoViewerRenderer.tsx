@@ -4,10 +4,10 @@
 
 
 import {frame, Group, MemriText, padding, RenderersMemri, UIImage, ZStack} from "../../../swiftUI";
-import {ViewArguments} from "../../../../cvu/views/CascadableDict";
+import {ViewArguments} from "../../../../../router";
 import * as React from "react";
-import {Alignment} from "../../../../cvu/parsers/cvu-parser/CVUParser";
-import {CascadingRendererConfig} from "../../../../cvu/views/CascadingRendererConfig";
+import {Alignment} from "../../../../../router";
+import {CascadingRendererConfig} from "../../../../../router";
 
 export class PhotoViewerRendererController {
     static rendererType = {name: "photoViewer", icon: "camera", makeController: PhotoViewerRendererController, makeConfig: PhotoViewerRendererController.makeConfig}

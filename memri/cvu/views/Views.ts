@@ -1,23 +1,23 @@
 
 // TODO: Move to integrate with some of the sessions features so that Sessions can be nested
-import {CVU} from "../parsers/cvu-parser/CVU";
-import {debugHistory} from "./ViewDebugger";
-import {Settings} from "../../model/Settings";
+import {CVU} from "../../../router";
+import {debugHistory} from "../../../router";
+import {Settings} from "../../../router";
 import {
 	ExprVariableList,
 	ExprVariableType
-} from "../parsers/expression-parser/ExprNodes";
-import {ExprInterpreter} from "../parsers/expression-parser/ExprInterpreter";
-import {setInMemoryObjectCache} from "../../model/InMemoryObjectCache";
-import {Languages} from "./Languages";
-import {DatabaseController} from "../../storage/DatabaseController";
-import {CacheMemri} from "../../model/Cache";
+} from "../../../router";
+import {ExprInterpreter} from "../../../router";
+import {setInMemoryObjectCache} from "../../../router";
+import {Languages} from "../../../router";
+import {DatabaseController} from "../../../router";
+import {CacheMemri} from "../../../router";
 //import {RealmObjects} from "../../model/RealmLocal";
-import {CVUStateDefinition, dataItemListToArray, getItem, Item} from "../../model/schemaExtensions/Item";
-import {ViewArguments} from "./CascadableDict";
-import {MemriDictionary} from "../../model/MemriDictionary";
-import {ParseErrors} from "../parsers/cvu-parser/CVUParseErrors";
-import {CascadingRendererConfig} from "./CascadingRendererConfig";
+import {CVUStateDefinition, dataItemListToArray, getItem, Item} from "../../../router";
+import {ViewArguments} from "../../../router";
+import {MemriDictionary} from "../../../router";
+import {ParseErrors} from "../../../router";
+import {CascadingRendererConfig} from "../../../router";
 require("../../extension/common/string");
 
 export class Views {
@@ -39,27 +39,32 @@ export class Views {
 
 		 this.setCurrentLanguage(this.context.settings.get("user/language") ?? "English")
 
-		/*this.settingWatcher = this.context.settings.subscribe("device/debug/autoReloadCVU").forEach(function (item) {
-			let value = item;
-			if (typeof item == "boolean") {
+		this.settingWatcher = this.context.settings.subscribe("device/debug/autoReloadCVU", ($0) => {
+			let value = $0;
+			if (value) {
 				if (value && this.cvuWatcher == undefined) {
 					this.listenForChanges()
 				} else if (!value && this.cvuWatcher) {
-					this.cvuWatcher.cancel()
+					let c = this.cvuWatcher;
+					c.cancel()
 					this.cvuWatcher = undefined;
 				}
 			}
-		}.bind(this)) //TODO: maybe i wrong;*/
+		})
 	}
 
 	listenForChanges() {
-		if (!this.context?.podAPI.isConfigured) { return }
-		if (DatabaseController.realmTesting) { return }
+		if (!this.context?.podAPI.isConfigured) {
+			return
+		}
+		if (DatabaseController.realmTesting) {
+			return
+		}
 
 		// Subscribe to changes in CVUStoredDefinition
-		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition").forEach(function (items) { // CVUStoredDefinition AND domain='user'
-		this.reloadViews(items)
-		}.bind(this))
+		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition", (items) => { // CVUStoredDefinition AND domain='user'
+			this.reloadViews();
+		})
 	}
 
 	// TODO: refactor when implementing settings UI call this when changing the language
@@ -76,7 +81,7 @@ export class Views {
 	// TODO: Refactor: distinguish between views and sessions
 	// Load the default views from the package
 	install(overrideCodeForTesting: string, callback) {
-		if (!this.context) {
+		if (overrideCodeForTesting && !this.context) {//TODO:
 			callback("Context is not set")
 			return
 		}

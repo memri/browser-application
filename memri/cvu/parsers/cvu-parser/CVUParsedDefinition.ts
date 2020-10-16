@@ -1,5 +1,5 @@
-import {CVUSerializer} from "./CVUToString";
-import {MemriDictionary} from "../../../model/MemriDictionary";
+import {CVUSerializer} from "../../../../router";
+import {MemriDictionary} from "../../../../router";
 
 export enum CompileScope {
     all="all",

@@ -5,10 +5,9 @@
 //  Copyright © 2015 Matthew Cheok. All rights reserved.
 //  Copyright © 2020 memri. All rights reserved.
 //
-import {ExprVariableList, ExprNodes} from "./ExprNodes";
+import {ExprVariableList, ExprNodes} from "../../../../router";
 
-import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "./ExprLexer";
-
+import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "../../../../router";
 
 class ParseErrors {
     type: any;

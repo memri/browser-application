@@ -11,10 +11,9 @@
 	var firstCapitalized: String { prefix(1).capitalized + dropFirst() }
 }*/
 
-import {Settings} from "./Settings";
-import {jsonDataFromFile, jsonErrorHandling, MemriJSONDecoder, realmWriteIfAvailable} from "../gui/util";
-import {DatabaseController} from "../storage/DatabaseController";
-import {Realm} from "./RealmLocal";
+import {Settings} from "../../router";
+import {DatabaseController} from "../../router";
+import {Realm} from "../../router";
 
 export class MainNavigation {
 	items = []

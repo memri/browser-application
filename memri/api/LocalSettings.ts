@@ -6,9 +6,9 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {DatabaseController} from "../storage/DatabaseController";
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Realm} from "../model/RealmLocal";
+import {DatabaseController} from "../../router";
+import {debugHistory} from "../../router";
+import {Realm} from "../../router";
 
 export class LocalSetting {
     key?: string

@@ -8,8 +8,8 @@
 
 
 /// This class wraps a query and its results, and is responsible for loading a the result and possibly applying clienside filtering
-import {CacheMemri} from "./Cache";
-import {ItemFamily} from "./schemaExtensions/Item";
+import {CacheMemri} from "../../router";
+import {ItemFamily} from "../../router";
 
 export class ResultSet {
 	/// Object describing the query and postprocessing instructions

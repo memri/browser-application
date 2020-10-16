@@ -11,11 +11,11 @@ import {
     RenderersMemri,
     VStack
 } from "../../swiftUI";
-import {ViewArguments} from "../../../cvu/views/CascadableDict";
+import {ViewArguments} from "../../../../router";
 import * as React from "react";
 import {ListItem} from "@material-ui/core";
-import {Color} from "../../../cvu/parsers/cvu-parser/CVUParser";
-import {CascadingRendererConfig} from "../../../cvu/views/CascadingRendererConfig";
+import {Color} from "../../../../router";
+import {CascadingRendererConfig} from "../../../../router";
 import {MemriFittedTextEditor} from "../../components/Text/MemriFittedTextEditor/MemriFittedTextEditor";
 
 export class MessageRendererController {

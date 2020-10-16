@@ -1,7 +1,9 @@
-import {Settings} from "../model/Settings"
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {Authentication} from "./Authentication";
-import {getItemType, SchemaItem} from "../model/schemaExtensions/Item";
+import {Settings} from "../../router"
+import {debugHistory} from "../../router";
+import {Authentication} from "../../router";
+import {getItemType, SchemaItem} from "../../router";
+import {mockApi} from "../../playground/mockApi";
+
 
 export class PodAPI {
     key;
@@ -27,8 +29,10 @@ export class PodAPI {
     async httpWithKeys({method = "POST", path = "", payload, ownerKey, databaseKey}, callback) {
         let settings = new Settings()
         let podhost = this.host ?? settings.getString("user/pod/host")
-        if (podhost == "mock") {
+        if (podhost == "mock" || podhost == "" || podhost == "http://localhost:3030") { //TODO: change it
             let body = JSON.stringify(payload);
+            if (!this.mockApi)
+                this.mockApi = new mockApi();
             return this.mockApi.http({method, path, body}, callback);
         }
         
@@ -295,8 +299,8 @@ export class PodAPI {
          updateEdges?,
          deleteEdges?,
          callback?) {
-		var result = {}
-		if (createItems?.length ?? 0 > 0) { result["createItems"] = createItems?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined) }
+		var result = {}//TODO: i muted AuditItem creating from local pod due to not unique uid @mkslanc
+		if (createItems?.length ?? 0 > 0) { result["createItems"] = createItems?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined && el["_type"] != "AuditItem") }
 		if (updateItems?.length ?? 0 > 0) { result["updateItems"] = updateItems?.map (function(item){ return this.simplify(item) }.bind(this)).filter(el => el != undefined) }
 		if (deleteItems?.length ?? 0 > 0) { result["deleteItems"] = deleteItems?.map (function(item){ return this.simplify(item) }.bind(this)) }
 		if (createEdges?.length ?? 0 > 0) { result["createEdges"] = createEdges?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined) }
@@ -317,33 +321,33 @@ export class PodAPI {
     /// - Parameters:
     ///   - item: The data item to create on the pod
     ///   - callback: Function that is called when the task is completed either with the new uid, or an error
-   /* create(item, callback, uid) {
+    create(item, callback) {
     
         this.http({path: "create_item", payload: item}, function(error, data) {
             callback(error, data)
         })
-    }*/
+    }
     
     /// Updates a data item and returns the new version number
     /// - Parameters:
     ///   - item: The data item to update on the pod
     ///   - callback: Function that is called when the task is completed either with the new version number, or an error
-    /*update(item, callback, uid) {
+    update(item, callback) {
         this.http({path: `update_item`, payload: item}, function(error, data) {
             callback(error, data)
         })
-    }*/
+    }
     
     /// Marks a data item as deleted on the pod.
     /// - Parameters:
     ///   - memriID: The memriID of the data item to remove
     ///   - callback: Function that is called when the task is completed either with a result, or  an error
     /// - Remark: Note that data items that are marked as deleted are by default not returned when querying
-    /*remove(memriID, callback, uid) {
+    remove(memriID, callback) {
         this.http({ path: "delete_item", payload: memriID}, function(error, data) {
             callback(error, data)
         })
-    } */
+    }
     
     /// Queries the database for a subset of DataItems and returns a list of DataItems
     /// - Parameters:

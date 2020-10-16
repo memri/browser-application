@@ -3,7 +3,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 
-import {Cascadable} from "./Cascadable";
+import {Cascadable} from "../../../router";
 
 export class CascadableContextPane extends Cascadable {
     get buttons(){ return this.cascadeList("buttons") }

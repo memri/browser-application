@@ -4,11 +4,11 @@
 
 /// Based on a query, Sync checks whether it still has the latest version of the resulting Items. It does this asynchronous and in the
 /// background, items are updated automatically.
-import {Datasource} from "../api/Datasource";
-import {Edge,AuditItem, getItemType, ItemFamily} from "./schemaExtensions/Item";
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {CacheMemri} from "./Cache";
-import {DatabaseController, EdgeReference, ItemReference} from "../storage/DatabaseController";
+import {Datasource} from "../../router";
+import {Edge,AuditItem, getItemType, ItemFamily} from "../../router";
+import {debugHistory} from "../../router";
+import {CacheMemri} from "../../router";
+import {DatabaseController, EdgeReference, ItemReference} from "../../router";
 
 export class Sync {
 	/// PodAPI Object to use for executing queries
@@ -208,16 +208,16 @@ export class Sync {
                                 resolvedItem._action = undefined;
 							}
 							else {
-								resolvedItem._action = ""
-								resolvedItem._updated.removeAll()
+								resolvedItem._action = undefined
+								resolvedItem._updated = [];
 							}
 						} else if (item?.constructor?.name == "EdgeReference" && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 resolvedItem._action = undefined;
 							}
 							else {
-								resolvedItem._action = ""
-								resolvedItem._updated.removeAll()
+								resolvedItem._action = undefined
+								resolvedItem._updated = [];
 							}
 						}
 					}

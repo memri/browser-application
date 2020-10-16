@@ -4,13 +4,13 @@
 
 /// This class stores the settings used in the memri app. Settings may include things like how to format dates, whether to show certain
 /// buttons by default, etc.
-import {CacheMemri} from "./Cache";
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {DatabaseController} from "../storage/DatabaseController";
-import {Setting} from "./schemaExtensions/Item";
-import {Realm} from "./RealmLocal";
-import {serialize, unserialize} from "../gui/util";
-import {MemriDictionary} from "./MemriDictionary";
+import {CacheMemri} from "../../router";
+import {debugHistory} from "../../router";
+import {DatabaseController} from "../../router";
+import {Setting} from "../../router";
+import {Realm} from "../../router";
+import {serialize, unserialize} from "../../router";
+import {MemriDictionary} from "../../router";
 
 export class Settings {
     /// Shared settings that can be used from the main thread

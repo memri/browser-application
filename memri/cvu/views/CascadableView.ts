@@ -12,15 +12,15 @@ import {
     CVUParsedDatasourceDefinition, CVUParsedDefinition,
     CVUParsedObjectDefinition,
     CVUParsedRendererDefinition, CVUParsedViewDefinition
-} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {debugHistory} from "./ViewDebugger";
-import {DatabaseController} from "../../storage/DatabaseController";
-import {CacheMemri} from "../../model/Cache";
-import {CascadableDict} from "./CascadableDict";
-import {CascadingDatasource} from "../../api/Datasource";
-import {CascadableContextPane} from "./CascadableContextPane";
-import {Renderers} from "../../gui/renderers/Renderers";
-import {CascadingRendererConfig} from "./CascadingRendererConfig";
+} from "../../../router";
+import {debugHistory} from "../../../router";
+import {DatabaseController} from "../../../router";
+import {CacheMemri} from "../../../router";
+import {CascadableDict} from "../../../router";
+import {CascadingDatasource} from "../../../router";
+import {CascadableContextPane} from "../../../router";
+import {Renderers} from "../../../router";
+import {CascadingRendererConfig} from "../../../router";
 
 
 

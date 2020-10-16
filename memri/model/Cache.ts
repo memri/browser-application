@@ -6,14 +6,14 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 import * as DB from "../install/default_database.json";
-import {serialize} from "../gui/util";
+import {serialize} from "../../router";
 
-import {debugHistory} from "../cvu/views/ViewDebugger";
-import {getItem, Item, Edge, getItemType, ItemFamily} from "./schemaExtensions/Item";
-import {ResultSet} from "./ResultSet";
-import {DatabaseController} from "../storage/DatabaseController";
-import {Sync} from "./Sync";
-import {MemriDictionary} from "./MemriDictionary";
+import {debugHistory} from "../../router";
+import {getItem, Item, Edge, getItemType, ItemFamily} from "../../router";
+import {ResultSet} from "../../router";
+import {DatabaseController} from "../../router";
+import {Sync} from "../../router";
+import {MemriDictionary} from "../../router";
 
 export class CacheMemri {
 	/// PodAPI object

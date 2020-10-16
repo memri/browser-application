@@ -6,10 +6,10 @@
 //
 
 import {MainUI, MemriDivider, MemriText, MemriTextField, padding, Toggle, VStack, font} from "../../../swiftUI";
-import {Item} from "../../../../model/schemaExtensions/Item";
-import {ViewArguments} from "../../../../cvu/views/CascadableDict";
-import {Alignment, Font} from "../../../../cvu/parsers/cvu-parser/CVUParser";
-import {ExprInterpreter} from "../../../../cvu/parsers/expression-parser/ExprInterpreter";
+import {Item} from "../../../../../router";
+import {ViewArguments} from "../../../../../router";
+import {Alignment, Font} from "../../../../../router";
+import {ExprInterpreter} from "../../../../../router";
 import {MemriButton} from "../../../common/MemriButton";
 import * as React from "react";
 

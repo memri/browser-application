@@ -5,7 +5,7 @@
 
 import {MainUI, VStack} from "../../swiftUI";
 import * as React from "react";
-import {CascadingRendererConfig} from "../../../cvu/views/CascadingRendererConfig";
+import {CascadingRendererConfig} from "../../../../router";
 
 export class CustomRendererController {
     static rendererType = {name:"custom",icon: "lightbulb", makeController:CustomRendererController, makeConfig:CustomRendererController.makeConfig}

@@ -7,13 +7,12 @@
 //
 
 import {MainUI, RenderersMemri} from "../../../swiftUI";
-import {ViewArguments} from "../../../../cvu/views/CascadableDict";
+import {ViewArguments} from "../../../../../router";
 import * as React from "react";
-import {Color} from "../../../../cvu/parsers/cvu-parser/CVUParser";
+import {Color} from "../../../../../router";
 import {EmailThreadItem} from "./EmailThreadCell";
-import {UUID} from "../../../../model/schemaExtensions/Item";
-import {CascadingRendererConfig} from "../../../../cvu/views/CascadingRendererConfig";
-import {PhotoViewerRendererConfig, PhotoViewerRendererView} from "../PhotoViewerRenderer/PhotoViewerRenderer";
+import {UUID} from "../../../../../router";
+import {CascadingRendererConfig} from "../../../../../router";
 
 export class EmailThreadRendererController {
     static rendererType = {name: "emailThread", icon: "email"/*envelope.fill*/, makeController: EmailThreadRendererController, makeConfig: EmailThreadRendererController.makeConfig}

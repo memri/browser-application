@@ -3,7 +3,6 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from "react";
-import {MemriContext} from "../../../context/MemriContext";
 import {ColorArea, MainUI} from "../../swiftUI";
 
 export class ContextPaneBackground extends MainUI {

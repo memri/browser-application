@@ -7,8 +7,8 @@
 //
 
 
-import {CVUParser} from "./CVUParser";
-import {CVULexer} from "./CVULexer";
+import {CVUParser} from "../../../../router";
+import {CVULexer} from "../../../../router";
 
 export class CVU {
     code;

@@ -1,4 +1,4 @@
-import {Edge, getItemType, SchemaItem} from "./schemaExtensions/Item";
+import {Edge, getItemType, SchemaItem} from "../../router";
 
 export class Realm {
     db;

@@ -2,11 +2,11 @@
 //  Cascadable.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {ActionMultiAction} from "./Action";
-import {debugHistory} from "./ViewDebugger";
-import {CVUParsedDefinition} from "../parsers/cvu-parser/CVUParsedDefinition";
-import {CVUSerializer} from "../parsers/cvu-parser/CVUToString";
-import {MemriDictionary} from "../../model/MemriDictionary";
+import {ActionMultiAction} from "../../../router";
+import {debugHistory} from "../../../router";
+import {CVUParsedDefinition} from "../../../router";
+import {CVUSerializer} from "../../../router";
+import {MemriDictionary} from "../../../router";
 
 export enum SelectorType {
     singleItem,
@@ -196,19 +196,21 @@ export class Cascadable/* extends CustomStringConvertible*/{
                     }
                 }
                 let x: CVUParsedDefinition = def.get(name);
-                if (Array.isArray(x)) {
-                    if (!merge) {
-                        this.localCache[name] = x
-                        return x
+                if (x) {
+                    if (Array.isArray(x)) {
+                        if (!merge) {
+                            this.localCache[name] = x
+                            return x
+                        } else {
+                            result.push(...x)
+                        }
                     } else {
-                        result.push(...x)
-                    }
-                } else if (def[name]) {
-                    if (!merge) {
-                        this.localCache[name] = [x]
-                        return [x]
-                    } else {
-                        result.push(x)
+                        if (!merge) {
+                            this.localCache[name] = [x]
+                            return [x]
+                        } else {
+                            result.push(x)
+                        }
                     }
                 }
             }

@@ -5,7 +5,7 @@
 //
 
 
-import {Color} from "../parsers/cvu-parser/CVUParser";
+import {Color} from "../../../router";
 
 export class Colors {
     byName(name) {

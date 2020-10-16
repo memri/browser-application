@@ -31,8 +31,8 @@
 //        }
 //    }
 
-import {Action, ActionFamily, ActionProperties, validateActionType} from "../../views/Action";
-import {UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../views/UIElement";
+import {Action, ActionFamily, ActionProperties, validateActionType} from "../../../../router";
+import {UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../../../router";
 
 export class CVUValidator {
     // Based on keyword when its added to the dict
