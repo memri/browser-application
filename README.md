@@ -22,7 +22,7 @@ To start webpack dev server run:
 npm run start
 ```
 
-and opem [localhost:9000](http://localhost:9000)
+and open [localhost:9000/app.html](http://localhost:9000/app.html) for the memri app, or [localhost:9000](http://localhost:9000) for the devtool.
 
 In the text field at the top left of the page write the url of the pod and press the `connect to pod` button
 
