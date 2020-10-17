@@ -131,10 +131,10 @@ export class MemriContext {
 
 
 	scheduleUIUpdate(updateWithAnimation =  false, check?) { // Update UI
+		if (typeof this.showNavigationBinding == "function")
+			this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
 		if (updateWithAnimation) {
-			if (typeof this.showNavigationBinding == "function")
-				this.showNavigationBinding() //TODO: this is just for test cases @mkslanc
-				this.currentRendererController?.update()
+			this.currentRendererController?.update()
 			// DispatchQueue.main.async(() => {//TODO
 			//		withAnimation {
 			// 			this.objectWillChange.send()

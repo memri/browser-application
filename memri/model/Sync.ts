@@ -290,7 +290,8 @@ export class Sync {
                                 // #warning(`Items/Edges could have changed in the mean time, check dateModified/AuditItem`)
                                 markAsDone(safeItemQueue, () => {
                                     markAsDone(safeEdgeQueue, () => {
-                                        debugHistory.info("Syncing complete")
+                                        debugHistory.info("Syncing complete");
+                                        this.cache.scheduleUIUpdate(); //TODO: ?
 
                                         //#warning("Should this hold up further syncing?")
                                         this.syncFilesToPod(() => {
