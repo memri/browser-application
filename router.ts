@@ -56,20 +56,13 @@ export * from './memri/cvu/views/CVUPropertyResolver';
 
 export * from './memri/cvu/views/Colors';
 
-
-
 export * from './memri/cvu/views/UIElement';
 
 export * from './memri/cvu/views/ViewDebugger';
 
-
-
 export * from './memri/gui/renderers/Renderers';
 
 export * from './memri/gui/util';
-
-
-export * from './memri/model/DataItem';
 
 export * from './memri/model/InMemoryObjectCache';
 
