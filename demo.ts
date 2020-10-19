@@ -107,7 +107,7 @@ var {TabManager} = require("./playground/ui-lib/tabManager");
 
 var mainBox
 var listBox
-var testBox
+var memriBox
 var baseBox = new Box({
     vertical: false,
     toolBars: {
@@ -127,7 +127,7 @@ var baseBox = new Box({
                     ratio: 0.5,
                     isMain: true,
                 }),
-                1: testBox = new Box({
+                1: memriBox = new Box({
                     isMain: false,
                     size: "420px"
                 }),
@@ -138,10 +138,12 @@ var baseBox = new Box({
     }),
 });
 
-
+let memriApp = document.createElement("iframe");
 
 var onResize = function() {
-    baseBox.setBox(0, 0, window.innerWidth, window.innerHeight)
+    baseBox.setBox(0, 0, window.innerWidth, window.innerHeight);
+    memriApp.width = memriBox.size;
+    memriApp.height = window.innerHeight - 20 + "px";
 };
 window.onresize = onResize;
 
@@ -149,11 +151,8 @@ document.body.innerHTML = ""
 document.body.appendChild(baseBox.draw());
 onResize()
 
-let memriApp = document.createElement("iframe");
-memriApp.width = testBox.size;
-memriApp.height = window.innerHeight - 20 + "px";
 
-testBox.element.appendChild(memriApp);
+memriBox.element.appendChild(memriApp);
 
 baseBox.toolBars.top.element.textContent = "";
 dom.buildDom([
