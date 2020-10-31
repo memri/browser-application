@@ -13,6 +13,7 @@ import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swif
 import {Browser} from "./browser/Browser";
 import {SessionSwitcher} from "./SessionSwitcher";
 import {SetupWizard} from "../install/SetupWizard";
+import {geom} from "../../install";
 
 /*class View {
 	fullHeight(): View {
@@ -40,16 +41,24 @@ export class Application extends MainUI {
 	constructor(props) {
 		super(props);
 		this.state = {isVisible: this.props.context.showNavigation};
+		this.updateSize();
 	}
 
 	showNavigationBinding = () => {
 		this.setState({isVisible: this.context.showNavigation});
 	}
 
+	updateSize = () => {
+		geom.size.height = window.innerHeight - 4;
+		geom.size.width = Math.min(window.innerWidth, 414);
+		this.context && this.context.scheduleCascadableViewUpdate();
+	}
+
 	render() {
 		this.context = this.props.context;
 		this.context.showNavigationBinding = this.showNavigationBinding;
 
+		window.onresize = this.updateSize
 
 		window.updateCVU = () => {
 			this.context.cache.podAPI.query(new Datasource("CVUStoredDefinition"), false, (error, items) => {
@@ -82,6 +91,7 @@ export class Application extends MainUI {
 				this.context.scheduleCascadableViewUpdate();
 			})
 		};
+
 		return (
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
