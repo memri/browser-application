@@ -276,7 +276,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             backgroundColor: this.props.background?.value ?? this.props.background ?? fixedProps?.backgroundColor,
             borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
             opacity: this.props.opacity ?? fixedProps?.opacity,
-            height: this.props.height,
+            height: this.props.height ?? this.props.frame?.height,
+            width: this.props.width ?? this.props.frame?.width
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
@@ -325,9 +326,9 @@ export class VStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Box display="flex" {...this.setAlignment()} flexDirection="column" style={this.setStyles()} className="VStack" {...other}>
+            <div {...this.setAlignment()} flexDirection="column" style={this.setStyles()} className="VStack" {...other}>
                 {this.props.children}
-            </Box>
+            </div>
         )
     }
 }
@@ -336,9 +337,9 @@ export class ZStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Box {...this.setAlignment()} style={this.setStyles()} className="ZStack" {...other}>
+            <div {...this.setAlignment()} style={this.setStyles()} className="ZStack" {...other}>
                 {this.props.children}
-            </Box>
+            </div>
         )
     }
 }
@@ -347,9 +348,9 @@ export class HStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <Box display="flex" flexDirection="row" {...this.setAlignment()} style={this.setStyles()} className="HStack" {...other}>
+            <div {...this.setAlignment()} style={this.setStyles()} className="HStack" {...other}>
                 {this.props.children}
-            </Box>
+            </div>
         )
     }
 }
@@ -768,8 +769,20 @@ export class Form extends MainUI {
     }
 }
 
-export function frame(attrs:{width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment?}) { //TODO:
-    let frameObj = attrs;
+export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment? }) { //TODO:
+    let frameObj = Object.assign({}, attrs);
+    for (let prop in frameObj) {
+        if (frameObj[prop] == ".infinity")
+            delete frameObj[prop]
+    }
+    if (frameObj.idealHeight) {
+        frameObj["height"] = frameObj.idealHeight
+        delete frameObj.idealHeight;
+    }
+    if (frameObj.idealWidth) {
+        frameObj["width"] = frameObj.idealWidth
+        delete frameObj.idealWidth;
+    }
 
     return frameObj;
 }

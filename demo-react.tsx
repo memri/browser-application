@@ -38,13 +38,41 @@ console.log(contextJs);
 
 import {Application} from "./memri/gui/Application";
 
-function App() {//TODO: don't ask, please, about link inside div =)
-  return <div><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-      <Application context={contextJs}/>
-  </div>
+function importCssString(cssText, id) {
+    cssText += "\n/*# sourceURL=css:/" + id + " */";
+    var style = document.createElement("style");
+    style.appendChild(document.createTextNode(cssText));
+    document.head.appendChild(style);
+};
+
+importCssString(`
+body {margin: 0}
+.Application {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+.ScreenSizer {
+    outline: solid;
+}
+.HStack {
+    flex-direction: row;
+    display: flex;
+}
+.VStack {
+    flex-direction: column;
+    display: flex;
+}
+.ZStack {
+    position: relative;
+}
+`, "main.css")
 
-
+function App() {//TODO: don't ask, please, about link inside div =)
+    return <div><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+        <Application context={contextJs}/>
+    </div>
+}
 
 var div = document.body.appendChild(document.createElement("div"))
 

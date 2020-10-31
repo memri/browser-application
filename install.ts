@@ -26,3 +26,11 @@ contextJs.installer.await(contextJs,() => {
         }*/
     })
 });
+
+
+function updateSize() {
+    geom.size.height = window.innerHeight - 4;
+    geom.size.width = Math.min(window.innerWidth, 414);
+}
+window.onresize = updateSize
+updateSize();
