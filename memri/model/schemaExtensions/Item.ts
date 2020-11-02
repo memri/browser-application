@@ -1098,19 +1098,18 @@ export enum ItemFamily {
     CryptoKey = "CryptoKey",
     CVUStateDefinition = "CVUStateDefinition",
     CVUStoredDefinition = "CVUStoredDefinition",
-    Datasource = "Datasource",
     Device = "Device",
     Downloader = "Downloader",
-    Edge = "Edge",
     Event = "Event",
     File = "File",
     Frequency = "Frequency",
     GenericAttribute = "GenericAttribute",
+    Industry = "Industry",
+    Integrator = "Integrator",
     Importer = "Importer",
     ImporterRun = "ImporterRun",
     Indexer = "Indexer",
     IndexerRun = "IndexerRun",
-    Industry = "Industry",
     Invoice = "Invoice",
     Label = "Label",
     Lead = "Lead",
@@ -1147,14 +1146,9 @@ export enum ItemFamily {
     Transaction = "Transaction",
     Trip = "Trip",
     Unit = "Unit",
-    UserState = "UserState",
-    ViewArguments = "ViewArguments",
     Vote = "Vote",
     VoteAction = "VoteAction",
     Website = "Website",
-    LabelAnnotation = "LabelAnnotation",
-    LabelAnnotationCollection = "LabelAnnotationCollection",
-    PhotoAnnotation = "PhotoAnnotation"
 }
 
 export var backgroundColor = function(name) {
@@ -1182,19 +1176,18 @@ export var backgroundColor = function(name) {
         case ItemFamily.CryptoKey: return new Color("#93c47d")
         case ItemFamily.CVUStateDefinition: return new Color("#93c47d")
         case ItemFamily.CVUStoredDefinition: return new Color("#93c47d")
-        case ItemFamily.Datasource: return new Color("#93c47d")
         case ItemFamily.Device: return new Color("#93c47d")
         case ItemFamily.Downloader: return new Color("#93c47d")
-        case ItemFamily.Edge: return new Color("#93c47d")
         case ItemFamily.Event: return new Color("#93c47d")
         case ItemFamily.File: return new Color("#93c47d")
         case ItemFamily.Frequency: return new Color("#93c47d")
         case ItemFamily.GenericAttribute: return new Color("#93c47d")
+        case ItemFamily.Industry: return new Color("#93c47d")
+        case ItemFamily.Integrator: return new Color("#93c47d")
         case ItemFamily.Importer: return new Color("#93c47d")
         case ItemFamily.ImporterRun: return new Color("#93c47d")
         case ItemFamily.Indexer: return new Color("#93c47d")
         case ItemFamily.IndexerRun: return new Color("#93c47d")
-        case ItemFamily.Industry: return new Color("#93c47d")
         case ItemFamily.Invoice: return new Color("#93c47d")
         case ItemFamily.Label: return new Color("#93c47d")
         case ItemFamily.Lead: return new Color("#93c47d")
@@ -1231,8 +1224,6 @@ export var backgroundColor = function(name) {
         case ItemFamily.Transaction: return new Color("#3a5eb2")
         case ItemFamily.Trip: return new Color("#93c47d")
         case ItemFamily.Unit: return new Color("#93c47d")
-        case ItemFamily.UserState: return new Color("#93c47d")
-        case ItemFamily.ViewArguments: return new Color("#93c47d")
         case ItemFamily.Vote: return new Color("#93c47d")
         case ItemFamily.VoteAction: return new Color("#93c47d")
         case ItemFamily.Website: return new Color("#3d57e2")
@@ -1265,19 +1256,18 @@ export var foregroundColor = function(name) {
         case ItemFamily.CryptoKey: return new Color("#ffffff")
         case ItemFamily.CVUStateDefinition: return new Color("#ffffff")
         case ItemFamily.CVUStoredDefinition: return new Color("#ffffff")
-        case ItemFamily.Datasource: return new Color("#ffffff")
         case ItemFamily.Device: return new Color("#ffffff")
         case ItemFamily.Downloader: return new Color("#ffffff")
-        case ItemFamily.Edge: return new Color("#ffffff")
         case ItemFamily.Event: return new Color("#ffffff")
         case ItemFamily.File: return new Color("#ffffff")
         case ItemFamily.Frequency: return new Color("#ffffff")
         case ItemFamily.GenericAttribute: return new Color("#ffffff")
+        case ItemFamily.Industry: return new Color("#ffffff")
+        case ItemFamily.Integrator: return new Color("#ffffff")
         case ItemFamily.Importer: return new Color("#ffffff")
         case ItemFamily.ImporterRun: return new Color("#ffffff")
         case ItemFamily.Indexer: return new Color("#ffffff")
         case ItemFamily.IndexerRun: return new Color("#ffffff")
-        case ItemFamily.Industry: return new Color("#ffffff")
         case ItemFamily.Invoice: return new Color("#ffffff")
         case ItemFamily.Label: return new Color("#ffffff")
         case ItemFamily.Lead: return new Color("#ffffff")
@@ -1314,8 +1304,6 @@ export var foregroundColor = function(name) {
         case ItemFamily.Transaction: return new Color("#ffffff")
         case ItemFamily.Trip: return new Color("#ffffff")
         case ItemFamily.Unit: return new Color("#ffffff")
-        case ItemFamily.UserState: return new Color("#ffffff")
-        case ItemFamily.ViewArguments: return new Color("#ffffff")
         case ItemFamily.Vote: return new Color("#ffffff")
         case ItemFamily.VoteAction: return new Color("#ffffff")
         case ItemFamily.Website: return new Color("#ffffff")
@@ -1348,19 +1336,18 @@ export var getItemType = function(name) {
         case ItemFamily.CryptoKey: return CryptoKey
         case ItemFamily.CVUStateDefinition: return CVUStateDefinition
         case ItemFamily.CVUStoredDefinition: return CVUStoredDefinition
-        case ItemFamily.Datasource: return Datasource
         case ItemFamily.Device: return Device
         case ItemFamily.Downloader: return Downloader
-        case ItemFamily.Edge: return Edge
         case ItemFamily.Event: return Event
         case ItemFamily.File: return File
         case ItemFamily.Frequency: return Frequency
         case ItemFamily.GenericAttribute: return GenericAttribute
+        case ItemFamily.Industry: return Industry
+        case ItemFamily.Integrator: return Integrator
         case ItemFamily.Importer: return Importer
         case ItemFamily.ImporterRun: return ImporterRun
         case ItemFamily.Indexer: return Indexer
         case ItemFamily.IndexerRun: return IndexerRun
-        case ItemFamily.Industry: return Industry
         case ItemFamily.Invoice: return Invoice
         case ItemFamily.Label: return Label
         case ItemFamily.Lead: return Lead
@@ -1391,21 +1378,15 @@ export var getItemType = function(name) {
         case ItemFamily.Reservation: return Reservation
         case ItemFamily.Resource: return Resource
         case ItemFamily.Route: return Route
-        case "LocalSetting": //TODO:?
         case ItemFamily.Setting: return Setting
         case ItemFamily.Span: return Span
         case ItemFamily.TimeFrame: return TimeFrame
         case ItemFamily.Transaction: return Transaction
         case ItemFamily.Trip: return Trip
         case ItemFamily.Unit: return Unit
-        case ItemFamily.UserState: return UserState
-        case ItemFamily.ViewArguments: return ViewArguments
         case ItemFamily.Vote: return Vote
         case ItemFamily.VoteAction: return VoteAction
         case ItemFamily.Website: return Website
-        case ItemFamily.LabelAnnotation: return LabelAnnotation
-        case ItemFamily.LabelAnnotationCollection: return LabelAnnotationCollection
-        case ItemFamily.PhotoAnnotation: return PhotoAnnotation
     }
 }
 
@@ -1416,16 +1397,12 @@ export class Account extends Item {
     /// The name to display, for Persons this could be a first or last name, both, or a
     /// phonenumber.
     displayName
-    /// The name quality used by Synapse.
-    nameQuality
-    /// Whether the Item should be displayed in the interfaces.
-    enablePresence: boolean = false
-    /// Whether you retrieve Messages from this Person.
-    enableReceipts: boolean = false
     /// A service of any kind.
     service
     /// The type or (sub)category of some Item.
     itemType
+    /// URL to avatar image used by WhatsApp.
+    avatarUrl
 
     /// The Person this Item belongs to.
     get belongsTo() {
@@ -1471,11 +1448,9 @@ export class Account extends Item {
                 allEdges: 'Edge[]',
                 handle: 'string',
                 displayName: 'string',
-                nameQuality: 'int',
-                enablePresence: 'bool',
-                enableReceipts: 'bool',
                 service: 'string',
                 itemType: 'string',
+                avatarUrl: 'string',
             }
         }
     }
@@ -2986,6 +2961,8 @@ export class Message extends Item {
     dateSent: Date
     /// Datetime when Item was received.
     dateReceived: Date
+    /// A service of any kind.
+    service
 
     /// An audio object.
     get audio() {
@@ -3081,6 +3058,7 @@ export class Message extends Item {
                 subject: 'string',
                 dateSent: 'date',
                 dateReceived: 'date',
+                service: 'string',
             }
         }
     }
@@ -3115,6 +3093,8 @@ export class EmailMessage extends Item {
     dateSent: Date
     /// Datetime when Item was received.
     dateReceived: Date
+    /// A service of any kind.
+    service
 
     /// An audio object.
     get audio() {
@@ -3226,6 +3206,7 @@ export class EmailMessage extends Item {
                 subject: 'string',
                 dateSent: 'date',
                 dateReceived: 'date',
+                service: 'string',
             }
         }
     }
@@ -3631,6 +3612,88 @@ export class CryptoKey extends Item {
     }
 }
 
+/// TBD
+export class CVUStateDefinition extends Item {
+    get objectSchema () {
+        return {
+            name: 'CVUStateDefinition',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+            }
+        }
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+}
+
+/// TBD
+export class CVUStoredDefinition extends Item {
+    /// The definition of an Item.
+    definition
+    /// An identification string that defines a realm of administrative autonomy, authority or
+    /// control within the internet.
+    domain
+    /// The name of the item.
+    name
+    /// A Memri query that retrieves a set of Items from the Pod database.
+    query
+    /// TBD
+    selector
+    /// The type or (sub)category of some Item.
+    itemType
+
+    get objectSchema () {
+        return {
+            name: 'CVUStoredDefinition',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                definition: 'string',
+                domain: 'string',
+                name: 'string',
+                query: 'string',
+                selector: 'string',
+                itemType: 'string',
+            }
+        }
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+}
+
 /// A business corporation.
 export class Device extends Item {
     /// The Device ID, used for smartphones and tablets.
@@ -3929,10 +3992,88 @@ export class GenericAttribute extends Item {
     }
 }
 
+/// A sector that produces goods or related services within an economy.
+export class Industry extends Item {
+    /// The type or (sub)category of some Item.
+    itemType
+
+    get objectSchema () {
+        return {
+            name: 'Industry',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                itemType: 'string',
+            }
+        }
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+}
+
+/// An integrator operates on your database enhances your personal data by inferring facts over
+/// existing data and adding those to the database.
+export class Integrator extends Item {
+    /// The name of the item.
+    name
+    /// Repository associated with this item, e.g. used by Pod to start appropriate integrator
+    /// container.
+    repository
+
+    get objectSchema () {
+        return {
+            name: 'Integrator',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                externalId: 'string',
+                itemDescription: 'string',
+                starred: 'bool',
+                version: 'int',
+                uid: 'int',
+                importJson: 'string',
+                allEdges: 'Edge[]',
+                name: 'string',
+                repository: 'string',
+            }
+        }
+    }
+
+    constructor(decoder) {
+        super(decoder)
+    }
+}
+
 /// An Importer is used to import data from an external source to the Pod database.
 export class Importer extends Item {
     /// The name of the item.
     name
+    /// Repository associated with this item, e.g. used by Pod to start appropriate integrator
+    /// container.
+    repository
     /// The type of the data this Item acts on.
     dataType
     /// A graphic symbol to represent some Item.
@@ -3966,6 +4107,7 @@ export class Importer extends Item {
                 importJson: 'string',
                 allEdges: 'Edge[]',
                 name: 'string',
+                repository: 'string',
                 dataType: 'string',
                 icon: 'string',
                 bundleImage: 'string',
@@ -3982,8 +4124,10 @@ export class Importer extends Item {
 export class ImporterRun extends Item {
     /// The name of the item.
     name
-    /// The progress an Item made. The number could be a (rounded) percentage or a count of a
-    /// (potentially unknown) total.
+    /// Repository associated with this item, e.g. used by Pod to start appropriate integrator
+    /// container.
+    repository
+    /// The progress an Item made. Encoded as a float number from 0.0 to 1.0.
     progress
     /// The type of the data this Item acts on.
     dataType
@@ -3991,6 +4135,12 @@ export class ImporterRun extends Item {
     username
     /// Password for a username.
     password
+    /// The status of a run, (running, error, etc).
+    runStatus
+    /// Description of the error
+    errorMessage
+    /// Message describing the progress of a process.
+    progressMessage
 
     /// An Importer is used to import data from an external source to the Pod database.
     get importer() {
@@ -4018,10 +4168,14 @@ export class ImporterRun extends Item {
                 importJson: 'string',
                 allEdges: 'Edge[]',
                 name: 'string',
-                progress: 'int',
+                repository: 'string',
+                progress: 'float',
                 dataType: 'string',
                 username: 'string',
                 password: 'string',
+                runStatus: 'string',
+                errorMessage: 'string',
+                progressMessage: 'string',
             }
         }
     }
@@ -4036,6 +4190,9 @@ export class ImporterRun extends Item {
 export class Indexer extends Item {
     /// The name of the item.
     name
+    /// Repository associated with this item, e.g. used by Pod to start appropriate integrator
+    /// container.
+    repository
     /// A graphic symbol to represent some Item.
     icon
     /// A Memri query that retrieves a set of Items from the Pod database.
@@ -4073,6 +4230,7 @@ export class Indexer extends Item {
                 importJson: 'string',
                 allEdges: 'Edge[]',
                 name: 'string',
+                repository: 'string',
                 icon: 'string',
                 query: 'string',
                 bundleImage: 'string',
@@ -4091,13 +4249,21 @@ export class Indexer extends Item {
 export class IndexerRun extends Item {
     /// The name of the item.
     name
+    /// Repository associated with this item, e.g. used by Pod to start appropriate integrator
+    /// container.
+    repository
     /// A Memri query that retrieves a set of Items from the Pod database.
     query
-    /// The progress an Item made. The number could be a (rounded) percentage or a count of a
-    /// (potentially unknown) total.
+    /// The progress an Item made. Encoded as a float number from 0.0 to 1.0.
     progress
     /// The type of data this Item targets.
     targetDataType
+    /// The status of a run, (running, error, etc).
+    runStatus
+    /// Description of the error
+    errorMessage
+    /// Message describing the progress of a process.
+    progressMessage
 
     /// An Indexer is used to enrich data in the Pod database.
     get indexer() {
@@ -4125,44 +4291,13 @@ export class IndexerRun extends Item {
                 importJson: 'string',
                 allEdges: 'Edge[]',
                 name: 'string',
+                repository: 'string',
                 query: 'string',
-                progress: 'int',
+                progress: 'float',
                 targetDataType: 'string',
-            }
-        }
-    }
-
-    constructor(decoder) {
-        super(decoder)
-    }
-}
-
-/// A sector that produces goods or related services within an economy.
-export class Industry extends Item {
-    /// The type or (sub)category of some Item.
-    itemType
-
-    get objectSchema () {
-        return {
-            name: 'Industry',
-            primaryKey: 'uid',
-            properties: {
-                _updated: 'string[]',
-                _partial: 'bool',
-                _action: 'string',
-                _changedInSession: 'bool',
-                dateAccessed: 'date',
-                dateCreated: 'date',
-                dateModified: 'date',
-                deleted: 'bool',
-                externalId: 'string',
-                itemDescription: 'string',
-                starred: 'bool',
-                version: 'int',
-                uid: 'int',
-                importJson: 'string',
-                allEdges: 'Edge[]',
-                itemType: 'string',
+                runStatus: 'string',
+                errorMessage: 'string',
+                progressMessage: 'string',
             }
         }
     }
@@ -5294,12 +5429,6 @@ export class SchemaPerson extends Item {
     /// The name to display, for Persons this could be a first or last name, both, or a
     /// phonenumber.
     displayName
-    /// The name quality used by Synapse.
-    nameQuality
-    /// Whether the Item should be displayed in the interfaces.
-    enablePresence: boolean = false
-    /// Whether you retrieve Messages from this Person.
-    enableReceipts: boolean = false
     /// A role describes the function of the item in their context.
     role
 
@@ -5430,9 +5559,6 @@ export class SchemaPerson extends Item {
                 gender: 'string',
                 sexualOrientation: 'string',
                 displayName: 'string',
-                nameQuality: 'int',
-                enablePresence: 'bool',
-                enableReceipts: 'bool',
                 role: 'string',
             }
         }
@@ -6345,11 +6471,12 @@ export function dataItemListToArray(object) {
     else if (object[0] instanceof File) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof Frequency) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof GenericAttribute) { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0] instanceof Industry) { object.forEach(function (item) {collection.push(item)}) }
+    else if (object[0] instanceof Integrator) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof Importer) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof ImporterRun) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof Indexer) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof IndexerRun) { object.forEach(function (item) {collection.push(item)}) }
-    else if (object[0] instanceof Industry) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof Invoice) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof Label) { object.forEach(function (item) {collection.push(item)}) }
     else if (object[0] instanceof Lead) { object.forEach(function (item) {collection.push(item)}) }
@@ -6392,6 +6519,7 @@ export function dataItemListToArray(object) {
 
     return collection
 }
+
 
 //---------------------------------------------------- end schema.ts
 
