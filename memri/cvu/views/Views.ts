@@ -515,7 +515,7 @@ export class Views {
 
 				for (let item in list) {
 					args.set(".", list[item]);
-					let hasFound = interpret.execSingle(expr, args);
+					let hasFound = interpret.execSingle(expr, args); //TODO: ? ?? false
 					if (hasFound &&
 						ExprInterpreter.evaluateBoolean(hasFound)) {
 						value = list[item];
@@ -648,7 +648,7 @@ export class Views {
 	renderItemCell(item?: Item, //TODO:
 							   rendererNames = [],
 							   viewOverride?,
-							   viewArguments?) {
+							   viewArguments = new ViewArguments()) {
 		try {
 			let context = this.context
 			if (!context) {

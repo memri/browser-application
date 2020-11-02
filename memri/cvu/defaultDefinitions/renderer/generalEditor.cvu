@@ -14,7 +14,7 @@
     ]
     
     starred {
-        Action {
+        ActionButton {
             press: star
         }
     }
@@ -28,6 +28,7 @@
                 color: #777
             }
             FlowStack {
+                spacing: 5
                 list: {{ .label[] }}
             
                 Button {

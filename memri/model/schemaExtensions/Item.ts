@@ -204,7 +204,7 @@ export class Item extends SchemaItem {
             console.log(`Warning: getting property that this item doesnt have: ${name} for ${this.genericType}:${this.uid ?? -1000}`)
             //#endif
 
-            return ""
+            return null;
         } else {
             return ExprInterpreter.evaluateString(this[name]); //TODO
         }
@@ -6469,6 +6469,7 @@ export class Person extends SchemaPerson {
     get computedVars() {
         return [
             new ComputedPropertyLink("fullName", "string"),
+            new ComputedPropertyLink("initials", "string"),
             new ComputedPropertyLink("age", "int")
         ]
     }
@@ -6476,6 +6477,11 @@ export class Person extends SchemaPerson {
     // Full name in western style (first last)
     get fullName(): string {
         return `${this.firstName ?? ""} ${this.lastName ?? ""}`
+    }
+
+    // Initials (two letters) in western style (FL)
+    get initials(): string {
+        return [this.firstName[0], this.lastName[0]].filter(($0) => $0 != undefined).join("");
     }
 
     /// Age in years
@@ -6491,6 +6497,7 @@ export class Person extends SchemaPerson {
 
         this.functions["age"] = () => { return this.age }
         this.functions["fullName"] = () => { return this.fullName }
+        this.functions["fullName"] = () => { return this.initials }
     }
 }
 
@@ -6696,15 +6703,18 @@ export function getItem(type: string, uid) {
 }
 
 export function me() {
+    let realm = DatabaseController.getRealmSync();
     try {
-        let realm = DatabaseController.getRealmSync();
         let myself = realm.objects("Person").filtered("ANY allEdges.type = 'me'")[0];
         if (!myself) {
             throw "Unexpected error. Cannot find 'me' in the database"
         }
         return myself
     } catch {
-        return new Person()
+        let person = new Person()
+        //Add to realm
+        realm.add(person)
+        return person
     }
 }
 

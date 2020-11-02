@@ -20,7 +20,7 @@ Importer {
                 defaultRenderer: timeline
                 
                 [datasource = pod] {
-                    query: "AuditItem appliesTo:{.uid}"
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
@@ -49,7 +49,7 @@ Importer {
                     defaultRenderer: timeline
                     
                      [datasource = pod] {
-                        query: "AuditItem appliesTo:{.uid}"
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
@@ -90,53 +90,52 @@ Importer[] {
     filterButtons: showStarred toggleFilterPanel
     
     [renderer = grid] {
+        spacing: 10
+        edgeInset: 10
+
         press: addItem {
             template {
                 _type: ImporterRun
                 name: {{.name}}
                 importer: {{.}}
+                repository: {{.repository}}
             }
         }
 
-        VStack {
-            alignment: left
-            rowInset: 12 20 -12 20
+        ZStack {
+            Rectangle {
+                color: #fafafa
+                cornerRadius: 5
+            }
+
+            VStack {
+                alignment: center
+                spacing: 5
             
-            VStack{
-                maxWidth: 60
-                maxHeight: 60
-                padding: 20 0 0 0
+                Image {
+                        show: {{.icon or .bundleImage}}
+                        systemName: {{.icon}}
+                        bundleImage: {{.bundleImage}}
+                        resizable: true
+                        color: #2480d6
+                        width: 50
+                        height: 50
+                }
                 
-                Image {
-                    show: {{.icon}}
-                    systemName: {{.icon}}
-                    color: #2480d6
+                Text {
+                    text: "{.name}"
+                    font: 16 semibold
+                    color: #333
+                    padding: 5 0 0 0
                 }
-    
-                Image {
-                    show: {{!.icon and .bundleImage}}
-                    bundleImage: {{.bundleImage}}
-                    color: #2480d6
-                    resizable: fit
-                    minWidth: 50
-                    minHeight: 50
-                    maxWidth: 50
-                    maxHeight: 50
+                
+                Text {
+                    text: "{.dateModified}"
+                    font: 11 regular
+                    color: #888
+                    padding: 8 0 5 0
                 }
-            }
-            
-            Text {
-                text: "{.name}"
-                font: 16 semibold
-                color: #333
-                padding: 0 0 3 0
-            }
-            Text {
-                text: "{.dateModified}"
-                font: 11 regular
-                color: #888
-                padding: 8 0 5 0
-            }
+        }
         }
     }
 }

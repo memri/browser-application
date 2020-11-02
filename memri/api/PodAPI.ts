@@ -454,9 +454,8 @@ export class PodAPI {
                 "databaseKey": dbKey,
                 "ownerKey": ownerKey
             }
-            // WARNING: WE ARE CALLING DOWNLOADER HERE, WHICH FIRST CALLS THE DOWNLOADER
-            // AND THEN, THE DOWNLOADER CALLS THE IMPORTER
-            this.http({method: "POST", path: "run_downloader", payload: payload}, (error) => {
+
+            this.http({method: "POST", path: "run_importer", payload: payload}, (error, result) => {
                 callback(error, error == null)
             })
         })

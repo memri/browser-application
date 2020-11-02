@@ -27,7 +27,7 @@ Photo {
         edgeInset: 0 0 0 0
         Image {
             image: {{.file}} /* TODO: ALLOW BOTH STRINGS AND FILES*/
-            resizable: fill
+            sizingMode: fill
             background: #AAA
         }
     }
@@ -63,7 +63,7 @@ Photo[] {
         
         Image {
             image: {{.file}}
-            resizable: fill
+            sizingMode: fill
             background: #AAA
         }
     }

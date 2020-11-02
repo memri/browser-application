@@ -22,12 +22,12 @@ MessageChannel {
             showTitle: false
         
             VStack {
-                align: bottomright
+                alignment: bottomright
                 maxHeight: 300
                 
                 Image {
                     image: {{.receiver.owner.profilePicture}}
-                    resizable: fill
+                    sizingMode: fill
                 }
                 
                 HStack {
@@ -77,12 +77,12 @@ MessageChannel[] {
             alignment: center
             
             ZStack {
-                align: top
+                alignment: top
                 margin: 0 15 0 0
             
                 Image {
                     image: {{.receiver.owner.profilePicture}}
-                    resizable: fill
+                    sizingMode: fill
                     minHeight: 50
                     maxHeight: 50
                     minWidth: 50
@@ -92,6 +92,7 @@ MessageChannel[] {
             }
             
             VStack {
+                alignment: leading
                 HStack {
                     Text {
                         text: "{.receiver.displayName}"

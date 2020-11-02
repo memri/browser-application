@@ -20,7 +20,7 @@ Message {
                 defaultRenderer: timeline
                 
                 [datasource = pod] {
-                    query: "AuditItem appliesTo:{.uid}"
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
@@ -49,7 +49,7 @@ Message {
                     defaultRenderer: timeline
                     
                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.uid}"
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
@@ -77,7 +77,6 @@ Message {
         RichTextfield {
             content: {{.content}}
             title: {{.title}}
-            titleHint: "Untitled Note"
             fontSize: 18
         }
     }
@@ -89,20 +88,8 @@ Message[] {
     
     [renderer = list] {
         spacing: 8
-        MessageBubble {
-            sender: {{.subject}}
-            content: {{.content.plainString}}
-            timeProperty: {{.dateSent}}
-            isOutgoing: {{.sender.owner = me}}
-        }
-    }
-    
-    [renderer = grid] {
-        MessageBubble {
-            sender: {{.sender.displayName}}
-            content: {{.content.plainString}}
-            timeProperty: {{.dateSent}}
-            isOutgoing: {{.sender.owner = me}}
+        Text {
+            text: {{.content.plainString}}
         }
     }
     
@@ -110,31 +97,26 @@ Message[] {
         background: #ede6de
         spacing: 8
         
-        send: sendMessage {
-            network: {{.itemType}}
-            contents: {{composedText}}
-        }
-        
         HStack {
-            align: {{ .sender.owner = me ? "right" : "left" }}
+            alignment: {{ .sender.owner = me ? "right" : "left" }}
+            fillWidth: true
             padding: {{ .sender.owner = me ? "0 0 0 20" : "0 60 0 0" }}
-            maxWidth: 100000
             
             VStack {
                 spacing: 2
-                padding: 3
+                padding: 5
                 background: {{ .sender.owner = me ? "#dbf7c5" : "#f9f9f9" }} /* TODO: secondarySystemBackground */
                 cornerRadius: 5
                 
                 Text {
-/*                        show: {{previous.dateSent - .dateSent < 30000}}*/
+                    /*                        show: {{previous.dateSent - .dateSent < 30000}}*/
                     show: {{ .messageChannel._receiver[].count > 1 AND .sender.owner != me }}
                     text: "{.sender.displayName}"
                     font: 12 bold
                     color: #743a4c
                     lineLimit: 1
                 }
-
+                
                 HStack {
                     show: {{.message}}
                     background: #CCC
@@ -163,29 +145,42 @@ Message[] {
                     Image {
                         show: {{.message.photo}}
                         image: {{.message.photo}}
-                        forceAspect: true
+                        sizingMode: fit
                         cornerRadius: 3
                         maxHeight: 60
                         maxWidth: 60
                     }
                 }
                 
-                Image {
+                Button {
                     show: {{.photo}}
-                    image: {{.photo}}
-                    forceAspect: true
-                    cornerRadius: 5
+                    press: openView {
+                        view: {
+                            inherit: {{currentView}}
+                            defaultRenderer: "photoViewer"
+                        }
+                        viewArguments: {
+                            currentItem: {{.}}
+                        }
+                    }
+                    
+                    Image {
+                        image: {{.photo}}
+                        sizingMode: fit
+                        cornerRadius: 5
+                        maxWidth: 250
+                    }
                 }
                 
                 SmartText {
                     show: {{.content}}
                     text: {{.content.plainString}}
                     font: 16 regular
-                    color: {{ .sender.owner = me ? "#fff" : "#333" }} /* TODO: label */
+                    color: {{ .sender.owner = me ? "#555" : "#333" }} /* TODO: label */
                     maxLines: 100
                     margin: 3
                 }
-
+                
                 Text {
                     font: 10 bold /* TODO: caption?? */
                     color: #bebec0  /* TODO: SecondaryLabel */
@@ -194,5 +189,10 @@ Message[] {
                 }
             }
         }
+    }
+    
+    [renderer = photoViewer] {
+        file: {{.photo.file}}
+        initialItem: {{currentItem}}
     }
 }

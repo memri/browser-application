@@ -50,7 +50,7 @@ Session[] {
                 Image {
                     image: {{.screenshot}}
                     border: #ccc 1
-                    resizable: fill
+                    sizingMode: fill
                     maxWidth: 150
                     maxHeight: 150
                     cornerRadius: 10
@@ -74,7 +74,7 @@ Session[] {
             Image {
                 image: {{.screenshot}}
                 border: #ccc 1
-                resizable: fill
+                sizingMode: fill
                 maxHeight: 180
                 cornerRadius: 10
             }

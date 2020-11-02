@@ -98,20 +98,8 @@
     {
         "_type": "NavigationItem",
         "type": "item",
-        "title": "log",
-        "sessionName": "all-audit-items"
-    },
-    {
-        "_type": "NavigationItem",
-        "type": "item",
         "title": "labels",
         "sessionName": "all-labels"
-    },
-    {
-        "_type": "NavigationItem",
-        "type": "item",
-        "title": "sessions",
-        "sessionName": "all-sessions"
     },
     {
         "_type": "NavigationItem",
@@ -140,12 +128,6 @@
     {
         "_type": "NavigationItem",
         "type": "item",
-        "title": "views",
-        "sessionName": "all-sessionviews"
-    },
-    {
-        "_type": "NavigationItem",
-        "type": "item",
         "title": "location",
         "sessionName": "all-locations"
     },
@@ -167,16 +149,56 @@
         "sessionName": "annotationListExample"
     },
     {
+        "_type": "NavigationItem",
+        "itemType": "heading",
+        "title": "Other"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
+        "title": "views",
+        "sessionName": "all-sessionviews"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
+        "title": "sessions",
+        "sessionName": "all-sessions"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
+        "title": "log",
+        "sessionName": "all-audit-items"
+    },
+    {
         "_type": "Importer",
         "name": "iCloud notes",
-        "datatype": "Note",
+        "dataType": "Note",
+        "repository": "memri-nodeintegrators:latest",
         "icon": "cloud"
     },
     {
         "_type": "Importer",
         "name": "Evernote notes",
-        "datatype": "Note",
+        "dataType": "Note",
+        "repository": "memri-pyintegrators:latest",
         "bundleImage": "evernote-icon"
+    },
+    {
+        "_type": "Importer",
+        "name": "Gmail",
+        "dataType": "Email",
+        "repository": "memri-pyintegrators:latest",
+        "icon": "envelope",
+        "itemDescription": "To run this importer you need a to fill in an email address and an app password below, and enable IMAP in your email settings, for gmail that is under \nhttps://mail.google.com/mail/u/0/#settings/fwdandpop \nThe recommended usage is with an app password, for which you need to enable 2FA (Google), which you can do under Security at \nhttps://myaccount.google.com/security"
+    },
+    {
+        "_type": "Importer",
+        "name": "WhatsApp",
+        "dataType": "whatsapp",
+        "repository": "memri-rustintegrators:latest",
+        "icon": "message"
     },
     {
         "_type": "Indexer",
@@ -191,18 +213,20 @@
         "query": "Note",
         "runDestination": "ios",
         "itemDescription": "This indexer extracts labels from notes. You can specify aliases in the labels to add keywords that are used to match against.",
+        "icon": "tag"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Note List Indexer",
+        "query": "Note",
+        "indexerClass": "NotesListIndexer",
+        "itemDescription": "This indexer extracts lists from notes. It detects both structured and unstructured lists",
         "icon": "text.badge.plus"
     },
     {
         "_type": "Note",
-        "title": "Note1",
-        "content": "Greenhouse green house green-house",
-        "icon": "mappin.and.ellipse"
-    },
-    {
-        "_type": "Note",
-        "title": "Note2",
-        "content": "some random note"
+        "title": "A demo note",
+        "content": "<p><strong>Hi there,<\/strong><\/p><p>Let's explore the <u>new<\/u> text editor.<\/p><p><\/p><ul> <li><p>This is a list<\/p><\/li> <li><p>You can press return to make a new item<\/p>  <ul>   <li><p>Indented item<\/p><\/li>   <li><p><s>Something else<\/s><\/p><\/li>  <\/ul><\/li><\/ul><p><\/p><p>Or an ordered list:<\/p><ol> <li><p>Milk<\/p><\/li> <li><p>Eggs<\/p><\/li> <li><p>Flour<\/p>  <ol>   <li><p>Self-raising<\/p><\/li>   <li><p>Plain<\/p><\/li>  <\/ol><\/li><\/ol><p><\/p><p><strong>Todo list<\/strong><\/p><ul data-type=\"todo_list\"> <li data-type=\"todo_item\" data-done=\"true\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span>  <div class=\"todo-content\">   <p>Try out new editor<\/p>  <\/div><\/li> <li data-type=\"todo_item\" data-done=\"false\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span>  <div class=\"todo-content\">   <p>Finish writing blog post <\/p> <ul data-type=\"todo_list\"><li data-type=\"todo_item\" data-done=\"false\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span><div class=\"todo-content\"><p>Improve the second paragraph<\/p><\/div><\/li><\/ul><\/div><\/li> <li data-type=\"todo_item\" data-done=\"false\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span>  <div class=\"todo-content\">   <p>Prepare presentation<\/p>  <\/div><\/li><\/ul><p><\/p><p>It also supports both <code>inline code<\/code> and code blocks:<\/p><pre><code>def some_function(argument):\n    return \"Automatic code highlighting!\"<\/code><\/pre><p><\/p><p><\/p>"
     },
     {
         "_type": "Photo",
@@ -213,7 +237,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image6.jpg"
+                    "filename": "unsplash-image6"
                 }
             }
         ]
@@ -227,7 +251,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-imager9.jpg"
+                    "filename": "iphone-imager9"
                 }
             }
         ]
@@ -241,7 +265,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-imager39.jpg"
+                    "filename": "iphone-imager39"
                 }
             }
         ]
@@ -256,7 +280,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image4.jpg"
+                    "filename": "iphone-image4"
                 }
             }
         ]
@@ -271,7 +295,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image5.jpg"
+                    "filename": "iphone-image5"
                 }
             }
         ]
@@ -285,7 +309,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image2.jpg"
+                    "filename": "unsplash-image2"
                 }
             }
         ]
@@ -299,7 +323,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image13.jpg"
+                    "filename": "unsplash-image13"
                 }
             }
         ]
@@ -313,7 +337,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/karen-penroz-06ZTGDcAQFs-unsplash.jpg"
+                    "filename": "karen-penroz-06ZTGDcAQFs-unsplash"
                 }
             }
         ]
@@ -328,7 +352,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image16.jpg"
+                    "filename": "unsplash-image16"
                 }
             }
         ]
@@ -342,7 +366,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-imager67.jpg"
+                    "filename": "iphone-imager67"
                 }
             }
         ]
@@ -356,7 +380,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-imager69.jpg"
+                    "filename": "iphone-imager69"
                 }
             }
         ]
@@ -370,7 +394,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-imager71.jpg"
+                    "filename": "iphone-imager71"
                 }
             }
         ]
@@ -384,7 +408,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person30.jpg"
+                    "filename": "fake-person30"
                 }
             }
         ]
@@ -399,7 +423,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/ave-calvar-ukuIJ6ReFms-unsplash.jpg"
+                    "filename": "ave-calvar-ukuIJ6ReFms-unsplash"
                 }
             }
         ]
@@ -413,7 +437,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/karen-penroz-06ZTGDcAQFs-unsplash.jpg"
+                    "filename": "karen-penroz-06ZTGDcAQFs-unsplash"
                 }
             }
         ]
@@ -428,7 +452,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/katarzyna-korobczuk-pwUjBdc5U9c-unsplash.jpg"
+                    "filename": "katarzyna-korobczuk-pwUjBdc5U9c-unsplash"
                 }
             }
         ]
@@ -443,7 +467,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/szabo-viktor-tarTTEaiIx4-unsplash.jpg"
+                    "filename": "szabo-viktor-tarTTEaiIx4-unsplash"
                 }
             }
         ]
@@ -458,7 +482,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image2.jpg"
+                    "filename": "iphone-image2"
                 }
             }
         ]
@@ -473,7 +497,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person1.jpg"
+                    "filename": "fake-person1"
                 }
             }
         ]
@@ -488,7 +512,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image1.jpg"
+                    "filename": "iphone-image1"
                 }
             }
         ]
@@ -503,7 +527,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image3.jpg"
+                    "filename": "iphone-image3"
                 }
             }
         ]
@@ -518,7 +542,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image6.jpg"
+                    "filename": "iphone-image6"
                 }
             }
         ]
@@ -533,7 +557,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-imager43.jpg"
+                    "filename": "iphone-imager43"
                 }
             }
         ]
@@ -548,7 +572,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image7.jpg"
+                    "filename": "iphone-image8"
                 }
             }
         ]
@@ -563,7 +587,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/iphone-image8.jpg"
+                    "filename": "fake-person6"
                 }
             }
         ]
@@ -578,22 +602,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person6.jpg"
-                }
-            }
-        ]
-    },
-    {
-        "_type": "Photo",
-        "width": 250,
-        "height": 250,
-        "dateCreated": 1589691657000,
-        "allEdges": [
-            {
-                "_type": "file",
-                "_target": {
-                    "_type": "File",
-                    "filename": "demoData/iphone-image11.jpg"
+                    "filename": "iphone-image11"
                 }
             }
         ]
@@ -609,7 +618,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person9.jpg"
+                    "filename": "fake-person9"
                 }
             }
         ]
@@ -624,7 +633,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person10.jpg"
+                    "filename": "fake-person10"
                 }
             }
         ]
@@ -639,7 +648,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person11.jpg"
+                    "filename": "fake-person11"
                 }
             }
         ]
@@ -654,7 +663,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person12.jpg"
+                    "filename": "fake-person12"
                 }
             }
         ]
@@ -669,7 +678,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person13.jpg"
+                    "filename": "fake-person13"
                 }
             }
         ]
@@ -685,7 +694,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person2.jpg"
+                    "filename": "fake-person2"
                 }
             }
         ]
@@ -700,7 +709,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person3.jpg"
+                    "filename": "fake-person3"
                 }
             }
         ]
@@ -715,7 +724,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person4.jpg"
+                    "filename": "fake-person4"
                 }
             }
         ]
@@ -730,7 +739,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person14.jpg"
+                    "filename": "fake-person14"
                 }
             }
         ]
@@ -745,7 +754,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person15.jpg"
+                    "filename": "fake-person15"
                 }
             }
         ]
@@ -760,7 +769,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person16.jpg"
+                    "filename": "fake-person16"
                 }
             }
         ]
@@ -775,7 +784,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person17.jpg"
+                    "filename": "fake-person17"
                 }
             }
         ]
@@ -790,7 +799,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person18.jpg"
+                    "filename": "fake-person18"
                 }
             }
         ]
@@ -806,7 +815,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person19.jpg"
+                    "filename": "fake-person19"
                 }
             }
         ]
@@ -822,7 +831,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person20.jpg"
+                    "filename": "fake-person20"
                 }
             }
         ]
@@ -838,7 +847,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person21.jpg"
+                    "filename": "fake-person21"
                 }
             }
         ]
@@ -854,7 +863,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person22.jpg"
+                    "filename": "fake-person22"
                 }
             }
         ]
@@ -870,7 +879,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person23.jpg"
+                    "filename": "fake-person23"
                 }
             }
         ]
@@ -885,7 +894,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person24.jpg"
+                    "filename": "fake-person24"
                 }
             }
         ]
@@ -901,7 +910,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person25.jpg"
+                    "filename": "fake-person25"
                 }
             }
         ]
@@ -917,7 +926,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person26.jpg"
+                    "filename": "fake-person26"
                 }
             }
         ]
@@ -933,7 +942,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person27.jpg"
+                    "filename": "fake-person27"
                 }
             }
         ]
@@ -949,7 +958,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person28.jpg"
+                    "filename": "fake-person28"
                 }
             }
         ]
@@ -964,7 +973,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person29.jpg"
+                    "filename": "fake-person29"
                 }
             }
         ]
@@ -979,7 +988,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person30.jpg"
+                    "filename": "fake-person30"
                 }
             }
         ]
@@ -995,7 +1004,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person7.jpg"
+                    "filename": "fake-person7"
                 }
             }
         ]
@@ -1014,7 +1023,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person10.jpg"
+                    "filename": "fake-person10"
                 }
             }
         ]
@@ -1033,7 +1042,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image17.jpg"
+                    "filename": "unsplash-image17"
                 }
             }
         ]
@@ -1052,7 +1061,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image18.jpg"
+                    "filename": "unsplash-image18"
                 }
             }
         ]
@@ -1072,7 +1081,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person58.jpg"
+                    "filename": "fake-person58"
                 }
             }
         ]
@@ -1091,7 +1100,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image19.jpg"
+                    "filename": "unsplash-image19"
                 }
             }
         ]
@@ -1110,7 +1119,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person56.jpg"
+                    "filename": "fake-person56"
                 }
             }
         ]
@@ -1129,7 +1138,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image29.jpg"
+                    "filename": "unsplash-image29"
                 }
             }
         ]
@@ -1148,7 +1157,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image55.jpg"
+                    "filename": "unsplash-image55"
                 }
             }
         ]
@@ -1167,7 +1176,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person52.jpg"
+                    "filename": "fake-person52"
                 }
             }
         ]
@@ -1186,7 +1195,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image19.jpg"
+                    "filename": "unsplash-image19"
                 }
             }
         ]
@@ -1206,7 +1215,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person34.jpg"
+                    "filename": "fake-person34"
                 }
             }
         ]
@@ -1225,7 +1234,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image20.jpg"
+                    "filename": "unsplash-image20"
                 }
             }
         ]
@@ -1244,7 +1253,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image19.jpg"
+                    "filename": "unsplash-image19"
                 }
             }
         ]
@@ -1263,7 +1272,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image24.jpg"
+                    "filename": "unsplash-image24"
                 }
             }
         ]
@@ -1282,7 +1291,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person0.jpg"
+                    "filename": "fake-person0"
                 }
             }
         ]
@@ -1301,7 +1310,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image19.jpg"
+                    "filename": "unsplash-image19"
                 }
             }
         ]
@@ -1321,7 +1330,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person43.jpg"
+                    "filename": "fake-person43"
                 }
             }
         ]
@@ -1340,7 +1349,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image57.jpg"
+                    "filename": "unsplash-image57"
                 }
             }
         ]
@@ -1359,7 +1368,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person36.jpg"
+                    "filename": "fake-person36"
                 }
             }
         ]
@@ -1378,7 +1387,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image-27.jpg"
+                    "filename": "unsplash-image27"
                 }
             }
         ]
@@ -1398,7 +1407,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person54.jpg"
+                    "filename": "fake-person54"
                 }
             }
         ]
@@ -1417,7 +1426,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image21.jpg"
+                    "filename": "unsplash-image21"
                 }
             }
         ]
@@ -1436,7 +1445,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image24.jpg"
+                    "filename": "unsplash-image24"
                 }
             }
         ]
@@ -1455,7 +1464,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person41.jpg"
+                    "filename": "fake-person41"
                 }
             }
         ]
@@ -1474,7 +1483,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person57.jpg"
+                    "filename": "fake-person57"
                 }
             }
         ]
@@ -1493,7 +1502,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image58.jpg"
+                    "filename": "unsplash-image58"
                 }
             }
         ]
@@ -1512,7 +1521,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image23.jpg"
+                    "filename": "unsplash-image23"
                 }
             }
         ]
@@ -1531,7 +1540,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person15.jpg"
+                    "filename": "fake-person15"
                 }
             }
         ]
@@ -1551,7 +1560,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person6.jpg"
+                    "filename": "fake-person6"
                 }
             }
         ]
@@ -1570,7 +1579,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image18.jpg"
+                    "filename": "unsplash-image18"
                 }
             }
         ]
@@ -1589,7 +1598,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image59.jpg"
+                    "filename": "unsplash-image59"
                 }
             }
         ]
@@ -1608,7 +1617,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person49.jpg"
+                    "filename": "fake-person49"
                 }
             }
         ]
@@ -1627,7 +1636,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image25.jpg"
+                    "filename": "unsplash-image25"
                 }
             }
         ]
@@ -1646,7 +1655,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image60.jpg"
+                    "filename": "unsplash-image60"
                 }
             }
         ]
@@ -1665,7 +1674,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person50.jpg"
+                    "filename": "fake-person50"
                 }
             }
         ]
@@ -1685,7 +1694,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person33.jpg"
+                    "filename": "fake-person33"
                 }
             }
         ]
@@ -1704,7 +1713,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image22.jpg"
+                    "filename": "unsplash-image22"
                 }
             }
         ]
@@ -1723,7 +1732,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image28.jpg"
+                    "filename": "unsplash-image28"
                 }
             }
         ]
@@ -1742,7 +1751,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/unsplash-image30.jpg"
+                    "filename": "unsplash-image30"
                 }
             }
         ]
@@ -1761,7 +1770,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person18.jpg"
+                    "filename": "fake-person18"
                 }
             }
         ]
@@ -1780,7 +1789,7 @@
                 "_type": "file",
                 "_target": {
                     "_type": "File",
-                    "filename": "demoData/fake-person33.jpg"
+                    "filename": "fake-person33"
                 }
             }
         ]
@@ -1938,7 +1947,7 @@
         "height": 197,
         "allEdges": [
             {
-                "_type": "relationship",
+                "_type": "me",
                 "targetType": "Person",
                 "uid": 1
             },
@@ -3523,7 +3532,7 @@
     {
         "_type": "Note",
         "title": "Shopping list",
-        "content": "- potatoes<br />- mayonaise",
+        "content": "<ul><li>potatoes</li><li>mayonaise</li></ul>",
         "starred": true,
         "dateModified": 1593710745298,
         "allEdges": [
@@ -3573,13 +3582,6 @@
         "title": "Love letter",
         "content": "Roses are red, violets are blue",
         "dateModified": 1593147945298,
-        "version": 1
-    },
-    {
-        "_type": "Note",
-        "title": "Notes to self",
-        "content": "Be in time with hour administration",
-        "dateModified": 1593717745298,
         "version": 1
     },
     {
@@ -3989,7 +3991,7 @@
         "uid": 22000000012,
         "externalId": "EE9E22BD54F93EC48CF9",
         "subject": "Interesting information",
-        "content": "at home",
+        "content": "<!DOCTYPE html PUBLIC \"-\/\/W3C\/\/DTD XHTML 1.0 Strict\/\/EN\" \"http:\/\/www.w3.org\/TR\/xhtml1\/DTD\/xhtml1-strict.dtd\"><html xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"><head><meta http-equiv=\"Content-Type\" content=\"text\/html; charset=utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link href=\"https:\/\/fonts.googleapis.com\/css?family=Lato:400,700,900\" rel=\"stylesheet\"><title>[Slack] Notifications from the polis workspace for September 8th, 2020 at 7:34 PM<\/title><style type=\"text\/css\">\/* Global Resets *\/\r\n\tbody, .background_main, p, table, td, div { font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; }\r\n\r\n\timg {\r\n\t\tborder: none;\r\n\t\t-ms-interpolation-mode: bicubic;\r\n\t\tmax-width: 100%;\r\n\t}\r\n\r\n\tp {padding-bottom: 2px;}\r\n\r\n\tbody {\r\n\t\tbackground: #fff;\r\n\t\tfont-size: 17px;\r\n\t\tline-height: 24px;\r\n\t\tmargin: 0;\r\n\t\tpadding: 0;\r\n\t\t-ms-text-size-adjust: 100%;\r\n\t\t-webkit-text-size-adjust: 100%;\r\n\t}\r\n\r\n\ttable {\r\n\t\tborder-collapse: collapse;\r\n\t\tmso-table-lspace: 0pt;\r\n\t\tmso-table-rspace: 0pt;\r\n\t\twidth: 100%;\r\n\t}\r\n\r\n\ttd {\r\n\t\tfont-size: 17px;\r\n\t\tline-height: 24px;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\t\/* Footer *\/\r\n\t.email_footer td, .email_footer p, .email_footer span, .email_footer a {\r\n\t\tfont-size: 15px;\r\n\t\ttext-align: center;\r\n\t\tcolor: #434245;\r\n\t}\r\n\r\n\t.email_footer td {padding-top: 20px;}\r\n\r\n\t.preheader {\r\n\t\tdisplay: none;\r\n\t\tmso-hide: all;\r\n\t}\r\n\r\n\t\/* Typography *\/\r\n\th1, h2, h3, h4 {\r\n\t\tcolor: #434245;\r\n\t\tfont-weight: 400;\r\n\t\tline-height: 1.4;\r\n\t\tmargin: 0;\r\n\t\tmargin-bottom: 12px;\r\n\t}\r\n\r\n\th1 {\r\n\t\tfont-size: 30px;\r\n\t\tline-height: 36px;\r\n\t\tfont-weight: 900;\r\n\t\tletter-spacing: -.75px;\r\n\t\ttext-align: left;\r\n\t}\r\n\r\n\tp, ul, ol {\r\n\t\tfont-size: 17px;\r\n\t\tline-height: 24px;\r\n\t\tfont-weight: normal;\r\n\t\tmargin: 0;\r\n\t\tmargin-bottom: 15px;\r\n\t}\r\n\r\n\tp li, ul li, ol li {\r\n\t\tlist-style-position: inside;\r\n\t\tmargin-left: 5px;\r\n\t}\r\n\r\n\ta {\r\n\t\tcolor: #3498db;\r\n\t\ttext-decoration: none;\r\n\t}\r\n\r\n\ta:hover {text-decoration: underline;}\r\n\r\n\t.button_link::after {\r\n\t\tposition: absolute;\r\n\t\tcontent: '';\r\n\t\ttop: 0;\r\n\t\tright: 0;\r\n\t\tbottom: 0;\r\n\t\tleft: 0;\r\n\t\tborder-radius: 4px;\r\n\t}\r\n\r\n\t.button_link:hover::after {\r\n\t\tbox-shadow: inset 0 -2px #237c4a;\r\n\t}\r\n\r\n\t.button_link.is_secondary:hover::after {\r\n\t\tbox-shadow: none;\r\n\t}\r\n\r\n\t.button_link.plum:hover {\r\n\t\tbackground-color: #4a154b !important;\r\n\t\tborder-color: #4a154b !important;\r\n\t}\r\n\r\n\t.button_link_wrapper.plum:hover {\r\n\t\tbackground-color: #4a154b !important;\r\n\t}\r\n\r\n\t.button_link.plum:hover::after {\r\n\t\tbox-shadow: none;\r\n\t}\r\n\r\n\t.preview_text {\r\n\t\tcolor: transparent;\r\n\t\tdisplay: none;\r\n\t\theight: 0;\r\n\t\tmax-height: 0;\r\n\t\tmax-width: 0;\r\n\t\topacity: 0;\r\n\t\toverflow: hidden;\r\n\t\tmso-hide: all;\r\n\t\tvisibility: hidden;\r\n\t\twidth: 0;\r\n\t\tfont-size: 1px;\r\n\t\tline-height:1px;\r\n\t}\r\n\r\n\t.preview_text a {\r\n\t\tcolor: #3AA3E3 !important;\r\n\t\tfont-weight: bold;\r\n\t}\r\n\r\n\t\/* Responsive and Mobile Friendly Styles *\/\r\n\t\/* Yahoo Mail has a history of rendering all media query styles with class selectors unless class is used as an attribute *\/\r\n\t@media only screen and (max-width: 600px) {\r\n\t\ttable[class=\"background_main\"] .sm_full_width {\r\n\t\t\twidth: 100% !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_90_percent_width {\r\n\t\t\twidth: 90% !important;\r\n\t\t\tpadding: 16px !important;\r\n\t\t\ttext-align: center !important;\r\n\t\t\tfloat: none !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_side_padding {\r\n\t\t\tpadding-right: 8px !important;\r\n\t\t\tpadding-left: 8px !important;\r\n\t\t\tfloat: none !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_small_top_padding {\r\n\t\t\tpadding-top: 8px !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_top_padding {\r\n\t\t\tpadding-top: 16px !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_auto_width {\r\n\t\t\twidth: auto !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_auto_height {\r\n\t\t\theight: auto !important;\r\n\t\t}\r\n\r\n\t\ttable[class=\"background_main\"] .sm_border_box {\r\n\t\t\tbox-sizing: border-box !important;\r\n\t\t}\r\n\r\n\t\ttable[class=\"background_main\"] .sm_block {\r\n\t\t\tdisplay: block !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_inline_block {\r\n\t\t\tdisplay: inline-block !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_table {\r\n\t\t\tdisplay: table !important;\r\n\t\t}\r\n\r\n\t\ttable[class=\"background_main\"] .sm_no_side_padding {\r\n\t\t\tpadding-right: 0 !important;\r\n\t\t\tpadding-left: 0 !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_no_border_radius {\r\n\t\t\tborder-radius: 0 !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_no_padding {\r\n\t\t\tpadding-right: 0 !important;\r\n\t\t\tpadding-left: 0 !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_os_icons_height {\r\n\t\t\t\/* this is to make the parent element the same height as the inline-block img inside *\/\r\n\t\t\theight: 44px;\r\n\t\t}\r\n\t\t.social_img_bottom_margin {\r\n\t\t\t\/*this class is for social_user_outreach email only*\/\r\n\t\t\tmargin-bottom: 20px !important;\r\n\t\t}\r\n\t\t.social_p_bottom_margin {\r\n\t\t\t\/*this class is for social_user_outreach email only*\/\r\n\t\t\tmargin-bottom: 40px !important;\r\n\t\t}\r\n\t}\r\n\r\n\t\/* More client-specific styles *\/\r\n\t@media all {\r\n\t\t.ExternalClass {\r\n\t\t\twidth: 100%;\r\n\t\t}\r\n\t\t.ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {\r\n\t\t\tline-height: 100%;\r\n\t\t}\r\n\t\t.email_footer a {\r\n\t\t\tcolor: #434245 !important;\r\n\t\t\tfont-family: inherit !important;\r\n\t\t\tfont-size: inherit !important;\r\n\t\t\tfont-weight: inherit !important;\r\n\t\t\tline-height: inherit !important;\r\n\t\t\ttext-decoration: none !important;\r\n\t\t}\r\n\t}\r\n\ta:hover {\r\n\t\ttext-decoration: underline !important;\r\n\t}\r\n\r\n\tpre, code {\r\n\t\t--saf-0: rgba(var(--sk_foreground_low, 29, 28, 29), 0.13);\r\n\t\tborder: 1px solid var(--saf-0);\r\n\t\tbackground: rgba(var(--sk_foreground_min, 29, 28, 29), 0.04);\r\n\t\tfont-family: 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;\r\n\t\tfont-size: 12px;\r\n\t\tline-height: 1.50001;\r\n\t\tfont-variant-ligatures: none;\r\n\t\twhite-space: pre;\r\n\t\twhite-space: pre-wrap;\r\n\t\tword-wrap: break-word;\r\n\t\tword-break: normal;\r\n\t\t-webkit-tab-size: 4;\r\n\t\t-moz-tab-size: 4;\r\n\t\t-o-tab-size: 4;\r\n\t\ttab-size: 4;\r\n\t}\r\n\r\n\tcode {\r\n\t\tcolor: #e01e5a;\r\n\t\tpadding: 2px 3px 1px;\r\n\t\tborder-radius: 3px;\r\n\t}\r\n\r\n\tpre {\r\n\t\tmargin-bottom: 16px;\r\n\t\tpadding: 8px;\r\n\t\tborder-radius: 4px;\r\n\t}\r\n\r\n\tblockquote {\r\n\t\tposition: relative;\r\n\t\tmargin-bottom: 16px;\r\n\t\tpadding-left: 16px;\r\n\t\tborder-left: rgba(var(--sk_foreground_low_solid, 221, 221, 221), 1);\r\n\t\tborder-left-width: 4px;\r\n\t\tborder-left-style: solid;\r\n\t}\r\n<\/style><style type=\"text\/css\">\r\na {\r\n\tcolor: #1264a3;\r\n}\r\n.email-body a {\r\n\tcolor: #1264a3;\r\n}\r\n\r\nstrong {\r\n\tfont-weight: 900;\r\n}\r\n\r\n@media only screen and (max-width: 600px) {\r\n\t.snooze_wrapper {\r\n\t\tmax-width: 320px !important;\r\n\t}\r\n}\r\n<\/style><\/head><body><!--[if mso]><style type=\"text\/css\">.background_main, table, table td, p, div, h1, h2, h3, h4, h5, h6 {\r\n\t\t\t\t\t\t\t\tfont-family: Arial, sans-serif !important;\r\n\t\t\t\t\t\t\t}<\/style><![endif]--><table style=\"background-color: #ffffff; padding-top: 20px;color: #434245;width: 100%;-webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;   border: 0; text-align: center; border-collapse: collapse;\" class=\"background_main\"><tr><td style=\"vertical-align: top; padding: 0\"><center><table id=\"body\" class=\"card\" style=\"border: 0; border-collapse: collapse; margin: 0 auto; background: white; border-radius: 8px; margin-bottom: 16px;\"><tr><td style=\"width: 546px; vertical-align: top; padding-top: 32px\"><div style=\"max-width: 600px; margin: 0 auto;\"><div style=\"text-align: left;\"><!--[if mso]>\r\n<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"padding: 0; margin: 0; width: 100%;\">\r\n    <tr>\r\n        <td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\" height=\"20\">&nbsp;<\/td>\r\n    <\/tr>\r\n    <tr>\r\n        <td style=\"padding: 0; margin: 0;\">&nbsp;<\/td>\r\n        <td style=\"padding: 0; margin: 0;\" width=\"540\">\r\n<![endif]--><img width=\"120\" height=\"36\" style=\"margin-top: 0; margin-right: 0; margin-bottom: 32px; margin-left: 0px; padding-right: 30px; padding-left: 30px;\" src=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/img\/slack_logo_240.png\" alt=\"\"><div style=\"padding-right: 30px; padding-left: 30px;\"><table id=\"body\" class=\"card\" style=\"border: 0; border-collapse: collapse; margin: 0 auto; background: white; border-radius: 8px; margin-bottom: 16px;\"><tr><td style=\"width: 546px; vertical-align: top;\"><div style=\"max-width: 600px; margin: 0 auto;\"><h2 style=\"margin-bottom: 40px; color: #1D1C1D;\"><strong>You have a new mention in polis<\/strong> <a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/\" style=\"color: #868686\">(memriExample.slack.com)<\/a><\/h2><div style=\"margin-top: 0\"><h3 style=\"font-size: 18px; margin: 0 0 8px; line-height: 18px;\"><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/CT2G5M1G8\/p1599555031431500\" style=\"color: #1D1C1D; font-weight:900; margin-right: 8px; text-decoration: none;\"><span>From #memri-project<\/span><\/a> \u00A0 <\/h3><\/div><div style=\"padding: 18px 18px 8px; border: 1px solid #DDDDDD; border-radius: 8px; margin-bottom: 14px\"><div style=\"margin: 0 0 10px; width: 100%; word-break: break-word; clear: left; font-size: 15px; line-height: 18px; color: #555549; min-height: 36px;\"><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/D014SAV2D9A\/user_profile\/U5WKU6085\"><img src=\"https:\/\/avatars.slack-edge.com\/2017-06-20\/200628244212_9424733db60e5d79e7ad_72.png\" style=\"float: left; margin-right: 8px; border-radius: 4px; display: inline-block; width: 36px; height: 36px;\"><\/a><div class=\"email-body\" style=\"padding-left: 44px;\" data-qa=\"email-body\"><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/D014SAV2D9A\/user_profile\/U5WKU6085\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; color: #1D1C1D; margin-right: 8px; text-decoration: none; font-weight: 900;\">ruben.d<\/a> \u00A0 <a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/CT2G5M1G8\/p1599555031431500\" style=\"font-weight: normal; font-size: 12px; color: #717274; text-decoration: none;\">September 8th at 6:50 PM<\/a><br><div style=\"color: #1d1c1d\"><div class=\"tsf_output emoji_replace_on_load\"><a href=\"https:\/\/memriExample.slack.com\/team\/U5YPPPP8X\">@koenv<\/a> <a href=\"https:\/\/memriExample.slack.com\/team\/U5WF9425R\">@rubens<\/a> I wasn't able to discuss things that require your participation during the standup this morning. When will you be available so we can come together and discuss advisor ships of two people?<\/div><\/div><\/div><\/div><div style=\"margin: 0 0 10px; width: 100%; word-break: break-word; clear: left; font-size: 15px; line-height: 18px; color: #555549;\"><div class=\"email-body\" style=\"padding-left: 44px;\" data-qa=\"email-body\"><div style=\"color: #1d1c1d\"><div class=\"tsf_output emoji_replace_on_load\"><span style=\"background-color: #FFF3B8\">@channel<\/span> Can we all meet at 11.30am to discuss advisors?<\/div><\/div><\/div><\/div><\/div><div><span style=\"display: inline-block\"><table style=\"width: 100%; \" class=\"sm_table\"><tr style=\"width: 100%;\"><td style=\"width: 100%;\"><span style=\"display: inline-block; position:relative; border-radius:4px; background-color:#2ea664; \" class=\"button_link_wrapper sm_full_width\"><a class=\"button_link sm_full_width sm_border_box\" href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/CT2G5M1G8\/p1599555031431500\" style=\"border-top:13px solid; border-bottom:13px solid; border-right:24px solid; border-left:24px solid; border-color:#007a5a; border-radius:4px; background-color:#007a5a; color:#ffffff; font-size:18px; line-height:18px; word-break:break-word;  display: inline-block; text-align: center; font-weight: 900; text-decoration: none !important;\">Open in Slack<\/a><\/span><\/td><\/tr><\/table><\/span><span style=\"display: inline-block\"><table style=\"width: 100%; \" class=\"sm_table\"><tr style=\"width: 100%;\"><td style=\"width: 100%;\"><span style=\"display: inline-block; position:relative; border-radius:4px; background-color:#ffffff; border:1px solid #8e8d8e; \" class=\"button_link_wrapper sm_full_width\"><a class=\"button_link sm_full_width sm_border_box is_secondary\" href=\"mailto:Slack &lt;eb-T5XBZ3R63-U0145D4CAB1-s2ugwi6afplo6uxshgbimzihwu@slack-mail.com&gt;?subject=Reply to #memri-project\" style=\"border-top:12px solid; border-bottom:12px solid; border-right:24px solid; border-left:24px solid; border-color:#ffffff; border-radius:4px; background-color:#ffffff; color:#1d1c1d; font-size:18px; line-height:18px; word-break:break-word;  display: inline-block; text-align: center; font-weight: 900; text-decoration: none !important;\">Reply<\/a><\/span><\/td><\/tr><\/table><\/span><\/div><\/div><\/td><\/tr><\/table><table style=\"\"><tr><td style=\"width: 546px; vertical-align: top;\"><div class=\"snooze_wrapper\" style=\"max-width: 540px; margin: 0 auto;\"><p style=\"font-size: 0.9rem; line-height: 20px; color: #AAA; text-align: center; margin: 0 auto 1rem; max-width: 320px; word-break: break-word; text-align: left; margin-top: 30px; margin-bottom: 30px; color: #616061; font-size: 15px; max-width: none;\"> Snooze these notifications for:\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-2c5942eb192329d63e088fe47f99a780440d59425edee8e974cd8766e9b0e4ca-notify-mute-1h\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">an hour<\/a>,\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-fdc70a6a199590a11e66dde8691ac9577e10b2c0f6c17973c87a551cb1ef3742-notify-mute-8h\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">eight hours<\/a>,\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-51850d259de60629dadf701f18e0eff4dd7aed75b297e737165d9566d2ed92f9-notify-mute-1d\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">a day<\/a>,\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-90ff03a7c19c79aa60e5177d25861184e2dade83dd43562520c1ae5148b21340-notify-mute-3d\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">three days<\/a>, or\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-ac9adf9fa3795553f6f90a71cca01b84fd82c588189293f16c9283ac210291be-notify-mute-7d\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">the next week<\/a>.\r\n\t\t\t\t\t\t\t\t\t\t\tOr, <a href=\"https:\/\/memriExample.slack.com\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">turn email notifications off<\/a>. For more detailed preferences, see your <a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/account\/notifications\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">account page<\/a>. <\/p><\/div><\/td><\/tr><\/table><\/div><!--[if mso]>\r\n\t\t<\/td>\r\n\t\t<td style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n\t<tr>\r\n\t\t<td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n<\/table>\r\n<![endif]--><table style=\"margin: 0 auto; width: 100%;\"><tr><td style=\"box-sizing: border-box; padding: 0; padding-right: 30px; padding-left: 30px; padding-top: 20px; width: 100%; margin: 0 auto;\"><div style=\"color: #434245; text-align: left; width: 100%; font-size: 15px;\"><table style=\"display: inline-table; vertical-align: top; width: 100%; border: 0px; border-collapse: collapse;\"><tbody class=\"sm_full_width\"><tr class=\"sm_full_width\" style=\"border-top: 1px solid #E1E1E4;\"><td class=\"sm_full_width\" style=\"padding-top: 20px;\"><!--[if mso]>\r\n<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"padding: 0; margin: 0; width: 100%;\">\r\n    <tr>\r\n        <td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\" height=\"20\">&nbsp;<\/td>\r\n    <\/tr>\r\n    <tr>\r\n        <td style=\"padding: 0; margin: 0;\">&nbsp;<\/td>\r\n        <td style=\"padding: 0; margin: 0;\" width=\"540\">\r\n<![endif]--><table class=\"sm_full_width\" style=\"display: inline-table; width: 434px; max-width: 100%; border: 0px; border-collapse: collapse; width: 434px;\"><tr><td style=\"width: 38px; padding-right: 15px; padding-top: 20px; width: 38px;\"><a class=\"plaintext_ignore\" href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/signin\" style=\"height: 38px; width: 38px; min-width: 38px; border-radius: 4px; color: #FFFFFF; font-size: 18px; line-height: 38px; mso-line-height-rule: exactly; mso-text-raise: 10px; vertical-align: middle; text-align: center; text-decoration: none !important; display: block; background-color: #0576b9;\">P<\/a><\/td><div class=\"plaintext_only\" style=\"display: none\">Workspace name: polis<\/div><td class=\"sm_auto_width\" style=\"padding-top: 20px; font-size: 15px; width=378px;\"> <strong class=\"plaintext_ignore\">polis<\/strong><br\/>\r\n\t\t\t\t\t\tWorkspace URL: memriExample.slack.com<br\/>\r\n\t\t\t\t\t\tEmail: test@memri.com <\/td><\/tr><\/table><table class=\"sm_full_width\" style=\"text-align: right; display: inline-table; width: auto; vertical-align: top; width: 102px; text-align: right; width: 102px; border: 0px; border-collapse: collapse;\"><tbody class=\"sm_full_width\"><tr class=\"sm_full_width\"><td style=\"width: 100px; padding: 0px;padding-top: 20px;\" class=\"sm_full_width\"><div><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/signin\" class=\"sm_full_width\" style=\"text-align: center;text-decoration: none;display: inline-block;width: 100px; border: 1px solid #C7CACD; border-radius: 4px; background-color: #FBFBFA; color: #555459; font-size: 14px; line-height: 40px; -webkit-text-size-adjust: none;font-weight: 900;\">Sign In<\/a><\/div><\/td><\/tr><\/tbody><\/table><div style=\"clear: both;\"><\/div><!--[if mso]>\r\n\t\t<\/td>\r\n\t\t<td style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n\t<tr>\r\n\t\t<td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n<\/table>\r\n<![endif]--><\/td><\/tr><\/tbody><\/table><\/div><\/td><\/tr><\/table><\/div><\/div><\/td><\/tr><\/table><\/center><\/td><\/tr><tr><td class=\"email_footer\" style=\"font-size: 15px;color: #717274;text-align: center;width: 100%; border-top: 1px solid #E1E1E4\"><table style=\"margin: 20px auto 0; background-color: white; border: 0; text-align: center; border-collapse: collapse;\"><tr><td>\u00A0<\/td><td><span style=\"display: block; color: #434245; font-size: 15px;\"> Made by <a href=\"https:\/\/slack.com\" style=\"text-decoration: none; color: #434245;\">Slack Technologies, Inc<\/a>\r\n                <br\/>\r\n                500 Howard Street&nbsp;|&nbsp;San&nbsp;Francisco,&nbsp;CA&nbsp;94105&nbsp;|&nbsp;United States <\/span><\/td><td>\u00A0<\/td><\/tr><tr><td>\u00A0<\/td><td style=\"font-size: 15px; padding: 16px 8px 24px; vertical-align: top; text-align: center;\"><span><a href=\"https:\/\/slackhq.com\" style=\"color: #434245; text-decoration: underline !important;\">Our Blog<\/a> \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 <a href=\"https:\/\/slack.com\/legal\" style=\"color: #434245; text-decoration: underline !important;\">Policies<\/a><\/span><\/td><\/tr><\/table><\/td><\/tr><\/table><\/body><\/html>",
         "dateSent": 1589691700000,
         "allEdges": [
             {

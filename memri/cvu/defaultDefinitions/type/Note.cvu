@@ -8,7 +8,7 @@
 }
 
 Note {
-    title: {{.title or "Untitled" }}
+    title: ""
     defaultRenderer: custom
     editActionButton: toggleEditMode
     filterButtons: [
@@ -20,7 +20,7 @@ Note {
                 defaultRenderer: timeline
                 
                 [datasource = pod] {
-                    query: "AuditItem appliesTo:{.uid}"
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
@@ -49,7 +49,7 @@ Note {
                     defaultRenderer: timeline
                     
                     [datasource = pod] {
-                        query: "AuditItem appliesTo:{.uid}"
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
@@ -77,7 +77,6 @@ Note {
         RichTextfield {
             content: {{.content}}
             title: {{.title}}
-            titleHint: "Untitled Note"
             fontSize: 18
         }
     }
@@ -92,8 +91,8 @@ Note[] {
     
     [datasource = pod] {
         query: "Note"
-        sortProperty: dateModified
-        sortAscending: false
+        sortProperty: title
+        sortAscending: true
     }
     
     actionButton:
@@ -118,10 +117,10 @@ Note[] {
             spacing: 3
             
             HStack {
-                align: left
-                
+                alignment: left
+                spacing: 5
                 Text {
-                    text: {{.title or "Untitled Note"}}
+                    text: {{.title or "Untitled"}}
 					lineLimit: 1
                     font: 18 semibold
                     color: #333
@@ -174,12 +173,12 @@ Note[] {
                 font: 9 regular
                 minHeight: 40
                 idealHeight: 80
-                align: left top
+                alignment: left top
             }
             HStack {
-                align: center
+                alignment: center
                 Text {
-                    text: {{.title or "Untitled Note"}}
+                    text: {{.title or "Untitled"}}
                     padding: 5 0 0 0
                     color: #333
                     font: 12 semibold
@@ -213,37 +212,8 @@ Note[] {
 
 		TimelineItem {
 			icon: "square.and.pencil"
-			title: {{.title or "Untitled Note"}}
+			title: {{.title or "Untitled"}}
 			text: {{.content.plainString}}
 		}
 	}
-	
-	[renderer = messages] {
-		background: #D3E4D1
-		spacing: 8
-		
-        send: sendMessage {
-            network: {{.whatsapp}}
-            contents: {{composedText}}
-        }
-        
-		MessageBubble {
-			sender: {{.title}}
-			content: {{.content.plainString}}
-			timeProperty: {{.dateModified}}
-			isOutgoing: {{.title = "To read list"}} /* This is just a demo until we have a Message type in the schema... */
-		}
-	}
-    
-    [renderer = emailThread] {
-        background: #D3E4D1
-        content: {{.content}}
-        
-        EmailHeader {
-            color: #000000
-            title: {{.title}}
-            subtitle: "Testing out email renderer"
-            rightSubtitle: {{.dateModified}}
-        }
-    }
 }

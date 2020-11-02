@@ -11,7 +11,7 @@ Label[]: {
     name: "all-labels"
     title: "All Labels"
     emptyResultText: "You have not added any labels yet"
-    defaultRenderer: grid
+    defaultRenderer: list
     
     actionButton: addItem {
         template: {
@@ -28,7 +28,15 @@ Label[]: {
         sortAscending: true
     }
     
-    [renderer = list]{
+    [renderer = list] {
+        press: openViewByName {
+            viewName: "all-items-with-label"
+            viewArguments: {
+                name: "{.name}"
+                uid: {{.uid}}
+            }
+        }
+        
         VStack {
             rowInset: 7 20 -7 20
             
@@ -48,11 +56,12 @@ Label[]: {
                     }
                 }
                 Spacer
-                RoundedRectangle {
+                Rectangle {
                     color: {{.color}}
+                    cornerRadius: 20
                     maxHeight: 25
                     maxWidth: 25
-                    align: center
+                    alignment: center
                     padding: 0 10 0 0
                 }
             }
@@ -60,6 +69,14 @@ Label[]: {
     }
     
     [renderer = grid] {
+        press: openViewByName {
+            viewName: "all-items-with-label"
+            viewArguments: {
+                name: "{.name}"
+                uid: {{.uid}}
+            }
+        }
+        
         spacing: 10
         edgeInset: 10
         VStack {

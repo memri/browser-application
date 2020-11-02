@@ -12,6 +12,7 @@
             press: noop
             HStack {
                 VStack {
+                    alignment: leading
                     Text {
                         text: "Subject: {._annotatedItem.target.subject}"
                         lineLimit: 1

@@ -35,11 +35,12 @@ CryptoKey {
                         font: 20 semibold
                         padding: 0 5 0 0
                     }
-                    Action {
+                    ActionButton {
                         press: star
                     }
                 }
                 FlowStack {
+                    spacing: 5
                     show: {{.label}}
                     list: {{ .label[] }}
                     
@@ -74,7 +75,7 @@ CryptoKey {
                         padding: 10 0 0 0
                     }
                     
-                    Action {
+                    ActionButton {
                         show: {{!readOnly}}
                         font: 12 regular
                         margin: 8 0 0 10
@@ -153,7 +154,7 @@ CryptoKey[] {
             spacing: 3
             
             HStack {
-                align: left
+                alignment: left
                 
                 Text {
                     /* TODO: Bug when .role is not set still displays - {.role ? ' — ' : ''}{.role ? .role : ''} */
@@ -172,7 +173,7 @@ CryptoKey[] {
                 }
             }
             HStack {
-                align: bottomright
+                alignment: bottomright
                 
                 VStack {
                     Text {

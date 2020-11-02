@@ -59,7 +59,7 @@ export class CVUSerializer {
                     return `{{ item('${p1.genericType}', ${p1.uid}) }}`
             } else if (p?.constructor?.name == "Color") {
                 return String(p.toLowerCase().substr(0, 7));
-                /* TODO:
+                /* TODO: CVUColor
                 else if case let ColorDefinition.hex(hex) = p {
 				return "#\(hex.trimmingCharacters(in: CharacterSet(charactersIn: "#")))"
             }
@@ -136,7 +136,7 @@ export class CVUSerializer {
                 let names = ["minWidth", "maxWidth", "minHeight", "maxHeight", "align"];
                 let list = dict[key];
                 if (Array.isArray(list)) {
-                    for (let i = 0; i < list.length; i++) {
+                    for (let i = 0; i < Math.min(names.length, list.length); i++) {
                         if (list[i]) {
                             str.push(`${names[i]}: ${this.valueToString(list[i], depth, tab)}`);
                         }
@@ -164,7 +164,7 @@ export class CVUSerializer {
         var definitions: string[] = [];
         let p = dict["children"];
         var hasPriorContent = str.length > 0;
-        if (Array.isArray(p) && p.length > 0 && p[0]?.constructor?.name == "UIElement") {
+        if (Array.isArray(p) && p.length > 0 && p[0]?.constructor?.name == "UINode") {
             let body = this.arrayToString(p, depth, tab, false, true);
             children = `${hasPriorContent ? `\n\n${tabs}` : ``}${body}`;
             hasPriorContent = true

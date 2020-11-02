@@ -366,8 +366,30 @@ export class MemriContext {
 		this.set("showNavigation", value)
 	}
 
+	getSelection() {
+		return this.currentView?.userState.get("selection") ?? []
+	}
+
 	setSelection(selection: Item[]) {
 		this.currentView?.userState.set("selection", selection)
+		this.scheduleUIUpdate();
+	}
+
+	get editMode() {
+		return this.currentSession?.editMode ?? false;
+	}
+
+	set editMode(newValue) {
+		if (this.currentSession) this.currentSession.editMode = newValue;
+		this.scheduleUIUpdate()
+	}
+
+	get selectedIndicesBinding() {
+		return this.getSelection().map(() => this.items[0]).filter((el) => el != undefined); //TODO: ?
+	}
+
+	set selectedIndicesBinding($0) {
+		this.setSelection($0.map(() => this.items[0]).filter((el) => el != undefined)); //TODO: ?
 	}
 
 	constructor(

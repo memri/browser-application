@@ -2,7 +2,7 @@
 .all-items-with-label {
     title: "Items with label {name}"
     [datasource = pod] {
-        query: "* AND ANY labels.uid = {uid}"
+        query: "* AND ANY allEdges.targetItemID = {uid}"
     }
     defaultRenderer: list
     

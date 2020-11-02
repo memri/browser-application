@@ -1147,6 +1147,7 @@ export class ActionRunImporter extends Action {
                     debugHistory.error("Item does not have a uid")
                     return
                 }
+                this.context.cache.sync.schedule()
 
                 this.context.podAPI.runImporter(uid, (error) => {
                     if (error) {
@@ -1167,6 +1168,10 @@ export class ActionRunIndexer extends Action {
     constructor(context: MemriContext, values?) {
         super(context, "runIndexer", values)
     }
+
+    defaultValues = new MemriDictionary({
+        "argumentTypes": {"indexerRun": "IndexerRun"},
+    })
 
     exec(argumentsJs: MemriDictionary) {
         // TODO: parse options
@@ -1200,7 +1205,8 @@ export class ActionRunIndexer extends Action {
 
                 this.context.podAPI.runIndexer(uid, (error) => {
                     if (error == undefined) {
-                        var watcher: AnyCancellable
+                        //#warning("This is broken. Realm threading crash. watcher will not be retained if stored in local var")
+                        /*var watcher: AnyCancellable
                         watcher = this.context.cache.subscribe(run).sink((item) => {
                             let progress = item.get("progress")
                             if (!progress) {
@@ -1217,7 +1223,7 @@ export class ActionRunIndexer extends Action {
                                 watcher?.cancel()
                                 watcher = null
                             }
-                        })
+                        })*/
 
                     }
                     else {

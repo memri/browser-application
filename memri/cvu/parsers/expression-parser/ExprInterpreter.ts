@@ -36,9 +36,11 @@ export class ExprInterpreter {
         return this.execSingle(this.ast, args)
     }
     
-    static evaluateBoolean(x) {
+    static evaluateBoolean(x, nilValue = false) {
         if (Array.isArray(x)) {
             return x.length > 0
+        } else if (x == null) {
+           return nilValue
         } else {
             return Boolean(x)
         }
@@ -48,15 +50,25 @@ export class ExprInterpreter {
         return Number(x);
     }
 
+    static evaluateNumberArray(x) {
+        if (typeof x == "number") {
+            return [x]
+        } else if (typeof x == "string") {
+            return x.split(" ").map(($0)=> Number($0) ?? 0);
+        } else {
+            return []
+        }
+    }
+
     static evaluateDateTime(x) {
         return x.toLocaleString("en-US") //TODO as? Date
     }
 
-    static evaluateString(x) { //TODO: maybe we will need some checks
+    static evaluateString(x, defaultValue?) {
         if (x instanceof Date) {//TODO: need normal formatting
             return x.toLocaleString("en-US")
         }
-        return x == null ? "" : String(x);
+        return String(x) ?? defaultValue ?? null;
     }
     
     compare(a, b) {
@@ -143,14 +155,14 @@ export class ExprInterpreter {
                     var otherResult = this.execSingle(expr.rhs, args)
                     return IP.evaluateNumber(result) <= IP.evaluateNumber(otherResult)
                 case ExprOperator.ConditionAND:
-                    var boolLHS = IP.evaluateBoolean(result)
+                    var boolLHS = IP.evaluateBoolean(result) ?? false
                     if (!boolLHS) { return false }
                     else {
                         var otherResult = this.execSingle(expr.rhs, args)
                         return otherResult //this.evaluateBoolean(otherResult)
                     }
                 case ExprOperator.ConditionOR:
-                    var boolLHS = result //this.evaluateBoolean(result)
+                    var boolLHS = result ?? false //this.evaluateBoolean(result)
                     if (IP.evaluateBoolean(boolLHS)) { return boolLHS }
                     else {
                         var otherResult = this.execSingle(expr.rhs, args)
@@ -173,7 +185,7 @@ export class ExprInterpreter {
             }
         }
         else if (expr?.constructor?.name == "ExprConditionNode") {
-            if (IP.evaluateBoolean(this.execSingle(expr.condition, args))) {
+            if (IP.evaluateBoolean(this.execSingle(expr.condition, args)) ?? false) {
                 return this.execSingle(expr.trueExp, args)
             }
             else {
@@ -189,7 +201,7 @@ export class ExprInterpreter {
         }
         else if (expr?.constructor?.name == "ExprNegationNode") {
             let result = this.execSingle(expr.exp, args)
-            return !IP.evaluateBoolean(result)
+            return !(IP.evaluateBoolean(result) ?? true)
         }
         else if (expr?.constructor?.name == "ExprNumberNode") { return expr.value }
         else if (expr?.constructor?.name == "ExprStringNode") { return expr.value }

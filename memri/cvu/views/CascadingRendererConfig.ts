@@ -2,7 +2,7 @@
 // Renderers.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {MemriDictionary} from "../../../router";
+import {MemriDictionary, ViewArguments} from "../../../router";
 import {UIElement, UIElementFamily} from "../../../router";
 import {Cascadable} from "../../../router";
 import {Item, UUID} from "../../../router";
@@ -11,10 +11,10 @@ import {Color} from "../../../router";
 
 export class RenderGroup {
     options: MemriDictionary
-    body: UIElement
+    body: UINode
 
     constructor(dict: MemriDictionary) {
-        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
+        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UINode") this.body = dict["children"][0]
         delete dict["children"]
         this.options = dict
     }
@@ -73,23 +73,13 @@ export class CascadingRendererConfig extends Cascadable {
         return null
     }
 
-    render(item, group =  "*", argumentsJs =  null) {
-
-        let doRender = (renderGroup, item) => {
-            let body = renderGroup.body
-            if (body) {
-                let uiElement = new UIElementView({context: this.host.context, gui: body, dataItem: item, viewArguments: argumentsJs ?? this.viewArguments});
-                return uiElement.render();
-            }
-
-            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
+    render(item, group =  "*", argumentsJs =  new ViewArguments()) {
+        let body = this.getRenderGroup(group)?.body;
+        if (item && body) {
+            let nodeResolver = new UINodeResolver(body, argumentsJs.copy(item))
+            return new UIElementView(nodeResolver)/*.eraseToAnyView()*/
         }
-
-        let renderGroup = this.getRenderGroup(group)
-        if (item && renderGroup) {
-            return doRender(renderGroup, item)
-        }
-        else {
+        else {//TODO:
             return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
         }
     }

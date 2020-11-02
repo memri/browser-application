@@ -20,7 +20,7 @@ IndexerRun {
                 defaultRenderer: timeline
                 
                 [datasource = pod] {
-                    query: "AuditItem appliesTo:{.uid}"
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                     sortProperty: dateCreated
                     sortAscending: true
                 }
@@ -49,7 +49,7 @@ IndexerRun {
                     defaultRenderer: timeline
                     
                      [datasource = pod] {
-                        query: "AuditItem appliesTo:{.uid}"
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
                         sortProperty: dateCreated
                         sortAscending: true
                     }
@@ -87,68 +87,45 @@ IndexerRun {
             dividers: false
             
             HStack {
-                align: center
-                padding: 20 0 20 0
-                show: {{ .indexer.icon or .indexer.bundleImage }}
+                alignment: leading
+                fillWidth: true
+                spacing: 10
+                padding: 20
                 
                 Image {
-                    /** todo, this padding is hacky but necessary now*/
                     padding: 8 0 8 0
-                    align: center
-                    resizable: fill
-                    show: {{.indexer.icon}}
+                    alignment: center
+                    show: {{.indexer.icon or .indexer.bundleImage}}
                     systemName: {{.indexer.icon}}
+                    bundleImage: {{.indexer.bundleImage}}
+                    resizable: true
                     color: #d64f4f
-                    maxWidth: 100
-                    maxHeight: 100
+                    width: 30
+                    height: 30
                 }
                 
-                Image {
-                    align: center
-                    show: {{!.indexer.icon}}
-                    bundleImage: {{.indexer.bundleImage}}
-                    color: #2480d6
-                    resizable: fill
-                    minWidth: 100
-                    minHeight: 100
-                    maxWidth: 100
-                    maxHeight: 100
+                Text {
+                    text: {{.name}}
+                    font: 25 bold
                 }
             }
         }
-
+        
+        
         info {
             showTitle: false
             dividers: false
             
             VStack {
-                Divider
                 EditorRow {
-                    title: "Name"
+                    alignment: left
                     readOnly: true
-                    
-                    Text {
-                        text: {{.name}}
-                    }
-                }
-                EditorRow {
-                    Text {
-                        text: {{.indexer.itemDescription}}
-                        font: 14 regular
-                        color: #555
-                        padding: 8 36 8 0
-                    }
-                    Divider
-                }
-                HStack {
-                    align: left
+                    padding: 0 10
                     background: #f9f9f9
                     
                     Button {
-                        margin: 0 5 10 35
-                        
                         press: runIndexer {
-                            indexer: {{.}}
+                            indexerRun: {{.}}
                         }
                         
                         Text {
@@ -162,6 +139,15 @@ IndexerRun {
                     }
                 }
                 Divider
+                
+                EditorRow {
+                    Text {
+                        text: {{.indexer.itemDescription}}
+                        font: 14 regular
+                        color: #555
+                        padding: 8 36 8 0
+                    }
+                }
             }
         }
     }
@@ -171,7 +157,7 @@ IndexerRun[] {
     name: "all-indexer-instances"
     title: "All IndexerRuns"
     emptyResultText: "There are no IndexerRuns"
-    defaultRenderer: grid
+    defaultRenderer: list
     sortFields: datatype dateModified dateAccessed dateCreated
     
     [datasource = pod] {
@@ -191,10 +177,9 @@ IndexerRun[] {
     editActionButton: toggleEditMode
     filterButtons: showStarred toggleFilterPanel
     
-    [renderer = grid] {
-        VStack {
+    [renderer = list] {
+        HStack {
             alignment: left
-            rowInset: 12 20 -12 20
             
             Text {
                 text: "{.name}"

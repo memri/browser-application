@@ -19,14 +19,11 @@
     
     [renderer = generalEditor] {
         EditorRow {
-            nopadding: true
-            padding: 5 36 5 36
-/*            spacing: 5*/
-            
             HStack {
                 alignment: center
                 
                 MemriButton {
+                    margin: 0 5
                     item: {{.}}
                 }
                 Spacer

@@ -100,9 +100,10 @@ export class Authentication {
 
         let status: OSStatus = SecItemCopyMatching(query, typeRef) //This will prompt the passcode.
 
-        if (status == errSecSuccess) {
-            callback(nil)
-        } else {
+        switch status {
+        case errSecSuccess:
+           callback(nil)
+        default:
             callback("Authentication failed")
         }*/
     }

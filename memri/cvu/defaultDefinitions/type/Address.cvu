@@ -124,6 +124,7 @@ Address {
                     text: "no labels yet"
                 }
                 FlowStack {
+                    spacing: 5
                     list: {{ .label[] }}
                     
                     Button {

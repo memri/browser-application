@@ -13,5 +13,10 @@ Object.assign(String.prototype, {
     },
     titleCase() {
         return this.toString().split(/\s+/).map((el) => el.capitalizingFirst()).join(" ");
+    },
+    // Return nil if string is only whitespace and has no newlines
+    get nilIfBlankOrSingleLine() {
+        let string = this.toString();
+        return /^[\t\v\f ]*$/s.test(string) ? null : string;
     }
 })

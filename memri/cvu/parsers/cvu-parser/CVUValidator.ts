@@ -4,35 +4,156 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-/*
- TODO:
-    - datasource (cascading, etc)
-    - case insensitive fields for definition
-    - include
-    - when looking for an array but there is only one element, wrap it in an array (while cascading)
-        - or when a known field do this during parsing
-    - support for array of actions in a single trigger (e.g. press)
-*/
+import {
+    Action,
+    ActionFamily,
+    ActionProperties, Alignment, Font,
+    HorizontalAlignment, TextAlignment,
+    validateActionType,
+    VerticalAlignment
+} from "../../../../router";
+import {UIElementFamily} from "../../../../router";
 
+export enum UIElementProperties {
+    resizable = "resizable",
+    show = "show",
+    alignment = "alignment",
+    align = "align",
+    textAlign = "textAlign",
+    spacing = "spacing",
+    title = "title",
+    text = "text",
+    image = "image",
+    nopadding = "nopadding",
 
-// TODO REFACTOR: Move to parser
-//    function validate() {
-//        if self.rendererName == "" { throw("Property 'rendererName' is not defined in this view") }
-//
-//        let renderProps = self.renderConfigs.objectSchema.properties
-//        if (renderProps.filter(){ (property) in property.name == self.rendererName }).count == 0 {
-////            throw("Missing renderConfig for \(self.rendererName) in this view")
-//            print("Warn: Missing renderConfig for \(self.rendererName) in this view")
-//        }
-//
-//        if self.datasource.query == "" { throw("No query is defined for this view") }
-//        if (self.actionButton == nil && self.editActionButton == nil) {
-//            print("Warn: Missing action button in this view")
-//        }
-//    }
+    press = "press",
+    bold = "bold",
+    italic = "italic",
+    underline = "underline",
+    strikethrough = "strikethrough",
+    list = "list",
+    viewName = "viewName",
+    view = "view",
+    arguments = "arguments",
+    location = "location",
 
-import {Action, ActionFamily, ActionProperties, validateActionType} from "../../../../router";
-import {UIElementFamily, UIElementProperties, validateUIElementProperties} from "../../../../router";
+    address = "address",
+    systemName = "systemName",
+    cornerRadius = "cornerRadius",
+    hint = "hint",
+    value = "value",
+    datasource = "datasource",
+    defaultValue = "defaultValue",
+    empty = "empty",
+    style = "style",
+
+    frame = "frame",
+    color = "color",
+    font = "font",
+    padding = "padding",
+    background = "background",
+    rowbackground = "rowbackground",
+    cornerborder = "cornerborder",
+    border = "border",
+    margin = "margin",
+
+    shadow = "shadow",
+    offset = "offset",
+    blur = "blur",
+    opacity = "opacity",
+    zindex = "zindex",
+    minWidth = "minWidth",
+    maxWidth = "maxWidth",
+    minHeight = "minHeight",
+    maxHeight = "maxHeight"
+}
+
+export var validateUIElementProperties = function (key, value) {
+    if (value?.constructor?.name == "Expression") {
+        return true
+    }
+
+    let prop = UIElementProperties[key];
+    switch (prop) {
+        case UIElementProperties.resizable:
+        case UIElementProperties.title:
+        case UIElementProperties.text:
+        case UIElementProperties.viewName:
+        case UIElementProperties.systemName:
+        case UIElementProperties.hint:
+        case UIElementProperties.empty:
+        case UIElementProperties.style:
+        case UIElementProperties.defaultValue:
+            return typeof value == "string";
+        case UIElementProperties.show:
+        case UIElementProperties.nopadding:
+        case UIElementProperties.bold:
+        case UIElementProperties.italic:
+        case UIElementProperties.underline:
+        case UIElementProperties.strikethrough:
+            return typeof value == "boolean";
+        case UIElementProperties.alignment:
+            return Object.values(VerticalAlignment).includes(value) || Object.values(HorizontalAlignment).includes(value)
+        case UIElementProperties.align:
+            return Object.values(Alignment).includes(value)
+        case UIElementProperties.textAlign:
+            return Object.values(TextAlignment).includes(value)
+        case UIElementProperties.spacing:
+        case UIElementProperties.cornerRadius:
+        case UIElementProperties.minWidth:
+        case UIElementProperties.maxWidth:
+        case UIElementProperties.minHeight:
+        case UIElementProperties.maxHeight:
+        case UIElementProperties.blur:
+        case UIElementProperties.opacity:
+        case UIElementProperties.zindex:
+            return value?.constructor?.name == "CGFloat" || typeof value == "number";
+        case UIElementProperties.image: return value?.constructor?.name == "File" || typeof value == "string";
+        case UIElementProperties.press: return value?.constructor?.name == "Action" || Array.isArray(value) && value[0]?.constructor?.name == "Action"
+        case UIElementProperties.list: return Array.isArray(value) && value[0]?.constructor?.name == "Item"
+        case UIElementProperties.view: return value?.constructor?.name == "CVUParsedDefinition" || value.constructor.name === "MemriDictionary"
+        case UIElementProperties.arguments: return value.constructor.name === "MemriDictionary"
+        case UIElementProperties.location: return value?.constructor?.name == "Location"
+        case UIElementProperties.address: return value?.constructor?.name == "Address"
+        case UIElementProperties.value: return true
+        case UIElementProperties.datasource: return value?.constructor?.name == "Datasource"
+        case UIElementProperties.color:
+        case UIElementProperties.background:
+        case UIElementProperties.rowbackground:
+            return value?.constructor?.name == "Color"
+        case UIElementProperties.font:
+            if (Array.isArray(value)) {
+                return value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number" || (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
+            } else { return value?.constructor?.name == "CGFloat" || typeof value == "number"}
+        case UIElementProperties.padding:
+        case UIElementProperties.margin:
+            if (Array.isArray(value)) {
+                return (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+                    && (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
+            } else {
+                return value?.constructor?.name == "CGFloat" || typeof value == "number"
+            }
+        case UIElementProperties.border:
+            if (Array.isArray(value)) {
+                return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+            } else { return false }
+        case UIElementProperties.shadow:
+            if (Array.isArray(value)) {
+                return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+                    && (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
+            } else {
+                return false
+            }
+        case UIElementProperties.offset:
+            if (Array.isArray(value)) {
+                return (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+            } else {
+                return false
+            }
+        default:
+            return false
+    }
+}
 
 export class CVUValidator {
     // Based on keyword when its added to the dict
@@ -77,49 +198,20 @@ export class CVUValidator {
     // Check that there are no fields that are not known UIElement properties (warn)
     // Check that they have the right type (error)
     // Error if (required fields are missing (e.g. text for Text, image for Image)
-    validateUIElement(element: UIElement) {
+    validateUIElement(element: UINode) {
         var validate = (prop, key, value) => {
             if (!validateUIElementProperties(key, value)) {
                 this.errors.push(`Invalid property value '${this.valueToTruncatedString(value)}' for '${key}' at element ${element.type}.`)
             }
         }
 
-        for (let [key, value] of Object.entries(element.propertyResolver.properties)) {
+        for (let [key, value] of Object.entries(element.properties)) {
             let prop = UIElementProperties[key]
             if (prop) {
-                if (key == "frame") {
-                    let list = value
-                    if (Array.isArray(list)) {
-                        if (list[0]) { validate(prop, "minWidth", list[0]) }
-                        if (list[1]) { validate(prop, "maxWidth", list[1]) }
-                        if (list[2]) { validate(prop, "minHeight", list[2]) }
-                        if (list[3]) { validate(prop, "maxHeight", list[3]) }
-                        if (list[4]) { validate(prop, "align", list[4]) }
-                        continue
-                    }
-                }
-                else if (key == "cornerborder") {
-                    let list = value
-                    if (Array.isArray(list)) {
-                        validate(prop, "border", [list[0], list[1]])
-                        validate(prop, "cornerRadius", list[2])
-                        continue
-                    }
-                }
-                else {
-                    /*if (Array.isArray(value)) {
-                        value.map(function(el) {
-                            validate(prop, key, el)
-                        });
-                    } else {*/ //TODO:
-                        validate(prop, key, value)
-                    //}
-
-                    continue
-                }
+                validate(prop, key, value)
+            } else {
+                this.warnings.push(`Unknown property '${key}' for element ${element.type}.`)
             }
-
-            this.warnings.push(`Unknown property '${key}' for element ${element.type}.`)
         }
 
         for (let child in element.children) {
@@ -246,7 +338,7 @@ export class CVUValidator {
             let children = definition.parsed && definition.parsed["children"]
             if (Array.isArray(children)) {
                 for (let child in children) {
-                    if (children[child]?.constructor?.name == "UIElement") { this.validateUIElement(children[child]) }
+                    if (children[child]?.constructor?.name == "UINode") { this.validateUIElement(children[child]) }
                     else {
                         this.errors.push(`Expected element definition but found '${this.valueToTruncatedString(children[child])}' in ${definition.selector != null ? definition.selector : ""}`)
                     }

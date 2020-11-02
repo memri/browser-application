@@ -237,7 +237,6 @@ export class Sync {
 
             // Items
             for (var itemType in ItemFamily) {
-                if (itemType == ItemFamily.UserState) { continue }
 
                 let type = getItemType(itemType)?.constructor?.name;
                 if (type) {

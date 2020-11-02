@@ -5,7 +5,7 @@
 //  Created by Ruben Daniels on 3/12/20.
 //  Copyright © 2020 memri. All rights reserved.
 //
-import * as DB from "../install/default_database.json";
+import * as DB from "../install/demo_database.json";
 import {serialize} from "../../router";
 
 import {debugHistory} from "../../router";
@@ -165,21 +165,6 @@ export class CacheMemri {
 		}
 	}
 
-	// TODO: Refactor: don't use async syntax when nothing is async
-	/*query(datasource) {
-		var error
-		var items
-
-		/!*query(datasource) {//TODO
-			error = $0
-			items = $1
-		}*!/
-
-		if (error) { throw error }
-
-		return items ?? []
-	}*/
-
 	///  This function does two things 1) executes a query on the local realm database with given querOptions, and executes callback on the result.
 	///  2) calls the syncer with the same datasource to execute the query on the pod.
 	/// - Parameters:
@@ -208,9 +193,11 @@ export class CacheMemri {
 
 					for (var dtype in ItemFamily) {
 						// NOTE: Allowed forced cast
-						let objects = realm.objects(getItemType(dtype)?.constructor?.name)
+						let type = getItemType(dtype)
+						if (!type) continue;
+						let objects = realm.objects(type?.constructor?.name)
 							.filtered("deleted = false " + (filter ?? "")) //TODO
-						for (var item of objects) { returnValue.push(item) }
+						for (var item of objects) { if (item instanceof Item) returnValue.push(item) }
 					}
 
 					callback && callback(null, returnValue)

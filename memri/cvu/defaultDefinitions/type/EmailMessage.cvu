@@ -11,7 +11,7 @@
 EmailMessage[] {
     title: "All Emails"
     emptyResultText: "There are no emails here yet"
-    defaultRenderer: emailThread
+    defaultRenderer: list
     filterButtons: showStarred toggleFilterPanel
     sortFields: subject dateModified dateAccessed dateCreated
     
@@ -30,26 +30,35 @@ EmailMessage[] {
     editActionButton: toggleEditMode
     
     [renderer = list] {
-        press: openView {
-            view: {
-                [datasource = list] {
-                    list: {{ chain(head.~message).list }}
-                }
-            }
-            viewArguments: {
-                head: {{ chain(.~message).head }}
-            }
-        }
+        press: openView
         
         VStack {
             alignment: left
             spacing: 3
             
             HStack {
-                align: left
+                alignment: left
                 
                 Text {
-                    text: {{.sender.owner.firstName}}
+                    text: {{.sender.owner.fullName()}}
+                    lineLimit: 1
+                    font: 18
+                    color: #666
+                    padding: 0 0 0 0
+                }
+                Spacer
+                Text {
+                    text: "{.dateSent}" /* TODO: Short */
+                    lineLimit: 1
+                    font: 11 regular
+                    color: #888
+                    padding: 0 0 0 0
+                }
+            }
+            HStack {
+                fillWidth: true
+                Text {
+                    text: {{.subject or "[No subject]"}}
                     lineLimit: 1
                     font: 18 semibold
                     color: #333
@@ -63,21 +72,8 @@ EmailMessage[] {
                     show: {{.starred}}
                 }
                 Spacer
-                Text {
-                    text: "{.dateModified.format('time')}" /* TODO: Short */
-                    lineLimit: 1
-                    font: 11 regular
-                    color: #888
-                    padding: 0 0 0 0
-                }
             }
-            Text {
-                text: {{.subject or "[No subject]"}}
-                lineLimit: 1
-                font: 18 regular
-                color: #666
-                padding: 0 0 0 0
-            }
+            
             Text {
                 text: "{.content.plainString}"
                 lineLimit: 2
@@ -90,16 +86,56 @@ EmailMessage[] {
         }
     }
     
-    [renderer = emailThread] {
-        background: #D3E4D1
-        content: {{.content}}
-        
-        EmailHeader {
-            color: #000000
-            title: "{.subject}"
-            subtitle: "{.sender.owner.fullName()}"
-            rightSubtitle: "{.dateSent}"
+}
+
+ EmailMessage {
+    title: {{.subject or "No subject" }}
+    defaultRenderer: custom
+    
+    [renderer = custom] {
+        VStack {
+            HStack {
+                padding: 10 10
+                spacing: 10
+                ZStack {
+                    width: 50
+                    height: 50
+                    Circle {
+                        color: #000000
+                    }
+                    Text {
+                        text: "{.sender.owner.initials()}"
+                        font: 20 bold
+                        color: #FFFFFF
+                    }
+                }
+                VStack {
+                    alignment: leading
+                    spacing: 4
+                    HStack {
+                        Text {
+                            text: "{.subject}"
+                            font: 20
+                        }
+                        Spacer
+                        Text {
+                            text: "{.dateSent}"
+                            color: #666
+                        }
+                    }
+                    HStack {
+                        Text {
+                            text: "{.sender.owner.fullName()}"
+                            color: #666
+                        }
+                        Spacer
+                    }
+                }
+            }
+            Divider
+            HTMLView {
+                content: {{.content}}
+            }
         }
     }
-    
 }

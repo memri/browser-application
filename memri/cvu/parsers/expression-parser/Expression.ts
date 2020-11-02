@@ -155,9 +155,8 @@ export class Expression {
         if (!this.parsed) this.parse()
         let value = this.interpreter?.execute(args)
 
-        if (value == null) { return null}
-        //
-        if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value) }
+        if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value, false) }
+        if (Array.isArray(value) && value[0] && typeof value[0] == "number") { return ExprInterpreter.evaluateNumberArray(value) }
         if (typeof value == "number") { return ExprInterpreter.evaluateNumber(value) }
         if (typeof value == "string") { return ExprInterpreter.evaluateString(value) }
         if (value instanceof Date) { return ExprInterpreter.evaluateDateTime(value) }
