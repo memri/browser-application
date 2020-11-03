@@ -38,7 +38,6 @@ export * from './memri/cvu/parsers/expression-parser/ExprParser';
 export * from './memri/cvu/parsers/expression-parser/Expression';
 export * from './memri/cvu/views/Action';
 export * from './memri/cvu/views/ActionErrors';
-export * from './memri/cvu/views/CVUPropertyResolver';
 export * from './memri/cvu/views/Colors';
 export * from './memri/cvu/views/UIElement';
 export * from './memri/cvu/views/ViewDebugger';

@@ -773,19 +773,19 @@ function getDefaultViewContents() {
 		"CryptoKey": require("text-loader!../defaultDefinitions/type/CryptoKey.cvu"),
 		"EmailMessage": require("text-loader!../defaultDefinitions/type/EmailMessage.cvu"),
 		"Importer": require("text-loader!../defaultDefinitions/type/Importer.cvu"),
-		"ImporterInstance": require("text-loader!../defaultDefinitions/type/ImporterInstance.cvu"),
+		"ImporterRun": require("text-loader!../defaultDefinitions/type/ImporterRun.cvu"),
 		"Indexer": require("text-loader!../defaultDefinitions/type/Indexer.cvu"),
 		"IndexerRun": require("text-loader!../defaultDefinitions/type/IndexerRun.cvu"),
 		"Label": require("text-loader!../defaultDefinitions/type/Label.cvu"),
 		"Location": require("text-loader!../defaultDefinitions/type/Location.cvu"),
 		"Message": require("text-loader!../defaultDefinitions/type/Message.cvu"),
 		"MessageChannel": require("text-loader!../defaultDefinitions/type/MessageChannel.cvu"),
-		//"Mixed": require("text-loader!../defaultDefinitions/type/Mixed.cvu"),
+		"Mixed": require("text-loader!../defaultDefinitions/type/Mixed.cvu"),
 		"Note": require("text-loader!../defaultDefinitions/type/Note.cvu"),
 		"Person": require("text-loader!../defaultDefinitions/type/Person.cvu"),
 		"Photo": require("text-loader!../defaultDefinitions/type/Photo.cvu"),
 		"Session": require("text-loader!../defaultDefinitions/type/Session.cvu"),
-		"SessionView": require("text-loader!../defaultDefinitions/type/SessionView.cvu")
+		"SessionView": require("text-loader!../defaultDefinitions/type/SessionView.cvu"),
 	};
 	let viewContents= [];
 	for (let cvu in defaultsCVU) {

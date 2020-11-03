@@ -11,7 +11,7 @@ import {
     RenderersMemri,
     VStack
 } from "../../swiftUI";
-import {ViewArguments} from "../../../../router";
+import {CVUColor, ViewArguments} from "../../../../router";
 import * as React from "react";
 import {ListItem} from "@material-ui/core";
 import {Color} from "../../../../router";
@@ -51,19 +51,8 @@ export class MessageRendererController {
         return expression?.execForReturnType(args)
     }
 
-    get selectedIndices() {
-        /*Binding<Set<Int>>(
-            get: { [] },
-            set: {
-                self.context.cascadingView?.userState?
-                    .set("selection", $0.compactMap { self.context.items[safe: $0] })
-            }
-        )*/ //TODO:
-        return
-    }
-
     get editMode() {
-        return this.context.currentSession?.editMode ?? false
+        return this.context.editMode
     }
 
     /*func onSelectSingle(_ index: Int) {
@@ -153,7 +142,7 @@ export class MessageRendererView extends RenderersMemri {
         */
         return (
             <HStack spacing={6} padding={padding({vertical: 5})} background={new Color("secondarySystemBackground")}>
-                <MemriFittedTextEditor contentBinding={this.controller.composedMessage} placeholder="Type a message..." backgroundColor={new Color("systemBackground")} isEditing={{/*$isEditingComposedMessage*/}}/>
+                <MemriFittedTextEditor contentBinding={this.controller.composedMessage} placeholder="Type a message..." backgroundColor={CVUColor.system("systemBackground")} isEditing={{/*$isEditingComposedMessage*/}}/>
 
                 <MemriRealButton action={this.onPressSend}>
                     <MemriImage foregroundColor={this.controller.canSend ? "blue" : new Color("systemFill")} font={font({family:"system", size: 20})}>

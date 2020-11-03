@@ -3613,37 +3613,6 @@ export class CryptoKey extends Item {
 }
 
 /// TBD
-export class CVUStateDefinition extends Item {
-    get objectSchema () {
-        return {
-            name: 'CVUStateDefinition',
-            primaryKey: 'uid',
-            properties: {
-                _updated: 'string[]',
-                _partial: 'bool',
-                _action: 'string',
-                _changedInSession: 'bool',
-                dateAccessed: 'date',
-                dateCreated: 'date',
-                dateModified: 'date',
-                deleted: 'bool',
-                externalId: 'string',
-                itemDescription: 'string',
-                starred: 'bool',
-                version: 'int',
-                uid: 'int',
-                importJson: 'string',
-                allEdges: 'Edge[]',
-            }
-        }
-    }
-
-    constructor(decoder) {
-        super(decoder)
-    }
-}
-
-/// TBD
 export class CVUStoredDefinition extends Item {
     /// The definition of an Item.
     definition
@@ -6702,60 +6671,6 @@ Object.defineProperty(Indexer.prototype, "computedTitle",{
 });*/
 
 /// TBD
-export class CVUStoredDefinition extends Item {
-    get computedTitle() {
-        //#warning("Parse and then create a proper string representation")
-        if (this.name && this.name != "") { return this.name }
-        return "[No Name]"
-    }
-    definition?: string;
-    /// TBD
-    domain?: string
-    /// The name of the item.
-    name?: string
-    /// TBD
-    query?: string
-    /// TBD
-    selector?: string
-    /// TBD
-    type?: string
-
-    get objectSchema () {
-        return {
-            name: 'CVUStoredDefinition',
-            primaryKey: 'uid',
-            properties: {
-                _updated: 'string[]',
-                _partial: 'bool',
-                _action: 'string',
-                _changedInSession: 'bool',
-                dateAccessed: 'date',
-                dateCreated: 'date',
-                dateModified: 'date',
-                deleted: 'bool',
-                externalId: 'string',
-                itemDescription: 'string',
-                starred: 'bool',
-                version: 'int',
-                uid: 'int',
-                importJson: 'string',
-                allEdges: 'Edge[]',
-                definition: 'string',
-                domain: 'string',
-                name: 'string',
-                query: 'string',
-                selector: 'string',
-                itemType: 'string',
-            }
-        }
-    }
-
-    constructor(decoder?) {
-        super(decoder);
-    }
-}
-
-/// TBD
 export class CVUStateDefinition extends CVUStoredDefinition {
     static fromCVUStoredDefinition(stored: CVUStoredDefinition) {
         return CacheMemri.createItem("CVUStateDefinition", {
@@ -6799,12 +6714,6 @@ export class CVUStateDefinition extends CVUStoredDefinition {
                 uid: 'int',
                 importJson: 'string',
                 allEdges: 'Edge[]',
-                definition: 'string',
-                domain: 'string',
-                name: 'string',
-                query: 'string',
-                selector: 'string',
-                itemType: 'string',
             }
         }
     }

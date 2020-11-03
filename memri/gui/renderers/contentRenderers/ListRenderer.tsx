@@ -63,15 +63,8 @@ export class ListRendererController {
 		return this.config.render(item)
 	}
 
-	get selectedIndices() {
-		/*Binding<Set<Int>>(
-			get: { [] },
-			set: {
-				self.context.cascadingView?.userState?
-					.set("selection", $0.compactMap { self.context.items[safe: $0] })
-			}
-		)*/ //TODO:
-		return
+	get isEditing(): boolean {
+		return this.context.editMode
 	}
 
 	get hasItems() {
@@ -128,6 +121,18 @@ export class ListRendererView extends RenderersMemri {
 				</VStack>
 			</div>
 		)
+	}
+
+	get selectionMode() {
+		if (this.controller.isEditing) {
+			return /*.selectMultiple(controller.context.selectedIndicesBinding)*/ //TODO:
+		} else {
+			return /*.selectSingle { index in
+		if let press = self.controller.config.press {
+			self.controller.context.executeAction(press, with: self.controller.context.items[safe: index])
+		}
+	}*/ //TODO:
+		}
 	}
 
 	/*func contextMenuProvider(index: Int, item: Item) -> UIContextMenuConfiguration? {

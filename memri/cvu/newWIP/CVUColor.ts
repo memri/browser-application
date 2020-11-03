@@ -43,4 +43,33 @@ export class Color {
         return this.value.toLowerCase();
     }
 
+    static system(value) {
+        switch (value) {
+            case "secondaryLabel":
+                return "#3c3c4399";
+            case "label":
+                return "#000000"
+            case "systemFill":
+                return "#7878805bb"
+            case "secondarySystemBackground":
+                return "#f2f2f7ff";
+            case "secondarySystemGroupedBackground":
+            case "systemBackground":
+            case "white":
+                return "#ffffff";
+            case "black":
+                return "#000000";
+        }
+    }
+
+    static hex(value) {
+        if (value.charAt(0) == "#") {//"#f2f2f7f"
+           return value;
+        } else {
+            return  "#" + value;
+        }
+    }
+
 }
+
+export var CVUColor = Color;

@@ -38,7 +38,7 @@ export class DefaultGeneralEditorRow extends MainUI {
         return (
             <VStack spacing={0}>
                 {(propValue != undefined || !this.readOnly) &&
-                <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10, horizontal: 36})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
+                <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
                     <MemriText>
                         <GeneralEditorLabel>
                             {this.prop
@@ -51,7 +51,7 @@ export class DefaultGeneralEditorRow extends MainUI {
                     {this.renderConfig.hasGroup(this.prop) ?
                         this.renderConfig.render(this.item, this.prop, this.argumentsJs) :
                         (this.readOnly) ?
-                            (typeof propValue != "object") ?
+                            (typeof propValue == "object") ?
                                 this.defaultRow(ExprInterpreter.evaluateString(propValue)) :
                                 (typeof propValue == "object") ?
                                     (propValue instanceof Item) ?
@@ -60,11 +60,11 @@ export class DefaultGeneralEditorRow extends MainUI {
                                         </MemriButton> :
                                         this.defaultRow() :
                                     this.defaultRow() :
-                            (typeof propValue != "string") ?
+                            (typeof propValue == "string") ?
                                 this.stringRow() :
-                                (typeof propValue != "boolean") ?
+                                (typeof propValue == "boolean") ?
                                     this.boolRow() :
-                                    (typeof propValue != "number") ?
+                                    (typeof propValue == "number") ?
                                         this.intRow() :
                                         this.defaultRow()
                     }
@@ -77,11 +77,10 @@ export class DefaultGeneralEditorRow extends MainUI {
     }
 
     stringRow()  {
-        return <GeneralEditorCaption><MemriTextField value={this.item.getString(this.prop)} onChange={(el)=>this.item.set(this.prop, el)}/></GeneralEditorCaption>
-        /*.onEditingBegan {
-            self.context.currentSession?.editMode = true
-        }
-        .generalEditorCaption()*/
+        return <GeneralEditorCaption><MemriTextField value={this.item.getString(this.prop) ?? ""}
+                                                     onChange={(el) => this.item.set(this.prop, el)}
+                                                     clearButtonMode={"whileEditing"} isEditing={this.context.editMode}
+                                                     isSharedEditingBinding={true}/></GeneralEditorCaption>
     }
 
     boolRow() {
@@ -93,40 +92,23 @@ export class DefaultGeneralEditorRow extends MainUI {
                         //this.context.objectWillChange.send()
                     } catch {
                     }
-                }}/>
+                }} toggleStyle={"MemriToggleStyle"}/>
                 <MemriText>
                     <GeneralEditorCaption>
-                        {this.prop}
+                        {this.prop.camelCaseToWords()
+                            .toLowerCase()
+                            .capitalizingFirst()}
                     </GeneralEditorCaption>
                 </MemriText>
             </>
         )
-
-        /*Toggle(isOn: binding) {
-            Text(prop
-                .camelCaseToWords()
-                .toLowerCase()
-                .capitalizingFirst())
-        }
-        .toggleStyle(MemriToggleStyle())
-        .generalEditorCaption()*/
     }
 
-    intRow()  {
-        /*let binding = Binding<Int>(
-            get: { self.item[self.prop] as? Int ?? 0 },
-            set: {
-                self.item.set(self.prop, $0)
-                self.context.objectWillChange.send()
-            }
-        )*/
-
-        return <GeneralEditorCaption><MemriTextField value={this.item[this.prop]} onChange={(el)=>this.item.set(this.prop, el)}/></GeneralEditorCaption>
-        /*MemriTextField(value: binding)
-            .onEditingBegan {
-                self.context.currentSession?.editMode = true
-            }
-            */
+    intRow() {
+        return <GeneralEditorCaption><MemriTextField value={this.item[this.prop]}
+                                                     onChange={(el) => this.item.set(this.prop, el)}
+                                                     clearButtonMode={"whileEditing"} isEditing={this.context.editMode}
+                                                     isSharedEditingBinding={true}/></GeneralEditorCaption>
     }
 
     /*func doubleRow() -> some View {
@@ -177,7 +159,7 @@ export class GeneralEditorInput extends MainUI {
                     {this.props.children}
                 </div>
             </GeneralEditorCaption>
-        );//.border(width: [0, 0, 1, 1], color: Color(hex: "#eee"))
+        );
     }
 }
 
@@ -214,7 +196,7 @@ export class GeneralEditorHeader extends MainUI {
         let styles = {
             color: "#333",
         }
-        Object.assign(styles, font({family: "system", size: 15, weight: Font.Weight.regular}), padding({bottom: 5,top: 24, horizontal: 36}));
+        Object.assign(styles, font({family: "system", size: 15, weight: Font.Weight.regular}), padding({bottom: 5,top: 24}));
         return (
             <div className={"GeneralEditorHeader"} style={styles}>
                 {this.props.children}

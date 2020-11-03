@@ -46,17 +46,6 @@ export class GridRendererController {
         return this.config.render(item)
     }
 
-    get selectedIndices() {
-        /*Binding<Set<Int>>(
-            get: { [] },
-            set: {
-                self.context.cascadingView?.userState?
-                    .set("selection", $0.compactMap { self.context.items[safe: $0] })
-            }
-        )*/ //TODO:
-        return
-    }
-
     get hasItems() {
         return this.context.items.length != 0
     }
@@ -66,7 +55,7 @@ export class GridRendererController {
     }
 
     get isEditing() {
-        return this.context.currentSession?.editMode ?? false
+        return this.context.editMode
     }
 
 /*
@@ -100,16 +89,34 @@ export class GridRendererConfig extends CascadingRendererConfig {
     set press(value) { this.setState("press", value) }
 
     get columns() { return this.cascadeProperty("columns") ?? 3 }
-    set columns(value) { this.setState("columns", value) }
+
+    set columns(value) {
+        this.setState("columns", value)
+    }
+
+    get scrollDirection() {
+        switch (this.cascadeProperty("scrollDirection")) {
+            case "horizontal":
+                return "horizontal"
+            case "vertical":
+                return "vertical"
+            default:
+                return "vertical"
+        }
+    }
 
 }
 
 export class GridRendererView extends RenderersMemri {
     controller: GridRendererController
 
+    get scrollDirection() {
+        return this.controller.config.scrollDirection;
+    }
+
     /*get layout() {
         return (
-            <ASCollectionLayout scrollDirection={"vertical"} interSectionSpacing={0}>
+            <ASCollectionLayout scrollDirection={scrollDirection} interSectionSpacing={0}>
 
             </ASCollectionLayout>
         )
@@ -177,6 +184,14 @@ export class GridRendererView extends RenderersMemri {
          */
     }
 
+    get selectionMode() {
+        if (this.controller.isEditing) {
+            return //.selectMultiple(controller.context.selectedIndicesBinding)
+        } else {
+            return //.selectSingle(controller.onSelectSingleItem)
+        }
+    }
+
     render() {
         this.context = this.props.context;
         this.controller = this.props.controller;
@@ -185,7 +200,7 @@ export class GridRendererView extends RenderersMemri {
             <VStack>
                 {this.controller.hasItems
                     ?
-                    <ASCollectionView editMode={this.controller.isEditing} alwaysBounceVertical={true}
+                    <ASCollectionView editMode={this.controller.isEditing} alwaysBounceVertical={this.scrollDirection == "vertical"} alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
                                       background={this.controller.config.backgroundColor?.color ?? new Color("systemBackground")}>
                         {this.section}
 

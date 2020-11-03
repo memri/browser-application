@@ -2,12 +2,11 @@
 // Renderers.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {MemriDictionary, ViewArguments} from "../../../router";
+import {CVUColor, MemriDictionary, ViewArguments} from "../../../router";
 import {UIElement, UIElementFamily} from "../../../router";
 import {Cascadable} from "../../../router";
 import {Item, UUID} from "../../../router";
 import {UIElementView} from "../../gui/common/UIElementView";
-import {Color} from "../../../router";
 
 export class RenderGroup {
     options: MemriDictionary
@@ -87,8 +86,8 @@ export class CascadingRendererConfig extends Cascadable {
 
 //CommonRendererConfig.swift
 Object.defineProperty(CascadingRendererConfig.prototype, "primaryColor", {
-    get(): ColorDefinition {
-        return this.cascadeProperty("color") ?? new Color("systemBlue")
+    get(): CVUColor {
+        return this.cascadeProperty("color") ?? CVUColor.system("systemBlue")
     },
     set(value) {
         this.setState("color", value)

@@ -19,7 +19,7 @@ import {
     MemriAlert, SecureField, Form
 } from "../gui/swiftUI";
 import * as React from "react";
-import {Alignment, Font} from "../cvu/parsers/cvu-parser/CVUParser";
+import {Alignment, Font} from "../../router";
 import {MemriContext} from "../../router";
 import {debugHistory} from "../../router";
 

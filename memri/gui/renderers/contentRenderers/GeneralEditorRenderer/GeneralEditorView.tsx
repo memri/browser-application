@@ -79,7 +79,7 @@ export class GeneralEditorRendererConfig extends CascadingRendererConfig {
             }
         )
             .map((dict) => {
-                return new GeneralEditorLayoutItem(dict, this.viewArguments)
+                return new GeneralEditorLayoutItem(dict["section"] ?? "", dict, this.viewArguments)
             })
     }
 
@@ -93,7 +93,7 @@ export class GeneralEditorRendererConfig extends CascadingRendererConfig {
 }
 
 export class GeneralEditorLayoutItem {
-    id = UUID()
+    id;
     dict: MemriDictionary
     viewArguments
 
@@ -110,7 +110,7 @@ export class GeneralEditorLayoutItem {
         let propValue = this.dict[propName]
         if (!propValue) {
             if (propName == "section") {
-                console.log("ERROR")
+                console.log("ERROR: tri")
             }
 
             return
@@ -156,29 +156,31 @@ export class GeneralEditorRendererView extends RenderersMemri {
 
     name = "generalEditor"
 
+    get stackContent() {
+        let item = this.getItem()
+        let layout = this.controller.config.layout
+        let usedFields = this.getUsedFields(layout)
+
+        if (layout.length > 0) {
+            return layout.map((layoutSection) => {
+                return (
+                    <GeneralEditorSection context={this.context} item={item} renderConfig={this.controller.config}
+                                          layoutSection={layoutSection} usedFields={usedFields}>
+
+                    </GeneralEditorSection>
+                )
+            })
+        }
+    }
+
     render(){
         this.context = this.props.context;
         this.controller = this.props.controller;
-        let item = this.getItem()
-        let layout = this.controller.config.layout
-        let renderConfig = this.controller.config
-        let usedFields = this.getUsedFields(layout)
 
         return (
-            <ScrollView>
-                <VStack alignment={Alignment.leading} spacing={0}
-                        frame={frame({maxWidth: ".infinity", maxHeight: ".infinity"})}>
-                    { layout.length > 0 &&
-                        layout.map((layoutSection) => {
-                            return (
-                                <GeneralEditorSection context={this.context} item={item} renderConfig={renderConfig}
-                                                      layoutSection={layoutSection} usedFields={usedFields}>
-
-                                </GeneralEditorSection>
-                            )
-                        })
-
-                    }
+            <ScrollView vertical>
+                <VStack alignment={Alignment.leading} spacing={0}>
+                    {this.stackContent}
                 </VStack>
             </ScrollView>
         )
@@ -227,7 +229,7 @@ export class GeneralEditorSection extends MainUI {
         this.usedFields = this.props.usedFields;
 
         let renderConfig = this.renderConfig
-        let editMode = this.context.currentSession?.editMode ?? false
+        let editMode = this.context.editMode
         let fields = (this.layoutSection.get("fields", "String") == "*"
             ? this.getProperties(this.item, this.usedFields)
             : this.layoutSection.get("fields", "[String]")) ?? []
@@ -320,7 +322,7 @@ export class GeneralEditorSection extends MainUI {
                     fields.map((field) => {
                         return (
                             <DefaultGeneralEditorRow context={this.context} item={this.item} prop={field}
-                                                     readOnly={!editMode || readOnly} isLast={fields.last == field}
+                                                     readOnly={readOnly} isLast={fields.last == field}
                                                      renderConfig={renderConfig} argumentsJs=
                                                          {this._args("", field, this.item.get(field), this.item)}>
 
@@ -377,7 +379,7 @@ export class GeneralEditorSection extends MainUI {
         return new ViewArguments(
             new MemriDictionary({
                 "subject": item,
-                "readOnly": !(this.context.currentSession?.editMode ?? false),
+                "readOnly": !(this.context.editMode),
                 "title": groupKey.camelCaseToWords().toUpperCase(),
                 "displayName": name.camelCaseToWords().capitalizingFirst(),
                 "name": name,
@@ -392,7 +394,7 @@ export class GeneralEditorSection extends MainUI {
         return new ActionOpenViewByName(
             this.context,
             {
-                "name": "choose-item-by-query",
+                "viewName": "choose-item-by-query",
                 "viewArguments": new ViewArguments({
                     "query": itemType,
                     "type": edgeType,
