@@ -16,7 +16,6 @@ export * from './memri/sessions/Sessions';
 export * from './memri/model/MainNavigation';
 export * from './memri/api/IndexerAPI';
 export * from './memri/api/PodAPI';
-
 export * from './memri/context/MemriContext';
 //export * from './playground/mockApi';
 export * from './memri/cvu/views/Cascadable';
@@ -27,46 +26,27 @@ export * from './memri/cvu/views/CascadableView';
 export * from './memri/cvu/views/CascadingRendererConfig';
 export * from './memri/cvu/parsers/cvu-parser/CVU';
 export * from './memri/cvu/parsers/cvu-parser/CVULexer';
-
 export * from './memri/cvu/parsers/cvu-parser/CVUParseErrors';
-
 export * from './memri/cvu/parsers/cvu-parser/CVUParsedDefinition';
-
 export * from './memri/cvu/parsers/cvu-parser/CVUParser';
-
 export * from './memri/cvu/parsers/cvu-parser/CVUToString';
-
 export * from './memri/cvu/parsers/cvu-parser/CVUValidator';
-
 export * from './memri/cvu/parsers/expression-parser/ExprInterpreter';
-
 export * from './memri/cvu/parsers/expression-parser/ExprLexer';
-
 export * from './memri/cvu/parsers/expression-parser/ExprNodes';
-
 export * from './memri/cvu/parsers/expression-parser/ExprParser';
-
 export * from './memri/cvu/parsers/expression-parser/Expression';
-
 export * from './memri/cvu/views/Action';
-
 export * from './memri/cvu/views/ActionErrors';
-
 export * from './memri/cvu/views/CVUPropertyResolver';
-
 export * from './memri/cvu/views/Colors';
-
 export * from './memri/cvu/views/UIElement';
-
 export * from './memri/cvu/views/ViewDebugger';
-
 export * from './memri/gui/renderers/Renderers';
-
 export * from './memri/gui/util';
-
 export * from './memri/model/InMemoryObjectCache';
-
 export * from './memri/model/MemriDictionary';
-
 export * from './memri/model/ResultSet';
-
+export * from './memri/cvu/newWIP/CVUColor';
+export * from './memri/cvu/newWIP/CVUFont';
+export * from './memri/cvu/newWIP/CVU_Image';

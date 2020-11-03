@@ -34,6 +34,16 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     styles;
     context: MemriContext;
 
+    readSize(onChange) { //TODO:
+        /*background(
+            GeometryReader { geometryProxy in
+        Color.clear
+            .preference(key: SizePreferenceKey.self, value: geometryProxy.size)
+        }
+    )
+    .onPreferenceChange(SizePreferenceKey.self, perform: onChange)*/
+    }
+
     setProperties(properties, _: Item, __: MemriContext, viewArguments: ViewArguments) {
         let ViewPropertyOrder = [
             "style",
@@ -632,6 +642,18 @@ export class UIImage extends MainUI {
         Object.assign(style, {maxWidth: "100%", maxHeight: "100%"})
         return (
             <img style={style} className="UIImage" {...other}/>
+        )
+    }
+}
+
+export class MemriImageView extends MainUI {
+    render() {
+        //TODO: fitContent
+        let {font, padding, foregroundColor, spacing, frame, zIndex, image, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {maxWidth: "100%", maxHeight: "100%"})
+        return (
+            <img src={image} style={style} className="MemriImageView" {...other}/>
         )
     }
 }
