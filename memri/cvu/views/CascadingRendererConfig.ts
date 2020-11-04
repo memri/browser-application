@@ -2,8 +2,8 @@
 // Renderers.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {CVUColor, MemriDictionary, ViewArguments} from "../../../router";
-import {UIElement, UIElementFamily} from "../../../router";
+import {CVUColor, MemriDictionary, UINodeResolver, ViewArguments} from "../../../router";
+import {UINode, UIElementFamily} from "../../../router";
 import {Cascadable} from "../../../router";
 import {Item, UUID} from "../../../router";
 import {UIElementView} from "../../gui/common/UIElementView";
@@ -79,7 +79,7 @@ export class CascadingRendererConfig extends Cascadable {
             return new UIElementView(nodeResolver)/*.eraseToAnyView()*/
         }
         else {//TODO:
-            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
+            return new UIElementView({context: this.host.context, gui: new UINode(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
         }
     }
 }

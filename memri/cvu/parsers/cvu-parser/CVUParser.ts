@@ -20,7 +20,7 @@ import {
 
 } from "./CVUParsedDefinition"
 import {ActionFamily, getActionType} from "../../../../router";
-import {UIElement, UIElementFamily} from "../../../../router";
+import {UINode, UIElementFamily} from "../../../../router";
 import {MemriDictionary} from "../../../../router";
 
 export class CVUParser {

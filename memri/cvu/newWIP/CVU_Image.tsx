@@ -2,9 +2,9 @@ import {MainUI, MemriImage, MemriImageView} from "../../gui/swiftUI";
 import * as React from "react";
 import {Color} from "./CVUColor";
 
-enum CVU_SizingMode {
-    fill,
-    fit
+export enum CVU_SizingMode {
+    fill = "fill",
+    fit = "fit"
 }
 
 export class CVU_Image extends MainUI {
