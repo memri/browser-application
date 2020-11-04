@@ -16,6 +16,7 @@ export class Color {
                 break;
             case "secondarySystemGroupedBackground":
             case "systemBackground":
+            case "clear":
             case "white":
                 this.value = "#ffffff";
                 break;

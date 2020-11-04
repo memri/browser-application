@@ -95,9 +95,9 @@ export class UIElementView extends MainUI {
             case UIElementFamily.HorizontalLine:
                 return <HorizontalLine/>
             case UIElementFamily.Circle:
-                return <CVU_Shape.Circle nodeResolver={this.nodeResolver}/>
+                return <CVU_ShapeCircle nodeResolver={this.nodeResolver}/>
             case UIElementFamily.Rectangle:
-                return <CVU_Shape.Rectangle nodeResolver={this.nodeResolver}/>
+                return <CVU_ShapeRectangle nodeResolver={this.nodeResolver}/>
             case UIElementFamily.HTMLView:
                 return <CVU_HTMLView nodeResolver={this.nodeResolver}/>
             case UIElementFamily.Spacer:
