@@ -185,12 +185,12 @@ class Navigation extends MainUI {
 								accentColor="white" background="#341e51" cornerRadius={5}
 								onChange={(e) => this.context.navigation.filterText = e.target.value}
 				/>
-				<MemriRealButton>
+				{/*<MemriRealButton>
 					{<MemriImage font={font({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9">create</MemriImage>}
 				</MemriRealButton>
 				<MemriRealButton>
 					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>add</MemriImage>}
-				</MemriRealButton>
+				</MemriRealButton>*/}
 			</HStack>
 			<ASTableView separatorsEnabled={false} contentInsets={contentInsets({top: 10, left: 0, bottom: 0, right: 0})}>
 				{this.getNavigationItems()}

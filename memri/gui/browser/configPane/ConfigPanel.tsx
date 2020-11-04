@@ -42,7 +42,7 @@ export class ConfigPanel extends MainUI {
             >
                 {configItems.length === 0
                     ? this.noConfigItem
-                    : <MemriList navigationBarTitle="Config" navigationBarHidden={true}
+                    : <MemriList listStyle={"PlainListStyle"} navigationBarTitle="Config" navigationBarHidden={true}
                         // .navigationBarTitle(Text("Config"), displayMode: .inline)
                         // .navigationBarHidden(keyboard.keyboardVisible)
                     >
@@ -209,7 +209,7 @@ export class ConfigPanelSelectionView extends MainUI {
 		let options = this.getRelevantFields()
         let currentSelection = this.currentSelection
 
-        return <MemriList navigationBarTitle={this.configItem.displayName} /*displayMode: .inline*/>
+        return <MemriList listStyle={"PlainListStyle"} navigationBarTitle={this.configItem.displayName} /*displayMode: .inline*/>
             {options.map((option) => <MemriRealButton action={() => this.onSelect(option)}>
                 <MemriText bold={option.propertyName == currentSelection/*TODO*/}>{option.displayName}
                 </MemriText>

@@ -71,17 +71,19 @@ export class Browser extends MainUI {
 										</MemriText>
 									}
 
-									<ContextualBottomBar context={this.context}/>
+									{this.currentView.showBottomBar && <>
+										<ContextualBottomBar context={this.context}/>
 
-									{!currentView.fullscreen &&
+										{!currentView.fullscreen &&
 										<BottomBarView onSearchPressed={() => {
 											this.isSearchActive = true;
 											this.context.scheduleCascadableViewUpdate();
 										}} context={this.context} zIndex={8}/>
-									}
+										}
+									</>}
 								</VStack>
 
-								{this.showFilterPanel &&
+								{this.showFilterPanel && this.currentView.showBottomBar &&
 									<ColorArea color={"black"}
 											   opacity={0.15}
 											   click={() => {this.showFilterPanel = false; this.context.scheduleCascadableViewUpdate();}}

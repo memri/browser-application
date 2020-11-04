@@ -6,7 +6,7 @@ import {CVUColor, MemriDictionary, UINodeResolver, ViewArguments} from "../../..
 import {UINode, UIElementFamily} from "../../../router";
 import {Cascadable} from "../../../router";
 import {Item, UUID} from "../../../router";
-import {UIElementView} from "../../gui/common/UIElementView";
+import {UIElementView} from "../../gui/cvuComponents/UIElementView";
 
 export class RenderGroup {
     options: MemriDictionary

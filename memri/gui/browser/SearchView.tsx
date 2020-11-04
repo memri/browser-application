@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import {Color} from "../../../router";
-import {font, HStack, MainUI, MemriDivider, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
+import {font, HStack, MainUI, MemriDivider, MemriImage, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
 
 export class SearchView extends MainUI{
 	isActive//TODO
@@ -25,8 +25,12 @@ export class SearchView extends MainUI{
 			>
 				<MemriDivider/>
 				<HStack padding={padding({horizontal: 15, vertical: 6})}>
+					<MemriImage foregroundColor={new Color("systemFill").toLowerCase()}>
+						search
+					</MemriImage>
 					<MemriTextField value={this.context.currentView?.filterText ?? ""}
 									placeholder={this.context.currentView?.searchHint ?? ""}
+									clearButtonMode={"always"}
 									showPrevNextButtons={false}
 									layoutPriority={-1}
 									onChange={(e) => this.context.currentView.filterText = e.target.value}

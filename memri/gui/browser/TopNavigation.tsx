@@ -43,8 +43,8 @@ export class TopNavigation extends MainUI {
 
 	init() {
 		this.context = this.props.context;
-		this.inSubView = this.props.inSubView;
-		this.showCloseButton = this.props.showCloseButton;
+		this.inSubView = this.props.inSubView ?? false;
+		this.showCloseButton = this.props.showCloseButton ?? false;
 	}
 
 	forward() {
@@ -118,13 +118,12 @@ export class TopNavigation extends MainUI {
 
 		return (
 			<div className="TopNavigation">
-			<VStack alignment={"leading"}
-					spacing={0}
+			<VStack spacing={0}
 					padding={padding({bottom: 0})}
 					centeredOverlayWithinBoundsPreferenceKey>
-				<HStack alignment={Alignment.top} spacing={10}
-						padding={padding({top: 15, bottom: 10, leading: 15, trailing: 15})}
-						frame={frame({height: 50, alignment: Alignment.top})}
+				<HStack alignment={Alignment.center} spacing={10}
+						padding={padding({vertical: 12, horizontal: 15})}
+						frame={frame({height: 50})}
 				>
 					{(!this.inSubView) ?
 						<ActionButton action={new ActionShowNavigation(this.context)}

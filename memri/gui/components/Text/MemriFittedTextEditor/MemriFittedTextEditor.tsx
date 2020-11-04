@@ -94,7 +94,7 @@ export class MemriFittedTextEditor_Inner extends MainUI {
         MemriFittedTextEditorWrapper_UIKit(
             MemriFittedTextEditor_UIKit(textContent: textContent,
                                   fontSize: fontSize,
-                                  backgroundColor: ColorDefinition.system(.clear))
+                                  backgroundColor: CVUColor.system(.clear))
         )
     }
     
