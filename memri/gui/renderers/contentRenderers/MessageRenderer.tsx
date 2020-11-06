@@ -118,7 +118,7 @@ export class MessageRendererView extends RenderersMemri {
         return (
             <VStack spacing={0}>
                 <ASTableView editMode={this.controller.editMode} separatorsEnabled={false} alwaysBounce
-                             background={this.controller.config.backgroundColor?.color ?? new Color("systemBackground")}>
+                             background={this.controller.config.backgroundColor ?? new Color("systemBackground")}>
                     {this.section}
                 </ASTableView>
                 <MemriDivider/>

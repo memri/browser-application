@@ -13,7 +13,12 @@ export class CVUFont {
     }
 
     get font(): Font {
-        return "Arial" //TODO: Font(this.uiFont)
+        return {
+            family: this.name,
+            size: this.size,
+            weight: this.weight ?? Font.Weight.regular,
+            italic: this.italic
+        }
     }
 
     /*get uiFont(): UIFont {

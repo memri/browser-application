@@ -6,35 +6,49 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import SwiftUI
+import {Color} from "../../cvu/newWIP/CVUColor";
+import {font, frame, offset, padding} from "../swiftUI";
 
-struct CVU_AppearanceModifier: ViewModifier {
-    var nodeResolver: UINodeResolver
+export class CVU_AppearanceModifier {
+    nodeResolver: UINodeResolver
    
-    var shape: some InsettableShape {
+    /*var shape: some InsettableShape {
         RoundedRectangle(cornerRadius: nodeResolver.cornerRadius)
+    }*/
+
+    constructor(nodeResolver) {
+        this.nodeResolver = nodeResolver;
+
+        return this.body(nodeResolver);
     }
-    
-    func body(content: Content) -> some View {
-        content
-            .frame(minWidth: nodeResolver.minWidth, maxWidth: nodeResolver.maxWidth, minHeight: nodeResolver.minHeight, maxHeight: nodeResolver.maxHeight)
-            .foregroundColor(nodeResolver.color()?.color)
-            .font(nodeResolver.font().font)
-            .multilineTextAlignment(nodeResolver.textAlignment())
-            .lineLimit(nodeResolver.lineLimit)
-            .padding(nodeResolver.padding)
+
+    body(nodeResolver) {
+        return {
+            frame: frame({
+                minWidth: nodeResolver.minWidth,
+                maxWidth: nodeResolver.maxWidth,
+                minHeight: nodeResolver.minHeight,
+                maxHeight: nodeResolver.maxHeight
+            }),
+            foregroundColor: nodeResolver.color(),
+            font: font(nodeResolver.font()),
+            multilineTextAlignment: nodeResolver.textAlignment(),
+            lineLimit: nodeResolver.lineLimit,
+            padding: padding(nodeResolver.padding ?? nodeResolver.margin),
+            cornerRadius: nodeResolver.cornerRadius,
+            background: nodeResolver.backgroundColor?.color ?? new Color("clear"),
+            offset: offset(nodeResolver.offset),
+            opacity: nodeResolver.opacity,
+            zIndex: nodeResolver.zIndex
+        }
+        /*
             .if(nodeResolver.cornerRadius > 0) { $0.clipShape(shape) }
             .background(
                 shape
-                    .fill(nodeResolver.backgroundColor?.color ?? .clear)
                     .ifLet(nodeResolver.shadow) { $0.shadow(radius: $1) })
             .overlay(
                 shape
                     .strokeBorder(nodeResolver.borderColor?.color ?? .clear)
-            )
-            .offset(nodeResolver.offset)
-            .opacity(nodeResolver.opacity)
-            .padding(nodeResolver.margin)
-            .ifLet(nodeResolver.zIndex) { $0.zIndex($1) }
+            )*/
     }
 }

@@ -6,22 +6,17 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {EmptyView, MainUI, Toggle} from "../swiftUI";
+import {CVU_UI, EmptyView, MainUI, Toggle} from "../swiftUI";
 import * as React from "react";
-import {UINodeResolver} from "./UIElement";
 
-export class CVU_Toggle extends MainUI {
-    nodeResolver: UINodeResolver
-    
+export class CVU_Toggle extends CVU_UI {
     get binding() {
         return this.nodeResolver.binding("value", false)
     }
 
     render() {
-        this.nodeResolver = this.props.nodeResolver;
-
         return (
-            <Toggle isOn={this.binding} labelsHidden>
+            <Toggle isOn={this.binding.get()} labelsHidden {...this.props}>
                 <EmptyView/>
             </Toggle>
         )

@@ -8,27 +8,22 @@
 
 
 
-import {Circle, MainUI, RoundedRectangle} from "../swiftUI";
+import {Circle, CVU_UI, MainUI, RoundedRectangle} from "../swiftUI";
 import * as React from "react";
-import {UINodeResolver} from "./UIElement";
 import {Color} from "../../cvu/newWIP/CVUColor";
 
-export class CVU_ShapeCircle extends MainUI {
-    nodeResolver: UINodeResolver
+export class CVU_ShapeCircle extends CVU_UI {
     render() {
         return (
-            <Circle fill={this.nodeResolver.color()?.color ?? new Color("clear").toLowerCase()}/>
+            <Circle fill={this.nodeResolver.color()?.color ?? new Color("clear").toLowerCase()} {...this.props}/>
         )
     }
 }
 
-export class CVU_ShapeRectangle extends MainUI {
-    nodeResolver: UINodeResolver
+export class CVU_ShapeRectangle extends CVU_UI {
     render() {
-        this.nodeResolver = this.props.nodeResolver;
-
         return (
-            <RoundedRectangle cornerRadius={this.nodeResolver.cornerRadius} fill={this.nodeResolver.color()?.color ?? new Color("clear").toLowerCase()}/>
+            <RoundedRectangle cornerRadius={this.nodeResolver.cornerRadius} fill={this.nodeResolver.color()?.color ?? new Color("clear").toLowerCase()} {...this.props}/>
         )
     }
 }

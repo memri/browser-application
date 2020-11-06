@@ -1,4 +1,4 @@
-import {MainUI, MemriImage, MemriImageView} from "../../gui/swiftUI";
+import {CVU_UI, MainUI, MemriImage, MemriImageView} from "../../gui/swiftUI";
 import * as React from "react";
 import {Color} from "./CVUColor";
 
@@ -7,9 +7,7 @@ export enum CVU_SizingMode {
     fit = "fit"
 }
 
-export class CVU_Image extends MainUI {
-    nodeResolver: UINodeResolver
-
+export class CVU_Image extends CVU_UI {
     get fileImage() {
         let imageURI = this.nodeResolver.fileURI("image");
         //let image = FileStorageController.getImage(imageURI);
@@ -32,30 +30,28 @@ export class CVU_Image extends MainUI {
     }
 
     render(){
-        this.nodeResolver = this.props.nodeResolver;
-
         let image = this.fileImage;
         let iconName = this.nodeResolver.string("systemName");
 
         if (image) {
             return (
-                <MemriImageView image={image} fitContent={this.nodeResolver.sizingMode == CVU_SizingMode.fit}/>
+                <MemriImageView image={image} fitContent={this.nodeResolver.sizingMode == CVU_SizingMode.fit} {...this.props}/>
             )
         } else if (this.bundleImage) {
             return (
-                <MemriImage resizable>
+                <MemriImage resizable {...this.props}>
                     {this.bundleImage}
                 </MemriImage>
             )
         } else if (iconName) {
             return (
-                <MemriImage renderingMode={"template"}>
+                <MemriImage renderingMode={"template"} {...this.props}>
                     {iconName}
                 </MemriImage>
             )
         } else {
             return (
-                <MemriImage renderingMode={"template"} aspectRatio={CVU_SizingMode.fit} foregroundColor={new Color("secondaryLabel")}>
+                <MemriImage renderingMode={"template"} aspectRatio={CVU_SizingMode.fit} foregroundColor={new Color("secondaryLabel")} {...this.props}>
                     {"questionmark"}
                 </MemriImage>
             )

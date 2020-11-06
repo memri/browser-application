@@ -7,18 +7,13 @@
 //
 
 
-import {MainUI} from "../swiftUI";
+import {CVU_UI, MainUI} from "../swiftUI";
 import * as React from "react";
-import {UINodeResolver} from "./UIElement";
 
-export class CVU_HTMLView extends MainUI {
-    nodeResolver: UINodeResolver
-    
+export class CVU_HTMLView extends CVU_UI {
     render() {
-        this.nodeResolver = this.props.nodeResolver;
-
         return (
-            <EmailView emailHTML={this.nodeResolver.string("content")}/>
+            <EmailView emailHTML={this.nodeResolver.string("content")} {...this.props}/>
         )
     }
 }

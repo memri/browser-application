@@ -30,6 +30,7 @@ import {CVU_ShapeCircle, CVU_ShapeRectangle} from "./CVU_Shape";
 import {CVU_HTMLView} from "./CVU_HTMLView";
 import {ItemCell} from "../common/ItemCell";
 import {CVU_TimelineItem} from "./CVU_TimelineItem";
+import {CVU_AppearanceModifier} from "./CVU_AppearanceModifier";
 require("../../extension/common/string");
 
 
@@ -70,53 +71,52 @@ export class UIElementView extends MainUI {
     get resolvedComponent() {
         switch (this.nodeResolver.node.type) {
             case UIElementFamily.HStack:
-                return <CVU_HStack nodeResolver={this.nodeResolver}/>
+                return new CVU_HStack({nodeResolver: this.nodeResolver})
             case UIElementFamily.VStack:
-                return <CVU_VStack nodeResolver={this.nodeResolver}/>
+                return new CVU_VStack({nodeResolver: this.nodeResolver})
             case UIElementFamily.ZStack:
-                return <CVU_ZStack nodeResolver={this.nodeResolver}/>
+                return new CVU_ZStack({nodeResolver: this.nodeResolver})
             case UIElementFamily.Text:
-                return <CVU_Text nodeResolver={this.nodeResolver}/>
+                return new CVU_Text({nodeResolver: this.nodeResolver})
             case UIElementFamily.SmartText:
-                return <CVU_SmartText nodeResolver={this.nodeResolver}/>
+                return new CVU_SmartText({nodeResolver: this.nodeResolver})
             case UIElementFamily.Image:
-                return <CVU_Image nodeResolver={this.nodeResolver}/>
+                return new CVU_Image({nodeResolver: this.nodeResolver})
             case UIElementFamily.Map:
-                return <CVU_Map nodeResolver={this.nodeResolver}/>
+                return new CVU_Map({nodeResolver: this.nodeResolver})
             case UIElementFamily.Textfield:
-                return <CVU_TextField nodeResolver={this.nodeResolver} editModeBinding={this.editModeBinding}/>
+                return new CVU_TextField({nodeResolver: this.nodeResolver, editModeBinding: this.editModeBinding})
             case UIElementFamily.RichTextfield:
-                return <CVU_RichTextEditor nodeResolver={this.nodeResolver} editModeBinding={this.editModeBinding}
-                                           searchTerm={this.context.currentView?.filterText}/>
+                return new CVU_RichTextEditor({nodeResolver: this.nodeResolver, editModeBinding: this.editModeBinding, searchTerm: this.context.currentView?.filterText})
             case UIElementFamily.EditorSection:
-                return <CVU_EditorSection nodeResolver={this.nodeResolver}/>
+                return new CVU_EditorSection({nodeResolver: this.nodeResolver})
             case UIElementFamily.EditorRow:
-                return <CVU_EditorRow nodeResolver={this.nodeResolver}/>
+                return new CVU_EditorRow({nodeResolver: this.nodeResolver})
             case UIElementFamily.EditorLabel:
-                return <EmptyView/>//warning("EditorLabel Unimplemented")
+                return new EmptyView({})
+                //warning("EditorLabel Unimplemented")
             case UIElementFamily.Toggle:
-                return <CVU_Toggle nodeResolver={this.nodeResolver}/>
+                return new CVU_Toggle({nodeResolver: this.nodeResolver})
             case UIElementFamily.MemriButton:
-                return <CVU_MemriButton nodeResolver={this.nodeResolver}/>
+                return new CVU_MemriButton({nodeResolver: this.nodeResolver})
             case UIElementFamily.ActionButton:
-                return <ActionButton action={this.nodeResolver.resolve("press") ?? new Action(this.context, "noop")}
-                                     item={this.nodeResolver.item}/>
+                return new ActionButton({action: this.nodeResolver.resolve("press") ?? new Action(this.context, "noop"), item: this.nodeResolver.item})
             case UIElementFamily.Button:
-                return <CVU_Button nodeResolver={this.nodeResolver} context={this.context}/>
+                return new CVU_Button({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Divider:
-                return <MemriDivider/>
+                return new MemriDivider({})
             case UIElementFamily.HorizontalLine:
-                return <HorizontalLine/>
+                return new HorizontalLine({})
             case UIElementFamily.Circle:
-                return <CVU_ShapeCircle nodeResolver={this.nodeResolver}/>
+                return new CVU_ShapeCircle({nodeResolver: this.nodeResolver})
             case UIElementFamily.Rectangle:
-                return <CVU_ShapeRectangle nodeResolver={this.nodeResolver}/>
+                return new CVU_ShapeRectangle({nodeResolver: this.nodeResolver})
             case UIElementFamily.HTMLView:
-                return <CVU_HTMLView nodeResolver={this.nodeResolver}/>
+                return new CVU_HTMLView({nodeResolver: this.nodeResolver})
             case UIElementFamily.Spacer:
-                return <Spacer/>
+                return new Spacer({})
             case UIElementFamily.Empty:
-                return <EmptyView/>
+                return new EmptyView({})
             case UIElementFamily.SubView:
                 return this.subview
             case UIElementFamily.FlowStack:
@@ -124,15 +124,15 @@ export class UIElementView extends MainUI {
             case UIElementFamily.Picker:
                 return this.picker
             case UIElementFamily.ItemCell:
-                return <ItemCell
-                    item={this.nodeResolver.item}
-                    rendererNames={this.nodeResolver.resolve("rendererNames") ?? []}
-                    arguments={this.nodeResolver.viewArguments}
-                />
+                return new ItemCell({
+                    item: this.nodeResolver.item,
+                    rendererNames: this.nodeResolver.resolve("rendererNames") ?? [],
+                    argumentsJs: this.nodeResolver.viewArguments
+                })
             case UIElementFamily.TimelineItem:
-                return <CVU_TimelineItem nodeResolver={this.nodeResolver}/>
+                return new CVU_TimelineItem({nodeResolver: this.nodeResolver})
             default:
-                return <MemriText>{`${this.nodeResolver.node.type} not implemented`}</MemriText>
+                return new MemriText({nodeResolver: this.nodeResolver, text: `${this.nodeResolver.node.type} not implemented`})
         }
     }
 
@@ -144,22 +144,25 @@ export class UIElementView extends MainUI {
         // return x || null
         var x
         if (this.nodeResolver.showNode) {
-            x = this.resolvedComponent
-            /*if (this.needsModifier) {
-                x.modifier(new CVU_AppearanceModifier(this.nodeResolver))
-            }*/
+            x = this.resolvedComponent;
+
+            if (this.needsModifier) {
+                let modifiers = x.modifier(new CVU_AppearanceModifier(this.nodeResolver));
+                Object.assign(x.props, modifiers);
+            }
+            return x.render();
         }
-        return x
+
     }
 
-    get flowstack() {
+    get flowstack() {//TODO:
         return <FlowStack data={this.nodeResolver.resolve("list") ?? []}
                           spacing={this.nodeResolver.spacing}
                           content={(listItem) => this.nodeResolver.childrenInForEach(listItem)}
         />
     }
 
-    get picker() {
+    get picker() {//TODO:
         let [_, propItem, propName] = this.nodeResolver.getType("value")
         let selected = this.nodeResolver.resolve("value", Item) ?? this.nodeResolver.resolve("defaultValue", Item)
         let emptyValue = this.nodeResolver.resolve("hint") ?? "Pick a value"
@@ -186,12 +189,7 @@ export class UIElementView extends MainUI {
         let subviewArguments = new ViewArguments(this.nodeResolver.resolve("arguments"))
         let viewName = this.nodeResolver.string("viewName")
         if (viewName) {
-            return <SubView
-                context={this.context}
-                viewName={viewName}
-                item={this.nodeResolver.item}
-                viewArguments={subviewArguments}
-            />
+            return new SubView({context: this.context, viewName: viewName, item: this.nodeResolver.item, viewArguments: subviewArguments})
         } else {
             let parsed = this.nodeResolver.resolve("view")
             let view
@@ -220,12 +218,7 @@ export class UIElementView extends MainUI {
                 view = new CVUStateDefinition()
             }
             //#warning("This was carried over from the old UIElementView - this has potential to cause performance issues")
-            return <SubView
-                context={this.context}
-                view={view}
-                item={this.nodeResolver.item}
-                viewArguments={subviewArguments}
-            />
+            return new SubView({context: this.context, view: view, item: this.nodeResolver.item, viewArguments: subviewArguments})
         }
     }
 }

@@ -6,37 +6,30 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {EmptyView, frame, MainUI, MemriText, padding, Section, VStack} from "../swiftUI";
+import {CVU_UI, EmptyView, frame, MainUI, MemriText, padding, Section, VStack} from "../swiftUI";
 import * as React from "react";
-import {UINodeResolver} from "./UIElement";
 import {Alignment} from "../../cvu/newWIP/CVUFont";
 
-export class CVU_EditorSection extends MainUI {
-    nodeResolver: UINodeResolver
-    
+export class CVU_EditorSection extends CVU_UI {
     get header() {
         let title = this.nodeResolver.string("title")
         if (title) {
-            return <MemriText>title</MemriText>
+            return <MemriText>{title}</MemriText>
         } else {
             return <EmptyView/>
         }
     }
     
     render() {
-        this.nodeResolver = this.props.nodeResolver;
-
         return (
-            <Section header={this.header}>
+            <Section header={this.header} {...this.props}>
                 {this.nodeResolver.childrenInForEach()}
             </Section>
         )
     }
 }
 
-export class CVU_EditorRow extends MainUI {
-    nodeResolver: UINodeResolver
-    
+export class CVU_EditorRow extends CVU_UI {
     header(props) {
         let title = this.nodeResolver.string("title")
         if (title) {
@@ -53,7 +46,7 @@ export class CVU_EditorRow extends MainUI {
     render() {
         return (
             <VStack alignment={Alignment.leading} spacing={0} frame={frame({maxWidth: "infinity", alignment: this.nodeResolver.alignment()})}
-                    padding={this.nodeResolver.bool("nopadding", false) && padding({horizontal: 0})}
+                    padding={this.nodeResolver.bool("nopadding", false) && padding({horizontal: 0})} {...this.props}
             >
                 {this.header({padding: padding({vertical: 4})})}
                 {this.content}
@@ -62,8 +55,7 @@ export class CVU_EditorRow extends MainUI {
     }
 }
 
-export class CVU_EditorLabel extends MainUI {
-    nodeResolver: UINodeResolver
+export class CVU_EditorLabel extends CVU_UI {
 
     header(props) {
         let title = this.nodeResolver.string("title")
@@ -81,7 +73,7 @@ export class CVU_EditorLabel extends MainUI {
     render() {
         return (
             <VStack alignment={Alignment.leading} spacing={0} frame={frame({maxWidth: "infinity", alignment: this.nodeResolver.alignment()})}
-                    padding={this.nodeResolver.bool("nopadding", false) && padding({horizontal: 0})}
+                    padding={this.nodeResolver.bool("nopadding", false) && padding({horizontal: 0})} {...this.props}
             >
                 {this.header({padding: padding({vertical: 4})})}
                 {this.content}

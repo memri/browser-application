@@ -68,7 +68,7 @@ export class ExprInterpreter {
         if (x instanceof Date) {//TODO: need normal formatting
             return x.toLocaleString("en-US")
         }
-        return String(x) ?? defaultValue ?? null;
+        return x ?? defaultValue ?? null;
     }
     
     compare(a, b) {

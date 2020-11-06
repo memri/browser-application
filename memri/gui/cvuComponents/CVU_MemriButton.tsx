@@ -6,20 +6,15 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {MainUI} from "../swiftUI";
+import {CVU_UI, MainUI} from "../swiftUI";
 import * as React from "react";
-import {UINodeResolver} from "./UIElement";
 import {MemriButton} from "../common/MemriButton";
 
-export class CVU_MemriButton extends MainUI {
-    nodeResolver: UINodeResolver
-    
+export class CVU_MemriButton extends CVU_UI {
     render() {
-        this.nodeResolver = this.props.nodeResolver;
-
         return (
             <MemriButton item={this.nodeResolver.resolve("item")}
-                         edge={this.nodeResolver.resolve("edge")}
+                         edge={this.nodeResolver.resolve("edge")} {...this.props}
             />
         )
     }

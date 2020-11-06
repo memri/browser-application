@@ -6,15 +6,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {MainUI, MemriRealButton} from "../swiftUI";
+import {CVU_UI, MainUI, MemriRealButton} from "../swiftUI";
 import * as React from "react";
 
-export class CVU_Button extends MainUI {
-    nodeResolver: UINodeResolver
-
+export class CVU_Button extends CVU_UI {
     render() {
-        this.nodeResolver = this.props.nodeResolver;
-
         return <MemriRealButton
             action={() => {
                 let press = this.nodeResolver.resolve("press")
@@ -26,15 +22,16 @@ export class CVU_Button extends MainUI {
                     )
                 }
             }}
-            buttonStyle={Style}
+            buttonStyle={"Style"} {...this.props}
         >
             {this.nodeResolver.childrenInForEach()}
         </MemriRealButton>
     }
 }
 
-class Style/*: ButtonStyle*/ {
+/*
+class Style/!*: ButtonStyle*!/ {
     makeBody(configuration: Configuration) {
         return <configuration label shadow={shadow({radius: configuration.isPressed ? 4 : 0})}/>
     }
-}
+}*/

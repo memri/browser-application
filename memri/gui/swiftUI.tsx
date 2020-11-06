@@ -12,7 +12,7 @@ import {
     TextField,
     DialogContentText, DialogActions, ListSubheader
 } from "@material-ui/core";
-import {MemriContext, UIElementFamily} from "../../router";
+import {MemriContext, UIElementFamily, UINodeResolver} from "../../router";
 import {Alignment, Font, TextAlignment} from "../../router";
 
 interface MemriUIProps {
@@ -44,181 +44,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     .onPreferenceChange(SizePreferenceKey.self, perform: onChange)*/
     }
 
-    setAppearanceModifiers() {
 
-        var view = {};
-
-        function setProperty(name: string, value?) {
-            switch (name) {
-                case "style":
-                    // TODO: Refactor: Implement style sheets
-                    break
-                case "shadow":
-                    if (Array.isArray(value)) {
-                        let color = value[0]/* as? Color*/;
-                        let radius = value[1]/* as? CGFloat*/;
-                        let x = value[2]/* as? CGFloat*/;
-                        let y = value[3]/* as? CGFloat*/;
-
-                        if (color && radius && x && y) {
-                            view["boxShadow"] = `${x}px ${y}px ${radius}px 0 ${color}`
-                        }
-                    } else {
-                        console.log("Exception: Invalid values for shadow")
-                        view["boxShadow"] = '0'
-                    }
-                    break;
-                case "margin":
-                case "padding":
-                    if (Array.isArray(value)) {
-                        //#warning("This errored while editing CVU. Why did the validator not catch this?")
-
-                        view["padding"] = padding(
-                            {
-                                top: value[0] ?? 0,
-                                leading: value[3] ?? 0,
-                                bottom: value[2] ?? 0,
-                                trailing: value[1] ?? 0
-                            }
-                        )
-                    } else {
-                        view["padding"] = padding(value);
-                    }
-                           /* else if let value = (value as? String)?
-                            .split(separator: " ")
-                            .compactMap({ CGFloat(Int(String($0)) ?? 0) })
-                        {
-                            return AnyView(padding(EdgeInsets(
-                                top: value[safe: 0] ?? 0,
-                            leading: value[safe: 3] ?? 0,
-                            bottom: value[safe: 2] ?? 0,
-                            trailing: value[safe: 1] ?? 0
-                        )))
-                        }*/
-                    break;
-                case "blur":
-                    if (value) {
-                        view["Blur"] = value //TODO:
-                    }
-                    break;
-                case "opacity":
-                    if (value) {
-                        view["Opacity"] = value//TODO:
-                    }
-                    break;
-                case "color":
-                    if (value) {
-                        view["color"] = value.value ?? value // TODO: named colors do not work
-                    }
-                    break;
-                case "background":
-                    if (value) {
-                        view["backgroundColor"] = value.value ?? value;
-                    }
-                    break;
-                case "rowbackground":
-                    if (value) {
-                        view["listRowBackground"] = value.value ?? value; //TODO:
-                    }
-                    break;
-                case "border":
-                    /* if let value = value as? [Any?] {
-                         if let color = value[0] as? Color {
-                             return AnyView(border(color, width: value[1] as? CGFloat ?? 1.0))
-                 }
-                 else {
-                         print("FIX BORDER HANDLING2")
-                     }
-                 }
-                 else {
-                         print("FIX BORDER HANDLING")
-                     }*/ //TODO:
-                    break;
-                case "offset":
-                    if (Array.isArray(value)) {
-                        view["offset"] = offset({x: value[0], y: value[1]})
-                    }
-                    break;
-                case "zindex":
-                    if (value) {
-                        view["zIndex"] = value;
-                    }
-                case "cornerRadius":
-                    if (value) {
-                        view["borderRadius"] = value;
-                    }
-                    break;
-                case "cornerborder":
-                    if (Array.isArray(value)) {
-                        let color = value[0]; //Color
-                        if (color) {
-                            /*
-                                return AnyView(overlay(
-                                    RoundedRectangle(cornerRadius: value[2] as? CGFloat ?? 1.0)
-                    .stroke(color, lineWidth: value[1] as? CGFloat ?? 1.0)
-                    .padding(1)
-                    ))*/ //TODO:
-                        }
-                    }
-                case "frame":
-                    if (Array.isArray(value)) {
-                        /*if let str = value[4] as? String {
-                            value[4] = CVUParser.specialTypedProperties["align"]?(str, "") ?? nil
-                        }*/ //TODO:
-
-                        view["frame"] = frame(
-                            {
-                                minWidth: value[0],
-                                maxWidth: value[1],
-                                minHeight: value[2],
-                                maxHeight: value[3],
-                                alignment: value[4] ?? Alignment.top
-                            }
-                        )
-                    }
-                    break
-                case "font":
-                    var fontV;
-
-                    if (Array.isArray(value)) {
-                        let name = value[0];
-                        if (typeof name == "string") {
-                            fontV = font({family: name, size: value[1] + "px" ?? 12 + "px"});
-                        } else {
-                            fontV = font({
-                                family: "system", size: value[0] +"px" ?? 12+"px",
-                                weight: value[1],
-                                design: "default"
-                            });
-                        }
-                    } else if (value) {
-                        fontV = font({family: "system", size: value + "px"});
-                    } else if (Font.Weight[value]) {
-                        fontV = font({family: "system", size: 12, weight: value});
-                    } else {
-
-                    }
-                    Object.assign(view, fontV);
-                    break;
-                case "textAlign":
-                    if (TextAlignment[value]) {
-                        view["textAlign"] = value;
-                    }
-                    break;
-                //        case "minWidth", "minHeight", "align", "maxWidth", "maxHeight", "spacing", "alignment", "text", "maxchar", "removewhitespace", "bold":
-                //            break
-                default:
-                    console.log(`NOT IMPLEMENTED PROPERTY: ${name}`)
-            }
-        }
-
-        for (let property in Object.keys(this.nodeResolver.node.properties)) {
-                //setProperty(name, value);
-            view[property] = "test";
-        }
-
-        return view
-    }
 
     get needsModifier(): boolean {
         if (this.nodeResolver) {
@@ -239,24 +65,20 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     }
 
     setStyles() {
-        var fixedProps = {}
-        if (this.needsModifier) {
-            fixedProps = this.setAppearanceModifiers();
-        }
         let styles = {
-            color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor ?? fixedProps?.color,
+            color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor,
             gap: this.props.spacing,
-            margin: fixedProps?.margin,
-            offset: this.props.offset ?? fixedProps?.offset,
-            zIndex: this.props.zIndex ?? fixedProps?.zIndex,
-            backgroundColor: this.props.background?.value ?? this.props.background ?? fixedProps?.backgroundColor,
-            borderRadius: this.props.cornerRadius ?? fixedProps?.borderRadius,
-            opacity: this.props.opacity ?? fixedProps?.opacity,
+            margin: this.props?.margin,
+            offset: this.props.offset,
+            zIndex: this.props.zIndex,
+            backgroundColor: this.props.background?.value ?? this.props.background,
+            borderRadius: this.props.cornerRadius,
+            opacity: this.props.opacity,
             height: this.props.height ?? this.props.frame?.height,
             width: this.props.width ?? this.props.frame?.width
         }
 
-        Object.assign(styles, this.props.font, this.props.padding, this.props.frame, fixedProps);
+        Object.assign(styles, this.props.font, this.props.padding, this.props.frame);
         return styles;
     }
 
@@ -284,6 +106,20 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             }
         }
         return
+    }
+}
+
+export class CVU_UI extends MainUI {
+    nodeResolver: UINodeResolver;
+
+    constructor(props: MemriUIProps, context?: any) {
+        super(props, context);
+        this.nodeResolver = this.props.nodeResolver;
+        delete this.props.nodeResolver;
+    }
+
+    modifier(modifiers) {
+        return modifiers
     }
 }
 
@@ -478,10 +314,10 @@ export class SecureField extends MainUI {
 
 export class MemriText extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
+        let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, text, ...other} = this.props;
         return (
             <div style={this.setStyles()} {...other}>
-                {this.props.children}
+                {text ?? this.props.children}
             </div>
         )
     }
@@ -776,6 +612,8 @@ export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth
 }
 
 export function padding(attrs:{horizontal?,vertical?,top?,bottom?,leading?,trailing?}|any) {
+    if (!attrs)
+        return
     let paddingObj = {};
     if (typeof attrs == "number" || typeof attrs == "string") {
         paddingObj["padding"] = attrs;
@@ -806,10 +644,12 @@ export function offset(attrs:{x?,y?}) { //TODO: x,y
     return `${attrs.x? attrs.x +" px" : ""} ${attrs.y? attrs.y+" px" : ""}`;
 }
 
-export function font(attrs:{family?: string, size?:number; weight?: string}) {
+export function font(attrs:{family?: string, size?:number; weight?: string; italic?: boolean}) {
     let fontObj = {};
     if (attrs.size)
         fontObj["fontSize"] = attrs.size;
+    if (attrs.italic)
+        fontObj["fontStyle"] = "italic";
     if (attrs.weight) {
         switch (attrs.weight) {
             case Font.Weight.regular:

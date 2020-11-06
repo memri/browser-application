@@ -249,20 +249,23 @@ export class UINodeResolver {
 
 	cgPoint(propertyName: string) {
 		let dimensions = this.resolve(propertyName, "[Double]");
-		let x = dimensions[0];
-		let y = dimensions[1];
-		if (dimensions && x && y) {
-			return new CGPoint(x, y)
-		} else {
-			let dimension = this.resolve(propertyName, "CGFloat");
-			if (dimension) {
-				return new CGPoint(dimension, dimension)
-			} else return null
+		if (dimensions) {
+			let x = dimensions[0];
+			let y = dimensions[1];
+			if (x && y) {
+				return new CGPoint(x, y)
+			} else {
+				let dimension = this.resolve(propertyName, "CGFloat");
+				if (dimension) {
+					return new CGPoint(dimension, dimension)
+				}
+			}
 		}
+		return undefined
 	}
 
 	insets(propertyName: string) {
-		let insetArray = this.resolve(propertyName, "[Double]")?.map(($0) => Number($0));
+		let insetArray = this.resolve(propertyName, "[Double]")/*?.map(($0) => Number($0));*/
 		if (insetArray) {
 			switch (insetArray.length) {
 				case 2:
@@ -318,27 +321,6 @@ export class UINodeResolver {
 
 		return null;
 	}
-
-	/*func binding<T>(for propertyName: String, type: T.Type = T.self) -> Binding<T?>? {
-	let (_, dataItemOptional, itemPropertyName) = getType(for: propertyName)
-	guard let dataItem = dataItemOptional, dataItem.hasProperty(itemPropertyName)
-	else { return nil }
-return Binding<T?>(
-	get: { dataItem.get(itemPropertyName) },
-	set: { dataItem.set(itemPropertyName, $0) }
-)
-}
-
-func binding<T>(for propertyName: String, defaultValue: T, type: T.Type = T.self) -> Binding<T> {
-	let (_, dataItemOptional, itemPropertyName) = getType(for: propertyName)
-guard let dataItem = dataItemOptional, dataItem.hasProperty(itemPropertyName) else {
-	return .constant(defaultValue)
-}
-return  Binding<T>(
-	get: { dataItem.get(itemPropertyName) ?? defaultValue },
-set: { dataItem.set(itemPropertyName, $0) }
-)
-}*/
 
 	getType(propName: string) {
 		let prop = this.node.properties[propName];

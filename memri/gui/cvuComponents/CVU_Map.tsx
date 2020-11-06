@@ -6,13 +6,11 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {MainUI} from "../swiftUI";
+import {CVU_UI, MainUI} from "../swiftUI";
 import * as React from "react";
-import {UINodeResolver} from "./UIElement";
 import {Color} from "../../cvu/newWIP/CVUColor";
 
-export class CVU_Map extends MainUI {
-    nodeResolver: UINodeResolver
+export class CVU_Map extends CVU_UI {
     
     get content() {
         return this.nodeResolver.string("text")?.nilIfBlank
@@ -43,10 +41,8 @@ export class CVU_Map extends MainUI {
     }
     
     render() {
-        this.nodeResolver = this.props.nodeResolver;
-
         return (
-            <MapView config={this.config} background={new Color("secondarySystemBackground").toLowerCase()}/>
+            <MapView config={this.config} background={new Color("secondarySystemBackground").toLowerCase()} {...this.props}/>
         )
     }
 }
