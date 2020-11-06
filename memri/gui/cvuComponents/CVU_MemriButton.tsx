@@ -15,6 +15,8 @@ export class CVU_MemriButton extends MainUI {
     nodeResolver: UINodeResolver
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <MemriButton item={this.nodeResolver.resolve("item")}
                          edge={this.nodeResolver.resolve("edge")}

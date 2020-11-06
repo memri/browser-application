@@ -18,7 +18,6 @@ import {ViewArguments} from "../../../router";
 import {MemriDictionary} from "../../../router";
 import {ParseErrors} from "../../../router";
 import {CascadingRendererConfig} from "../../../router";
-require("../../extension/common/string");
 
 export class Views {
 	///
@@ -780,7 +779,7 @@ function getDefaultViewContents() {
 		"Location": require("text-loader!../defaultDefinitions/type/Location.cvu"),
 		"Message": require("text-loader!../defaultDefinitions/type/Message.cvu"),
 		"MessageChannel": require("text-loader!../defaultDefinitions/type/MessageChannel.cvu"),
-		"Mixed": require("text-loader!../defaultDefinitions/type/Mixed.cvu"),
+		//"Mixed": require("text-loader!../defaultDefinitions/type/Mixed.cvu"),
 		"Note": require("text-loader!../defaultDefinitions/type/Note.cvu"),
 		"Person": require("text-loader!../defaultDefinitions/type/Person.cvu"),
 		"Photo": require("text-loader!../defaultDefinitions/type/Photo.cvu"),

@@ -12,26 +12,28 @@ export class CVU_Image extends MainUI {
 
     get fileImage() {
         let imageURI = this.nodeResolver.fileURI("image");
-        let image = FileStorageController.getImage(imageURI);
-        if (!imageURI || !image) {
+        //let image = FileStorageController.getImage(imageURI);
+        if (!imageURI) {
             return null;
         } else {
-            return image
+            return imageURI
         }
     }
 
 
     get bundleImage() {
         let imageName = this.nodeResolver.string("bundleImage");
-        let image = UIImage(imageName);
-        if (!imageName || !image) {
+        //let image = UIImage(imageName);
+        if (!imageName) {
             return null;
         } else {
-            return image
+            return imageName
         }
     }
 
     render(){
+        this.nodeResolver = this.props.nodeResolver;
+
         let image = this.fileImage;
         let iconName = this.nodeResolver.string("systemName");
 

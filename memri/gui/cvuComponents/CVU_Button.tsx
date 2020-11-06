@@ -13,6 +13,8 @@ export class CVU_Button extends MainUI {
     nodeResolver: UINodeResolver
 
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return <MemriRealButton
             action={() => {
                 let press = this.nodeResolver.resolve("press")
@@ -26,7 +28,7 @@ export class CVU_Button extends MainUI {
             }}
             buttonStyle={Style}
         >
-            {this.nodeResolver.childrenInForEach}
+            {this.nodeResolver.childrenInForEach()}
         </MemriRealButton>
     }
 }

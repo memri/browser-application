@@ -16,7 +16,7 @@ import {
 import {SelectorType} from "../../../../router";
 import {ListItem} from "@material-ui/core";
 import {Renderers} from "../../../../router";
-import {Font} from "../../../cvu/parsers/cvu-parser/CVUParser";
+import {Font} from "../../../../router";
 
 
 export class RendererSelectionPanel extends MainUI {

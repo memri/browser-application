@@ -12,7 +12,7 @@ import {
     TextField,
     DialogContentText, DialogActions, ListSubheader
 } from "@material-ui/core";
-import {MemriContext} from "../../router";
+import {MemriContext, UIElementFamily} from "../../router";
 import {Alignment, Font, TextAlignment} from "../../router";
 
 interface MemriUIProps {
@@ -44,26 +44,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     .onPreferenceChange(SizePreferenceKey.self, perform: onChange)*/
     }
 
-    setProperties(properties, _: Item, __: MemriContext, viewArguments: ViewArguments) {
-        let ViewPropertyOrder = [
-            "style",
-            "frame",
-            "color",
-            "font",
-            "padding",
-            "background",
-            "textAlign",
-            "rowbackground",
-            "cornerRadius",
-            "cornerborder",
-            "border",
-            "shadow",
-            "offset",
-            "blur",
-            "opacity",
-            "margin",
-            "zindex",
-        ]
+    setAppearanceModifiers() {
 
         var view = {};
 
@@ -231,51 +212,36 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             }
         }
 
-        if (!properties || properties.length == 0) {
-            return view
-        }
-
-        for (let name of ViewPropertyOrder) {
-            var value = properties[name];
-            if (value) {
-                let expr = value;
-                if (expr?.constructor?.name == "Expression") {
-                    try {
-                        value = expr.execute(viewArguments);
-                    } catch {
-                        // TODO: refactor: Error handling
-                        console.log(`Could not set property. Executing expression ${expr} failed`)
-                        continue
-                    }
-                } else if (Array.isArray(value)) {
-                    let list = value;
-                    for (let i = 0; i < list.length; i++) {
-                        let expr = list[i];
-                        if (expr?.constructor?.name == "Expression") {
-                            try {
-                                list[i] = expr.execute(viewArguments);
-                            } catch {
-                                // TODO: refactor: Error handling
-                                console.log(`Could not set property. Executing expression ${expr} failed`)
-                                continue
-                            }
-                        }
-                    }
-                    value = list
-                }
-
-                setProperty(name, value);
-            }
+        for (let property in Object.keys(this.nodeResolver.node.properties)) {
+                //setProperty(name, value);
+            view[property] = "test";
         }
 
         return view
     }
 
+    get needsModifier(): boolean {
+        if (this.nodeResolver) {
+            if (!this.nodeResolver.showNode) {
+                return false
+            }
+            switch (this.nodeResolver.node.type) {
+                case UIElementFamily.Empty:
+                case UIElementFamily.Spacer:
+                case UIElementFamily.Divider:
+                case UIElementFamily.FlowStack:
+                    return false
+                default:
+                    return true
+            }
+        }
+        return false;
+    }
+
     setStyles() {
         var fixedProps = {}
-        if (this.props.setProperties) {
-            //this.context = this.props.setProperties.context;
-            fixedProps = this.setProperties(this.props.setProperties.properties, undefined, undefined , this.props.setProperties.viewArguments);
+        if (this.needsModifier) {
+            fixedProps = this.setAppearanceModifiers();
         }
         let styles = {
             color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor ?? fixedProps?.color,

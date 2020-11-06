@@ -15,6 +15,8 @@ export class CVU_HTMLView extends MainUI {
     nodeResolver: UINodeResolver
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <EmailView emailHTML={this.nodeResolver.string("content")}/>
         )

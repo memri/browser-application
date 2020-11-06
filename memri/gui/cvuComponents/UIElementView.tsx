@@ -4,11 +4,12 @@
 
 
 import {
-    MainUI,
+    EmptyView,
+    MainUI, MemriDivider,
     MemriText,
     Spacer,
 } from "../swiftUI";
-import {CVUStateDefinition, Item} from "../../../router";
+import {CVU_Image, CVUStateDefinition, Item} from "../../../router";
 import {ViewArguments} from "../../../router";
 import * as React from "react";
 import {Action} from "../../../router";
@@ -17,7 +18,19 @@ import {debugHistory} from "../../../router";
 import {ActionButton} from "../ActionView";
 
 import {SubView} from "../common/SubView";
-require("../../extension/common/string.js");
+import {CVU_HStack, CVU_VStack, CVU_ZStack} from "./CVU_Stack";
+import {CVU_SmartText, CVU_Text, CVU_TextField} from "./CVU_Text";
+import {CVU_Map} from "./CVU_Map";
+import {CVU_RichTextEditor} from "./CVU_RichTextEditor";
+import {CVU_EditorRow, CVU_EditorSection} from "./CVU_EditorSection";
+import {CVU_Toggle} from "./CVU_Toggle";
+import {CVU_MemriButton} from "./CVU_MemriButton";
+import {CVU_Button} from "./CVU_Button";
+import {CVU_ShapeCircle, CVU_ShapeRectangle} from "./CVU_Shape";
+import {CVU_HTMLView} from "./CVU_HTMLView";
+import {ItemCell} from "../common/ItemCell";
+import {CVU_TimelineItem} from "./CVU_TimelineItem";
+require("../../extension/common/string");
 
 
 export enum UIElementFamily {
@@ -91,7 +104,7 @@ export class UIElementView extends MainUI {
             case UIElementFamily.Button:
                 return <CVU_Button nodeResolver={this.nodeResolver} context={this.context}/>
             case UIElementFamily.Divider:
-                return <Divider/>
+                return <MemriDivider/>
             case UIElementFamily.HorizontalLine:
                 return <HorizontalLine/>
             case UIElementFamily.Circle:
@@ -123,31 +136,18 @@ export class UIElementView extends MainUI {
         }
     }
 
-    get needsModifier(): boolean {
-        if (!this.nodeResolver.showNode) {
-            return false
-        }
-        switch (this.nodeResolver.node.type) {
-            case UIElementFamily.Empty:
-            case UIElementFamily.Spacer:
-            case UIElementFamily.Divider:
-            case UIElementFamily.FlowStack:
-                return false
-            default:
-                return true
-        }
-    }
-
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+        this.context = this.props.context;
         // var x = this.render1()
         //if (x === undefined) debugger
         // return x || null
         var x
         if (this.nodeResolver.showNode) {
             x = this.resolvedComponent
-            if (this.needsModifier) {
+            /*if (this.needsModifier) {
                 x.modifier(new CVU_AppearanceModifier(this.nodeResolver))
-            }
+            }*/
         }
         return x
     }

@@ -45,7 +45,7 @@ export class SetupWizard extends MainUI {
                 this.context,
                 true,
                 this.host, (error) => {
-                    error && debugHistory.error(`${error}`) // TODO: show this to the user
+                    error && debugHistory.error(error) // TODO: show this to the user
                 })
             /*this.setState({
                 open: false,
@@ -58,14 +58,14 @@ export class SetupWizard extends MainUI {
                 this.host, this.privateKey,
                 this.publicKey,
                 this.databaseKey, (error) => {
-                    error && error.map(($0) => debugHistory.error(`${$0}`))// TODO: show this to the user
+                    error && debugHistory.error(error)// TODO: show this to the user
                 })
             //this.context.showInstalled();
             }
 
         let buttonForLocalInstall = () => {
             this.context.installer.installLocalAuthForLocalInstallation(this.context, true, (error) => {
-                error && error.map(($0) => debugHistory.error(`${$0}`))// TODO: show this to the user
+                error && debugHistory.error(error)// TODO: show this to the user
             })
         }
 

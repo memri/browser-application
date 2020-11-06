@@ -12,14 +12,14 @@ let pod = params.get("pod");
 switch (pod) {
     case "none":
         contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
-            error && error.map(($0) => debugHistory.error(`${$0}`))
+            error && debugHistory.error(error)
         })
         break;
     case "mock":
         contextJs.podAPI = parent.api
 
         contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
-            error && error.map(($0) => debugHistory.error(`${$0}`))
+            error && debugHistory.error(error)
         })
         contextJs.cache.podAPI = parent.api
         parent.setUserCVUs();
@@ -29,7 +29,7 @@ switch (pod) {
         break;
     default:
         contextJs.installer.installLocalAuthForExistingPod(contextJs, true, pod, "", localStorage.ownerKey, localStorage.databaseKey, (error) => {
-            error && error.map(($0) => debugHistory.error(`${$0}`))
+            error && debugHistory.error(error)
         })
         break;
 }

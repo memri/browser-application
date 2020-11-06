@@ -14,6 +14,8 @@ export class CVU_HStack extends MainUI {
     nodeResolver: UINodeResolver
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <HStack alignment={this.nodeResolver.alignment().vertical}
                     spacing={this.nodeResolver.spacing.x}
@@ -22,7 +24,7 @@ export class CVU_HStack extends MainUI {
                         alignment: this.nodeResolver.alignment()
                     })}
             >
-                {this.nodeResolver.childrenInForEach}
+                {this.nodeResolver.childrenInForEach()}
             </HStack>
         )
     }
@@ -32,6 +34,8 @@ export class CVU_VStack extends MainUI {
     nodeResolver: UINodeResolver
 
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <VStack alignment={this.nodeResolver.alignment().horizontal}
                     spacing={this.nodeResolver.spacing.y}
@@ -40,7 +44,7 @@ export class CVU_VStack extends MainUI {
                         alignment: this.nodeResolver.alignment()
                     })}
             >
-                {this.nodeResolver.childrenInForEach}
+                {this.nodeResolver.childrenInForEach()}
             </VStack>
         )
     }
@@ -50,9 +54,11 @@ export class CVU_ZStack extends MainUI {
     nodeResolver: UINodeResolver
 
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <ZStack alignment={this.nodeResolver.alignment()}>
-                {this.nodeResolver.childrenInForEach}
+                {this.nodeResolver.childrenInForEach()}
             </ZStack>
         )
     }

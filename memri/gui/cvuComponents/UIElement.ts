@@ -15,7 +15,7 @@ import {
 } from "../../../router";
 import {UUID} from "../../../router";
 import {MemriDictionary} from "../../../router";
-import {UIElementView} from "../common/UIElementView";
+import {UIElementView} from "./UIElementView";
 
 export class UINode {
 	id = UUID()
@@ -119,15 +119,15 @@ export class UINodeResolver {
 		let newArguments = this.viewArguments;
 		if (item)
 			newArguments = new ViewArguments(this.viewArguments, item)
-		return this.node.children.map(($0) => new UIElementView(new UINodeResolver($0, newArguments)))
+		return this.node.children.map(($0) => new UIElementView({nodeResolver: new UINodeResolver($0, newArguments)}).render())
 	}
 
 	childrenInForEach(item?: Item) {
 		let newArguments = this.viewArguments;
 		if (item)
 			newArguments = new ViewArguments(this.viewArguments, item)
-		let childNodeResolvers = this.node.children.map(($0) => new UINodeResolver($0, newArguments));
-		return childNodeResolvers.forEach((childNodeResolver) => new UIElementView(childNodeResolver));
+		let childNodeResolvers = this.node.children.map(($0) => new UIElementView({nodeResolver: new UINodeResolver($0, newArguments)}).render());
+		return childNodeResolvers
 	}
 
 	fileURI(propertyName: string) {
@@ -299,6 +299,24 @@ export class UINodeResolver {
 
 	bool(propertyName: string, defaultValue: boolean) {
 		return this.resolve(propertyName, "Bool") ?? defaultValue;
+	}
+
+	//TODO: this is our way to avoid bindings @mkslanc
+	binding(propertyName, defaultValue?) {
+		let type = this.getType(propertyName)
+		let dataItem = type[1], itemPropertyName = type[2];
+		if (dataItem && dataItem.hasProperty(itemPropertyName)) {
+			return {
+				get: () => {
+					return dataItem.get(itemPropertyName) ?? defaultValue;
+				},
+				set: (value) => {
+					dataItem.set(itemPropertyName, value);
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/*func binding<T>(for propertyName: String, type: T.Type = T.self) -> Binding<T?>? {

@@ -43,6 +43,8 @@ export class CVU_Map extends MainUI {
     }
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <MapView config={this.config} background={new Color("secondarySystemBackground").toLowerCase()}/>
         )

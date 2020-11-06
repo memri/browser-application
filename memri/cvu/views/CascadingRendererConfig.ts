@@ -76,7 +76,7 @@ export class CascadingRendererConfig extends Cascadable {
         let body = this.getRenderGroup(group)?.body;
         if (item && body) {
             let nodeResolver = new UINodeResolver(body, argumentsJs.copy(item))
-            return new UIElementView(nodeResolver)/*.eraseToAnyView()*/
+            return new UIElementView({nodeResolver: nodeResolver, context: this.host.context}).render()/*.eraseToAnyView()*/
         }
         else {//TODO:
             return new UIElementView({context: this.host.context, gui: new UINode(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()

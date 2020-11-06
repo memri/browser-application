@@ -1093,6 +1093,7 @@ export enum ItemFamily {
     Message = "Message",
     EmailMessage = "EmailMessage",
     Note = "Note",
+    Edge = "Edge", //TODO:
     NoteList = "NoteList",
     Review = "Review",
     CryptoKey = "CryptoKey",
@@ -1331,6 +1332,7 @@ export var getItemType = function(name) {
         case ItemFamily.Message: return Message
         case ItemFamily.EmailMessage: return EmailMessage
         case ItemFamily.Note: return Note
+        case ItemFamily.Edge: return Edge //TODO:
         case ItemFamily.NoteList: return NoteList
         case ItemFamily.Review: return Review
         case ItemFamily.CryptoKey: return CryptoKey
@@ -6714,6 +6716,12 @@ export class CVUStateDefinition extends CVUStoredDefinition {
                 uid: 'int',
                 importJson: 'string',
                 allEdges: 'Edge[]',
+                definition: 'string',
+                domain: 'string',
+                name: 'string',
+                query: 'string',
+                selector: 'string',
+                itemType: 'string',
             }
         }
     }

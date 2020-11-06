@@ -19,7 +19,7 @@ import {
     CVUParsedSessionDefinition, CVUParsedObjectDefinition
 
 } from "./CVUParsedDefinition"
-import {ActionFamily, getActionType} from "../../../../router";
+import {ActionFamily, CVUColor, getActionType} from "../../../../router";
 import {UINode, UIElementFamily} from "../../../../router";
 import {MemriDictionary} from "../../../../router";
 
@@ -342,7 +342,7 @@ export class CVUParser {
                     stack.push(this.createExpression(v));
                     break;
                 case CVUToken.Color:
-                    stack.push(new Color(v)); //TODO: stack.append(CVUColor.hex(value))
+                    stack.push(CVUColor.hex(v));
                     break;
                 case CVUToken.Identifier:
                     if (lastKey == undefined) {

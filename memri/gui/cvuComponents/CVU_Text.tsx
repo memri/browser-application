@@ -16,15 +16,16 @@ export class CVU_Text extends MainUI {
     nodeResolver: UINodeResolver
     
     get content() {
-        return nodeResolver.string("text")?.nilIfBlank
+        return this.nodeResolver.string("text")?.nilIfBlank
     }
     
     render() {
-        return (<>
-                {this.content.map(($0) =>
-                    <MemriText fixedSize={{horizontal: false, vertical: true}}>{$0}</MemriText>
-                )}
-            </>
+        this.nodeResolver = this.props.nodeResolver;
+
+        return (
+            <MemriText fixedSize={{horizontal: false, vertical: true}} >
+                {this.content}
+            </MemriText>
         );
     }
 }
@@ -37,14 +38,13 @@ export class CVU_SmartText extends MainUI {
     }
 
     render() {
-        return (<>
-                {this.content.map(($0) =>
-                    <MemriSmartTextView string={$0}
+        this.nodeResolver = this.props.nodeResolver;
+
+        return (
+                    <MemriSmartTextView string={this.content}
                                         font={this.nodeResolver.font()}
                                         color={this.nodeResolver.color()}
                     />
-                )}
-            </>
         );
     }
 }
@@ -62,6 +62,8 @@ export class CVU_TextField extends MainUI {
     }
 
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (<MemriTextField value={this.contentBinding}
                                 placeholder={this.hint}
                                 textColor={this.nodeResolver.color()?.uiColor}

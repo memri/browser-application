@@ -1,3 +1,4 @@
+require("./memri/extension/common/string");
 export * from './memri/model/RealmLocal';
 export * from './memri/api/Authentication';
 export * from './memri/storage/DatabaseController';
@@ -40,6 +41,7 @@ export * from './memri/cvu/views/Action';
 export * from './memri/cvu/views/ActionErrors';
 export * from './memri/cvu/views/Colors';
 export * from './memri/gui/cvuComponents/UIElement';
+export * from './memri/gui/cvuComponents/UIElementView';
 export * from './memri/cvu/views/ViewDebugger';
 export * from './memri/gui/renderers/Renderers';
 export * from './memri/gui/util';
@@ -49,3 +51,4 @@ export * from './memri/model/ResultSet';
 export * from './memri/cvu/newWIP/CVUColor';
 export * from './memri/cvu/newWIP/CVUFont';
 export * from './memri/cvu/newWIP/CVU_Image';
+

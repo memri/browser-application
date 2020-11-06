@@ -18,6 +18,8 @@ export class CVU_Toggle extends MainUI {
     }
 
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <Toggle isOn={this.binding} labelsHidden>
                 <EmptyView/>

@@ -22,7 +22,7 @@ exports.defaults =  {
     "CryptoKey": require("text-loader!./defaultDefinitions/type/CryptoKey.cvu"),
     "EmailMessage": require("text-loader!./defaultDefinitions/type/EmailMessage.cvu"),
     "Importer": require("text-loader!./defaultDefinitions/type/Importer.cvu"),
-    "ImporterInstance": require("text-loader!./defaultDefinitions/type/ImporterInstance.cvu"),
+    "ImporterRun": require("text-loader!./defaultDefinitions/type/ImporterRun.cvu"),
     "Indexer": require("text-loader!./defaultDefinitions/type/Indexer.cvu"),
     "IndexerRun": require("text-loader!./defaultDefinitions/type/IndexerRun.cvu"),
     "Label": require("text-loader!./defaultDefinitions/type/Label.cvu"),
@@ -34,5 +34,5 @@ exports.defaults =  {
     "Person": require("text-loader!./defaultDefinitions/type/Person.cvu"),
     "Photo": require("text-loader!./defaultDefinitions/type/Photo.cvu"),
     "Session": require("text-loader!./defaultDefinitions/type/Session.cvu"),
-    "SessionView": require("text-loader!./defaultDefinitions/type/SessionView.cvu")
+    "SessionView": require("text-loader!./defaultDefinitions/type/SessionView.cvu"),
 };

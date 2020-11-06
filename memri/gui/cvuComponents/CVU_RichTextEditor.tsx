@@ -10,6 +10,7 @@
 import {MainUI} from "../swiftUI";
 import * as React from "react";
 import {UINodeResolver} from "./UIElement";
+import {RichTextEditor} from "../MemriTextEditor/RichTextEditor";
 
 export class CVU_RichTextEditor extends MainUI {
     nodeResolver: UINodeResolver
@@ -29,16 +30,15 @@ export class CVU_RichTextEditor extends MainUI {
     }
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+        this.searchTerm = this.props.searchTerm;
+        this.isEditing = this.props.editModeBinding;
+        //TODO: this is our way to solve richtextEditor @mkslanc
         return (
-            <MemriTextEditor model={MemriTextEditorModel(this.titleBinding?.wrappedValue, this.contentBinding.wrappedValue)}
-                             onModelUpdate={ (model) => {
-                                 this.titleBinding && (this.titleBinding.wrappedValue = model.title)
-                                 this.contentBinding.wrappedValue = model.body
-                             }}
-                             searchTerm={this.searchTerm}
-                             isEditing={this.editModeBinding}
-                             fontSize={this.fontSize}
-            />
+            <RichTextEditor htmlContentBinding={this.contentBinding}
+                                 titleBinding={this.titleBinding}
+                                 fontSize={this.fontSize} searchTerm={this.searchTerm} isEditing={this.editModeBinding}
+                 />
         )
     }
     

@@ -25,6 +25,8 @@ export class CVU_ShapeCircle extends MainUI {
 export class CVU_ShapeRectangle extends MainUI {
     nodeResolver: UINodeResolver
     render() {
+        this.nodeResolver = this.props.nodeResolver;
+
         return (
             <RoundedRectangle cornerRadius={this.nodeResolver.cornerRadius} fill={this.nodeResolver.color()?.color ?? new Color("clear").toLowerCase()}/>
         )
