@@ -136,6 +136,24 @@ export class UIElementView extends MainUI {
         }
     }
 
+    get needsModifier(): boolean {
+        if (this.nodeResolver) {
+            if (!this.nodeResolver.showNode) {
+                return false
+            }
+            switch (this.nodeResolver.node.type) {
+                case UIElementFamily.Empty:
+                case UIElementFamily.Spacer:
+                case UIElementFamily.Divider:
+                case UIElementFamily.FlowStack:
+                    return false
+                default:
+                    return true
+            }
+        }
+        return false;
+    }
+
     render() {
         this.nodeResolver = this.props.nodeResolver;
         this.context = this.props.context;

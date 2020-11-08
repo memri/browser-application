@@ -44,26 +44,6 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     .onPreferenceChange(SizePreferenceKey.self, perform: onChange)*/
     }
 
-
-
-    get needsModifier(): boolean {
-        if (this.nodeResolver) {
-            if (!this.nodeResolver.showNode) {
-                return false
-            }
-            switch (this.nodeResolver.node.type) {
-                case UIElementFamily.Empty:
-                case UIElementFamily.Spacer:
-                case UIElementFamily.Divider:
-                case UIElementFamily.FlowStack:
-                    return false
-                default:
-                    return true
-            }
-        }
-        return false;
-    }
-
     setStyles() {
         let styles = {
             color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor,
@@ -611,7 +591,7 @@ export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth
     return frameObj;
 }
 
-export function padding(attrs:{horizontal?,vertical?,top?,bottom?,leading?,trailing?}|any) {
+export function padding(attrs:{horizontal?,vertical?,top?,bottom?,leading?,trailing?,left?,right?}|any) {
     if (!attrs)
         return
     let paddingObj = {};
@@ -624,11 +604,11 @@ export function padding(attrs:{horizontal?,vertical?,top?,bottom?,leading?,trail
         if (attrs.vertical) {
             paddingObj["paddingTop"] = paddingObj["paddingBottom"] = attrs.vertical;
         }
-        if (attrs.leading) {
-            paddingObj["paddingLeft"] = attrs.leading;
+        if (attrs.leading || attrs.left) {
+            paddingObj["paddingLeft"] = attrs.leading || attrs.left;
         }
-        if (attrs.trailing) {
-            paddingObj["paddingRight"] = attrs.trailing;
+        if (attrs.trailing || attrs.right) {
+            paddingObj["paddingRight"] = attrs.trailing || attrs.right;
         }
         if (attrs.top) {
             paddingObj["paddingTop"] = attrs.top;

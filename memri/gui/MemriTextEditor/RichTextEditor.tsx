@@ -152,7 +152,7 @@ const deserialize = string => {
 }
 
 export const RichTextEditor = (props) => {
-    let content = props.htmlContentBinding.get() ?? "";
+    let content = props.htmlContentBinding?.get() ?? "";
     const [value, setValue] = useState<Node[]>(deserialize(content))
     const renderElement = useCallback(props => <Element {...props} />, [])
     const renderLeaf = useCallback(props => <Leaf {...props} />, [])
@@ -160,7 +160,7 @@ export const RichTextEditor = (props) => {
 
     return (
         <VStack spacing={0} width={414}>
-            <MemriTextField value={props.titleBinding.get() ?? ""}
+            <MemriTextField value={props.titleBinding?.get() ?? ""}
                             placeholder={props.titleHint ?? ""} onChange={(e) => {
                 props.titleBinding.set(e.target.value)
             }}>

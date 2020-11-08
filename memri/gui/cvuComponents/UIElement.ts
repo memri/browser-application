@@ -266,7 +266,7 @@ export class UINodeResolver {
 
 	insets(propertyName: string) {
 		let insetArray = this.resolve(propertyName, "[Double]")/*?.map(($0) => Number($0));*/
-		if (insetArray) {
+		if (insetArray && insetArray.length > 0) {
 			switch (insetArray.length) {
 				case 2:
 					return new EdgeInsets(

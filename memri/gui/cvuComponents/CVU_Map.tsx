@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {CVU_UI, MainUI} from "../swiftUI";
+import {CVU_UI, MainUI, MemriImage} from "../swiftUI";
 import * as React from "react";
 import {Color} from "../../cvu/newWIP/CVUColor";
 
@@ -40,9 +40,12 @@ export class CVU_Map extends CVU_UI {
         })
     }
     
-    render() {
+    render() { //TODO: need Map component
         return (
-            <MapView config={this.config} background={new Color("secondarySystemBackground").toLowerCase()} {...this.props}/>
+            <MemriImage className={"MapView"} title={"Place for your future map"}>map</MemriImage>
         )
+        /*return (
+            <MapView config={this.config} background={new Color("secondarySystemBackground").toLowerCase()} {...this.props}/>
+        )*/
     }
 }
