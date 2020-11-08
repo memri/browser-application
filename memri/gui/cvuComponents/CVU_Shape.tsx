@@ -15,7 +15,7 @@ import {Color} from "../../cvu/newWIP/CVUColor";
 export class CVU_ShapeCircle extends CVU_UI {
     render() {
         return (
-            <Circle fill={this.nodeResolver.color()?.color ?? new Color("clear").toLowerCase()} {...this.props}/>
+            <Circle fill={this.nodeResolver.color() ?? new Color("clear").toLowerCase()} {...this.props}/>
         )
     }
 }
@@ -23,7 +23,7 @@ export class CVU_ShapeCircle extends CVU_UI {
 export class CVU_ShapeRectangle extends CVU_UI {
     render() {
         return (
-            <RoundedRectangle cornerRadius={this.nodeResolver.cornerRadius} fill={this.nodeResolver.color()?.color ?? new Color("clear").toLowerCase()} {...this.props}/>
+            <RoundedRectangle cornerRadius={this.nodeResolver.cornerRadius} fill={this.nodeResolver.color() ?? new Color("clear").toLowerCase()} {...this.props}/>
         )
     }
 }

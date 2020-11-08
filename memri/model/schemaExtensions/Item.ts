@@ -6596,7 +6596,7 @@ export class Person extends SchemaPerson {
 
         this.functions["age"] = () => { return this.age }
         this.functions["fullName"] = () => { return this.fullName }
-        this.functions["fullName"] = () => { return this.initials }
+        this.functions["initials"] = () => { return this.initials }
     }
 }
 

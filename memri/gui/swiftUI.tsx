@@ -433,7 +433,7 @@ export class MemriImageView extends MainUI {
         //TODO: fitContent
         let {font, padding, foregroundColor, spacing, frame, zIndex, image, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {maxWidth: "100%", maxHeight: "100%"})
+        Object.assign(style, {maxWidth: style.maxWidth || "100%", maxHeight: style.maxHeight || "100%"})
         return (
             <img src={image} style={style} className="MemriImageView" {...other}/>
         )
