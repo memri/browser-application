@@ -31,6 +31,7 @@ import {CVU_HTMLView} from "./CVU_HTMLView";
 import {ItemCell} from "../common/ItemCell";
 import {CVU_TimelineItem} from "./CVU_TimelineItem";
 import {CVU_AppearanceModifier} from "./CVU_AppearanceModifier";
+import {FlowStack} from "../components/FlowStack";
 require("../../extension/common/string");
 
 
@@ -146,6 +147,8 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.Spacer:
                 case UIElementFamily.Divider:
                 case UIElementFamily.FlowStack:
+                case UIElementFamily.SubView:
+                case UIElementFamily.ActionButton:
                     return false
                 default:
                     return true
@@ -160,24 +163,29 @@ export class UIElementView extends MainUI {
         // var x = this.render1()
         //if (x === undefined) debugger
         // return x || null
-        var x
+        var resolvedComponent
         if (this.nodeResolver.showNode) {
-            x = this.resolvedComponent;
+            resolvedComponent = this.resolvedComponent;
 
             if (this.needsModifier) {
-                let modifiers = x.modifier(new CVU_AppearanceModifier(this.nodeResolver));
-                Object.assign(x.props, modifiers);
+                if (!resolvedComponent.modifier) {
+                    console.log(resolvedComponent)
+                }
+                let modifiers = resolvedComponent.modifier(new CVU_AppearanceModifier(this.nodeResolver));
+                Object.assign(resolvedComponent.props, modifiers);
             }
-            return x.render();
+            return resolvedComponent.render();
         }
 
     }
 
     get flowstack() {//TODO:
-        return <FlowStack data={this.nodeResolver.resolve("list") ?? []}
-                          spacing={this.nodeResolver.spacing}
-                          content={(listItem) => this.nodeResolver.childrenInForEach(listItem)}
-        />
+        return new FlowStack({
+            nodeResolver: this.nodeResolver,
+            data: this.nodeResolver.resolve("list") ?? [],
+            spacing: this.nodeResolver.spacing,
+            content: (listItem) => this.nodeResolver.childrenInForEach(listItem)
+        })
     }
 
     get picker() {//TODO:

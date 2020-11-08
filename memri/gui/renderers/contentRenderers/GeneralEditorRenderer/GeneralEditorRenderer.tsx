@@ -97,7 +97,8 @@ export class GeneralEditorLayoutItem {
     dict: MemriDictionary
     viewArguments
 
-    constructor(dict, viewArguments?) {
+    constructor(id, dict, viewArguments?) {
+        this.id = id;
         this.dict = dict;
         this.viewArguments = viewArguments;
     }
