@@ -131,17 +131,15 @@ export class UINodeResolver {
 	}
 
 	fileURI(propertyName: string) {
-		let file = this.resolve(propertyName);
-		if (file) {
-			return file.filename
-		} else {
-			let photo = this.resolve(propertyName);
-			file = photo?.file;
-			if (photo && file) {
-				return file.filename
-			}
+		let property = this.resolve(propertyName);
+		let file
+		if (property?.constructor.name == "File") {
+			file = property
+		} else if (property?.constructor.name == "Photo") {
+			let photo = property
+			file = photo?.file
 		}
-		return
+		return file?.filename ? "memri/Resources/DemoAssets/" + file.filename + ".jpg" : null
 	}
 
 	color(propertyName: string = "color") {

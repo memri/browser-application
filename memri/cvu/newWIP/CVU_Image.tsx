@@ -52,7 +52,7 @@ export class CVU_Image extends CVU_UI {
         } else {
             return (
                 <MemriImage renderingMode={"template"} aspectRatio={CVU_SizingMode.fit} foregroundColor={new Color("secondaryLabel")} {...this.props}>
-                    {"questionmark"}
+                    {"error"}
                 </MemriImage>
             )
         }
