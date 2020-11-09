@@ -54,7 +54,7 @@ export class CVU_TextField extends CVU_UI {
     render() {
         return (<MemriTextField value={this.contentBinding}
                                 placeholder={this.hint}
-                                textColor={this.nodeResolver.color()?.uiColor}
+                                textColor={this.nodeResolver.color()}
                                 isEditing={this.editModeBinding}
                                 isSharedEditingBinding={true} {...this.props}
 

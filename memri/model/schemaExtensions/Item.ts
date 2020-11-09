@@ -229,15 +229,13 @@ export class Item extends SchemaItem {
     /// - Returns: boolean indicating whether Item has the property
     hasProperty(propName: string) {
         for (let prop in this.objectSchema.properties) {
-            if (this.hasOwnProperty(prop)) {
-                if (prop == propName) {
+            if (prop == propName) {
+                return true
+            }
+            let haystack = this[prop];
+            if (typeof haystack == "string") {
+                if (haystack.toLowerCase().indexOf(propName.toLowerCase()) > -1) {
                     return true
-                }
-                let haystack = this[prop];
-                if (typeof haystack == "string") {
-                    if (haystack.toLowerCase().indexOf(propName.toLowerCase()) > -1) {
-                        return true
-                    }
                 }
             }
         }
