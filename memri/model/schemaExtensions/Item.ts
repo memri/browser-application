@@ -6679,7 +6679,7 @@ export class CVUStateDefinition extends CVUStoredDefinition {
             "name": stored.name,
             "query": stored.query,
             "selector": stored.selector,
-            "itemType": stored.type
+            "itemType": stored.itemType
         })
     }
 

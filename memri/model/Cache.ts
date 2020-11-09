@@ -195,7 +195,7 @@ export class CacheMemri {
 						// NOTE: Allowed forced cast
 						let type = getItemType(dtype)
 						if (!type) continue;
-						let objects = realm.objects(type?.constructor?.name)
+						let objects = realm.objects(dtype)
 							.filtered("deleted = false " + (filter ?? "")) //TODO
 						for (var item of objects) { if (item instanceof Item) returnValue.push(item) }
 					}

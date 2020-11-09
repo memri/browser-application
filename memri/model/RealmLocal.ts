@@ -87,7 +87,7 @@ export class RealmObjects extends Array {
             if (/(?<=^|\s)ANY\s([.\w]+)\s*=\s*(\w+|('[^']*'))$/g.test(query)) {
                 let parts = query.split(/(?:AND )?(?:NOT )?ANY/i);
                 query=parts[0];
-                let replace = notQuery? "item['$1'].some((el)=> el['$2'] != $3)" : "item['$1'].some((el)=> el['$2'] == $3)";
+                let replace = notQuery? "item['$1'] && item['$1'].some((el)=> el['$2'] != $3)" : "item['$1'] && item['$1'].some((el)=> el['$2'] == $3)";
                 var anyQuery = parts[1].replace(/\s([\w]+)\.(\w+)\s*=\s*(\w+|('[^']*'))/, replace);
                 var result = this.filter(new Function("item", "return " + anyQuery))
             }

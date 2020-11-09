@@ -149,6 +149,7 @@ export class UIElementView extends MainUI {
                 case UIElementFamily.FlowStack:
                 case UIElementFamily.SubView:
                 case UIElementFamily.ActionButton:
+                case UIElementFamily.ItemCell:
                     return false
                 default:
                     return true
