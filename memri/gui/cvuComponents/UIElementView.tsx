@@ -72,36 +72,36 @@ export class UIElementView extends MainUI {
     get resolvedComponent() {
         switch (this.nodeResolver.node.type) {
             case UIElementFamily.HStack:
-                return new CVU_HStack({nodeResolver: this.nodeResolver})
+                return new CVU_HStack({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.VStack:
-                return new CVU_VStack({nodeResolver: this.nodeResolver})
+                return new CVU_VStack({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.ZStack:
-                return new CVU_ZStack({nodeResolver: this.nodeResolver})
+                return new CVU_ZStack({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Text:
-                return new CVU_Text({nodeResolver: this.nodeResolver})
+                return new CVU_Text({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.SmartText:
-                return new CVU_SmartText({nodeResolver: this.nodeResolver})
+                return new CVU_SmartText({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Image:
-                return new CVU_Image({nodeResolver: this.nodeResolver})
+                return new CVU_Image({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Map:
-                return new CVU_Map({nodeResolver: this.nodeResolver})
+                return new CVU_Map({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Textfield:
                 return new CVU_TextField({nodeResolver: this.nodeResolver, editModeBinding: this.editModeBinding})
             case UIElementFamily.RichTextfield:
                 return new CVU_RichTextEditor({nodeResolver: this.nodeResolver, editModeBinding: this.editModeBinding, searchTerm: this.context.currentView?.filterText})
             case UIElementFamily.EditorSection:
-                return new CVU_EditorSection({nodeResolver: this.nodeResolver})
+                return new CVU_EditorSection({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.EditorRow:
-                return new CVU_EditorRow({nodeResolver: this.nodeResolver})
+                return new CVU_EditorRow({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.EditorLabel:
                 return new EmptyView({})
                 //warning("EditorLabel Unimplemented")
             case UIElementFamily.Toggle:
-                return new CVU_Toggle({nodeResolver: this.nodeResolver})
+                return new CVU_Toggle({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.MemriButton:
-                return new CVU_MemriButton({nodeResolver: this.nodeResolver})
+                return new CVU_MemriButton({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.ActionButton:
-                return new ActionButton({action: this.nodeResolver.resolve("press") ?? new Action(this.context, "noop"), item: this.nodeResolver.item})
+                return new ActionButton({action: this.nodeResolver.resolve("press") ?? new Action(this.context, "noop"), item: this.nodeResolver.item, context: this.context})
             case UIElementFamily.Button:
                 return new CVU_Button({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Divider:
@@ -109,11 +109,11 @@ export class UIElementView extends MainUI {
             case UIElementFamily.HorizontalLine:
                 return new HorizontalLine({})
             case UIElementFamily.Circle:
-                return new CVU_ShapeCircle({nodeResolver: this.nodeResolver})
+                return new CVU_ShapeCircle({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Rectangle:
-                return new CVU_ShapeRectangle({nodeResolver: this.nodeResolver})
+                return new CVU_ShapeRectangle({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.HTMLView:
-                return new CVU_HTMLView({nodeResolver: this.nodeResolver})
+                return new CVU_HTMLView({nodeResolver: this.nodeResolver, context: this.context})
             case UIElementFamily.Spacer:
                 return new Spacer({})
             case UIElementFamily.Empty:
@@ -128,12 +128,12 @@ export class UIElementView extends MainUI {
                 return new ItemCell({
                     item: this.nodeResolver.item,
                     rendererNames: this.nodeResolver.resolve("rendererNames") ?? [],
-                    argumentsJs: this.nodeResolver.viewArguments
+                    argumentsJs: this.nodeResolver.viewArguments, context: this.context
                 })
             case UIElementFamily.TimelineItem:
-                return new CVU_TimelineItem({nodeResolver: this.nodeResolver})
+                return new CVU_TimelineItem({nodeResolver: this.nodeResolver, context: this.context})
             default:
-                return new MemriText({nodeResolver: this.nodeResolver, text: `${this.nodeResolver.node.type} not implemented`})
+                return new MemriText({nodeResolver: this.nodeResolver, text: `${this.nodeResolver.node.type} not implemented`, context: this.context})
         }
     }
 
@@ -184,7 +184,7 @@ export class UIElementView extends MainUI {
             nodeResolver: this.nodeResolver,
             data: this.nodeResolver.resolve("list") ?? [],
             spacing: this.nodeResolver.spacing,
-            content: (listItem) => this.nodeResolver.childrenInForEach(listItem)
+            content: (listItem) => this.nodeResolver.childrenInForEach(this.context, listItem)
         })
     }
 

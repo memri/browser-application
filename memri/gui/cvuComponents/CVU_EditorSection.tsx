@@ -23,7 +23,7 @@ export class CVU_EditorSection extends CVU_UI {
     render() {
         return (
             <Section header={this.header} {...this.props}>
-                {this.nodeResolver.childrenInForEach()}
+                {this.nodeResolver.childrenInForEach(this.context)}
             </Section>
         )
     }
@@ -40,7 +40,7 @@ export class CVU_EditorRow extends CVU_UI {
     }
     
     get content() {
-        return this.nodeResolver.childrenInForEach()
+        return this.nodeResolver.childrenInForEach(this.context)
     }
     
     render() {
@@ -67,7 +67,7 @@ export class CVU_EditorLabel extends CVU_UI {
     }
     
     get content() {
-        return this.nodeResolver.childrenInForEach()
+        return this.nodeResolver.childrenInForEach(this.context)
     }
     
     render() {

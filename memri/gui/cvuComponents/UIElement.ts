@@ -121,12 +121,12 @@ export class UINodeResolver {
 			newArguments = new ViewArguments(this.viewArguments, item)
 		return this.node.children.map(($0) => new UIElementView({nodeResolver: new UINodeResolver($0, newArguments)}).render())
 	}
-
-	childrenInForEach(item?: Item) {
+	//TODO: we need to transfer context to child components, so i added parameter @mkslanc
+	childrenInForEach(context, item?: Item) {
 		let newArguments = this.viewArguments;
 		if (item)
 			newArguments = new ViewArguments(this.viewArguments, item)
-		let childNodeResolvers = this.node.children.map(($0) => new UIElementView({nodeResolver: new UINodeResolver($0, newArguments)}).render());
+		let childNodeResolvers = this.node.children.map(($0) => new UIElementView({context: context, nodeResolver: new UINodeResolver($0, newArguments)}).render());
 		return childNodeResolvers
 	}
 

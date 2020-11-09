@@ -34,6 +34,11 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     styles;
     context: MemriContext;
 
+    constructor(props) {
+        super(props);
+        this.context = props.context;
+    }
+
     readSize(onChange) { //TODO:
         /*background(
             GeometryReader { geometryProxy in

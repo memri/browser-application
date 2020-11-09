@@ -19,7 +19,7 @@ export class CVU_HStack extends CVU_UI {
                         alignment: this.nodeResolver.alignment()
                     })} {...this.props}
             >
-                {this.nodeResolver.childrenInForEach()}
+                {this.nodeResolver.childrenInForEach(this.context)}
             </HStack>
         )
     }
@@ -35,7 +35,7 @@ export class CVU_VStack extends CVU_UI {
                         alignment: this.nodeResolver.alignment()
                     })} {...this.props}
             >
-                {this.nodeResolver.childrenInForEach()}
+                {this.nodeResolver.childrenInForEach(this.context)}
             </VStack>
         )
     }
@@ -45,7 +45,7 @@ export class CVU_ZStack extends CVU_UI {
     render() {
         return (
             <ZStack alignment={this.nodeResolver.alignment()} {...this.props}>
-                {this.nodeResolver.childrenInForEach()}
+                {this.nodeResolver.childrenInForEach(this.context)}
             </ZStack>
         )
     }
