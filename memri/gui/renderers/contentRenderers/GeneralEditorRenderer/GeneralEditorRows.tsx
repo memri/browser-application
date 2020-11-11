@@ -38,39 +38,41 @@ export class DefaultGeneralEditorRow extends MainUI {
         return (
             <VStack spacing={0}>
                 {(propValue != undefined || !this.readOnly) &&
-                <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
-                    <MemriText>
-                        <GeneralEditorLabel>
-                            {this.prop
-                                .camelCaseToWords()
-                                .toLowerCase()
-                                .capitalizingFirst()
-                            }
-                        </GeneralEditorLabel>
-                    </MemriText>
-                    {this.renderConfig.hasGroup(this.prop) ?
-                        this.renderConfig.render(this.item, this.prop, this.argumentsJs) :
-                        (this.readOnly) ?
-                            (typeof propValue == "object") ?
-                                this.defaultRow(ExprInterpreter.evaluateString(propValue)) :
+                <>
+                    <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
+                        <MemriText>
+                            <GeneralEditorLabel>
+                                {this.prop
+                                    .camelCaseToWords()
+                                    .toLowerCase()
+                                    .capitalizingFirst()
+                                }
+                            </GeneralEditorLabel>
+                        </MemriText>
+                        {this.renderConfig.hasGroup(this.prop) ?
+                            this.renderConfig.render(this.item, this.prop, this.argumentsJs) :
+                            (this.readOnly) ?
                                 (typeof propValue == "object") ?
-                                    (propValue instanceof Item) ?
-                                        <MemriButton context={this.context} item={propValue}>
+                                    this.defaultRow(ExprInterpreter.evaluateString(propValue)) :
+                                    (typeof propValue == "object") ?
+                                        (propValue instanceof Item) ?
+                                            <MemriButton context={this.context} item={propValue}>
 
-                                        </MemriButton> :
+                                            </MemriButton> :
+                                            this.defaultRow() :
                                         this.defaultRow() :
-                                    this.defaultRow() :
-                            (typeof propValue == "string") ?
-                                this.stringRow() :
-                                (typeof propValue == "boolean") ?
-                                    this.boolRow() :
-                                    (typeof propValue == "number") ?
-                                        this.intRow() :
-                                        this.defaultRow()
-                    }
-                </VStack> ||
-                (!this.isLast) &&
-                <MemriDivider padding={padding({leading: 35})}/>
+                                (typeof propValue == "string") ?
+                                    this.stringRow() :
+                                    (typeof propValue == "boolean") ?
+                                        this.boolRow() :
+                                        (typeof propValue == "number") ?
+                                            this.intRow() :
+                                            this.defaultRow()
+                        }
+                    </VStack>
+                    {(!this.isLast) &&
+                    <MemriDivider padding={padding({leading: 35})}/>}
+                </>
                 }
             </VStack>
         )

@@ -203,11 +203,11 @@ export class GeneralEditorRendererView extends RenderersMemri {
         for (let item of layout) {
             let list = item.get("fields", "[String]");
             if (list) {
-                result.push(...[list]); //TODO:
+                result.push(...list); //TODO:
             }
             list = item.get("exclude", "[String]");
             if (list) {
-                result.push(...[list]) //TODO:
+                result.push(...list) //TODO:
             }
         }
         return result
@@ -323,7 +323,7 @@ export class GeneralEditorSection extends MainUI {
                     fields.map((field) => {
                         return (
                             <DefaultGeneralEditorRow context={this.context} item={this.item} prop={field}
-                                                     readOnly={readOnly} isLast={fields.last == field}
+                                                     readOnly={readOnly} isLast={fields[fields.length - 1] == field}
                                                      renderConfig={renderConfig} argumentsJs=
                                                          {this._args("", field, this.item.get(field), this.item)}>
 
