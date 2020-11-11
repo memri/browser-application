@@ -71,6 +71,8 @@ var Box = class {
         var x = e.clientX;
         var y = e.clientY;
 
+        document.body.classList.add('dragging')
+
         var onMouseMove = function(e) {
             x = e.clientX - rect.left - box.padding.left;
             y = e.clientY - rect.top - box.padding.top;
@@ -98,6 +100,7 @@ var Box = class {
         };
         var onResizeEnd = function(e) {
             Box.setGlobalCursor("");
+            document.body.classList.remove('dragging')
         };
         Box.setGlobalCursor(`${box.vertical ? "ns" : "ew"}-resize`);
 

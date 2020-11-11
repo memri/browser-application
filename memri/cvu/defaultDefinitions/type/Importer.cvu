@@ -1,0 +1,141 @@
+[session = all-importers] {
+    [view] {
+        title: "All Importers"
+        [datasource = pod] {
+            query: "Importer"
+        }
+    }
+}
+
+Importer {
+    title: "{.name}"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    filterButtons: [
+        openView {
+            icon: "increase.indent"
+            title: "Show Timeline"
+            
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
+                }
+            }
+        }
+        showContextPane
+    ]
+    
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "Timeline of this importer"
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+            openViewByName {
+                title: "Starred importers"
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
+                }
+            }
+            openSessionByName {
+                title: "All importers"
+                sessionName: "all-importers"
+            }
+        ]
+    }
+}
+
+Importer[] {
+    name: "all-importers"
+    title: "All Importers"
+    emptyResultText: "There are no Importers"
+    defaultRenderer: grid
+    sortFields: datatype dateModified dateAccessed dateCreated
+    
+    [datasource = pod] {
+        query: "Importer"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+    
+    filterButtons: showStarred toggleFilterPanel
+    
+    [renderer = grid] {
+        spacing: 10
+        edgeInset: 10
+
+        press: addItem {
+            template {
+                _type: ImporterRun
+                name: {{.name}}
+                importer: {{.}}
+                repository: {{.repository}}
+            }
+        }
+
+        ZStack {
+            Rectangle {
+                color: #fafafa
+                cornerRadius: 5
+            }
+
+            VStack {
+                alignment: center
+                spacing: 5
+            
+                Image {
+                        show: {{.icon or .bundleImage}}
+                        systemName: {{.icon}}
+                        bundleImage: {{.bundleImage}}
+                        resizable: true
+                        color: #2480d6
+                        width: 50
+                        height: 50
+                }
+                
+                Text {
+                    text: "{.name}"
+                    font: 16 semibold
+                    color: #333
+                    padding: 5 0 0 0
+                }
+                
+                Text {
+                    text: "{.dateModified}"
+                    font: 11 regular
+                    color: #888
+                    padding: 8 0 5 0
+                }
+        }
+        }
+    }
+}

@@ -1,0 +1,15 @@
+
+.all-items-with-label {
+    title: "Items with label {name}"
+    [datasource = pod] {
+        query: "* AND ANY allEdges.targetItemID = {uid}"
+    }
+    defaultRenderer: list
+    
+    [renderer = list] {
+        ItemCell {
+            rendererNames: list thumbnail
+            arguments: {{variables}}
+        }
+    }
+}

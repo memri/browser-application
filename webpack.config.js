@@ -1,5 +1,6 @@
 "use strict";
 module.exports = {
+    devtool: 'source-map',
     entry: {
         simple: './demo.ts',
         react: './demo-react.tsx',
@@ -8,9 +9,10 @@ module.exports = {
         rules: [{
             test: /\.(t|j)sx?$/,
             use: {
-                loader: 'ts-loader',
+                loader: 'ftst-loader',
                 options: {
-                    transpileOnly: true
+                    transpileOnly: true,
+                    transformNullishCoalesce: true
                 }
             },
             exclude: /node_modules/,

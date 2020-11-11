@@ -1,0 +1,205 @@
+[session = all-indexer-instances] {
+    [view] {
+        title: "All IndexerRuns"
+        [datasource = pod] {
+            query: "IndexerRun"
+        }
+    }
+}
+
+IndexerRun {
+    title: "{.name}"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    filterButtons: [
+        openView {
+            icon: "increase.indent"
+            title: "Show Timeline"
+            
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
+                }
+            }
+        }
+        showContextPane
+    ]
+    
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigateItems: [
+            openView {
+                title: "Timeline of this indexer run"
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+            openViewByName {
+                title: "Starred indexer runs"
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
+                }
+            }
+            openSessionByName {
+                title: "All indexer runs"
+                sessionName: "all-indexer-instances"
+            }
+        ]
+    }
+    
+    [renderer = generalEditor] {
+        layout: [
+            { section: iconHeading }
+            { section: info, exclude: name run }
+            { section: labels }
+            { section: other, fields: * }
+            { section: dates }
+        ]
+        
+        iconHeading {
+            showTitle: false
+            dividers: false
+            
+            HStack {
+                alignment: leading
+                fillWidth: true
+                spacing: 10
+                padding: 20
+                
+                Image {
+                    padding: 8 0 8 0
+                    alignment: center
+                    show: {{.indexer.icon or .indexer.bundleImage}}
+                    systemName: {{.indexer.icon}}
+                    bundleImage: {{.indexer.bundleImage}}
+                    resizable: true
+                    color: #d64f4f
+                    width: 30
+                    height: 30
+                }
+                
+                Text {
+                    text: {{.name}}
+                    font: 25 bold
+                }
+            }
+        }
+        
+        
+        info {
+            showTitle: false
+            dividers: false
+            
+            VStack {
+                EditorRow {
+                    alignment: left
+                    readOnly: true
+                    padding: 0 10
+                    background: #f9f9f9
+                    
+                    Button {
+                        press: runIndexer {
+                            indexerRun: {{.}}
+                        }
+                        
+                        Text {
+                            text: "START RUN"
+                            font: 16 semibold
+                            color: #fff
+                            padding: 5 8 5 8
+                            cornerRadius: 5
+                            background: #70ba6c
+                        }
+                    }
+                }
+                Divider
+                
+                EditorRow {
+                    Text {
+                        text: {{.indexer.itemDescription}}
+                        font: 14 regular
+                        color: #555
+                        padding: 8 36 8 0
+                    }
+                }
+            }
+        }
+    }
+}
+
+IndexerRun[] {
+    name: "all-indexer-instances"
+    title: "All IndexerRuns"
+    emptyResultText: "There are no IndexerRuns"
+    defaultRenderer: list
+    sortFields: datatype dateModified dateAccessed dateCreated
+    
+    [datasource = pod] {
+        query: "IndexerRun"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+
+    actionButton:
+        addItem {
+            template {
+                _type: IndexerRunInstance
+                name: {{.name}}
+            }
+        }
+
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+    
+    [renderer = list] {
+        HStack {
+            alignment: left
+            
+            Text {
+                text: "{.name}"
+                font: 18 semibold
+                color: #333
+                padding: 0 0 3 0
+            }
+            Text {
+                text: "{.datatype}"
+                removeWhiteSpace: true
+                maxChar: 100
+                color: #555
+                font: 14 regular
+            }
+            Text {
+                text: "{.dateModified}"
+                font: 11 regular
+                color: #888
+                padding: 8 0 5 0
+            }
+        }
+    }
+}

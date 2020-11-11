@@ -1,0 +1,4 @@
+[renderer = messages] {
+	edgeInset: 10
+	spacing: 8 /* the spacing between rows */
+}

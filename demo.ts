@@ -6,7 +6,6 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/ext-error_marker";
 import "ace-builds/src-noconflict/ext-options";
 import "ace-builds/src-noconflict/ext-prompt";
-import {StatusBar} from "ace-builds/src-noconflict/ext-statusbar";
 import {Mode} from "./playground/cvu-mode";
 
 let DemoWorker = require("worker-loader!./demo-worker")
@@ -108,6 +107,7 @@ var {TabManager} = require("./playground/ui-lib/tabManager");
 
 var mainBox
 var listBox
+var memriBox
 var baseBox = new Box({
     vertical: false,
     toolBars: {
@@ -121,18 +121,29 @@ var baseBox = new Box({
             0: listBox = new ListBox({
                 size: "200px",
             }),
-            1: mainBox = new Box({
-                ratio: 1,
+            1: new Box({
                 isMain: true,
+                0: mainBox = new Box({
+                    ratio: 0.5,
+                    isMain: true,
+                }),
+                1: memriBox = new Box({
+                    isMain: false,
+                    size: "420px"
+                }),
             }),
+
         }),
         toolBars: {},
     }),
 });
 
+let memriApp = document.createElement("iframe");
 
 var onResize = function() {
-    baseBox.setBox(0, 0, window.innerWidth, window.innerHeight)
+    baseBox.setBox(0, 0, window.innerWidth, window.innerHeight);
+    memriApp.width = memriBox.size;
+    memriApp.height = window.innerHeight - 20 + "px";
 };
 window.onresize = onResize;
 
@@ -141,14 +152,17 @@ document.body.appendChild(baseBox.draw());
 onResize()
 
 
+memriBox.element.appendChild(memriApp);
+
 baseBox.toolBars.top.element.textContent = "";
 dom.buildDom([
     ["input", { 
         ref: "podAddress", 
-        value: "http://localhost:3030", 
+        value: "http://localhost:3030",
         onkeypress: function(e) {
             if (e.key == "Enter") {
                 updateTree()
+                memriApp.src = "http://localhost:9000/app.html?pod=" + localStorage["user/pod/host"]
             }
         }
     }],
@@ -159,8 +173,18 @@ dom.buildDom([
         onclick: (e)=> {
             e.preventDefault();
             updateTree();
+            memriApp.src = "http://localhost:9000/app.html?pod=" + localStorage["user/pod/host"]
         }
     }, "Connect To Pod"],
+    ["button", {
+        onmousedown: (e)=> {
+            e.preventDefault()
+        },
+        onclick: (e)=> {
+            e.preventDefault();
+            showDialog();
+        }
+    }, "Settings"],
     ["span", {class: "spacer"}],
     ["button", {
         ref: "saveButton",
@@ -169,6 +193,7 @@ dom.buildDom([
         },
         onclick: (e)=> {
             e.preventDefault()
+            saveCurrentFile();
         }
     }, "Save"],
 ], baseBox.toolBars.top.element, refs);
@@ -183,7 +208,7 @@ window.tabManager = tabManager;
 var newTabCounter = 1
 tabManager.addNewTab = function(pane) {
     pane.tabBar.addTab({
-        tabTitle: `Untitled ${newTabCounter++}.cvu`,
+        tabTitle: `Untitled${newTabCounter++}.cvu`,
         active: true,
     })
 };
@@ -269,7 +294,7 @@ function saveCurrentFile() {
         if (/^defaults\//.test(tab.path)) {
             return
         }
-        var name = tab.path.split("/").pop();
+        var name = tab.path.replace(/\s+/g,"").split("/").pop();
         tab.path  = "user/" + name;
         tab.tabTitle = name
         tab.$title.textContent = tab.tabTitle;
@@ -391,31 +416,122 @@ window.onbeforeunload = function() {
     saveMetadata();
 }
 
-import {settings} from "./model/Settings"
-import {PodAPI} from "./api/api"
+import {Settings} from "./router"
+import {PodAPI} from "./router"
 
 refs.podAddress.addEventListener("input", function() {
-    settings.set("user/pod/host", refs.podAddress.value);
-    localStorage["user/pod/host"] = settings.get("user/pod/host")
+    Settings.shared.set("user/pod/host", refs.podAddress.value);
+    localStorage["user/pod/host"] = Settings.shared.get("user/pod/host")
 })
 refs.podAddress.value = localStorage["user/pod/host"] || "http://localhost:3030/"
-settings.set("user/pod/host", refs.podAddress.value);
+Settings.shared.set("user/pod/host", refs.podAddress.value);
 
 import {mockApi} from "./playground/mockApi"
-var api = new PodAPI(null, mockApi);
+var api = new PodAPI(undefined, new mockApi());
  
- window.api = api
+window.api = api
+
+window.setUserCVUs = () => {
+    if (localStorage["user/pod/host"] && localStorage["user/pod/host"] == "mock") {
+        for (let [key, value] of Object.entries(localStorage)) {
+            if (/^file-user\//.test(key)) {
+                sharedWorker.call("split", [value], function(result) {
+                    saveCVUDefinition(key.substr(5), value, result.parts, function() {
+                        //updateSaveButton(false, tab.editor);
+                    });
+                })
+            }
+        }
+    }
+}
+
 
 listBox.popup.setData([{value:  "Connect to pod to load data"}]);
  
 function sortFn(a, b) {
     return a.name.localeCompare(b.name);
 }
+
+function showDialog(message?) {
+    function destroyDialog() {
+        document.getElementById("dialogContainer").outerHTML = "";
+    }
+
+    dom.buildDom(["div", {
+        style: `
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: block;
+    background-color: rgba(22,22,22,0.5);
+    z-index: 40;
+    top: 0;
+    left: 0;
+    `,
+        id: "dialogContainer",
+        onclick: (e) => {
+            e.preventDefault();
+            if (e.target.id == "dialogContainer") {
+                destroyDialog()
+            }
+        }
+    }, [["div", {
+        style: `
+            margin: 0 auto;
+            min-width: 550px;
+            width: 20%;
+            position:relative; 
+            z-index:41;
+            top: 25%;
+            padding:30px; 
+            background-color: #ddd;
+            color: #666;
+            border: 1px solid #cbcbcb;
+            border-top: 0 none;
+            overflow: hidden;
+            white-space: normal;
+                `
+    },
+        ["span", {style: "color: red"}, message ?? ""],
+        ["div", {}, [
+            ["label", {for: "databaseKey"}, "Database Key"],
+            ["input", {
+                id: "databaseKey",
+                class: "",
+                name: "databaseKey",
+                size: 70,
+                value: localStorage["databaseKey"]
+            }],
+        ]],
+        ["div", {}, [
+            ["label", {for: "userKey"}, "Public Key"],
+            ["input", {id: "publicKey", class: "", name: "publicKey", size: 70, value: localStorage["ownerKey"]}],
+        ]],
+        ["div", {}, [
+            ["button", {
+                id: "okDialog",
+                onclick: (e) => {
+                    e.preventDefault();
+                    let publicKey = document.getElementById("publicKey").value;
+                    let databaseKey = document.getElementById("databaseKey").value;
+                    localStorage.setItem("ownerKey", publicKey);
+                    localStorage.setItem("databaseKey", databaseKey);
+                    destroyDialog();
+                    updateTree();
+                }
+            }, "ok"],
+        ]],
+
+    ]]], document.body);
+}
+
 function updateTree() {
     listCVUDefinitions(function(err, files) {
         if (err) {
-            console.error(err)
-            return alert("Could not connect to pod: " + err.message)
+            // console.error(err)
+            // return alert("Could not connect to pod: " + err.message)
+            showDialog(err.message)
+            return
         }
         var selected = listBox.popup.getData(listBox.popup.getRow());
         var data = [{className: "header", name: "User"}].concat(
@@ -459,7 +575,7 @@ var cache;
 var cacheListeners;
 function listCVUDefinitions(callback) {
     cache = Object.create(null)
-    api.query({query: "CVUStoredDefinition"}, function(err, items) {
+    api.query({query: "CVUStoredDefinition"}, false,function(err, items) {
         if (err) return callback(err);
         items.forEach(function(item) {
             if (!item.definition || item.deleted) return;
@@ -493,16 +609,19 @@ function listCVUDefinitions(callback) {
             if (!files[domain]) return;
             var name = path.slice(domain.length + 1);
             files[domain].push({
-                readOnly: domain == "dafaults",
+                readOnly: domain == "defaults",
                 path,
                 name,
             });
         });
         callback(null, files)
         
-        if (cacheListeners.length)
+        if (cacheListeners && cacheListeners.length) {
             cacheListeners.forEach(x=>x())
-        cacheListeners.length = 0;
+            cacheListeners.length = 0;
+        }
+
+
     });
 }
 
@@ -572,8 +691,11 @@ function saveCVUDefinition(path, value, parts, callback) {
     Promise.all(promises).then(function() {
         updateTree()
         callback()
+        if (typeof memriApp.contentWindow.updateCVU == "function")
+            memriApp.contentWindow.updateCVU();
     })
 }
 
 
-updateTree() 
+updateTree()
+window.setUserCVUs()

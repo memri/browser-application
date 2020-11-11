@@ -1,0 +1,4 @@
+[renderer = grid] {
+    press: openView
+    longPress: select
+}
