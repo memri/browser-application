@@ -98,12 +98,8 @@ export class Expression {
                     else {
                         // let propType = PropertyType(rawValue: 7)//TODO
                         if (propType) {
-                            // #warning(
-                            //     "This requires a local version a browsable schema that describes the types of edges"
-                            // )
-                            //if let item = dataItem.edge(lastProperty.name)?.item() {
+                            // TODO: This requires a local version a browsable schema that describes the types of edges
                             return [propType, dataItem, lastProperty.name]
-                            //
                         }
                     }
 

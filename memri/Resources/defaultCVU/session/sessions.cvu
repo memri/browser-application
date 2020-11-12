@@ -1,0 +1,13 @@
+
+[sessions = defaultSessions] {
+    currentSessionIndex: 0
+    
+    [session] {
+        currentViewIndex: 0
+        [view] {
+            [datasource = pod] {
+                query: Note
+            }
+        }
+    }
+}

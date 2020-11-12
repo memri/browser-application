@@ -70,7 +70,7 @@ export class EdgeReference {
 }
 
 export class DatabaseController {
-	static realmTesting = false
+	static isRunningXcodeTests  = false
 
 	constructor() {}
 
@@ -103,7 +103,7 @@ export class DatabaseController {
 		if (homeDir) {
 			var realmDir = homeDir + "/realm.memri"
 			
-			if (this.realmTesting) {
+			if (this.isRunningXcodeTests: ) {
 				realmDir += ".testing"
 			}
 			
@@ -133,7 +133,7 @@ export class DatabaseController {
 
 			//var config = realmConfig
 
-			if (!this.realmTesting) {
+			if (!this.isRunningXcodeTests) {
 				/*#if targetEnvironment(simulator)
 				if !reportedKey {
 					print("REALM KEY: \(data.hexEncodedString(options: .upperCase))")
@@ -161,7 +161,7 @@ export class DatabaseController {
 	static getRealmSync() {
 		//let data = Authentication.getPublicRootKeySync()
 		//var config = this.realmConfig
-		/*if (!realmTesting) {
+		/*if (!isRunningXcodeTests: ) {
 			#if targetEnvironment(simulator)
 			if !reportedKey {
 				reportedKey = true
@@ -317,7 +317,6 @@ export class DatabaseController {
 	}
 
 	static clean(callback) { //TODO:
-		//#warning("@Toby, deleting here on realm doesnt remove them from the db and thus this is called every time. Any idea why?")
 		DatabaseController.asyncOnBackgroundThread(true, callback, (realm) => {
             for (let itemType in ItemFamily) {
 				let type = getItemType(ItemFamily[itemType]);

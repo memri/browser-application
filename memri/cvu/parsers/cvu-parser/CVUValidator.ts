@@ -120,7 +120,7 @@ export var validateUIElementProperties = function (key, value) {
         case UIElementProperties.color:
         case UIElementProperties.background:
         case UIElementProperties.rowbackground:
-            return value?.constructor?.name == "Color"
+            return value?.constructor?.name == "CVUColor" || typeof value == "string"
         case UIElementProperties.font:
             if (Array.isArray(value)) {
                 return value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number" || (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
@@ -135,11 +135,11 @@ export var validateUIElementProperties = function (key, value) {
             }
         case UIElementProperties.border:
             if (Array.isArray(value)) {
-                return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+                return (value[0]?.constructor?.name == "CVUColor" || typeof value[0] == "string") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
             } else { return false }
         case UIElementProperties.shadow:
             if (Array.isArray(value)) {
-                return value[0]?.constructor?.name == "Color" && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+                return (value[0]?.constructor?.name == "CVUColor" || typeof value[0] == "string") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
                     && (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
             } else {
                 return false
@@ -289,10 +289,10 @@ export class CVUValidator {
                     return typeof value == "string"
                     case "userState": return value?.constructor?.name == "CVUParsedObjectDefinition"
                     case "viewArguments": return value?.constructor?.name == "CVUParsedObjectDefinition"
-                        // #warning("Add validation for contextPane")
-                    case "contextPane": return value?.constructor?.name == "CVUParsedObjectDefinition"
+                    case "contextPane":
+                        // TODO: Add validation for contextPane
+                        return value?.constructor?.name == "CVUParsedObjectDefinition"
                     case "datasourceDefinition":
-                    //case "datasource": //TODO: in original file there is no such key, but i think this is correct
                         return value?.constructor?.name == "CVUParsedDatasourceDefinition"
                     case "showLabels": return typeof value == "boolean"
                     case "actionButton": case "editActionButton":

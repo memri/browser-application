@@ -207,7 +207,7 @@ export class ExprBinaryOpNode implements ExprNode{
         return `BinaryOpNode(${this.op}, lhs: ${this.lhs}, rhs: ${this.rhs})`
     }
 
-    //#warning("hide () when possible")
+    // TODO: hide () when possible
     toExprString() {
         return `(${this.lhs.toExprString()} ${this.op} ${this.rhs.toExprString()})`
     }

@@ -1,0 +1,198 @@
+[session = all-messages] {
+    [view] {
+        title: "All Messages"
+        [datasource = pod] {
+            query: "Message"
+        }
+    }
+}
+
+Message {
+    title: {{.title or "Untitled" }}
+    defaultRenderer: custom
+    editActionButton: toggleEditMode
+    filterButtons: [
+        openView {
+            icon: "increase.indent"
+            title: "Show Timeline"
+            
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
+                }
+            }
+        }
+        showContextPane
+    ]
+    
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "Timeline of this note"
+                view: {
+                    defaultRenderer: timeline
+                    
+                    [datasource = pod] {
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+            openViewByName {
+                title: "Starred notes"
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
+                }
+            }
+            openSessionByName {
+                title: "All notes"
+                sessionName: "all-notes"
+            }
+        ]
+    }
+    
+    [renderer = custom] {
+        RichTextfield {
+            content: {{.content}}
+            title: {{.title}}
+            fontSize: 18
+        }
+    }
+}
+
+Message[] {
+    defaultRenderer: messages
+    filterButtons: showStarred toggleFilterPanel
+    
+    [renderer = list] {
+        spacing: 8
+        Text {
+            text: {{.content.plainString}}
+        }
+    }
+    
+    [renderer = messages] {
+        background: background
+        spacing: 8
+        
+        HStack {
+            alignment: {{ .sender.owner = me ? "right" : "left" }}
+            fillWidth: true
+            padding: {{ .sender.owner = me ? "0 0 0 20" : "0 60 0 0" }}
+            
+            VStack {
+                spacing: 2
+                padding: 5
+                background: {{ .sender.owner = me ? "purpleBackground" : "secondaryBackground" }}
+                cornerRadius: 5
+                
+                Text {
+                    /*                        show: {{previous.dateSent - .dateSent < 30000}}*/
+                    show: {{ .messageChannel._receiver[].count > 1 AND .sender.owner != me }}
+                    text: "{.sender.owner.fullName()}"
+                    font: 12 bold
+                    color: secondary
+                    lineLimit: 1
+                }
+                
+                HStack {
+                    show: {{.message}}
+                    background: tertiaryBackground
+                    border: #f00 3 /* TODO: Left border only */
+                    cornerRadius: 3
+                    
+                    VStack {
+                        padding: 6
+                        
+                        Text {
+                            text: "{.message.sender.owner.fullName()}"
+                            font: 12 bold
+                            color: #743a4c
+                            lineLimit: 1
+                        }
+                        
+                        SmartText {
+                            text: "{.message.photo ? '[Photo] ' : ''}{.message.content.plainString}"
+                            color: secondary
+                            font: 12 regular
+                            padding: 6
+                            maxLines: 2
+                        }
+                    }
+                    
+                    Image {
+                        show: {{.message.photo}}
+                        image: {{.message.photo}}
+                        sizingMode: fit
+                        cornerRadius: 3
+                        maxHeight: 60
+                        maxWidth: 60
+                    }
+                }
+                
+                Button {
+                    show: {{.photo}}
+                    press: openView {
+                        view: {
+                            inherit: {{currentView}}
+                            defaultRenderer: "photoViewer"
+                        }
+                        viewArguments: {
+                            currentItem: {{.}}
+                        }
+                    }
+                    
+                    Image {
+                        image: {{.photo}}
+                        sizingMode: fit
+                        cornerRadius: 5
+                        maxWidth: 250
+                    }
+                }
+                
+                SmartText {
+                    show: {{.content}}
+                    text: {{.content.plainString}}
+                    font: 16 regular
+                    color: primary
+                    maxLines: 100
+                    margin: 3
+                }
+                
+                Text {
+                    font: 10 bold /* TODO: caption?? */
+                    color: secondary
+                    text: "{.dateSent.format('time')}"
+                    lineLimit: 1
+                }
+            }
+        }
+    }
+    
+    [renderer = photoViewer] {
+        file: {{.photo.file}}
+        initialItem: {{currentItem}}
+    }
+}

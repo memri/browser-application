@@ -1,0 +1,75 @@
+[session = all-receipts] {
+    [view] {
+        title: "All Receipts"
+        [datasource = pod] {
+            query: "ReceiptDemo"
+        }
+    }
+}
+
+ReceiptDemo[] {
+    defaultRenderer: timeline
+    filterButtons: [ showStarred toggleFilterPanel ]
+    
+    [renderer = timeline] {
+        timeProperty: {{.dateModified}}
+        press: openView {
+            view: {
+                inherit: {{currentView}}
+                defaultRenderer: "fileViewer"
+            }
+            viewArguments: {
+                currentItem: {{.}}
+            }
+        }
+        HStack {
+            spacing: 10
+            Image {
+                show: {{.photo}}
+                image: {{.photo}}
+                sizingMode: fill
+                background: secondaryBackground
+                width: 60
+                height: 60
+            }
+            FileThumbnail {
+                show: {{.file}}
+                file: {{.file}}
+                width: 60
+                height: 60
+            }
+            VStack {
+                alignment: left
+                HStack {
+                    Text {
+                        text: "{.store}"
+                    }
+                    Spacer
+                    Text {
+                        text: "{.category}"
+                        font: bold
+                    }
+                }
+                Text {
+                    text: "{.totalCost.currency}"
+                    font: bold
+                }
+            }
+        }
+    }
+    
+    [renderer = chart] {
+        chartType: bar
+        chartTitle: "Expenses"
+        color: purpleBackground
+        
+        label: "{.category}" /* provides label for a point/bar */
+		yAxis: {{.totalCost}}
+    }
+    
+    [renderer = fileViewer] {
+        file: {{.photo.file or .file}}
+        itemTitle: {{.store}}
+        initialItem: {{currentItem}}
+    }
+}

@@ -384,6 +384,10 @@ export class MemriContext {
 		this.scheduleUIUpdate()
 	}
 
+	get allItemsSelected() {
+		return this.getSelection().length >= this.items.length
+	}
+
 	get selectedIndicesBinding() {
 		return this.getSelection().map(() => this.items[0]).filter((el) => el != undefined); //TODO: ?
 	}

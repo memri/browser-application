@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import {frame, HStack, MainUI, VStack, ZStack} from "../swiftUI";
-import {CGSize} from "../cvuComponents/UIElement";
+import {CGSize} from "../cvuComponents/UINodeResolver";
 
 export class FlowStack extends MainUI {
     init() {

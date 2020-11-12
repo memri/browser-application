@@ -7,11 +7,11 @@
 
 import * as React from 'react';
 import {CacheMemri, Color, Datasource, getItem, realm} from "../../router";
-import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
+import {ScreenSizer} from "../extensions/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./browser/navigationPane/NavigationView";
 import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
-import {SessionSwitcher} from "./SessionSwitcher";
+import {SessionSwitcher} from "./browser/SessionSwitcher";
 import {SetupWizard} from "../install/SetupWizard";
 import {geom} from "../../install";
 

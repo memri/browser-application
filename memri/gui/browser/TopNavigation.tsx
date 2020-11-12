@@ -3,7 +3,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Font} from "../../../router";
+import {Alignment, Color, Font} from "../../../router";
 import {
 	ActionBack,
 	ActionBackAsSession, ActionClosePopup,
@@ -123,7 +123,7 @@ export class TopNavigation extends MainUI {
 					centeredOverlayWithinBoundsPreferenceKey>
 				<HStack alignment={Alignment.center} spacing={10}
 						padding={padding({vertical: 12, horizontal: 15})}
-						frame={frame({height: 50})}
+						frame={frame({height: 50})} background={new Color("secondarySystemGroupedBackground").toLowerCase()}
 				>
 					{(!this.inSubView) ?
 						<ActionButton action={new ActionShowNavigation(this.context)}
@@ -134,7 +134,7 @@ export class TopNavigation extends MainUI {
 						}} font={font({size: 19, weight: Font.Weight.semibold})}>
 							<MemriText
 								font={font({size: 16, weight: Font.Weight.regular})}
-								padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close
+								padding={padding({horizontal: 5, vertical: 2})} foregroundColor={new Color("systemBlue").toLowerCase()}>Close
 							</MemriText>
 						</MemriRealButton>
 					}
@@ -151,7 +151,7 @@ export class TopNavigation extends MainUI {
                                          font={font({size: 19, weight: Font.Weight.semibold})}
 							/*actionSheet={}*/
 						>
-							<MemriImage foregroundColor="#434343" padding={padding({horizontal: 5, vertical: 8})}
+							<MemriImage foregroundColor={new Color("secondaryLabel").toLowerCase()} padding={padding({horizontal: 5, vertical: 8})}
 										font={font({size: 10, weight: Font.Weight.bold})}>
 								adjust
 							</MemriImage>
@@ -159,7 +159,7 @@ export class TopNavigation extends MainUI {
 					}
 					<ColorArea layoutPriority={5}>
 						<MemriRealButton>
-							<MemriText foregroundColor="#333" truncationMode={"tail"} font={font({family: "headline"})}>
+							<MemriText foregroundColor={new Color("label").toLowerCase()} truncationMode={"tail"} font={font({family: "headline"})}>
 								{context.currentView?.title ?? ""}
 							</MemriText>
 						</MemriRealButton>

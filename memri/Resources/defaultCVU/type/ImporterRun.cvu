@@ -1,0 +1,236 @@
+[session = all-importer-instances] {
+    [view] {
+        title: "All ImporterRuns"
+        [datasource = pod] {
+            query: "ImporterRun"
+        }
+    }
+}
+
+ImporterRun {
+    title: "{.name} importer run"
+    defaultRenderer: generalEditor
+    editActionButton: toggleEditMode
+    filterButtons: [
+        openView {
+            icon: "increase.indent"
+            title: "Show Timeline"
+            
+            view: {
+                defaultRenderer: timeline
+                
+                [datasource = pod] {
+                    query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                    sortProperty: dateCreated
+                    sortAscending: true
+                }
+                
+                [renderer = timeline] {
+                    timeProperty: dateCreated
+                }
+            }
+        }
+        showContextPane
+    ]
+    
+    contextPane {
+        buttons: star schedule
+        
+        actions: [
+            showOverlay { title: "Share with..." }
+            addToPanel { title: "Add to list..." }
+            duplicate { title: "Duplicate Note" }
+        ]
+        
+        navigate: [
+            openView {
+                title: "Timeline of this importer run"
+                view: {
+                    defaultRenderer: timeline
+                    
+                     [datasource = pod] {
+                        query: "AuditItem AND ANY allEdges.targetItemID = {.uid}"
+                        sortProperty: dateCreated
+                        sortAscending: true
+                    }
+                    
+                    [renderer = timeline] {
+                        timeProperty: dateCreated
+                    }
+                }
+            }
+            openViewByName {
+                title: "Starred importer runs"
+                viewName: "filter-starred"
+                viewArguments: {
+                    include: "all-notes"
+                }
+            }
+            openSessionByName {
+                title: "All importer runs"
+                viewName: "all-importer-instances"
+            }
+        ]
+    }
+    
+    [renderer = generalEditor] {
+        layout: [
+            { section: iconHeading }
+            { section: info, exclude: name run }
+            { section: labels }
+            { section: other, fields: * }
+            { section: dates }
+        ]
+        
+        iconHeading {
+            showTitle: false
+            dividers: false
+            
+            HStack {
+                alignment: leading
+                fillWidth: true
+                spacing: 10
+                padding: 20
+
+                Image {
+                    padding: 8 0 8 0
+                    alignment: center
+                    show: {{.importer.icon or .importer.bundleImage}}
+                    systemName: {{.importer.icon}}
+                    bundleImage: {{.importer.bundleImage}}
+                    resizable: true
+                    color: #2480d6
+                    width: 30
+                    height: 30
+                }
+                
+                Text {
+                        text: {{.name}}
+                        font: 25 bold
+                    }
+            }
+        }
+        
+        
+        info {
+            showTitle: false
+            dividers: false
+            
+            VStack {
+                EditorRow {
+                    alignment: left
+                    readOnly: true
+                    padding: 0 10
+                    background: secondaryBackground
+                    
+                    Button {
+                        press: runImporter {
+                            importer: {{.}}
+                        }
+                        
+                        Text {
+                            text: "START RUN"
+                            font: 16 semibold
+                            color: #fff
+                            padding: 5 8 5 8
+                            cornerRadius: 5
+                            background: #70ba6c
+                        }
+                    }
+                }
+                Divider
+
+                EditorRow {
+                    Text {
+                        text: {{.importer.itemDescription}}
+                        font: 14 regular
+                        color: #555
+                        padding: 8 36 8 0
+                    }
+                }
+            }
+        }
+
+/*        run {*/
+/*            showTitle: false*/
+/*            */
+/*            VStack {*/
+/*                HStack {*/
+/*                    align: left*/
+/*                    background: #f9f9f9*/
+/*                    */
+/*                    Button {*/
+/*                        margin: 5 5 5 35*/
+/*                        */
+/*                        press: runImporter {*/
+/*                            importer: {{.}}*/
+/*                        }*/
+/*                        */
+/*                        Text {*/
+/*                            text: "START RUN"*/
+/*                            font: 16 semibold*/
+/*                            color: #fff*/
+/*                            padding: 5 8 5 8*/
+/*                            cornerRadius: 5*/
+/*                            background: #70ba6c*/
+/*                        }*/
+/*                    }*/
+/*                }*/
+/*                Divider*/
+/*            }*/
+/*        }*/
+    }
+}
+
+ImporterRun[] {
+    name: "all-importer-instances"
+    title: "All ImporterRuns"
+    emptyResultText: "There are no ImporterRuns"
+    defaultRenderer: list
+    sortFields: datatype dateModified dateAccessed dateCreated
+    
+    [datasource = pod] {
+        query: "ImporterRun"
+        sortProperty: dateModified
+        sortAscending: false
+    }
+    
+    actionButton:
+        addItem {
+            template {
+                _type: ImporterRunInstance
+                name: {{.name}}
+            }
+        }
+
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+    
+    [renderer = list] {
+        HStack {
+            alignment: left
+            spacing: 10
+            Image {
+                show: {{.importer.icon or .importer.bundleImage}}
+                systemName: {{.importer.icon}}
+                bundleImage: {{.importer.bundleImage}}
+                resizable: true
+                color: #2480d6
+                width: 30
+                height: 30
+            }
+            VStack{
+                Text {
+                    text: "{.name}"
+                    font: 18 semibold
+                    color: primary
+                }
+                Text {
+                    text: "{.dateCreated}"
+                    font: 11 regular
+                    color: secondary
+                }
+            }
+        }
+    }
+}

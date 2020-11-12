@@ -68,7 +68,7 @@ export class ItemSubscription {
 
             if (error != undefined) {
                 // How to handle??
-                //#warning("Look at this when implementing syncing")
+                //TODO: Look at this when implementing syncing")
                 debugHistory.error("Polling timeout. All polling services disabled")
                 return
             }

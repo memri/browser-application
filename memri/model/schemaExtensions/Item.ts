@@ -320,7 +320,7 @@ export class Item extends SchemaItem {
         }
 
         // TODO: collection support
-        //#warning("Reverse EdgeCollection support not implemented yet")
+        //TODO: Reverse EdgeCollection support not implemented yet")
 
         return realm?.objects("Edge") //TODO:
             .filtered(`deleted = false AND targetItemID = ${this.uid} AND type = '${edgeType}'`)
@@ -629,7 +629,7 @@ export class Item extends SchemaItem {
         let updatedFields = this["_updated"]
 
         // Compare all updated properties and make sure they are the same
-        //#warning("properly implement this for edges")
+        //TODO: properly implement this for edges")
         for (let fieldName of updatedFields) {
             if (item[fieldName] != undefined && !this.isEqualProperty(fieldName, item)) {
                 return false
@@ -740,7 +740,7 @@ export class Item extends SchemaItem {
             }
 
             /*if previousModified?.distance(to: Date()) ?? 0 < 300  {
-                #warning("Test that .last gives the last added audit item")
+                TODO: Test that .last gives the last added audit item")
                 if
                     let auditItem = item.edges("changelog")?.last?.target(type: AuditItem.self),
                 let content = auditItem.content,
@@ -1148,6 +1148,7 @@ export enum ItemFamily {
     Vote = "Vote",
     VoteAction = "VoteAction",
     Website = "Website",
+    ReceiptDemo = "ReceiptDemo",
 }
 
 export var backgroundColor = function(name) {
@@ -1387,6 +1388,7 @@ export var getItemType = function(name) {
         case ItemFamily.Vote: return Vote
         case ItemFamily.VoteAction: return VoteAction
         case ItemFamily.Website: return Website
+        case ItemFamily.ReceiptDemo: return ReceiptDemo
     }
 }
 
@@ -6830,5 +6832,27 @@ export class PhotoAnnotation extends Item {
         super(decoder)
     }
 }
+
+export class ReceiptDemo extends Item {
+    totalCost /*= RealmOptional<Double>()*/
+    store: string = ""
+    category: string = ""
+
+    /// Attached photos
+    get photo() {
+        return this.edges("photos")?.items("Photo")
+    }
+
+    /// Attached file
+    get file() {
+        return this.edges("files")?.items("File");
+    }
+
+
+    constructor(decoder) {
+        super(decoder)
+    }
+}
+
 
 ///////////////////////////////

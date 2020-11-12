@@ -78,7 +78,7 @@ export class SetupWizard extends MainUI {
 
 
         return (
-            <NavigationView>
+            <NavigationView navigationViewStyle={"StackNavigationViewStyle"}>
                 <Form navigationBarTitle={<MemriText>Setup Wizard</MemriText>}>
                     {!this.context.installer.isInstalled && !this.context.installer.debugMode &&
                     <>

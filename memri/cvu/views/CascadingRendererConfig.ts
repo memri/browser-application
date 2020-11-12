@@ -1,5 +1,5 @@
 //
-// Renderers.swift
+// CascadingRendererConfig.swift
 // Copyright © 2020 memri. All rights reserved.
 
 import {CVUColor, MemriDictionary, UINodeResolver, ViewArguments} from "../../../router";
@@ -88,7 +88,7 @@ export class CascadingRendererConfig extends Cascadable {
 //CommonRendererConfig.swift
 Object.defineProperty(CascadingRendererConfig.prototype, "primaryColor", {
     get(): CVUColor {
-        return this.cascadeProperty("color") ?? CVUColor.system("systemBlue")
+        return this.cascadePropertyAsColor("color") ?? CVUColor.system("systemBlue")
     },
     set(value) {
         this.setState("color", value)
@@ -97,7 +97,7 @@ Object.defineProperty(CascadingRendererConfig.prototype, "primaryColor", {
 
 Object.defineProperty(CascadingRendererConfig.prototype, "backgroundColor", {
     get() {
-        return this.cascadeProperty("background");
+        return this.cascadePropertyAsColor("background");
     },
     set(value) {
         this.setState("background", value)

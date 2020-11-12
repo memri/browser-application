@@ -22,7 +22,7 @@ import {Alignment, Color} from "../../../../router";
 import {Expression} from "../../../../router";
 import {ConfigItem, ConfigItemType, getSupportedRealmTypes, PossibleExpression, SpecialTypes} from "./ConfigPanelModel";
 import {ListItem} from "@material-ui/core";
-require("../../../extension/common/string.ts");
+require("../../../extensions/common/string.ts");
 
 export class ConfigPanel extends MainUI {
     // keyboard = KeyboardResponder.shared

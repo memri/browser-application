@@ -89,6 +89,10 @@ export class Cascadable/* extends CustomStringConvertible*/{
         return (this.cascadeProperty(name)).map((item)=>{ return Number(item) });
     }
 
+    cascadePropertyAsColor(name: String): CVUColor {
+        return this.cascadeProperty(name, "CVUColor") ?? this.cascadeProperty(name, "String") //TODO: /*.map { CVUColor.named($0) }*/
+    }
+
     cascadeProperty(name, type?) {
         // if (DEBUG//TODO
         //These are temporary checks put in place to catch programmer errors. We should find a safer way that won't lose CVU properties. It is wrapped in DEBUG flag so will not crash in testflight.

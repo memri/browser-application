@@ -343,7 +343,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
             // Temporarily hide the subtitle
             // _subtitleTemp = " " // TODO how to clear the subtitle ??
 
-            this._emptyResultTextTemp = `No results found using '${this.userState.get("filterText") ?? ""}'`
+            this._emptyResultTextTemp = `No results found using '${this.filterText}'`
         } else {
             this._titleTemp = undefined
             this._subtitleTemp = undefined

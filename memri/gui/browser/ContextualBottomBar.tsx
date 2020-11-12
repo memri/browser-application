@@ -4,7 +4,7 @@
 
 
 import * as React from 'react';
-import {ActionSelectAll, Item} from "../../../router";
+import {ActionDeselectAll, ActionSelectAll, Item} from "../../../router";
 import {
 	HStack,
 	MainUI,
@@ -24,7 +24,7 @@ export class ContextualBottomBar extends MainUI {
 	
 	shouldShow() {
 		//return true
-		return this.context.editMode
+		return (this.context.currentView?.renderConfig?.showContextualBarInEditMode ?? true) && this.context.editMode
 	}
 	
 	nonEmptySelection() {
@@ -42,11 +42,21 @@ export class ContextualBottomBar extends MainUI {
 					<MemriDivider/>
 					<HStack padding={padding({horizontal: 5, vertical: 5})}>
 						{this.context.editMode &&
+						this.context.allItemsSelected ?
 							<MemriRealButton onClick={() => {
-								this.context.executeAction(new ActionSelectAll(this.context))}
+								this.context.executeAction(new ActionDeselectAll(this.context))
+							}
+							}>
+								<MemriText padding={5}>{"Deselect All"}</MemriText>
+							</MemriRealButton>
+							:
+							<MemriRealButton onClick={() => {
+								this.context.executeAction(new ActionSelectAll(this.context))
+							}
 							}>
 								<MemriText padding={5}>{"Select All"}</MemriText>
 							</MemriRealButton>
+
 						}
 						<Spacer/>
 						{this.context.editMode &&

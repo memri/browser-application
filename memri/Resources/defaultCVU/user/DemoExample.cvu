@@ -1,0 +1,18 @@
+[session = demoExample] {
+    [view] {
+        title: "Timeline"
+        emptyResultText: "There are no annotations here yet"
+        defaultRenderer: timeline
+        
+        [datasource = pod] {
+            query: "*"
+        }
+        
+        [renderer = timeline] {
+            ItemCell {
+            rendererNames: timeline
+            arguments: {{variables}}
+            }
+        }
+    }
+}

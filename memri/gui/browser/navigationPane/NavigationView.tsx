@@ -37,7 +37,7 @@ export class NavigationWrapper extends MainUI {
     }) */
 
 	navWidth(geom: GeometryProxy) {
-		return geom.size.width * this.widthRatio
+		return Math.min(300, geom.size.width * this.widthRatio)
 	}
 
 	cappedOffset(geom: GeometryProxy) {
@@ -74,7 +74,7 @@ export class NavigationWrapper extends MainUI {
 				<ColorArea opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
 					   /*simultaneousGesture={this.navigationDragGesture}*/ zIndex={10}/> &&
 				<Navigation
-					frame={frame({width: geom.size.width * this.widthRatio})} edgesIgnoringSafeArea="all"
+					frame={frame({width: this.navWidth(geom)})} edgesIgnoringSafeArea="all"
 					offset={offset({x:this.isVisible ? this.cappedOffset(geom) : (-this.navWidth(geom) + this.cappedOffset(geom)),y: 0})}
 					/*simultaneousGesture={this.navigationDragGesture}*/
 					/*transition={move(Alignment.leading)}*/
@@ -170,8 +170,8 @@ class Navigation extends MainUI {
 		this.context = this.props.context //{/*separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}*/}
 
 		return (<div className="Navigation"  style={{position: "absolute", top: 0}}>
-		<VStack frame={frame({alignment: Alignment.leading})} background = "#543184">
-			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background="#492f6c">
+		<VStack frame={frame({alignment: Alignment.leading})} background = {new Color("MemriUI-purpleBack").toLowerCase()}>
+			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background={new Color("MemriUI-purpleBackSecondary").toLowerCase()}>
 				<MemriRealButton onClick={function () {
 					this.showSettings = true
 				}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
@@ -182,7 +182,7 @@ class Navigation extends MainUI {
 				<MemriTextField value={this.context.navigation.filterText} placeholder="Search"
 								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
 								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
-								accentColor="white" background="#341e51" cornerRadius={5}
+								accentColor="white" background={new Color("black").opacity(0.4)} cornerRadius={5}
 								onChange={(e) => this.context.navigation.filterText = e.target.value}
 				/>
 				{/*<MemriRealButton>
@@ -232,7 +232,7 @@ class NavigationItemView extends MainUI {
 		}
 		return(<ListItem key={this.item.uid}>
 			<MemriRealButton onClick={action}>
-				<MemriText font={font({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor="#d9d2e9" frame={frame({maxWidth: "infinity", alignment: Alignment.leading})} >
+				<MemriText font={font({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor={new Color("white").opacity(0.7)} frame={frame({maxWidth: "infinity", alignment: Alignment.leading})} >
 					{this.item.title ?? ""}
 				</MemriText>
 			</MemriRealButton>

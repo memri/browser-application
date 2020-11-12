@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-require("../../../extension/common/string.ts");
+require("../../../extensions/common/string.ts");
 
 export class ConfigItem {
 	displayName: string

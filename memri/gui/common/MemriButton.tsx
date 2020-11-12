@@ -6,7 +6,7 @@ import {EmptyView, font, Group, HStack, MainUI, MemriText, padding} from "../swi
 import * as React from "react";
 import {backgroundColor, foregroundColor, ItemFamily, me} from "../../../router";
 import {Font, Color} from "../../../router";
-require("../../extension/common/string");
+require("../../extensions/common/string");
 
 export class MemriButton extends MainUI {
     context: MemriContext

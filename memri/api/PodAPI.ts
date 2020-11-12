@@ -22,6 +22,11 @@ export class PodAPI {
     
     async http({method = "POST", path = "", payload}, callback) {
         await Authentication.getOwnerAndDBKey((error, ownerKey, databaseKey) => {
+            if (!ownerKey || !databaseKey) {
+                // TODO:
+                callback(error, null)
+                return
+            }
             this.httpWithKeys({method, path, payload, ownerKey, databaseKey}, callback);
         });
     } 
@@ -249,7 +254,7 @@ export class PodAPI {
                 } else if (prop == "type") {
                     result["_type"] = item[prop]
                 } else {
-                    //#warning("Implement checking for updatedfields")
+                    // TODO: Implement checking for updatedfields
                     result[prop] = item[prop]
                 }
             }

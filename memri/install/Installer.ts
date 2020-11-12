@@ -52,7 +52,7 @@ export class Installer {
 		/*if (authAtStartup) { //TODO:
 			Authentication.authenticateOwner((error) => {
 				if (error) {
-					throw `Unable to authenticate ${error}` // TODO report to user allow retry
+					throw `Unable to authenticate ${error}` // TODO: report to user allow retry
 				}
 
 				check()
@@ -88,7 +88,7 @@ export class Installer {
 
 				this.installDemoDatabase(context, (error) => {
 					if (error) {
-						// TODO Error Handling - show to the user
+						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 						return
@@ -96,7 +96,7 @@ export class Installer {
 
 					//DispatchQueue.main.async {
 					if (error) {
-						// TODO Error Handling - show to the user
+						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 						return
@@ -142,7 +142,7 @@ export class Installer {
 				//Authentication.createRootKey(areYouSure)
 
 
-				context.cache.sync.syncAllFromPod(() => { // TODO error handling
+				context.cache.sync.syncAllFromPod(() => { // TODO: error handling
 					Settings.shared.set("user/pod/host", host)
 
 					try {
@@ -173,7 +173,7 @@ export class Installer {
 
 				this.installDemoDatabase(context, (error) => {
 					if (error) {
-						// TODO Error Handling - show to the user
+						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 					}
@@ -203,7 +203,7 @@ export class Installer {
 	}*/
 
 	handleInstallError(error) {
-		// TODO ERror handling - report to the user
+		// TODO: ERror handling - report to the user
 		debugHistory.warn(`${error!}`)
 	}
 
@@ -274,7 +274,7 @@ export class Installer {
 			// Create a new default session
 			context.sessions.install(context, (error) => {
 				if (error) {
-					// TODO Error Handling - show to the user
+					// TODO: Error Handling - show to the user
 					debugHistory.warn(`${error}`)
 					callback(error)
 					return

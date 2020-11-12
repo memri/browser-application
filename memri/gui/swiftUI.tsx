@@ -569,7 +569,7 @@ export class MemriAlert extends MainUI {
 }
 
 export class Form extends MainUI {
-    render() {
+    render() {//TODO: navigationBarTitle
         return (
             <div className="Form">
                 {this.props.children}

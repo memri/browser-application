@@ -19,7 +19,7 @@ export class SearchView extends MainUI{
 		return (
 			<div className="SearchView">
 			{this.isActive && <VStack spacing={0}
-					 background={new Color("white").toLowerCase()}/*TODO .edgesIgnoringSafeArea(.all)*/
+					 background={new Color("systemBackground").toLowerCase()}/*TODO .edgesIgnoringSafeArea(.all)*/
 				// modifier={new KeyboardModifier(null)}
 					 transition={"opacity"}
 			>

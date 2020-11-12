@@ -1,4 +1,4 @@
-require("./memri/extension/common/string");
+require("./memri/extensions/common/string");
 export * from './memri/model/RealmLocal';
 export * from './memri/api/Authentication';
 export * from './memri/storage/DatabaseController';
@@ -40,7 +40,8 @@ export * from './memri/cvu/parsers/expression-parser/Expression';
 export * from './memri/cvu/views/Action';
 export * from './memri/cvu/views/ActionErrors';
 export * from './memri/cvu/views/Colors';
-export * from './memri/gui/cvuComponents/UIElement';
+export * from './memri/gui/cvuComponents/UINode';
+export * from './memri/gui/cvuComponents/UINodeResolver';
 export * from './memri/gui/cvuComponents/UIElementView';
 export * from './memri/cvu/views/ViewDebugger';
 export * from './memri/gui/renderers/Renderers';
@@ -48,7 +49,7 @@ export * from './memri/gui/util';
 export * from './memri/model/InMemoryObjectCache';
 export * from './memri/model/MemriDictionary';
 export * from './memri/model/ResultSet';
-export * from './memri/cvu/newWIP/CVUColor';
-export * from './memri/cvu/newWIP/CVUFont';
-export * from './memri/cvu/newWIP/CVU_Image';
+export * from './memri/gui/cvuComponents/valueTypes/CVUColor';
+export * from './memri/gui/cvuComponents/valueTypes/CVUFont';
+export * from './memri/gui/cvuComponents/nodeTypes/CVU_Image';
 
