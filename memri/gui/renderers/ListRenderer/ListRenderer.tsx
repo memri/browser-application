@@ -81,25 +81,26 @@ export class ListRendererView extends RenderersMemri {
 
 	get sections() { //contextMenuProvider: contextMenuProvider
 		let items = this.controller.context.items;
-		return items.map((dataItem) => {
+		return items.map((dataItem, index) => {
 			return <>
 				<VStack key={dataItem.uid} onClick={
 					this.executeAction(dataItem)
-				}>
+				} padding={padding({
+					top: (index == 0) ? 0 : this.controller.config.spacing / 2,
+					leading: this.controller.config.edgeInset.left,
+					bottom: (index == items.length - 1) ? 0 : this.controller.config.spacing / 2,
+					trailing: this.controller.config.edgeInset.right,
+				})}>
 					{this.controller.view(dataItem)}
 
 				</VStack>
-				<MemriRealButton
-					action={this.deleteItem.bind(this, dataItem)}><MemriImage>delete_forever</MemriImage></MemriRealButton>
-				<MemriDivider/>
+				<VStack textAlign={"right"}>
+					<MemriRealButton
+						action={this.deleteItem.bind(this, dataItem)}><MemriImage font={font({size:14})}>delete_forever</MemriImage></MemriRealButton>
+					<MemriDivider/>
+				</VStack>
 			</>
 		})
-		/*
-		.padding(EdgeInsets(top: cellContext.isFirstInSection ? 0 : self.renderConfig.spacing.height / 2,
-												leading: self.renderConfig.edgeInset.left,
-												bottom: cellContext.isLastInSection ? 0 : self.renderConfig.spacing.height / 2,
-												trailing: self.renderConfig.edgeInset.right))
-		 */
 	}
 
 	deleteItem = (item) => {
@@ -119,7 +120,13 @@ export class ListRendererView extends RenderersMemri {
 										 this.controller.context.currentView?.reload();
 										 callback()
 									 }
-									 } spacing={this.controller.config.spacing}>
+									 } spacing={this.controller.config.spacing}
+									 contentInsets={padding({
+										 top: this.controller.config.edgeInset.top,
+										 left: 0,
+										 bottom: this.controller.config.edgeInset.bottom,
+										 right: 0
+									 })}>
 							{this.sections}
 						</ASTableView> :
 						<MemriText multilineTextAlignment={Alignment.center}
@@ -157,9 +164,3 @@ export class ListRendererView extends RenderersMemri {
 	}
 }*/
 }
-
-/*struct ListRendererView_Previews: PreviewProvider {
-	static var previews: some View {
-		ListRendererView().environmentObject(try! RootContext(name: "", key: "").mockBoot())
-	}
-}*/

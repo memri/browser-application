@@ -105,7 +105,7 @@ Object.defineProperty(CascadingRendererConfig.prototype, "backgroundColor", {
 })
 
 Object.defineProperty(CascadingRendererConfig.prototype, "spacing", {
-    get() {
+    get() {//TODO:
         let spacing = this.cascadeProperty("spacing");
         if (spacing) {
             return spacing;

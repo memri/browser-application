@@ -60,10 +60,11 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             borderRadius: this.props.cornerRadius,
             opacity: this.props.opacity,
             height: this.props.height ?? this.props.frame?.height,
-            width: this.props.width ?? this.props.frame?.width
+            width: this.props.width ?? this.props.frame?.width,
+            textAlign: this.props.textAlign
         }
 
-        Object.assign(styles, this.props.font, this.props.padding, this.props.frame, this.setAlignment());
+        Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
         return styles;
     }
 
@@ -332,8 +333,10 @@ export class MemriImage extends MainUI {
 export class Spacer extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {flexGrow: 1})
         return (
-            <div style={this.setStyles()} className="Spacer" {...other}>
+            <div style={style} className="Spacer" {...other}>
                 {this.props.children}
             </div>
         )
