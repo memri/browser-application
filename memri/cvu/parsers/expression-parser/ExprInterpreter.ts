@@ -4,7 +4,7 @@
 //  Copyright © 2020 Memri. All rights reserved.
 //
 
-import {ExprOperator} from "../../../../router"
+import {ExprOperator, Item} from "../../../../router"
 import {
     ExprBinaryOpNode,
     ExprConditionNode,
@@ -76,7 +76,7 @@ export class ExprInterpreter {
         if (type === "boolean") { return a == IP.evaluateBoolean(b) }
         else if (type === "number") { return a == IP.evaluateNumber(b) }
         else if (type === "string") { return a == `${b ?? ""}` }//TODO
-        else if (a?.constructor?.name == "Item" && b?.constructor?.name == "Item") { return a == b }
+        else if (a instanceof Item && b instanceof Item) { return a == b }
         else if (a == null) { return b == null }
         else { return false }
     }
