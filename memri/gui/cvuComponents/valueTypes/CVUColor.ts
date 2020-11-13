@@ -68,6 +68,8 @@ export class Color {
         }
     }
 
+    static named = Color.system;
+
     static hex(value) {
         if (value.charAt(0) == "#") {//"#f2f2f7f"
             return value;

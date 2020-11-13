@@ -2,7 +2,7 @@
 //  Cascadable.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {ActionMultiAction} from "../../../router";
+import {ActionMultiAction, CVUColor} from "../../../router";
 import {debugHistory} from "../../../router";
 import {CVUParsedDefinition} from "../../../router";
 import {CVUSerializer} from "../../../router";
@@ -89,8 +89,8 @@ export class Cascadable/* extends CustomStringConvertible*/{
         return (this.cascadeProperty(name)).map((item)=>{ return Number(item) });
     }
 
-    cascadePropertyAsColor(name: String): CVUColor {
-        return this.cascadeProperty(name, "CVUColor") ?? this.cascadeProperty(name, "String") //TODO: /*.map { CVUColor.named($0) }*/
+    cascadePropertyAsColor(name: string): CVUColor {
+        return /*this.cascadeProperty(name, "CVUColor") ?? */CVUColor.named(this.cascadeProperty(name, "String")) //TODO: /*.map { CVUColor.named($0) }*/
     }
 
     cascadeProperty(name, type?) {

@@ -91,14 +91,19 @@ export class UINodeResolver {
         return file?.filename ? "memri/Resources/DemoAssets/" + file.filename + ".jpg" : null
     }
 
-    color(propertyName: string = "color") { //TODO: named color
+    color(propertyName: string = "color") {
         let colorDef = this.resolve(propertyName, "CVUColor");
-        if (colorDef) {
+        if (colorDef?.constructor?.name == "Color") {
             return colorDef
         } else {
-            let colorHex = this.resolve(propertyName, "String");
-            if (colorHex) {
-                return CVUColor.hex(colorHex)
+            let colorName = this.resolve(propertyName, "String");
+            if (colorName) {
+                let namedColor = CVUColor.named(colorName);
+                if (namedColor) {
+                    return namedColor
+                } else {
+                    return CVUColor.hex(colorName)
+                }
             }
         }
         return;

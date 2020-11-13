@@ -36,7 +36,7 @@ export class CVU_AppearanceModifier {
             lineLimit: nodeResolver.lineLimit,
             padding: padding(nodeResolver.padding ?? nodeResolver.margin),
             cornerRadius: nodeResolver.cornerRadius,
-            background: nodeResolver.backgroundColor?.color ?? new Color("clear"),
+            background: nodeResolver.backgroundColor ?? new Color("clear"),
             offset: offset(nodeResolver.offset),
             opacity: nodeResolver.opacity,
             zIndex: nodeResolver.zIndex
