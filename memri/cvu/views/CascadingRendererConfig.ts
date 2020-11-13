@@ -130,47 +130,44 @@ Object.defineProperty(CascadingRendererConfig.prototype, "contextMenuActions", {
         this.setState("contextMenu", value)
     },
 })
-//TODO: edgeInsets
-/*var edgeInset: UIEdgeInsets {
-    get {
-        if let edgeInset = cascadePropertyAsCGFloat("edgeInset") {
-            return UIEdgeInsets(
-                top: edgeInset,
-                left: edgeInset,
-                bottom: edgeInset,
-                right: edgeInset
-        )
-        }
-    else if let x: [Double?] = cascadeProperty("edgeInset") {
-            let insetArray = x.compactMap { $0.map { CGFloat($0) } }
-            switch insetArray.count {
-                case 2: return UIEdgeInsets(
-                    top: insetArray[1],
-                    left: insetArray[0],
-                    bottom: insetArray[1],
-                    right: insetArray[0]
-                )
-                case 4: return UIEdgeInsets(
-                    top: insetArray[0],
-                    left: insetArray[3],
-                    bottom: insetArray[2],
-                    right: insetArray[1]
-                )
-                default: return .init()
+
+Object.defineProperty(CascadingRendererConfig.prototype, "edgeInset", {
+    get() {
+        let x = this.cascadeProperty("edgeInset");
+        if (x) {
+            if (Array.isArray(x)) {
+                let insetArray = x.filter(($0) => $0 != undefined);
+                switch (insetArray.length) {
+                    case 2:
+                        return {
+                            top: insetArray[1],
+                            left: insetArray[0],
+                            bottom: insetArray[1],
+                            right: insetArray[0]
+                        }
+                    case 4:
+                        return {
+                            top: insetArray[0],
+                            left: insetArray[3],
+                            bottom: insetArray[2],
+                            right: insetArray[1]
+                        }
+                    default:
+                        return;
+                }
+            } else {
+                let edgeInset = x;
+                return {
+                    top: edgeInset,
+                    left: edgeInset,
+                    bottom: edgeInset,
+                    right: edgeInset
+                }
             }
         }
-        return .init()
-    }
-    set(value) { setState("edgeInset", value) }
-}
-
-var nsEdgeInset: NSDirectionalEdgeInsets {
-    let edgeInset = self.edgeInset
-    return NSDirectionalEdgeInsets(
-        top: edgeInset.top,
-        leading: edgeInset.left,
-        bottom: edgeInset.bottom,
-        trailing: edgeInset.right
-)
-}*/
-//--------------------------
+        return this.defaultEdgeInset
+    },
+    set(value) {
+        this.setState("edgeInset", value);
+    },
+})

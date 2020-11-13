@@ -97,11 +97,11 @@ export class MessageRendererView extends RenderersMemri {
     get section() {
         let items = this.controller.context.items;
         return items.map((item) => {
-            return <ListItem key={item.uid} onClick={
+            return <VStack key={item.uid} onClick={
                 this.executeAction(item)
             }>
                 {this.controller.view(item)}
-            </ListItem>
+            </VStack>
         })
             //TODO: selectionMode?
         /* TODO: here should be padding, but i have no idea which :)
@@ -127,7 +127,7 @@ export class MessageRendererView extends RenderersMemri {
                     </> :
                     <>
                         <ASTableView editMode={this.controller.editMode} separatorsEnabled={false} alwaysBounce
-                                     background={this.controller.config.backgroundColor ?? new Color("systemBackground")}>
+                                     background={this.controller.config.backgroundColor ?? new Color("systemBackground")} spacing={this.controller.config.spacing}>
                             {this.section}
                         </ASTableView>
                         <MemriDivider/>

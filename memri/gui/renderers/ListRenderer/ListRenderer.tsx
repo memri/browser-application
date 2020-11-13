@@ -7,7 +7,7 @@ import {Alignment, Color, Font} from "../../../../router";
 import {ActionDelete} from "../../../../router";
 import {
 	ASTableView,
-	font,
+	font, MemriDivider,
 	MemriImage,
 	MemriRealButton,
 	MemriText,
@@ -83,14 +83,15 @@ export class ListRendererView extends RenderersMemri {
 		let items = this.controller.context.items;
 		return items.map((dataItem) => {
 			return <>
-				<ListItem key={dataItem.uid} onClick={
+				<VStack key={dataItem.uid} onClick={
 					this.executeAction(dataItem)
 				}>
 					{this.controller.view(dataItem)}
 
-				</ListItem>
+				</VStack>
 				<MemriRealButton
 					action={this.deleteItem.bind(this, dataItem)}><MemriImage>delete_forever</MemriImage></MemriRealButton>
+				<MemriDivider/>
 			</>
 		})
 		/*
@@ -113,12 +114,12 @@ export class ListRendererView extends RenderersMemri {
 				<VStack>
 					{this.controller.hasItems ?
 						<ASTableView editMode={this.controller.context.currentSession?.editMode ?? false}
-									 background={this.controller.config.backgroundColor?.color ?? new Color("systemBackground")}
+									 background={this.controller.config.backgroundColor ?? new Color("systemBackground")}
 									 onPullToRefresh={(callback) => {
 										 this.controller.context.currentView?.reload();
 										 callback()
 									 }
-									 }>
+									 } spacing={this.controller.config.spacing}>
 							{this.sections}
 						</ASTableView> :
 						<MemriText multilineTextAlignment={Alignment.center}

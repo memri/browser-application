@@ -45,7 +45,7 @@ export class UINodeResolver {
                     }
                     return result;
                 } else {
-                    let x = propertyExpression.execForReturnType(this.viewArguments);
+                    let x = propertyExpression.execForReturnType(this.viewArguments, type);
                     return x
                 }
 
@@ -111,7 +111,7 @@ export class UINodeResolver {
 
     font(propertyName: string = "font", defaultValue = new CVUFont()) {
         let value = this.resolve(propertyName, "[Any]");
-        if (value) {
+        if (value && Array.isArray(value)) {
             let name = value[0];
             let size = value[1];
             if (typeof name == "string" && typeof size == "number") {

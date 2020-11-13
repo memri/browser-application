@@ -12,8 +12,8 @@ import * as React from "react";
 export class CVU_HStack extends CVU_UI {
     render() {
         return (
-            <HStack alignment={this.nodeResolver.alignment().vertical}
-                    spacing={this.nodeResolver.spacing.x}
+            <HStack alignment={this.nodeResolver.alignment()}
+                    spacing={this.nodeResolver.spacing}
                     frame={this.nodeResolver.bool("fillWidth", false) && frame({
                         maxWidth: "infinity",
                         alignment: this.nodeResolver.alignment()
@@ -28,8 +28,8 @@ export class CVU_HStack extends CVU_UI {
 export class CVU_VStack extends CVU_UI {
     render() {
         return (
-            <VStack alignment={this.nodeResolver.alignment().horizontal}
-                    spacing={this.nodeResolver.spacing.y}
+            <VStack alignment={this.nodeResolver.alignment()}
+                    spacing={this.nodeResolver.spacing}
                     frame={this.nodeResolver.bool("fillHeight", false) && frame({
                         maxWidth: "infinity",
                         alignment: this.nodeResolver.alignment()

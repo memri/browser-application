@@ -63,7 +63,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             width: this.props.width ?? this.props.frame?.width
         }
 
-        Object.assign(styles, this.props.font, this.props.padding, this.props.frame);
+        Object.assign(styles, this.props.font, this.props.padding, this.props.frame, this.setAlignment());
         return styles;
     }
 
@@ -72,8 +72,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             switch (this.props.alignment) {
                 case Alignment.top:
                     return {alignItems: "flex-start"};
-                case Alignment.center:
-                    return {alignItems: "center", justifyContent: "center"};
+                /*case Alignment.center:
+                    return {alignItems: "center", justifyContent: "center"};*/
                 case Alignment.bottom:
                     return {alignItems: "flex-end"};
                 case Alignment.leading:
@@ -123,7 +123,7 @@ export class VStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <div {...this.setAlignment()} flexDirection="column" style={this.setStyles()} className="VStack" {...other}>
+            <div style={this.setStyles()} className="VStack" {...other}>
                 {this.props.children}
             </div>
         )
@@ -134,7 +134,7 @@ export class ZStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <div {...this.setAlignment()} style={this.setStyles()} className="ZStack" {...other}>
+            <div style={this.setStyles()} className="ZStack" {...other}>
                 {this.props.children}
             </div>
         )
@@ -145,7 +145,7 @@ export class HStack extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
-            <div {...this.setAlignment()} style={this.setStyles()} className="HStack" {...other}>
+            <div style={this.setStyles()} className="HStack" {...other}>
                 {this.props.children}
             </div>
         )
@@ -352,8 +352,10 @@ export class MemriDivider extends MainUI {
 export class ASTableView extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {display: "flex", flexDirection: "column"})
         return (
-            <div style={this.setStyles()} className="ASTableView" {...other}>
+            <div style={style} className="ASTableView" {...other}>
                 {this.props.children}
             </div>
         )

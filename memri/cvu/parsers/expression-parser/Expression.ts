@@ -147,11 +147,11 @@ export class Expression {
         this.parse()
     }
 
-    execForReturnType(args = null) {
+    execForReturnType(args = null, type?) { //TODO: we will use string type for some cases @mkslanc
         if (!this.parsed) this.parse()
         let value = this.interpreter?.execute(args)
 
-        if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value, false) }
+        if (typeof value == "boolean" || type == "Bool") { return ExprInterpreter.evaluateBoolean(value, false) }
         if (Array.isArray(value) && value[0] && typeof value[0] == "number") { return ExprInterpreter.evaluateNumberArray(value) }
         if (typeof value == "number") { return ExprInterpreter.evaluateNumber(value) }
         if (typeof value == "string") { return ExprInterpreter.evaluateString(value) }
