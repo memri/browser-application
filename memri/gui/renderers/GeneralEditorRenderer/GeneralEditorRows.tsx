@@ -80,7 +80,7 @@ export class DefaultGeneralEditorRow extends MainUI {
 
     stringRow()  {
         return <GeneralEditorCaption><MemriTextField value={this.item.getString(this.prop) ?? ""}
-                                                     onChange={(el) => this.item.set(this.prop, el)}
+                                                     onChange={(e) => this.item.set(this.prop, e.target.value)}
                                                      clearButtonMode={"whileEditing"} isEditing={this.context.editMode}
                                                      isSharedEditingBinding={true}/></GeneralEditorCaption>
     }
@@ -186,7 +186,7 @@ export class GeneralEditorCaption extends MainUI {
         }
         Object.assign(styles, font({family: "system", size: 18, weight: Font.Weight.regular}));
         return (
-            <div className={"GeneralEditorLabel"} style={styles}>
+            <div className={"GeneralEditorCaption"} style={styles}>
                 {this.props.children}
             </div>
         );
