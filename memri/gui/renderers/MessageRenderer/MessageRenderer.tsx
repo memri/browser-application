@@ -96,20 +96,20 @@ export class MessageRendererView extends RenderersMemri {
 
     get section() {
         let items = this.controller.context.items;
-        return items.map((item) => {
+        return items.map((item, index) => {
             return <VStack key={item.uid} onClick={
                 this.executeAction(item)
-            }>
+            } padding={padding({
+                top: (index == 0) ? 0 : this.controller.config.spacing / 2,
+                leading: this.controller.config.edgeInset.left,
+                bottom: (index == items.length - 1) ? 0 : this.controller.config.spacing / 2,
+                trailing: this.controller.config.edgeInset.right,
+            })}>
                 {this.controller.view(item)}
             </VStack>
         })
             //TODO: selectionMode?
-        /* TODO: here should be padding, but i have no idea which :)
-        padding(EdgeInsets(top: cellContext.isFirstInSection ? 0 : self.renderConfig.spacing.height / 2,
-									leading: self.renderConfig.edgeInset.left,
-									bottom: cellContext.isLastInSection ? 0 : self.renderConfig.spacing.height / 2,
-									trailing: self.renderConfig.edgeInset.right))
-        */
+
     }
 
     render() {
@@ -127,7 +127,14 @@ export class MessageRendererView extends RenderersMemri {
                     </> :
                     <>
                         <ASTableView editMode={this.controller.editMode} separatorsEnabled={false} alwaysBounce
-                                     background={this.controller.config.backgroundColor ?? new Color("systemBackground")} spacing={this.controller.config.spacing}>
+                                     background={this.controller.config.backgroundColor ?? new Color("systemBackground")}
+                                     spacing={this.controller.config.spacing}
+                                     contentInsets={padding({
+                                         top: this.controller.config.edgeInset.top,
+                                         left: 0,
+                                         bottom: this.controller.config.edgeInset.bottom,
+                                         right: 0
+                                     })}>
                             {this.section}
                         </ASTableView>
                         <MemriDivider/>
@@ -139,7 +146,7 @@ export class MessageRendererView extends RenderersMemri {
         /*
         .scrollPositionSetter($scrollPosition)
             .alwaysBounce()
-                .contentInsets(.init(top: renderConfig.edgeInset.top, left: 0, bottom: renderConfig.edgeInset.bottom, right: 0))
+
                 .edgesIgnoringSafeArea(.all)
          */
     }

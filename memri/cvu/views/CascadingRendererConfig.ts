@@ -171,3 +171,15 @@ Object.defineProperty(CascadingRendererConfig.prototype, "edgeInset", {
         this.setState("edgeInset", value);
     },
 })
+
+Object.defineProperty(CascadingRendererConfig.prototype, "nsEdgeInset", {
+    get() {
+        let edgeInset = this.edgeInset;
+        return {
+            top: edgeInset.top,
+            leading: edgeInset.left,
+            bottom: edgeInset.bottom,
+            trailing: edgeInset.right
+        }
+    }
+})

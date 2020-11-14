@@ -5,7 +5,7 @@
 import {
     ASCollectionView,
     font,
-    HStack,
+    HStack, MemriGrid,
     MemriText,
     padding,
     RenderersMemri,
@@ -115,56 +115,23 @@ export class GridRendererView extends RenderersMemri {
     }
 
     /*get layout() {
-        return (
-            <ASCollectionLayout scrollDirection={scrollDirection} interSectionSpacing={0}>
+        let contentInsets = this.controller.config.nsEdgeInset
+        let numberOfColumns = this.controller.config.columns
 
-            </ASCollectionLayout>
-        )
-        ASCollectionLayout(scrollDirection: .vertical, interSectionSpacing: 0) {
-            ASCollectionLayoutSection { environment in
-                let contentInsets = self.controller.config.nsEdgeInset ?? .init()
-                let numberOfColumns = self.controller.config.columns
-                let xSpacing = self.controller.config.spacing.width
-                let estimatedGridBlockSize = (environment.container.effectiveContentSize
-                    .width - contentInsets.leading - contentInsets
-                    .trailing - xSpacing * (CGFloat(numberOfColumns) - 1)) /
-                    CGFloat(numberOfColumns)
 
-                let item = NSCollectionLayoutItem(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .estimated(estimatedGridBlockSize)
-                    )
-                )
-
-                let itemsGroup = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(1.0),
-                        heightDimension: .estimated(estimatedGridBlockSize)
-                    ),
-                    subitem: item, count: numberOfColumns
-                )
-                itemsGroup.interItemSpacing = .fixed(xSpacing)
-
-                let section = NSCollectionLayoutSection(group: itemsGroup)
-                section.interGroupSpacing = self.controller.config.spacing.height
-                section.contentInsets = contentInsets
-                return section
-            }
-        }
     }*/
 
     get section() {
         let items = this.controller.items;
         return items.map((dataItem) => {
-            return <Grid item key={dataItem.uid} xs={12/this.controller.config.columns} onClick={
+            return <MemriGrid xs={12 / this.controller.config.columns} item key={dataItem.uid} onClick={
                 this.executeAction(dataItem)
-            }>
+            } contentInsets={padding(this.controller.config.nsEdgeInset)}>
                 <ZStack alignment={Alignment.bottomTrailing}>
                     {this.controller.view(dataItem)}
                 </ZStack>
 
-            </Grid>
+            </MemriGrid>
         })
         /*
         if self.controller.isEditing && !state.isSelected {
@@ -201,7 +168,7 @@ export class GridRendererView extends RenderersMemri {
                 {this.controller.hasItems
                     ?
                     <ASCollectionView editMode={this.controller.isEditing} alwaysBounceVertical={this.scrollDirection == "vertical"} alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
-                                      background={this.controller.config.backgroundColor?.color ?? new Color("systemBackground")}>
+                                      background={this.controller.config.backgroundColor ?? new Color("systemBackground")}>
                         {this.section}
 
                     </ASCollectionView>

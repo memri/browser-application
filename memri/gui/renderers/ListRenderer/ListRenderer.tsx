@@ -97,7 +97,7 @@ export class ListRendererView extends RenderersMemri {
 				<VStack textAlign={"right"}>
 					<MemriRealButton
 						action={this.deleteItem.bind(this, dataItem)}><MemriImage font={font({size:14})}>delete_forever</MemriImage></MemriRealButton>
-					<MemriDivider/>
+					{(index != items.length - 1) && <MemriDivider/>}
 				</VStack>
 			</>
 		})

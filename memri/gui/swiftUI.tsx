@@ -583,6 +583,17 @@ export class Form extends MainUI {
     }
 }
 
+export class MemriGrid extends MainUI {
+    render() {
+        let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        return (
+            <Grid style={this.setStyles()} className="Grid" {...other}>
+                {this.props.children}
+            </Grid>
+        )
+    }
+}
+
 export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment? }) { //TODO:
     let frameObj = Object.assign({}, attrs);
     for (let prop in frameObj) {
