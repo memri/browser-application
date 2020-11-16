@@ -134,7 +134,7 @@ Object.defineProperty(CascadingRendererConfig.prototype, "contextMenuActions", {
 Object.defineProperty(CascadingRendererConfig.prototype, "edgeInset", {
     get() {
         let x = this.cascadeProperty("edgeInset");
-        if (x) {
+        if (x != undefined) {
             if (Array.isArray(x)) {
                 let insetArray = x.filter(($0) => $0 != undefined);
                 switch (insetArray.length) {
