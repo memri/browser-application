@@ -52,20 +52,20 @@ export class DefaultGeneralEditorRow extends MainUI {
                         {this.renderConfig.hasGroup(this.prop) ?
                             this.renderConfig.render(this.item, this.prop, this.argumentsJs) :
                             (this.readOnly) ?
-                                (typeof propValue == "object") ?
+                                (propType == "object") ?
                                     this.defaultRow(ExprInterpreter.evaluateString(propValue)) :
-                                    (typeof propValue == "object") ?
+                                    (propType == "object") ?
                                         (propValue instanceof Item) ?
                                             <MemriButton context={this.context} item={propValue}>
 
                                             </MemriButton> :
                                             this.defaultRow() :
                                         this.defaultRow() :
-                                (typeof propValue == "string") ?
+                                (propType == "string") ?
                                     this.stringRow() :
-                                    (typeof propValue == "boolean") ?
+                                    (propType == "bool") ?
                                         this.boolRow() :
-                                        (typeof propValue == "number") ?
+                                        (propType == "int") ?
                                             this.intRow() :
                                             this.defaultRow()
                         }

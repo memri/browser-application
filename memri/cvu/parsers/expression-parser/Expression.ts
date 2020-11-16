@@ -58,15 +58,15 @@ export class Expression {
                 if (obj?.constructor?.name == "UserState") {
                     obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
                     return
-                } else if (obj?.constructor?.name == "Object") { //TODO: RealmObject maybe? Or another check
+                } else if (obj?.objectSchema) { // TODO - instead of (let obj = lookupValue as? Object) @anijanyan
                     let name = lastProperty.name
 
-                    if (obj.objectSchema.properties[name] != "boolean") {
+                    if (obj.objectSchema.properties[name] != "bool") {
                         throw `'${name}' is not a boolean property`
                     }
 
                     DatabaseController.write(undefined,function () {
-                        obj[name] = !(typeof obj[name] === "boolean" ?? false)
+                        obj[name] = !(obj[name] ?? false)
                     })
                     return
                 } else if (typeof obj.subscript == "function") {
