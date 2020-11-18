@@ -16,6 +16,7 @@ import {LabelAnnotationRendererController} from "./LabelAnnotationRenderer/Label
 import {PhotoViewerRendererController} from "./PhotoViewerRenderer/PhotoViewerRenderer";
 import {EmailThreadRendererController} from "./EmailThreadRenderer/EmailThreadRenderer";
 import {NoteEditorRendererController} from "./NoteEditorRenderer/NoteEditorRenderer";
+import {TimelineRendererController} from "./TimelineRenderer/TimelineRenderer";
 
 export class Renderers {
     static get rendererTypes() {
@@ -29,6 +30,7 @@ export class Renderers {
         renderers[MessageRendererController.rendererType.name] = MessageRendererController.rendererType;
         renderers[PhotoViewerRendererController.rendererType.name] = PhotoViewerRendererController.rendererType;
         renderers[EmailThreadRendererController.rendererType.name] = EmailThreadRendererController.rendererType;
+        renderers[TimelineRendererController.rendererType.name] = TimelineRendererController.rendererType;
         return  renderers;
         /*return {
             MapRendererController.rendererType,

@@ -105,7 +105,7 @@ export class CacheMemri {
 
 				let item = CacheMemri.createItem(type, values);
 				// Set fake dateModified for the demo data
-				item.dateModified = getRandomInt(Number(new Date()) - 2592000, Number(new Date()));
+				item.dateModified = getRandomInt(Number(new Date()) - 2592000*1000, Number(new Date()));
 				let allEdges = dict["allEdges"]
 				if (Array.isArray(allEdges)) {//TODO: isCvuObject?
 					items.set(item, allEdges);

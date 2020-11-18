@@ -13,6 +13,13 @@ export class ConfigItem {
 	propertyName: string
 	type: ConfigItemType|SpecialTypes//TODO
 	isItemSpecific: boolean
+
+	constructor(displayName: string, propertyName: string, type: ConfigItemType | SpecialTypes, isItemSpecific: boolean) {
+		this.displayName = displayName;
+		this.propertyName = propertyName;
+		this.type = type;
+		this.isItemSpecific = isItemSpecific;
+	}
 }
 
 export enum ConfigItemType {

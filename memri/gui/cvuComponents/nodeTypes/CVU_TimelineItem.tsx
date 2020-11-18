@@ -8,8 +8,8 @@
 
 import {CVU_UI, MainUI, MemriImage} from "../../swiftUI";
 import * as React from "react";
-import {UINodeResolver} from "../UINode";
-import {ItemFamily} from "../../../model/schemaExtensions/Item";
+import {backgroundColor, ItemFamily} from "../../../model/schemaExtensions/Item";
+import {TimelineItemView} from "../../renderers/TimelineRenderer/TimelineItemView";
 
 export class CVU_TimelineItem extends CVU_UI {
 
@@ -17,7 +17,8 @@ export class CVU_TimelineItem extends CVU_UI {
         return (<TimelineItemView icon={<MemriImage>{this.nodeResolver.string("icon") ?? "arrow_right"}</MemriImage>}
                                   title={this.nodeResolver.string("title") ?? "-"}
                                   subtitle={this.nodeResolver.string("text")}
-                                  backgroundColor={ItemFamily[this.nodeResolver.item.genericType].backgroundColor ?? "gray"} {...this.props}
+                                  backgroundColor={backgroundColor(ItemFamily[this.nodeResolver.item.genericType]) ?? "gray"}
+                                  {...this.props}
 
             />
         );

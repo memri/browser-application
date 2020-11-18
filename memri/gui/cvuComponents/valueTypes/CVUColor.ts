@@ -60,7 +60,7 @@ export class Color {
                 return "#ffcc00"
             case "green":
             case "systemGreen":
-                return "34c759"
+                return "#34c759"
             case "greenBackground":
                 return "#dbf7c5"
             case "purpleBackground":

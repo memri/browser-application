@@ -123,7 +123,7 @@ export class UIElementView extends MainUI {
                     argumentsJs: this.nodeResolver.viewArguments, context: this.context
                 })
             case UIElementFamily.TimelineItem:
-                return new CVU_TimelineItem({nodeResolver: this.nodeResolver, context: this.context})
+                return new CVU_TimelineItem({nodeResolver: this.nodeResolver, context: this.context, item: this.nodeResolver.item}) //TODO: needs additional props to work @mkslanc
             case UIElementFamily.FileThumbnail:
                 return new CVU_FileThumbnail({nodeResolver: this.nodeResolver, context: this.context})
         }

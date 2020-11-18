@@ -22,6 +22,7 @@ import {Alignment, Color} from "../../../../router";
 import {Expression} from "../../../../router";
 import {ConfigItem, ConfigItemType, getSupportedRealmTypes, PossibleExpression, SpecialTypes} from "./ConfigPanelModel";
 import {ListItem} from "@material-ui/core";
+import {DetailLevel} from "../../renderers/TimelineRenderer/TimelineModel";
 require("../../../extensions/common/string.ts");
 
 export class ConfigPanel extends MainUI {
@@ -90,7 +91,7 @@ export class ConfigPanel extends MainUI {
                     return <ConfigPanelNumberView context={this.context} configItem={configItem} eraseToAnyView/>
                 case SpecialTypes.chartType:
                     return <NavigationLink configItem={configItem} eraseToAnyView
-                                           destination={<ConfigPanelEnumSelectionView context={this.context} configItem={configItem} type={ChartType}/>}
+                                           destination={<ConfigPanelEnumSelectionView context={this.context} configItem={configItem}/>}
                     >
                         <MemriText>{configItem.displayName}</MemriText>
                     </NavigationLink>
@@ -115,7 +116,7 @@ export class ConfigPanel extends MainUI {
     }
 
     getConfigItems(): ConfigItem[] {
-        return []// this.currentRendererConfig?.configItems(this.context) ?? []
+        return (typeof this.currentRendererConfig?.configItems == "function") ? this.currentRendererConfig?.configItems(this.context) : []
     }
 }
 
@@ -361,7 +362,7 @@ export class ConfigPanelEnumSelectionView extends MainUI{
     configItem: ConfigItem
 
     get currentSelection(): String {
-        return this.context.currentView?.renderConfig?.cascadeProperty(this.configItem.propertyName)
+        return this.context.currentView?.renderConfig?.cascadeProperty(this.configItem.propertyName, "String")
     }
     
     onSelect(selected: string) {
@@ -373,14 +374,14 @@ export class ConfigPanelEnumSelectionView extends MainUI{
         this.context = this.props.context
         this.configItem = this.props.configItem
 
-        let options = []
-        // let options = EnumType.allCases
+        let options = this.props.type;
+
         let currentSelection = this.currentSelection
 
         return <MemriList navigationBarTitle={this.configItem.displayName}
             //                       navigationBarTitle(Text(configItem.displayName), displayMode: .inline)
         >
-            {options.map((option) => <MemriRealButton action={() => this.onSelect(option)}>
+            {Object.keys(options).map((option) => <MemriRealButton action={() => this.onSelect(option)}>
                 <MemriText bold={option == currentSelection/*TODO*/}>
                     {option.camelCaseToWords()}
                 </MemriText>

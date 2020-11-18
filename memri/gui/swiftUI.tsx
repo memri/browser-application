@@ -27,7 +27,8 @@ interface MemriUIProps {
     textColor?,
     cornerRadius?,
     context?,
-    opacity?
+    opacity?,
+    bold?
 }
 
 export class MainUI extends React.Component<MemriUIProps, {}> {
@@ -61,7 +62,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             opacity: this.props.opacity,
             height: this.props.height ?? this.props.frame?.height,
             width: this.props.width ?? this.props.frame?.width,
-            textAlign: this.props.textAlign
+            textAlign: this.props.textAlign,
+            fontWeight: (this.props.bold) ? "bold" : undefined
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
@@ -379,8 +381,25 @@ export class SectionHeader extends MainUI {
 export class Section extends MainUI {
     render() {
         let {header, footer, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
         return (
-            <div style={this.setStyles()} className="Section" {...other}>
+            <div style={style} className="Section" {...other}>
+                {header ? header: ""}
+                {this.props.children}
+                {footer ? footer: ""}
+            </div>
+        )
+    }
+}
+
+export class ASSection extends MainUI {
+    render() {
+        let {header, footer, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {display: "flex", width: style.width ?? "100%"})
+
+        return (
+            <div style={style} className="ASSection" {...other}>
                 {header ? header: ""}
                 {this.props.children}
                 {footer ? footer: ""}
