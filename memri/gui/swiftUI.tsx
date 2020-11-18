@@ -336,7 +336,7 @@ export class Spacer extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {flexGrow: 1})
+        Object.assign(style, {flexGrow: 1, minWidth: "10px"})
         return (
             <div style={style} className="Spacer" {...other}>
                 {this.props.children}

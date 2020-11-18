@@ -31,6 +31,7 @@ import {ItemCell} from "../common/ItemCell";
 import {CVU_TimelineItem} from "./nodeTypes/CVU_TimelineItem";
 import {CVU_AppearanceModifier} from "./nodeTypes/CVU_AppearanceModifier";
 import {FlowStack} from "../components/FlowStack";
+import {CVU_FileThumbnail} from "./nodeTypes/CVU_FileThumbnail";
 require("../../extensions/common/string");
 
 

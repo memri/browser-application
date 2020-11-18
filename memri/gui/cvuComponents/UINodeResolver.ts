@@ -124,7 +124,7 @@ export class UINodeResolver {
             }
         } else {
             let size = this.resolve(propertyName, "CGFloat");
-            if (size) {
+            if (size && typeof size == "number") {
                 return new CVUFont(defaultValue.name, size, defaultValue.weight);
             } else {
                 let weight = this.resolve(propertyName, "String");

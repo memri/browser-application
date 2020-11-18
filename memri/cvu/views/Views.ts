@@ -388,8 +388,8 @@ export class Views {
 					} else if (typeof v === "number") { //TODO: check if timestamp catches here
 						switch (node.name) {
 							case "currency":
-								console.log("Currency!!!!");
-								break
+								value =  "$" + v;
+								break;
 							default:
 								break
 						}

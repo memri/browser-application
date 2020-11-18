@@ -6,8 +6,6 @@ import {debugHistory} from "../../../router";
 import {DatabaseController, ItemReference, realm} from "../../../router";
 import {RealmObjects} from "../../../router";
 import {Color} from "../../../router";
-import {Datasource} from "../../../router";
-import {UserState, ViewArguments} from "../../../router";
 import {MemriDictionary} from "../../../router";
 import {ComputedPropertyLink} from "../../gui/browser/configPane/ConfigPanel";
 
@@ -6835,8 +6833,29 @@ export class PhotoAnnotation extends Item {
 
 export class ReceiptDemo extends Item {
     totalCost /*= RealmOptional<Double>()*/
-    store: string = ""
-    category: string = ""
+    store: string
+    category: string
+
+    get objectSchema () {
+        return {
+            name: 'ReceiptDemo',
+            primaryKey: 'uid',
+            properties: {
+                _updated: 'string[]',
+                _partial: 'bool',
+                _action: 'string',
+                _changedInSession: 'bool',
+                dateAccessed: 'date',
+                dateCreated: 'date',
+                dateModified: 'date',
+                deleted: 'bool',
+                totalCost: 'int',
+                store: 'string',
+                category: 'string',
+                uid: 'int',
+            }
+        }
+    }
 
     /// Attached photos
     get photo() {
@@ -6851,6 +6870,8 @@ export class ReceiptDemo extends Item {
 
     constructor(decoder) {
         super(decoder)
+        this.category = this.category ?? "";
+        this.store = this.store ?? "";
     }
 }
 
