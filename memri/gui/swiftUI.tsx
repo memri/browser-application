@@ -67,6 +67,15 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
+        if (this.props.lineLimit) {
+            Object.assign(styles, {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                display: "-webkit-box",
+                WebkitLineClamp: this.props.lineLimit,
+                WebkitBoxOrient: "vertical"
+            })
+        }
         return styles;
     }
 
