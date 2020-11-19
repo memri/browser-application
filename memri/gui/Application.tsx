@@ -15,19 +15,6 @@ import {SessionSwitcher} from "./browser/SessionSwitcher";
 import {SetupWizard} from "../install/SetupWizard";
 import {geom} from "../../install";
 
-/*class View {
-	fullHeight(): View {
-		frame(0,
-			.infinity,
-			0, maxHeight: .infinity,
-			Alignment.topLeading)
-	}
-
-	fullWidth():View {
-		frame(0, .infinity, Alignment.topLeading)
-	}
-}*/
-
 /*var memri_shouldUseLargeScreenLayout: Bool {
 	#if targetEnvironment(macCatalyst)
 		return true
@@ -100,7 +87,7 @@ export class Application extends MainUI {
 					<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
 						{this.context.showSessionSwitcher
 							? <SessionSwitcher context={this.context}/>
-							: <Browser context={this.context}/>
+							: <Browser context={this.context} height={"100%"}/>
 						}
 					</NavigationWrapper> :
 					<SetupWizard context={this.context}/>

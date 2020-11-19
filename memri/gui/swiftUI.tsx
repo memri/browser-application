@@ -63,7 +63,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             height: this.props.height ?? this.props.frame?.height,
             width: this.props.width ?? this.props.frame?.width,
             textAlign: this.props.textAlign,
-            fontWeight: (this.props.bold) ? "bold" : undefined
+            fontWeight: (this.props.bold) ? "bold" : undefined,
+            justifyContent: this.props.justifyContent
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
@@ -204,9 +205,11 @@ export class MemriRealButton extends MainUI {
     render() {
         let {alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
         action = alert ? this.onAlert : (action && typeof action == "function") ? action :  ()=> {};
-         return (
+        let style = this.setStyles();
+        Object.assign(style, {minWidth: style.minWidth ?? "10px"})
+        return (
             <div className={"MemriRealButton"}>
-            <Button onClick={action} style={this.setStyles()} {...other}>
+            <Button onClick={action} style={style} {...other}>
                 {this.props.children}
             </Button>
                 {this.state.showAlert ?
@@ -323,8 +326,11 @@ export class MemriText extends MainUI {
 export class ScrollView extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {overflowY: "scroll"})
+
         return (
-            <div style={this.setStyles()} className="ScrollView" {...other}>
+            <div style={style} className="ScrollView" {...other}>
                 {this.props.children}
             </div>
         )

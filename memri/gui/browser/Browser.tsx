@@ -51,10 +51,10 @@ export class Browser extends MainUI {
 
 		return (
 			<div className={"Browser"} style={this.setStyles()}>
-			<ZStack>
+			<ZStack height={"100%"}>
 				{this.context.currentView == undefined ? <MemriText padding={padding({})} frame={frame({maxWidth: "infinity"})}>{"Loading..."}</MemriText> :
 					<>
-						<VStack alignment={Alignment.center} spacing={0}>
+						<VStack alignment={Alignment.center} spacing={0} height={"100%"}>
 							{currentView.showToolbar
 								&& !currentView.fullscreen
 								&& <TopNavigation background={new Color("systemBackground").toLowerCase()}
@@ -62,8 +62,8 @@ export class Browser extends MainUI {
 												  inSubView={this.inSubView}
 												  showCloseButton={this.showclosebutton}/>
 							}
-							<ZStack width="100%">
-								<VStack alignment={Alignment.center} spacing={0}>
+							<ZStack height="100%">
+								<VStack alignment={Alignment.center} spacing={0} height={"100%"} justifyContent={"space-between"}>
 									{this.activeRendererController != undefined
 										? this.activeRendererController.makeView()
 										: <MemriText padding={padding({})} frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}>

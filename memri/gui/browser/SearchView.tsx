@@ -17,7 +17,7 @@ export class SearchView extends MainUI{
 	render() {
 		this.init()
 		return (
-			<div className="SearchView">
+			<div className="SearchView" style={{position: "absolute", bottom: 0}}>
 			{this.isActive && <VStack spacing={0}
 					 background={new Color("systemBackground").toLowerCase()}/*TODO .edgesIgnoringSafeArea(.all)*/
 				// modifier={new KeyboardModifier(null)}

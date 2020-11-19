@@ -26,7 +26,7 @@ export class FilterPanel extends MainUI {
                 .background(clipShape.fill(Color(.systemBackground)).shadow(radius: 10).edgesIgnoringSafeArea([.bottom]))
  */
         return (
-            <div className="FilterPanel">
+            <div className="FilterPanel" style={{position: "absolute", bottom: 0}}>
                 <HStack alignment={Alignment.top} spacing={0}
                         frame={frame({maxWidth: ".infinity", height: 250})}
                         background={"#eee"}
