@@ -5,7 +5,17 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {MainUI, MemriDivider, MemriText, MemriTextField, padding, Toggle, VStack, font} from "../../swiftUI";
+import {
+    MainUI,
+    MemriDivider,
+    MemriText,
+    MemriTextField,
+    padding,
+    Toggle,
+    VStack,
+    font,
+    DatePicker, frame
+} from "../../swiftUI";
 import {Item} from "../../../../router";
 import {ViewArguments} from "../../../../router";
 import {Alignment, Font} from "../../../../router";
@@ -52,7 +62,7 @@ export class DefaultGeneralEditorRow extends MainUI {
                         {this.renderConfig.hasGroup(this.prop) ?
                             this.renderConfig.render(this.item, this.prop, this.argumentsJs) :
                             (this.readOnly) ?
-                                (propType == "object") ?
+                                (["string", "bool", "date", "int", ].includes(propType)) ?
                                     this.defaultRow(ExprInterpreter.evaluateString(propValue)) :
                                     (propType == "object") ?
                                         (propValue instanceof Item) ?
@@ -63,6 +73,8 @@ export class DefaultGeneralEditorRow extends MainUI {
                                         this.defaultRow() :
                                 (propType == "string") ?
                                     this.stringRow() :
+                                    (propType == "date") ?
+                                        this.dateRow() :
                                     (propType == "bool") ?
                                         this.boolRow() :
                                         (propType == "int") ?
@@ -129,20 +141,12 @@ export class DefaultGeneralEditorRow extends MainUI {
             .generalEditorCaption()
     }*/
 
-    /*func dateRow() -> some View {
-        let binding = Binding<Date>(
-            get: { self.item[self.prop] as? Date ?? Date() },
-            set: {
-                self.item.set(self.prop, $0)
-                self.context.objectWillChange.send()
-            }
-        )
-
-        return DatePicker("", selection: binding, displayedComponents: .date)
-            .frame(width: 300, height: 80, alignment: .center)
+    dateRow() {
+        //onChange={(e) => this.item.set(this.prop, e.target)}
+        return <DatePicker value={this.item[this.prop] ?? Date.now()} frame={frame({width: 300, height: 80, alignment: Alignment.center})} padding={padding(8)}/>/*("", selection: binding, displayedComponents: .date)
             .clipped()
-            .padding(8)
-    }*/
+          */
+    }
 
     defaultRow(caption?: string) {
         return <MemriText><GeneralEditorCaption>{caption ?? this.prop.camelCaseToWords().toLowerCase().capitalizingFirst()}</GeneralEditorCaption></MemriText>

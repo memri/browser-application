@@ -201,11 +201,11 @@ export class GeneralEditorRendererView extends RenderersMemri {
         var result = [];
         for (let item of layout) {
             let list = item.get("fields", "[String]");
-            if (list) {
+            if (list && Array.isArray(list)) {
                 result.push(...list); //TODO:
             }
             list = item.get("exclude", "[String]");
-            if (list) {
+            if (list && Array.isArray(list)) {
                 result.push(...list) //TODO:
             }
         }

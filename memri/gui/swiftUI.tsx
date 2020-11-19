@@ -622,6 +622,16 @@ export class MemriGrid extends MainUI {
     }
 }
 
+export class DatePicker extends MainUI {
+    render() {
+        let {value, font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        value = new Date(value).toISOString().replace(/T(.)*$/, "");
+        return (
+            <TextField type="date" style={this.setStyles()} className="KeyboardDatePicker" value={value} {...other}/>
+        )
+    }
+}
+
 export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment? }) { //TODO:
     let frameObj = Object.assign({}, attrs);
     for (let prop in frameObj) {

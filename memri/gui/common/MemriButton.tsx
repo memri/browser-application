@@ -59,8 +59,9 @@ export class MemriButton extends MainUI {
                     //                .compositingGroup()
                     //                //        .fixedSize(horizontal: false, vertical: true)
                     //            }
+                    //lineLimit={1}
                     : <HStack spacing={0}
-                              lineLimit={1}
+
                               background={bgColor}
                               cornerRadius={20}
                               compositingGroup

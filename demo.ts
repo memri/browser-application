@@ -129,7 +129,7 @@ var baseBox = new Box({
                 }),
                 1: memriBox = new Box({
                     isMain: false,
-                    size: "420px"
+                    size: "435px"
                 }),
             }),
 
@@ -143,7 +143,7 @@ let memriApp = document.createElement("iframe");
 var onResize = function() {
     baseBox.setBox(0, 0, window.innerWidth, window.innerHeight);
     memriApp.width = memriBox.size;
-    memriApp.height = window.innerHeight - 20 + "px";
+    memriApp.height = window.innerHeight - 27 + "px"; //TODO: needs to use bottom bar height instead of 27px
 };
 window.onresize = onResize;
 
