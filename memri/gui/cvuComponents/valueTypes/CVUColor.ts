@@ -2,12 +2,14 @@ export class Color {
     value;
 
     constructor(value) {
-        if (value.charAt(0) == "#") {
-            this.value = Color.hex(value);
-        } else {
-            this.value = Color.system(value);
-            if (!this.value) {
+        if (value) {
+            if (value.charAt(0) == "#") {
                 this.value = Color.hex(value);
+            } else {
+                this.value = Color.system(value);
+                if (!this.value) {
+                    this.value = Color.hex(value);
+                }
             }
         }
     }
@@ -79,7 +81,7 @@ export class Color {
     }
 
     opacity(value) {
-        return this.value + Math.ceil(255 * value).toString(16);
+        if (this.value) return this.value + Math.ceil(255 * value).toString(16);
     }
 
 }

@@ -13,7 +13,7 @@ import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swif
 import {Browser} from "./browser/Browser";
 import {SessionSwitcher} from "./browser/SessionSwitcher";
 import {SetupWizard} from "../install/SetupWizard";
-import {geom} from "../../install";
+import {geom} from "../../geom";
 
 /*var memri_shouldUseLargeScreenLayout: Bool {
 	#if targetEnvironment(macCatalyst)

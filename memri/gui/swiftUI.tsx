@@ -12,8 +12,9 @@ import {
     TextField,
     DialogContentText, DialogActions, ListSubheader
 } from "@material-ui/core";
-import {MemriContext, UIElementFamily, UINodeResolver} from "../../router";
+import {Color, MemriContext, UIElementFamily, UINodeResolver} from "../../router";
 import {Alignment, Font, TextAlignment} from "../../router";
+import {geom} from "../../geom";
 
 interface MemriUIProps {
     foregroundColor?
@@ -64,7 +65,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             width: this.props.width ?? this.props.frame?.width,
             textAlign: this.props.textAlign,
             fontWeight: (this.props.bold) ? "bold" : undefined,
-            justifyContent: this.props.justifyContent
+            justifyContent: this.props.justifyContent,
+            overflowY: this.props.overflowY
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
@@ -167,9 +169,11 @@ export class HStack extends MainUI {
 
 export class ColorArea extends MainUI {
     render() {
-        let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        let {position, top, opacity, color, font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        Object.assign(style, {position: position ?? "relative", top: top ?? undefined, backgroundColor: new Color(color).opacity(opacity), width: style.width ?? geom.size.width, height: style.height ?? geom.size.height})
         return (
-            <div style={this.setStyles()} className="ColorArea" {...other}>
+            <div style={style} className="ColorArea" {...other}>
                 {this.props.children}
             </div>
         )
@@ -686,7 +690,7 @@ export function padding(attrs:{horizontal?,vertical?,top?,bottom?,leading?,trail
 }
 
 export function offset(attrs:{x?,y?}) { //TODO: x,y
-    return `${attrs.x? attrs.x +" px" : ""} ${attrs.y? attrs.y+" px" : ""}`;
+    return `${attrs.x? attrs.x +"px" : ""} ${attrs.y? attrs.y+"px" : ""}`;
 }
 
 export function font(attrs:{family?: string, size?:number; weight?: string; italic?: boolean}) {

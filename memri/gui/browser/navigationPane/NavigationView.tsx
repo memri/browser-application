@@ -20,21 +20,13 @@ import {
 	MemriRealButton,
 	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI
 } from "../../swiftUI";
-import {geom} from "../../../../install";
-import {ListItem} from "@material-ui/core";
-
-interface NavigationWrapperProps { isVisible?: boolean; widthRatio?: number; content?;offset?}
+import {geom} from "../../../../geom";
 
 export class NavigationWrapper extends MainUI {
 	widthRatio;
 	isVisible;
 	offset;
 	content: Content;
-
-	/*
-	/*@GestureState(reset: { _, transaction in
-		transaction.animation = .default
-    }) */
 
 	navWidth(geom: GeometryProxy) {
 		return Math.min(300, geom.size.width * this.widthRatio)
@@ -53,7 +45,7 @@ export class NavigationWrapper extends MainUI {
 		return this.isVisible ? 1 - fraction : fraction
 	}
 
-	render() {//Color.clear ??
+	render() {
 		this.widthRatio = this.props.widthRatio ?? 0.8;
 		this.isVisible = this.props?.isVisible;
 		this.offset = this.props.offset ?? 0;
@@ -68,18 +60,23 @@ export class NavigationWrapper extends MainUI {
 					 zIndex={-1}>
 				{this.props.children}
 				</Content>
-				<ColorArea value="clear" contentShape="Rectangle" frame={frame({minWidth:10, maxWidth:10, maxHeight:"Infinity"})}
-					   /*simultaneousGesture={this.navigationDragGesture}*//>
-				{(this.isVisible || this.offset > 0) &&
-				<ColorArea opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
-					   /*simultaneousGesture={this.navigationDragGesture}*/ zIndex={10}/> &&
-				<Navigation
-					frame={frame({width: this.navWidth(geom)})} edgesIgnoringSafeArea="all"
-					offset={offset({x:this.isVisible ? this.cappedOffset(geom) : (-this.navWidth(geom) + this.cappedOffset(geom)),y: 0})}
-					/*simultaneousGesture={this.navigationDragGesture}*/
-					/*transition={move(Alignment.leading)}*/
-					zIndex={15} context={this.context}
-				/>
+				<ColorArea color="clear" contentShape="Rectangle" frame={frame({minWidth:10, maxWidth:10, maxHeight:"Infinity"})}
+					   />
+				{(this.isVisible) &&
+				<>
+					<ColorArea color={"black"} position="absolute" top={0} opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
+							   onClick={() => this.navigationDragGesture} zIndex={10}/>
+					<Navigation
+						frame={frame({width: this.navWidth(geom)})} edgesIgnoringSafeArea="all"
+						offset={offset({
+							x: this.isVisible ? this.cappedOffset(geom) : (-this.navWidth(geom) + this.cappedOffset(geom)),
+							y: 0
+						})}
+						/*simultaneousGesture={this.navigationDragGesture}*/
+						/*transition={move(Alignment.leading)}*/
+						zIndex={15} context={this.context}
+					/>
+				</>
 				}
 			</ZStack>
 			</div>
@@ -109,24 +106,15 @@ export class NavigationWrapper extends MainUI {
 		}
 	}*/
 
-	/*get navigationDragGesture() {
-		return (
-			<DragGesture updating={updating($offset, function (value, offset) {
-				offset = value.translation.width
-			})}
-						 onEnded={function (value) {
-							 if (this.isVisible && value.predictedEndTranslation.width < -140 || !this.isVisible && value.translation.width > 50 && Math.abs(value.predictedEndTranslation.width) > 20) {
-								 //withAnimation {
-								 this.isVisible = !this.visible;
-								 // }
-							 }
-						 }}
-			>
-			</DragGesture>
-		)
-	}*/
+	get navigationDragGesture() {
+		if (this.isVisible) {
+			console.log(this.isVisible)
+			this.context.showNavigation = false;
+			this.context.showNavigationBinding();
+			return this.isVisible;
+		}
+	}
 }
-interface NavigationProps { context?; keyboardResponder?; showSettings?; frame?; edgesIgnoringSafeArea?; offset?; simultaneousGesture?; transition?; zIndex?}
 
 class Navigation extends MainUI {
 	keyboardResponder;
@@ -137,67 +125,68 @@ class Navigation extends MainUI {
 		super(props);
 	}
 
+	componentDidMount() {
+		document.getElementById("NavigationList").style.height = geom.size.height - document.getElementById("MenuTop").clientHeight - 10 + "px"
+	}
+
 	getNavigationItems() {
 		let navigationItems = this.context.navigation.getItems();
 		return navigationItems.map((navItem) => {
 			switch (navItem.itemType) {
 				case "item":
-					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>/*(navItem, hide: {
-					withAnimation {
-						self.context.showNavigation = false
-					}
-				})*/
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>
 				case "heading":
-					return <NavigationHeadingView title={navItem.title}/>//(title: navItem.title)
+					return <NavigationHeadingView title={navItem.title}/>
 				case "line":
 					return <NavigationLineView/>
 				default:
-					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>/*(item: navItem, hide: {
-					withAnimation {
-						self.context.showNavigation = false
-					}
-				})*/
+					return <NavigationItemView item={navItem} context={this.context} hide={()=>{this.context.showNavigation = false; this.context.showNavigationBinding()}}/>
 			}
-			/*return <ListItem button>
-				{item.type}
-			</ListItem>*/
 		});
 	}
 
 	render() {
 		this.keyboardResponder = this.props.keyboardResponder;
 		this.showSettings = this.props.showSettings ?? false;
-		this.context = this.props.context //{/*separatorsEnabled={false} contentInsets={UIEdgeInsets({top: 10, left: 0, bottom: 0, right: 0})}*/}
+		this.context = this.props.context
+		let style = this.setStyles();
+		Object.assign(style, {position: "absolute", top: 0})
 
-		return (<div className="Navigation"  style={{position: "absolute", top: 0}}>
-		<VStack frame={frame({alignment: Alignment.leading})} background = {new Color("MemriUI-purpleBack").toLowerCase()}>
-			<HStack spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})} background={new Color("MemriUI-purpleBackSecondary").toLowerCase()}>
-				<MemriRealButton onClick={function () {
-					this.showSettings = true
-				}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
+		return (
+			<div className="Navigation" style={style}>
+				<VStack frame={frame({alignment: Alignment.leading})}
+						background={new Color("MemriUI-purpleBack").toLowerCase()}>
+					<HStack id={"MenuTop"} spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})}
+							background={new Color("MemriUI-purpleBackSecondary").toLowerCase()}>
+						<MemriRealButton onClick={function () {
+							this.showSettings = true
+						}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
 					SettingsPane().environmentObject(this.context)
 				}.bind(this))}*/>
-					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>settings</MemriImage>}
-				</MemriRealButton>
-				<MemriTextField value={this.context.navigation.filterText} placeholder="Search"
-								textColor="#8a66bc" tintColor="white" clearButtonMode="always"
-								showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
-								accentColor="white" background={new Color("black").opacity(0.4)} cornerRadius={5}
-								onChange={(e) => this.context.navigation.filterText = e.target.value}
-				/>
-				{/*<MemriRealButton>
+							{<MemriImage foregroundColor="#d9d2e9"
+										 font={font({size: 22, weight: Font.Weight.semibold})}>settings</MemriImage>}
+						</MemriRealButton>
+						<MemriTextField value={this.context.navigation.filterText} placeholder="Search"
+										textColor="#8a66bc" tintColor="white" clearButtonMode="always"
+										showPrevNextButtons="false" layoutPriority="-1" padding={padding(5)}
+										accentColor="white" background={new Color("black").opacity(0.4)}
+										cornerRadius={5}
+										onChange={(e) => this.context.navigation.filterText = e.target.value}
+						/>
+						{/*<MemriRealButton>
 					{<MemriImage font={font({size: 22, weight: Font.Weight.semibold})} foregroundColor="#d9d2e9">create</MemriImage>}
 				</MemriRealButton>
 				<MemriRealButton>
 					{<MemriImage foregroundColor="#d9d2e9" font={font({size: 22, weight: Font.Weight.semibold})}>add</MemriImage>}
 				</MemriRealButton>*/}
-			</HStack>
-			<ASTableView separatorsEnabled={false} contentInsets={contentInsets({top: 10, left: 0, bottom: 0, right: 0})}>
-				{this.getNavigationItems()}
-			</ASTableView>
+					</HStack>
+					<ASTableView overflowY={"auto"} id={"NavigationList"} separatorsEnabled={false}
+								 contentInsets={padding({top: 10, left: 0, bottom: 0, right: 0})} frame={frame({height: geom.size.height})}>
+						{this.getNavigationItems()}
+					</ASTableView>
 
-		</VStack></div>
-			) //TODO: logic in ASSection
+				</VStack></div>
+		) //TODO: logic in ASSection
 	}
 
 }
@@ -227,16 +216,15 @@ class NavigationItemView extends MainUI {
 				}
 
 				this.hide()
-				console.log(this.context)
 			}
 		}
-		return(<ListItem key={this.item.uid}>
+		return(
 			<MemriRealButton onClick={action}>
 				<MemriText font={font({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor={new Color("white").opacity(0.7)} frame={frame({maxWidth: "infinity", alignment: Alignment.leading})} >
 					{this.item.title ?? ""}
 				</MemriText>
 			</MemriRealButton>
-			</ListItem>
+
 		)//?.firstUppercased buttonStyle={NavigationButtonStyle()} contentShape={Rectangle()}
 	}
 }
@@ -258,15 +246,13 @@ class NavigationHeadingView extends MainUI {
 	}
 	render() {
 		return (
-			<ListItem>
-				<HStack>
-					<MemriText font={font({size: 18, weight: Font.Weight.bold})}
-							   padding={padding({vertical: 8, horizontal: 20})} foregroundColor="#8c73af">
-						{(this.title ?? "").toUpperCase()}
-					</MemriText>
-					<Spacer/>
-				</HStack>
-			</ListItem>
+			<HStack>
+				<MemriText font={font({size: 18, weight: Font.Weight.bold})}
+						   padding={padding({vertical: 8, horizontal: 20})} foregroundColor="#8c73af">
+					{(this.title ?? "").toUpperCase()}
+				</MemriText>
+				<Spacer/>
+			</HStack>
 		)
 	}
 }
@@ -274,16 +260,9 @@ class NavigationHeadingView extends MainUI {
 class NavigationLineView extends MainUI {
 	render() {
 		return (
-			<ListItem>
 				<VStack padding={padding({horizontal: 50})}>
 					<MemriDivider background="black"/>
 				</VStack>
-			</ListItem>
 		)
 	}
 }
-/*struct Navigation_Previews: PreviewProvider {
-	static var previews: some View {
-		Navigation().environmentObject(try! RootContext(name: "", key: "").mockBoot())
-	}
-}*/
