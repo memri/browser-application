@@ -6,6 +6,7 @@ import * as React from 'react';
 import {Alignment, Color, Font} from "../../../../router";
 import {ActionDelete} from "../../../../router";
 import {
+	ASSection,
 	ASTableView,
 	font, MemriDivider,
 	MemriImage,
@@ -15,8 +16,9 @@ import {
 	RenderersMemri,
 	VStack
 } from "../../swiftUI";
-import {ListItem} from "@material-ui/core";
 import {CascadingRendererConfig} from "../../../../router";
+import {FormControlLabel, FormGroup, Checkbox} from "@material-ui/core";
+
 
 export class ListRendererConfig extends CascadingRendererConfig {
 	get longPress() { return this.cascadeProperty("longPress") }
@@ -79,55 +81,51 @@ export class ListRendererController {
 export class ListRendererView extends RenderersMemri {
 	controller: ListRendererController
 
-	get sections() { //contextMenuProvider: contextMenuProvider
-		let items = this.controller.context.items;
-		return items.map((dataItem, index) => {
-			return <>
-				<VStack key={dataItem.uid} onClick={
-					this.executeAction(dataItem)
-				} padding={padding({
-					top: (index == 0) ? 0 : this.controller.config.spacing / 2,
-					leading: this.controller.config.edgeInset.left,
-					bottom: (index == items.length - 1) ? 0 : this.controller.config.spacing / 2,
-					trailing: this.controller.config.edgeInset.right,
-				})}>
-					{this.controller.view(dataItem)}
-
-				</VStack>
-				<VStack textAlign={"right"}>
-					<MemriRealButton
-						action={this.deleteItem.bind(this, dataItem)}><MemriImage font={font({size:14})}>delete_forever</MemriImage></MemriRealButton>
-					{(index != items.length - 1) && <MemriDivider/>}
-				</VStack>
-			</>
-		})
-	}
-
 	deleteItem = (item) => {
 		this.controller.context.executeAction(new ActionDelete(this.controller.context), item);
 	}
 
 	render() {
 		this.controller = this.props.controller;
+		let items = this.controller.context.items;
 
 		return (
 			<div className={"ListRendererView"}>
 				<VStack>
 					{this.controller.hasItems ?
-						<ASTableView editMode={this.controller.context.currentSession?.editMode ?? false}
+						<ASTableView
 									 background={this.controller.config.backgroundColor ?? new Color("systemBackground")}
-									 onPullToRefresh={(callback) => {
-										 this.controller.context.currentView?.reload();
-										 callback()
-									 }
-									 } spacing={this.controller.config.spacing}
+									 spacing={this.controller.config.spacing}
 									 contentInsets={padding({
 										 top: this.controller.config.edgeInset.top,
 										 left: 0,
 										 bottom: this.controller.config.edgeInset.bottom,
 										 right: 0
 									 })}>
-							{this.sections}
+							<ASSection editMode={this.controller.isEditing}
+									   selectionMode={this.selectionMode}
+									   selectedIndices={this.controller.context.selectedIndicesBinding}
+									   direction={"column"}
+									   data={items}
+									   dataID={"uid"}
+									   deleteIconFn={(dataItem, index) => <VStack textAlign={"right"}>
+										   <MemriRealButton action={this.deleteItem.bind(this, dataItem)}>
+											   <MemriImage font={font({size:14})}>delete_forever</MemriImage>
+										   </MemriRealButton>
+										   {(index != items.length - 1) && <MemriDivider/>}
+									   </VStack>}
+									   callback={(dataItem, index) =>
+										   <VStack key={dataItem.uid}
+												   padding={padding({
+													   top: (index == 0) ? 0 : this.controller.config.spacing / 2,
+													   leading: this.controller.config.edgeInset.left,
+													   bottom: (index == items.length - 1) ? 0 : this.controller.config.spacing / 2,
+													   trailing: this.controller.config.edgeInset.right,
+												   })}
+										   >
+										   {this.controller.view(dataItem)}
+									   </VStack>}
+							/>
 						</ASTableView> :
 						<MemriText multilineTextAlignment={Alignment.center}
 								   font={font({size: 16, weight: Font.Weight.regular, design: "default"})}
@@ -140,17 +138,19 @@ export class ListRendererView extends RenderersMemri {
 		)
 	}
 
-	get selectionMode() {
+	selectionMode(dataItem) {
 		if (this.controller.isEditing) {
-			return /*.selectMultiple(controller.context.selectedIndicesBinding)*/ //TODO:
+			return this.selectedIndicesBinding
 		} else {
-			return /*.selectSingle { index in
+			return this.executeAction(dataItem)
+			/*return .selectSingle { index in
 		if let press = self.controller.config.press {
 			self.controller.context.executeAction(press, with: self.controller.context.items[safe: index])
 		}
 	}*/ //TODO:
 		}
 	}
+	selectionMode = this.selectionMode.bind(this)
 
 	/*func contextMenuProvider(index: Int, item: Item) -> UIContextMenuConfiguration? {
 	UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak context] (suggested) -> UIMenu? in

@@ -91,7 +91,7 @@ export class MemriContext {
 
 	navigation: MainNavigation
 
-	get items(){
+	get items(): [] {
 		return this.currentView?.resultSet.items ?? []
 	}
 	set items(items) {
@@ -389,11 +389,12 @@ export class MemriContext {
 	}
 
 	get selectedIndicesBinding() {
-		return this.getSelection().map(() => this.items[0]).filter((el) => el != undefined); //TODO: ?
+		let items = this.items ?? []
+		return this.getSelection().map((el) => items.findIndex(($0) => $0 == el)).filter((el) => el != undefined); //TODO: ?
 	}
 
-	set selectedIndicesBinding($0) {
-		this.setSelection($0.map(() => this.items[0]).filter((el) => el != undefined)); //TODO: ?
+	set selectedIndicesBinding(selectedIndices) {
+		this.setSelection(selectedIndices.map(($0) => this.items[$0]).filter((el) => el != undefined)); //TODO: ?
 	}
 
 	constructor(

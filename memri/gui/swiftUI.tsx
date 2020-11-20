@@ -10,7 +10,7 @@ import {
     List, Modal,
     Switch,
     TextField,
-    DialogContentText, DialogActions, ListSubheader
+    DialogContentText, DialogActions, ListSubheader, FormGroup, FormControlLabel, Checkbox
 } from "@material-ui/core";
 import {Color, MemriContext, UIElementFamily, UINodeResolver} from "../../router";
 import {Alignment, Font, TextAlignment} from "../../router";
@@ -131,6 +131,20 @@ export class RenderersMemri extends MainUI {
         if (press) {
             this.controller.context.executeAction(press, dataItem)
         }
+    }
+
+    selectedIndicesBinding = (event) => {
+        let selectedIndices = this.controller.context.selectedIndicesBinding;
+        let index = parseInt(event.target.attributes.index.value)
+        if (event.target.checked) {
+            selectedIndices.push(index)
+        } else {
+            index = selectedIndices.indexOf(index);
+            if (index !== -1) {
+                selectedIndices.splice(index, 1);
+            }
+        }
+        this.controller.context.selectedIndicesBinding = selectedIndices;
     }
 }
 
@@ -320,7 +334,7 @@ export class MemriText extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, text, ...other} = this.props;
         return (
-            <div style={this.setStyles()} {...other}>
+            <div class={"MemriText"} style={this.setStyles()} {...other}>
                 {text ?? this.props.children}
             </div>
         )
@@ -413,14 +427,36 @@ export class Section extends MainUI {
 
 export class ASSection extends MainUI {
     render() {
-        let {header, footer, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {header, footer, data, editMode, callback, deleteIconFn, dataID, direction, selectionMode, selectedIndices, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {display: "flex", width: style.width ?? "100%"})
+        Object.assign(style, {display: "flex", width: style.width ?? "100%", flexDirection: direction ?? "row"})
 
         return (
             <div style={style} className="ASSection" {...other}>
                 {header ? header: ""}
                 {this.props.children}
+                {data && data.map((dataItem, index) => {
+                    let label = callback(dataItem, index)
+                    let deleteIcon = deleteIconFn && deleteIconFn(dataItem, index)
+                    return <>
+                        <FormGroup>
+                            {editMode
+                                ?
+                                <FormControlLabel style={{paddingLeft: 10}} onChange={selectionMode(dataItem)}
+                                    control={<Checkbox checked={(selectedIndices.includes(index))} name={data[dataID]} inputProps={{index: index}} />}
+                                    label={label}
+                                />
+                                :
+                                <>
+                                    <div onClick={selectionMode(dataItem)}>{label}</div>
+                                    {deleteIcon}
+                                </>}
+                        </FormGroup>
+
+
+                    </>
+                })}
+
                 {footer ? footer: ""}
             </div>
         )
