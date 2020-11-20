@@ -665,7 +665,7 @@ export class Views {
 
 			function searchForRenderer(viewDefinition) {
 				let parsed = context.views.parseDefinition(viewDefinition)
-				for (var def of parsed.get("rendererDefinitions")) {//TODO
+				for (var def of parsed?.get("rendererDefinitions")) {//TODO
 					for (var name of rendererNames) {
 						if (def.name == name) {
 							if (def.get("children") != undefined) {
@@ -719,7 +719,7 @@ export class Views {
 			if (cascadeStack.length == 0) {
 				for (var name of rendererNames) {
 					for (var key of ["user", "defaults"]) {
-						let viewDefinition = context.views.fetchDefinitions(name, "renderer", key)[0]
+						let viewDefinition = context.views.fetchDefinitions(undefined, name, "renderer", key)[0]
 						if (viewDefinition) {
 							let parsed = context.views.parseDefinition(viewDefinition)
 							if (parsed?.constructor?.name == "CVUParsedRendererDefinition") {

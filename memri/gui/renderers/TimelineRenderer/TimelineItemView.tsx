@@ -23,20 +23,12 @@ export class TimelineItemView extends MainUI {
         this.subtitle = this.props.subtitle;
         this.cornerRadius = (this.props.cornerRadius && this.props.cornerRadius != 0) ? this.props.cornerRadius : this.cornerRadius;
         this.backgroundColor = this.props.backgroundColor ?? this.backgroundColor;
-        let onclick = (this.props.onClick) ? this.props.onClick : () => {
-            let press = this.props.context.currentRendererController.config.press
-            let item = this.props.item;
-
-            if (press && item) {
-                this.props.context.executeAction(press, item)
-            }
-        }
 //alignment={"lastTextBaseline"}
         return (
             <VStack alignment={Alignment.leading} fixedSize={{horizontal: false, vertical: true}} padding={padding(5)}
                     foregroundColor={this.foregroundColor} background={this.backgroundColor}
                     cornerRadius={this.cornerRadius}
-                    mask={"RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)"} onClick={onclick}>
+                    mask={"RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)"}>
                 <HStack font={font({family: "headline"})}>
                     {this.icon}
                     <MemriText bold lineLimit={1}>

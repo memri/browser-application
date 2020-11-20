@@ -102,49 +102,36 @@ export class TimelineRendererView extends RenderersMemri {
         return model.data.map((group) => {
             return (
                 <>
-                    <ASSection id={group.date} header={this.header(group, model.calendarHelper)}
+                    <ASSection id={group.date}
+                               header={this.header(group, model.calendarHelper)}
                                contentInsets={padding({
                                    top: 8,
                                    leading: 10,
                                    bottom: 8,
                                    trailing: 10
                                })}
-                    >
-                        {group.items.map((element) => {
-                            return this.renderElement(element);
-                        })}
-                    </ASSection>
+                               dataID={"uid"}
+                               data={group.items}
+                               callback={(element) => this.renderElement(element)}
+                               selectionMode={(element) => () => {
+                                   if (!element) return
+                                   if (element.isGroup) {
+                                       let uids = element.items.map((el) => el.uid);
+                                       new ActionOpenViewWithUIDs(this.controller.context)
+                                           .exec(new MemriDictionary({"itemType": element.itemType, "uids": uids}))
+                                   }
+                                   else {
+                                       let press = this.controller.config.press
+                                       let item = element.items[0]
+                                       if (item) {
+                                           this.controller.context.executeAction(press, item)
+                                       }
+                                   }
+                               }}
+                    />
                     <VStack><MemriDivider/></VStack>
                 </>
             )
-            /*ASSection<Date>(id: group.date,
-                            data: group.items,
-                            selectionMode: .selectSingle { index in
-                                guard let element = group.items[safe: index] else { return }
-                                if element.isGroup {
-                                    let uids = element.items.map(\.uid)
-                                    try? ActionOpenViewWithUIDs(self.controller.context)
-                                        .exec(["itemType": element.itemType, "uids": uids])
-                                }
-                                else {
-                                    if let press = self.controller.config.press,
-                                       let item = element.items.first
-                                    {
-                                        self.controller.context.executeAction(press, with: item)
-                                    }
-                                }
-                            }) { element, _ in
-                self.renderElement(element)
-                    .if(group.items.count < 2) { $0.frame(minHeight: self.minSectionHeight) }
-            }
-            .selfSizingConfig { (_) -> ASSelfSizingConfig? in
-                .init(
-                    selfSizeHorizontally: false,
-                    selfSizeVertically: true,
-                    canExceedCollectionWidth: false,
-                    canExceedCollectionHeight: true
-                )
-            }*/
         })
     }
 
@@ -155,11 +142,6 @@ export class TimelineRendererView extends RenderersMemri {
                                   title={`${element.items.length} ${element.itemType.titleCase()}${element.items.length != 1 ? "s" : ""}`}
                                   backgroundColor={backgroundColor(ItemFamily[element.itemType]) ?? Color.named("gray")}
                                   frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
-                                  onClick={() => {
-                                      let uids = element.items.map((el) => el.uid);
-                                      new ActionOpenViewWithUIDs(this.controller.context)
-                                          .exec(new MemriDictionary({"itemType": element.itemType, "uids": uids}))
-                                  }}
                 />
             )
         }
@@ -173,9 +155,11 @@ export class TimelineRendererView extends RenderersMemri {
         this.controller = this.props.controller;
 
         return (
+            <div className={"TimelineRendererView"}>
             <ASCollectionView layout={this.layout} alwaysBounceVertical direction={"column"}>
                 {this.sections(this.controller.model)}
             </ASCollectionView>
+            </div>
         )
     }
 

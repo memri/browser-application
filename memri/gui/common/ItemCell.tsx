@@ -18,9 +18,9 @@ export class ItemCell extends MainUI {
         this.rendererNames = this.props.rendererNames;
         this.argumentsJs = this.props.argumentsJs;
         return (
-            <>
+            <div className={"ItemCell"}>
                 {this.context.views.renderItemCell(this.item, this.rendererNames, undefined, this.argumentsJs)}
-            </>
+            </div>
         )
     }
 }

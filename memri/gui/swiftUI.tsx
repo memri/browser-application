@@ -449,7 +449,7 @@ export class ASSection extends MainUI {
                                 />
                                 :
                                 <>
-                                    <div onClick={selectionMode(dataItem)}>{label}</div>
+                                    <div onClick={selectionMode(dataItem, index)}>{label}</div>
                                     {deleteIcon}
                                 </>}
                         </FormGroup>
