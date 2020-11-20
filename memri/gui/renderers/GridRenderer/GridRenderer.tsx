@@ -4,7 +4,7 @@
 
 import {
     ASCollectionView,
-    font,
+    font, frame,
     HStack, MemriGrid,
     MemriText,
     padding,
@@ -15,8 +15,8 @@ import {
 } from "../../swiftUI";
 import * as React from "react";
 import {Alignment, Color, Font} from "../../../../router";
-import {Grid} from "@material-ui/core";
 import {CascadingRendererConfig} from "../../../../router";
+import {geom} from "../../../../geom";
 
 export class GridRendererController {
     static rendererType = {name:"grid",icon: "apps", makeController:GridRendererController, makeConfig:GridRendererController.makeConfig}
@@ -114,6 +114,13 @@ export class GridRendererView extends RenderersMemri {
         return this.controller.config.scrollDirection;
     }
 
+    componentDidUpdate() {
+        let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+        let bottomVarView = document.getElementsByClassName("TopNavigation").item(0);
+        document.getElementById("GridRenderer").style.height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - 10 + "px"
+        this.context.scheduleUIUpdate();
+    }
+
     /*get layout() {
         let contentInsets = this.controller.config.nsEdgeInset
         let numberOfColumns = this.controller.config.columns
@@ -163,11 +170,16 @@ export class GridRendererView extends RenderersMemri {
         this.context = this.props.context;
         this.controller = this.props.controller;
 
+        // this defines grid height @mkslanc
+        let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+        let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+        let gridHeight = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
+
         return (
             <VStack>
                 {this.controller.hasItems
                     ?
-                    <ASCollectionView editMode={this.controller.isEditing} alwaysBounceVertical={this.scrollDirection == "vertical"} alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
+                    <ASCollectionView id={"GridRenderer"} frame={frame({height: gridHeight})} overflowY={"auto"} editMode={this.controller.isEditing} alwaysBounceVertical={this.scrollDirection == "vertical"} alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
                                       background={this.controller.config.backgroundColor ?? new Color("systemBackground")}>
                         {this.section}
 

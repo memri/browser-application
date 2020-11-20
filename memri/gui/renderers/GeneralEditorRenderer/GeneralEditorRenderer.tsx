@@ -26,6 +26,7 @@ import {ActionOpenViewByName, RenderType} from "../../../../router";
 import {MemriDictionary} from "../../../../router";
 import {CascadingRendererConfig} from "../../../../router";
 import {DefaultGeneralEditorRow} from "./GeneralEditorRows";
+import {geom} from "../../../../geom";
 
 export class GeneralEditorRendererController {
     static rendererType = {name:"generalEditor",icon: "pencil.circle.fill", makeController:GeneralEditorRendererController, makeConfig:GeneralEditorRendererController.makeConfig}
@@ -173,12 +174,24 @@ export class GeneralEditorRendererView extends RenderersMemri {
         }
     }
 
+    componentDidMount() {
+        this.updateHeight()
+    }
+
+    componentDidUpdate() {
+        this.updateHeight()
+    }
+
     render(){
         this.context = this.props.context;
         this.controller = this.props.controller;
 
+        // this defines ScrollView height @mkslanc
+        let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+        let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+        let ScrollViewHeight = geom.size.height - topNavigation.scrollHeight - bottomVarView.scrollHeight;
         return (
-            <ScrollView vertical>
+            <ScrollView id={"ScrollView"} vertical frame={frame({height: ScrollViewHeight})}>
                 <VStack alignment={Alignment.leading} spacing={0}>
                     {this.stackContent}
                 </VStack>

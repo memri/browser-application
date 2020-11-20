@@ -139,6 +139,7 @@ var baseBox = new Box({
 });
 
 let memriApp = document.createElement("iframe");
+memriApp.scrolling = "no"
 
 var onResize = function() {
     baseBox.setBox(0, 0, window.innerWidth, window.innerHeight);

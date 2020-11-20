@@ -29,7 +29,8 @@ interface MemriUIProps {
     cornerRadius?,
     context?,
     opacity?,
-    bold?
+    bold?,
+    overflowY?
 }
 
 export class MainUI extends React.Component<MemriUIProps, {}> {
@@ -185,7 +186,7 @@ export class ColorArea extends MainUI {
     render() {
         let {position, top, opacity, color, font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {position: position ?? "relative", top: top ?? undefined, backgroundColor: new Color(color).opacity(opacity), width: style.width ?? geom.size.width, height: style.height ?? geom.size.height})
+        Object.assign(style, {position: position ?? "relative", top: top ?? undefined, backgroundColor: new Color(color).opacity(opacity)})
         return (
             <div style={style} className="ColorArea" {...other}>
                 {this.props.children}

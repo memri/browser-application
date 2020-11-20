@@ -64,7 +64,7 @@ export class NavigationWrapper extends MainUI {
 					   />
 				{(this.isVisible) &&
 				<>
-					<ColorArea color={"black"} position="absolute" top={0} opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
+					<ColorArea color={"black"} position="absolute" top={0} frame={frame({width: geom.size.width, height: geom.size.height})} opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
 							   onClick={() => this.navigationDragGesture} zIndex={10}/>
 					<Navigation
 						frame={frame({width: this.navWidth(geom)})} edgesIgnoringSafeArea="all"
@@ -125,8 +125,16 @@ class Navigation extends MainUI {
 		super(props);
 	}
 
+	updateHeight() {
+		document.getElementById("NavigationList").style.height = geom.size.height - document.getElementById("NavigationMenuTop").clientHeight - 10 + "px"
+	}
+
 	componentDidMount() {
-		document.getElementById("NavigationList").style.height = geom.size.height - document.getElementById("MenuTop").clientHeight - 10 + "px"
+		this.updateHeight()
+	}
+
+	componentDidUpdate() {
+		this.updateHeight()
 	}
 
 	getNavigationItems() {
@@ -156,7 +164,7 @@ class Navigation extends MainUI {
 			<div className="Navigation" style={style}>
 				<VStack frame={frame({alignment: Alignment.leading})}
 						background={new Color("MemriUI-purpleBack").toLowerCase()}>
-					<HStack id={"MenuTop"} spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})}
+					<HStack id={"NavigationMenuTop"} spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})}
 							background={new Color("MemriUI-purpleBackSecondary").toLowerCase()}>
 						<MemriRealButton onClick={function () {
 							this.showSettings = true
