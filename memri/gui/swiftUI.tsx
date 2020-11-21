@@ -343,10 +343,31 @@ export class MemriText extends MainUI {
 }
 
 export class ScrollView extends MainUI {
+    updateHeight() {
+        let scrollView = document.getElementsByClassName("ScrollView");
+        if (scrollView.length > 0) {
+            let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+            let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+
+            let scrollViewPaddings = Number(scrollView.item(0).style.paddingTop.replace("px", "")) + Number(scrollView.item(0).style.paddingBottom.replace("px", ""));
+            if (scrollView.length > 0) {
+                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - scrollViewPaddings + "px";
+            }
+        }
+    }
+
+    componentDidMount(): void {
+        this.updateHeight();
+    }
+
+    componentDidUpdate(): void {
+        this.updateHeight();
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {overflowY: "scroll"})
+        Object.assign(style, {overflowY: "auto"})
 
         return (
             <div style={style} className="ScrollView" {...other}>
@@ -389,10 +410,30 @@ export class MemriDivider extends MainUI {
 }
 
 export class ASTableView extends MainUI {
+    updateHeight() {
+        let tableView = document.getElementsByClassName("ASTableView");
+        if (tableView.length > 0) {
+            let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+            let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+            let tableViewPaddings = Number(tableView.item(0).style.paddingTop.replace("px", "")) + Number(tableView.item(0).style.paddingBottom.replace("px", ""));
+            if (tableView.length > 0) {
+                tableView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - tableViewPaddings + "px";
+            }
+        }
+    }
+
+    componentDidMount(): void {
+        this.updateHeight();
+    }
+
+    componentDidUpdate(): void {
+        this.updateHeight();
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {display: "flex", flexDirection: "column"})
+        Object.assign(style, {display: "flex", flexDirection: "column", overflowY: "auto"})
         return (
             <div style={style} className="ASTableView" {...other}>
                 {this.props.children}
@@ -548,19 +589,41 @@ export class Capsule extends MainUI {
 }
 
 export class ASCollectionView extends MainUI {
+    updateHeight() {
+        let collectionView = document.getElementsByClassName("ASCollectionView");
+        if (collectionView.length > 0) {
+            let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+            let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+
+            let collectionViewPaddings = Number(collectionView.item(0).style.paddingTop.replace("px", "")) + Number(collectionView.item(0).style.paddingBottom.replace("px", ""));
+            if (collectionView.length > 0) {
+                collectionView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - collectionViewPaddings + "px";
+            }
+        }
+    }
+
+    componentDidMount(): void {
+        this.updateHeight();
+    }
+
+    componentDidUpdate(): void {
+        this.updateHeight();
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {maxHeight: "400px"})
         if (images == true) {
+            Object.assign(style, {maxHeight: "400px", overflowY: "auto"})
             return (
                 <GridList style={style} className="ASCollectionView" {...other} cols={3}>
                     {this.props.children}
                 </GridList>
             )
         } else {
+            Object.assign(style, {overflowY: "auto"})
             return (
-                <Grid container style={this.setStyles()} className="ASCollectionView" {...other}>
+                <Grid container style={style} className="ASCollectionView" {...other}>
                     {this.props.children}
                 </Grid>
             )

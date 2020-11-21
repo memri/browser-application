@@ -66,6 +66,18 @@ body {margin: 0}
 .ZStack {
     position: relative;
 }
+
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 `, "main.css")
 
 function App() {//TODO: don't ask, please, about link inside div =)

@@ -8,7 +8,7 @@ import {ActionDelete} from "../../../../router";
 import {
 	ASSection,
 	ASTableView,
-	font, MemriDivider,
+	font, frame, MemriDivider,
 	MemriImage,
 	MemriRealButton,
 	MemriText,
@@ -17,8 +17,6 @@ import {
 	VStack
 } from "../../swiftUI";
 import {CascadingRendererConfig} from "../../../../router";
-import {FormControlLabel, FormGroup, Checkbox} from "@material-ui/core";
-
 
 export class ListRendererConfig extends CascadingRendererConfig {
 	get longPress() { return this.cascadeProperty("longPress") }
@@ -83,6 +81,14 @@ export class ListRendererView extends RenderersMemri {
 
 	deleteItem = (item) => {
 		this.controller.context.executeAction(new ActionDelete(this.controller.context), item);
+	}
+
+	componentDidMount() {
+		this.updateHeight()
+	}
+
+	componentDidUpdate() {
+		this.updateHeight()
 	}
 
 	render() {

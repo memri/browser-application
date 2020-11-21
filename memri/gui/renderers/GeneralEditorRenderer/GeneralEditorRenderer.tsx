@@ -174,24 +174,12 @@ export class GeneralEditorRendererView extends RenderersMemri {
         }
     }
 
-    componentDidMount() {
-        this.updateHeight()
-    }
-
-    componentDidUpdate() {
-        this.updateHeight()
-    }
-
     render(){
         this.context = this.props.context;
         this.controller = this.props.controller;
 
-        // this defines ScrollView height @mkslanc
-        let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
-        let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
-        let ScrollViewHeight = geom.size.height - topNavigation.scrollHeight - bottomVarView.scrollHeight;
         return (
-            <ScrollView id={"ScrollView"} vertical frame={frame({height: ScrollViewHeight})}>
+            <ScrollView vertical>
                 <VStack alignment={Alignment.leading} spacing={0}>
                     {this.stackContent}
                 </VStack>

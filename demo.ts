@@ -7,6 +7,7 @@ import "ace-builds/src-noconflict/ext-error_marker";
 import "ace-builds/src-noconflict/ext-options";
 import "ace-builds/src-noconflict/ext-prompt";
 import {Mode} from "./playground/cvu-mode";
+import {geom} from "./geom";
 
 let DemoWorker = require("worker-loader!./demo-worker")
 
@@ -129,7 +130,7 @@ var baseBox = new Box({
                 }),
                 1: memriBox = new Box({
                     isMain: false,
-                    size: "435px"
+                    size: geom.size.width + 3 + "px"
                 }),
             }),
 
