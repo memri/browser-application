@@ -49,7 +49,7 @@ export class DefaultGeneralEditorRow extends MainUI {
             <VStack spacing={0}>
                 {(propValue != undefined || !this.readOnly) &&
                 <>
-                    <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
+                    <VStack alignment={Alignment.leading} spacing={4} padding={padding({bottom: 10, horizontal:"default"})} background={this.readOnly ? "#f9f9f9" : "#f7fcf5"} fullWidth>
                         <MemriText>
                             <GeneralEditorLabel>
                                 {this.prop
@@ -202,7 +202,7 @@ export class GeneralEditorHeader extends MainUI {
         let styles = {
             color: "#333",
         }
-        Object.assign(styles, font({family: "system", size: 15, weight: Font.Weight.regular}), padding({bottom: 5,top: 24}));
+        Object.assign(styles, font({family: "system", size: 15, weight: Font.Weight.regular}), padding({bottom: 5,top: 24, horizontal:"default"}));
         return (
             <div className={"GeneralEditorHeader"} style={styles}>
                 {this.props.children}

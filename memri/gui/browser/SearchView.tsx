@@ -4,7 +4,18 @@
 
 import * as React from "react";
 import {Color} from "../../../router";
-import {font, HStack, MainUI, MemriDivider, MemriImage, MemriText, MemriTextField, padding, VStack} from "../swiftUI";
+import {
+	font,
+	HStack,
+	MainUI,
+	MemriDivider,
+	MemriImage,
+	MemriRealButton,
+	MemriText,
+	MemriTextField,
+	padding,
+	VStack
+} from "../swiftUI";
 
 export class SearchView extends MainUI{
 	isActive//TODO
@@ -37,6 +48,7 @@ export class SearchView extends MainUI{
 									/*TODO isEditing*/
 					>
 					</MemriTextField>
+					<MemriRealButton action={()=>{this.isActive = false; this.context.scheduleCascadableViewUpdate()}}><MemriImage>close</MemriImage></MemriRealButton>
 				</HStack>
 			</VStack>}
 			</div>

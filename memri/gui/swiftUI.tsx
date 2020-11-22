@@ -67,7 +67,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             textAlign: this.props.textAlign,
             fontWeight: (this.props.bold) ? "bold" : undefined,
             justifyContent: this.props.justifyContent,
-            overflowY: this.props.overflowY
+            overflowY: this.props.overflowY,
+            flexWrap: this.props.flexWrap
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
@@ -417,7 +418,14 @@ export class ASTableView extends MainUI {
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
             let tableViewPaddings = Number(tableView.item(0).style.paddingTop.replace("px", "")) + Number(tableView.item(0).style.paddingBottom.replace("px", ""));
             if (tableView.length > 0) {
-                tableView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - tableViewPaddings + "px";
+                let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - tableViewPaddings;
+                let messageComposer = document.getElementById("MessageComposer");
+                if (messageComposer)
+                    height -= messageComposer.clientHeight;
+                let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
+                if (contextualBottomBar.length > 0)
+                    height -= contextualBottomBar.item(0).clientHeight;
+                tableView.item(0).style.height = height + "px";
             }
         }
     }
@@ -471,7 +479,7 @@ export class ASSection extends MainUI {
     render() {
         let {header, footer, data, editMode, callback, deleteIconFn, dataID, direction, selectionMode, selectedIndices, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {display: "flex", width: style.width ?? "100%", flexDirection: direction ?? "row"})
+        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row"})
 
         return (
             <div style={style} className="ASSection" {...other}>
@@ -481,7 +489,7 @@ export class ASSection extends MainUI {
                     let label = callback(dataItem, index)
                     let deleteIcon = deleteIconFn && deleteIconFn(dataItem, index)
                     return <>
-                        <FormGroup>
+
                             {editMode
                                 ?
                                 <FormControlLabel style={{paddingLeft: 10}} onChange={selectionMode(dataItem)}
@@ -493,7 +501,6 @@ export class ASSection extends MainUI {
                                     <div onClick={selectionMode(dataItem, index)}>{label}</div>
                                     {deleteIcon}
                                 </>}
-                        </FormGroup>
 
 
                     </>
@@ -614,14 +621,14 @@ export class ASCollectionView extends MainUI {
         let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
         let style = this.setStyles();
         if (images == true) {
-            Object.assign(style, {maxHeight: "400px", overflowY: "auto"})
+            Object.assign(style, {maxHeight: "400px", overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})
             return (
                 <GridList style={style} className="ASCollectionView" {...other} cols={3}>
                     {this.props.children}
                 </GridList>
             )
         } else {
-            Object.assign(style, {overflowY: "auto"})
+            Object.assign(style, {overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})
             return (
                 <Grid container style={style} className="ASCollectionView" {...other}>
                     {this.props.children}
@@ -760,30 +767,31 @@ export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth
     return frameObj;
 }
 
-export function padding(attrs:{horizontal?,vertical?,top?,bottom?,leading?,trailing?,left?,right?}|any) {
+export function padding(attrs: { horizontal?: number | "default", vertical?: number | "default", top?: number | "default", bottom?: number | "default", leading?: number | "default", trailing?: number | "default", left?: number | "default", right?: number | "default" } | any|"default") {
+    let defaultPadding = 10;
     if (!attrs)
         return
     let paddingObj = {};
     if (typeof attrs == "number" || typeof attrs == "string") {
-        paddingObj["padding"] = attrs;
+        paddingObj["padding"] = (attrs == "default") ? defaultPadding : attrs;
     } else {
         if (attrs.horizontal) {
-            paddingObj["paddingRight"] = paddingObj["paddingLeft"] = attrs.horizontal;
+            paddingObj["paddingRight"] = paddingObj["paddingLeft"] = (attrs.horizontal == "default") ? defaultPadding : attrs.horizontal;
         }
         if (attrs.vertical) {
-            paddingObj["paddingTop"] = paddingObj["paddingBottom"] = attrs.vertical;
+            paddingObj["paddingTop"] = paddingObj["paddingBottom"] = (attrs.vertical == "default") ? defaultPadding : attrs.vertical;
         }
         if (attrs.leading || attrs.left) {
-            paddingObj["paddingLeft"] = attrs.leading || attrs.left;
+            paddingObj["paddingLeft"] = (attrs.leading == "default" || attrs.left == "default") ? defaultPadding : (attrs.leading || attrs.left);
         }
         if (attrs.trailing || attrs.right) {
-            paddingObj["paddingRight"] = attrs.trailing || attrs.right;
+            paddingObj["paddingRight"] = (attrs.trailing == "default" || attrs.right == "default") ? defaultPadding : (attrs.trailing || attrs.right);
         }
         if (attrs.top) {
-            paddingObj["paddingTop"] = attrs.top;
+            paddingObj["paddingTop"] = (attrs.top == "default") ? defaultPadding : attrs.top;
         }
         if (attrs.bottom) {
-            paddingObj["paddingBottom"] = attrs.bottom;
+            paddingObj["paddingBottom"] = (attrs.bottom == "default") ? defaultPadding : attrs.bottom;
         }
     }
     return paddingObj;

@@ -40,7 +40,7 @@ export class ContextualBottomBar extends MainUI {
 				<div className={"ContextualBottomBar"}>
 				<VStack spacing={0} background={new Color("secondarySystemBackground").toLowerCase()}>
 					<MemriDivider/>
-					<HStack padding={padding({horizontal: 5, vertical: 5})}>
+					<HStack padding={padding({horizontal: "default", vertical: 5})}>
 						{this.context.editMode &&
 						this.context.allItemsSelected ?
 							<MemriRealButton onClick={() => {

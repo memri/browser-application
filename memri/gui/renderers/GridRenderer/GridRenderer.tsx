@@ -168,7 +168,7 @@ export class GridRendererView extends RenderersMemri {
                 {this.controller.hasItems
                     ?
                     <ASCollectionView editMode={this.controller.isEditing} alwaysBounceVertical={this.scrollDirection == "vertical"} alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
-                                      background={this.controller.config.backgroundColor ?? new Color("systemBackground")}>
+                                      background={this.controller.config.backgroundColor ?? new Color("systemBackground")} flexWrap={"wrap"}>
                         {this.section}
 
                     </ASCollectionView>

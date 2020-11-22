@@ -118,9 +118,9 @@ export class MessageRendererView extends RenderersMemri {
 
         return (
             <VStack spacing={0}>
-                {this.controller.context.items.isEmpty ?
+                {this.controller.context.items.length == 0 ?
                     <>
-                        <MemriText foregroundColor={new Color("secondary").toLowerCase()}>
+                        <MemriText foregroundColor={new Color("secondary").toLowerCase()} padding={padding("default")}>
                             No messages yet
                         </MemriText>
                         <Spacer/>
@@ -154,16 +154,19 @@ export class MessageRendererView extends RenderersMemri {
     isEditingComposedMessage: boolean = false
 
     get messageComposer() {
-        /*
-        .padding(.leading, min(max(self.renderConfig.edgeInset.left, 5), 15)) // Follow user-defined insets where within a reasonable range
-        .padding(.trailing, min(max(self.renderConfig.edgeInset.right, 5), 15)) // Follow user-defined insets where within a reasonable range
-        */
         return (
-            <HStack spacing={6} padding={padding({vertical: 5})} background={new Color("secondarySystemBackground")}>
-                <MemriFittedTextEditor contentBinding={this.controller.composedMessage} placeholder="Type a message..." backgroundColor={CVUColor.system("systemBackground")} isEditing={{/*$isEditingComposedMessage*/}}/>
+            <HStack id={"MessageComposer"} spacing={6} padding={padding({
+                vertical: 5,
+                leading: Math.min(Math.max(this.controller.config.edgeInset.left, 5), 15),
+                trailing: Math.min(Math.max(this.controller.config.edgeInset.right, 5), 15),
+            })} background={new Color("secondarySystemBackground")}>
+                <MemriFittedTextEditor contentBinding={this.controller.composedMessage} placeholder="Type a message..."
+                                       backgroundColor={CVUColor.system("systemBackground")}
+                                       isEditing={{/*$isEditingComposedMessage*/}}/>
 
                 <MemriRealButton action={this.onPressSend}>
-                    <MemriImage foregroundColor={this.controller.canSend ? "blue" : new Color("systemFill")} font={font({family:"system", size: 20})}>
+                    <MemriImage foregroundColor={this.controller.canSend ? "blue" : new Color("systemFill")}
+                                font={font({family: "system", size: 20})}>
                         {/*arrow.up.circle.fill*/}send
                     </MemriImage>
                 </MemriRealButton>{/*.disabled(!canSend)*/}

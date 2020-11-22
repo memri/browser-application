@@ -15,7 +15,7 @@ import {
     MemriRealButton, MemriStepper,
     MemriText,
     MemriTextField, NavigationLink,
-    NavigationView, Toggle,
+    NavigationView, padding, Toggle,
     VStack
 } from "../../swiftUI";
 import {Alignment, Color} from "../../../../router";
@@ -64,7 +64,7 @@ export class ConfigPanel extends MainUI {
         if (this.showSortItem) {
             return <ConfigPanelSortView context={this.context}/>
         } else {//.navigationBarItems(trailing: EmptyView())
-            return <MemriText padding foregroundColor={new Color("secondaryLabel").toLowerCase()} multilineTextAlignment={Alignment.center}>
+            return <MemriText padding={padding("default")} foregroundColor={new Color("secondaryLabel").toLowerCase()} multilineTextAlignment={Alignment.center}>
                 {"No configurable settings"}
             </MemriText>
         }
@@ -173,7 +173,7 @@ export class ConfigPanelStringView extends MainUI {
         this.context = this.props.context
         this.configItem = this.props.configItem
 	    return (
-	        <VStack alignment={Alignment.center}>
+	        <VStack alignment={Alignment.center} padding={padding("default")}>
                 <MemriText>{this.configItem.displayName}</MemriText>
                 <MemriTextField value={this.bindingForExp}
                                 onChange={(e) => this.bindingForExp = e.target.value}
@@ -182,7 +182,7 @@ export class ConfigPanelStringView extends MainUI {
                                 // returnKeyType={UIReturnKeyType.done} //TODO
                                 showPrevNextButtons={false}
                                 padding={5}
-                                // background(Color(.systemFill).cornerRadius(5))
+                                background={new Color("systemFill")} cornerRadius={5}
 
                 >
                 </MemriTextField>

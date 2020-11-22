@@ -9,7 +9,7 @@ Object.assign(String.prototype, {
     },
 
     strippingHTMLtags() {
-        return this.toString().replace(/<style[^>]*>.*<\/style>/gs, '').replace(/<script[^>]*>.*<\/script>/gs, '').replace(/(<([^>]+)>)/gi, "");
+        return this.toString().replace(/<style[^>]*>.*<\/style>/gs, '').replace(/<script[^>]*>.*<\/script>/gs, '').replace(/(<([^>]+)>)/gi, "").replace(/&nbsp;/gi, " ");
     },
     titleCase() {
         return this.toString().split(/\s+/).map((el) => el.capitalizingFirst()).join(" ");

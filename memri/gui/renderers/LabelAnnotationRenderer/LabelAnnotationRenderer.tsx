@@ -340,7 +340,7 @@ class LabelSelectionView extends MainUI {
                     </MemriRealButton>
                     <MemriRealButton action={this.onCheckmarkPressed} disabled={!this.enableCheckmarkButton}>
                         <MemriImage font={font({family: "system", size: 25})}
-                                    foregroundColor={"white"} background={"green"}>
+                                    foregroundColor={"white"} background={"green"} padding={padding("default")}>
                             checkmark
                         </MemriImage>
                     </MemriRealButton>
