@@ -108,7 +108,6 @@ export class NavigationWrapper extends MainUI {
 
 	get navigationDragGesture() {
 		if (this.isVisible) {
-			console.log(this.isVisible)
 			this.context.showNavigation = false;
 			this.context.showNavigationBinding();
 			return this.isVisible;

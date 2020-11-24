@@ -241,9 +241,9 @@ export class MemriRealButton extends MainUI {
         Object.assign(style, {minWidth: style.minWidth ?? "10px", textTransform: "none"})
         return (
             <div className={"MemriRealButton"} style={{flexGrow: flexGrow ?? undefined}}>
-            <Button onClick={action} style={style} {...other}>
-                {this.props.children}
-            </Button>
+                <Button onClick={action} style={style} {...other}>
+                    {this.props.children}
+                </Button>
                 {this.state.showAlert ?
                     alert :
                     null
@@ -765,6 +765,40 @@ export class DatePicker extends MainUI {
         value = new Date(value).toISOString().replace(/T(.)*$/, "");
         return (
             <TextField type="date" style={this.setStyles()} className="KeyboardDatePicker" value={value} {...other}/>
+        )
+    }
+}
+
+
+export class ActionSheet extends MainUI {
+    close() {
+        this.closeCallback && this.closeCallback()
+        this.context.scheduleUIUpdate(true)
+    }
+
+    doAction = (action) => {
+        action && action()
+        this.close()
+    }
+
+    render() {
+        let {buttons, title, closeCallback, context, ...other} = this.props;
+        this.closeCallback = closeCallback
+        this.context = context
+        let style = this.setStyles();
+        Object.assign(style, {backgroundColor: "white",width: geom.size.width, height: geom.size.height / 2, bottom: 0, position: "absolute", zIndex: 10})
+        return (
+            <>
+            <ColorArea color={"black"} position="absolute" top={0} frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5} edgesIgnoringSafeArea="all"
+                       onClick={() => this.close()} zIndex={10}/>
+            <div className={"ActionSheet"} style={style}>
+                <MemriText>{title}</MemriText>
+                {buttons.map((button) => <MemriRealButton action={() => this.doAction(button.action)}>
+                    <MemriText>{button.text}</MemriText>
+                </MemriRealButton>)}
+            </div>
+            </>
+
         )
     }
 }

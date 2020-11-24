@@ -520,7 +520,7 @@ export class MemriContext {
 			var finalValue
 
 			let dataItem = argValue;
-			if (dataItem?.constructor?.name == "Item") {
+			if (dataItem instanceof Item) {
 				finalValue = dataItem
 			} else if (argValue?.constructor?.name === "MemriDictionary") {
 				let dict = argValue;
