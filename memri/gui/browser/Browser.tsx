@@ -12,6 +12,7 @@ import {CascadableView} from "../../../router";
 import {ContextualBottomBar} from "./ContextualBottomBar";
 import {BottomBarView} from "./BottomBar";
 import { SearchView } from './SearchView';
+import {geom} from "../../../geom";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends MainUI {
@@ -84,9 +85,9 @@ export class Browser extends MainUI {
 								</VStack>
 
 								{this.showFilterPanel && this.currentView.showBottomBar &&
-									<ColorArea color={"black"}
+									<ColorArea color={"black"} position="absolute" bottom={0} frame={frame({width: geom.size.width, height: geom.size.height})}
 											   opacity={0.15}
-											   click={() => {this.showFilterPanel = false; this.context.scheduleCascadableViewUpdate();}}
+											   onClick={() => {this.showFilterPanel = false; }}
 									/>
 								}
 							</ZStack>

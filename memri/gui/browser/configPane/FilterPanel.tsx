@@ -3,33 +3,21 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from "react";
-import {Alignment} from "../../../../router";
-import {
-    frame,
-    HStack,
-    MainUI,
-    MemriDivider
-} from "../../swiftUI";
+import {Alignment, Color} from "../../../../router";
+import {Corners, frame, HStack, MainUI, MemriDivider, shadow} from "../../swiftUI";
 
 import {RendererSelectionPanel} from "./RendererSelectionPanel";
 import {ConfigPanel} from "./ConfigPanel";
 
 export class FilterPanel extends MainUI {
-	/*var clipShape: some Shape {
-	RoundedCornerRectangle(radius: 20, corners: [.topLeft, .topRight])
-}*/ //TODO:
 
     render() {
         this.context = this.props.context
-/*
-.clipShape(clipShape)
-                .background(clipShape.fill(Color(.systemBackground)).shadow(radius: 10).edgesIgnoringSafeArea([.bottom]))
- */
         return (
-            <div className="FilterPanel" style={{position: "absolute", bottom: 0}}>
+            <div className="FilterPanel" style={{position: "absolute", bottom: 0, width: "100%"}}>
                 <HStack alignment={Alignment.top} spacing={0}
-                        frame={frame({maxWidth: ".infinity", height: 250})}
-                        background={"#eee"}
+                        frame={frame({maxWidth: "infinity", height: 250})}
+                        background={Color.named("systemBackground")} shadow={shadow({radius: 10})} cornerRadius={20} corners={[Corners.topLeft, Corners.topRight]}
                 >
                     <RendererSelectionPanel context={this.context}/>
                     <MemriDivider/>
@@ -40,9 +28,3 @@ export class FilterPanel extends MainUI {
         );
     }
 }
-
-/*struct FilterPanel_Previews: PreviewProvider {
-	static var previews: some View {
-		FilterPanel().environmentObject(try! RootContext(name: "", key: "").mockBoot())
-	}
-}*/

@@ -32,10 +32,10 @@ export class ConfigPanel extends MainUI {
     render() {
         this.context= this.props.context
         let configItems = this.getConfigItems()
-
+        //TODO:
         return (
             <div className={"ConfigPanel"}>
-            <NavigationView height={200}
+            <NavigationView height={200} cornerRadius={15}
                 // .environment(\.verticalSizeClass, .compact)
                 // .clipShape(RoundedRectangle(cornerRadius: shouldMoveAboveKeyboard ? 15 : 0))
                 // .overlay(RoundedRectangle(cornerRadius: 15).strokeBorder(shouldMoveAboveKeyboard ? Color(.systemFill) : .clear))
@@ -43,8 +43,7 @@ export class ConfigPanel extends MainUI {
             >
                 {configItems.length === 0
                     ? this.noConfigItem
-                    : <MemriList listStyle={"PlainListStyle"} navigationBarTitle="Config" navigationBarHidden={true}
-                        // .navigationBarTitle(Text("Config"), displayMode: .inline)
+                    : <MemriList listStyle={"PlainListStyle"} navigationBarTitle={<MemriText>Config</MemriText>} navigationBarHidden={true}
                         // .navigationBarHidden(keyboard.keyboardVisible)
                     >
                         {this.sortItem}
@@ -174,7 +173,7 @@ export class ConfigPanelStringView extends MainUI {
         this.configItem = this.props.configItem
 	    return (
 	        <VStack alignment={Alignment.center} padding={padding("default")}>
-                <MemriText>{this.configItem.displayName}</MemriText>
+                <MemriText>{this.configItem.displayName + ":"}</MemriText>
                 <MemriTextField value={this.bindingForExp}
                                 onChange={(e) => this.bindingForExp = e.target.value}
                                 placeholder={this.configItem.displayName}
@@ -210,7 +209,7 @@ export class ConfigPanelSelectionView extends MainUI {
 		let options = this.getRelevantFields()
         let currentSelection = this.currentSelection
 
-        return <MemriList listStyle={"PlainListStyle"} navigationBarTitle={this.configItem.displayName} /*displayMode: .inline*/>
+        return <MemriList listStyle={"PlainListStyle"} navigationBarTitle={<MemriText>{this.configItem.displayName}</MemriText>} /*displayMode: .inline*/>
             {options.map((option) => <MemriRealButton action={() => this.onSelect(option)}>
                 <MemriText bold={option.propertyName == currentSelection/*TODO*/}>{option.displayName}
                 </MemriText>
@@ -232,8 +231,7 @@ export class ConfigPanelSelectionView extends MainUI {
 	getRelevantFields(): PossibleExpression[] {
         let item = this.context.currentView?.resultSet.items[0]
 		if (!item) { return [] }
-		
-		// let properties = Object.entries(item)//TODO item.objectSchema.properties
+
         let properties = Object.entries(item.objectSchema.properties)
         let computedProperties = item.computedVars
 		
@@ -285,19 +283,17 @@ export class ConfigPanelSortView extends MainUI {
         let options = this.getSortFields()
         let currentSort = this.context.currentView?.datasource.sortProperty ?? ""
 
-        return <MemriList navigationBarTitle={"Sort"}
-    //                       .navigationBarItems(trailing: toggleOrderButton)
-    //                       .navigationBarTitle(Text("Sort"), displayMode: .inline)
-
+        return <MemriList navigationBarTitle={<MemriText>Sort</MemriText>}
+                          navigationBarItems={{trailing: this.toggleOrderButton}} scrollHeight={200}
         >
-            {options.map((option) => <ListItem><MemriRealButton key={option.propertyName} action={() => this.onSelect(option)}>
+            {options.map((option) => <MemriRealButton key={option.propertyName} action={() => this.onSelect(option)}>
                 <HStack>
-                    <MemriText bold={option.propertyName == currentSort/*TODO*/}>
+                    <MemriText bold={option.propertyName == currentSort}>
                         {option.displayName}
                         {currentSort == option.propertyName && this.sortDirectionImage}
                     </MemriText>
                 </HStack>
-            </MemriRealButton></ListItem>)}
+            </MemriRealButton>)}
         </MemriList>
     }
     
@@ -378,8 +374,7 @@ export class ConfigPanelEnumSelectionView extends MainUI{
 
         let currentSelection = this.currentSelection
 
-        return <MemriList navigationBarTitle={this.configItem.displayName}
-            //                       navigationBarTitle(Text(configItem.displayName), displayMode: .inline)
+        return <MemriList scrollHeight={100}
         >
             {Object.keys(options).map((option) => <MemriRealButton action={() => this.onSelect(option)}>
                 <MemriText bold={option == currentSelection/*TODO*/}>

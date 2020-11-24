@@ -26,12 +26,12 @@ export class RendererSelectionPanel extends MainUI {
 
 
         return (
-            <div className={"RendererSelectionPanel"}>
+            <div className={"RendererSelectionPanel"} style={{width: "50%"}}>
                 {this.getSupported().map((rendererName) => {
                     let rendererType = Renderers.rendererTypes[rendererName];
                     if (rendererType) {
                         return (
-                            <ListItem key={rendererName}>
+
                                 <MemriRealButton action={() => this.activateRenderer(rendererType.name)}>
                                     <HStack>
                                         <MemriImage frame={frame({width: 30})}>
@@ -44,7 +44,7 @@ export class RendererSelectionPanel extends MainUI {
                                         <Spacer/>
                                     </HStack>
                                 </MemriRealButton>
-                            </ListItem>)
+                            )
                     }
                 })}
             </div>

@@ -1,6 +1,6 @@
 Object.assign(String.prototype, {
     camelCaseToWords() {
-        return this.toString().replace(/([A-Z])/g, " $1");
+        return this.toString().replace(/([A-Z])/g, " $1").toLowerCase().capitalizingFirst();
     },
 
     capitalizingFirst() {
@@ -13,7 +13,7 @@ Object.assign(String.prototype, {
     },
     titleCase() {
         return this.toString().split(/\s+/).map((el) => el.capitalizingFirst()).join(" ");
-    }
+    },
 })
 
 Object.defineProperty(String.prototype, "nilIfBlankOrSingleLine",{
@@ -29,5 +29,17 @@ Object.defineProperty(String.prototype, "nilIfBlank",{
     get() {
         let string = this.toString();
         return /^\s*$/s.test(string) ? null : string;
+    }
+});
+
+Object.defineProperty(String.prototype, "firstUppercased",{
+    get() {
+        return this.toString().capitalizingFirst();
+    }
+});
+
+Object.defineProperty(String.prototype, "firstCapitalized",{
+    get() {
+        return this.toString().capitalizingFirst();
     }
 });

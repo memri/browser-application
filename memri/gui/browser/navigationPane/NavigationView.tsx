@@ -229,11 +229,11 @@ class NavigationItemView extends MainUI {
 		return(
 			<MemriRealButton onClick={action}>
 				<MemriText font={font({size: 18, weight: Font.Weight.regular})} padding={padding({vertical: 10, horizontal: 35})} foregroundColor={new Color("white").opacity(0.7)} frame={frame({maxWidth: "infinity", alignment: Alignment.leading})} >
-					{this.item.title ?? ""}
+					{this.item.title?.firstUppercased ?? ""}
 				</MemriText>
 			</MemriRealButton>
 
-		)//?.firstUppercased buttonStyle={NavigationButtonStyle()} contentShape={Rectangle()}
+		)// buttonStyle={NavigationButtonStyle()} contentShape={Rectangle()}
 	}
 }
 

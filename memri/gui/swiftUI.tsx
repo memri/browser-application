@@ -30,7 +30,9 @@ interface MemriUIProps {
     context?,
     opacity?,
     bold?,
-    overflowY?
+    overflowY?,
+    shadow?,
+    corners?
 }
 
 export class MainUI extends React.Component<MemriUIProps, {}> {
@@ -59,8 +61,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             margin: this.props?.margin,
             offset: this.props.offset,
             zIndex: this.props.zIndex,
-            backgroundColor: this.props.background?.value ?? this.props.background,
-            borderRadius: this.props.cornerRadius,
+            backgroundColor: this.props.fill ?? this.props.background?.value ?? this.props.background,
+            borderRadius: (!this.props.corners) ? this.props.cornerRadius: undefined,
             opacity: this.props.opacity,
             height: this.props.height ?? this.props.frame?.height,
             width: this.props.width ?? this.props.frame?.width,
@@ -68,10 +70,20 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             fontWeight: (this.props.bold) ? "bold" : undefined,
             justifyContent: this.props.justifyContent,
             overflowY: this.props.overflowY,
-            flexWrap: this.props.flexWrap
+            flexWrap: this.props.flexWrap,
+            boxShadow: this.props.shadow,
+            flexGrow: this.props.flexGrow
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
+
+        if (this.props.corners && this.props.cornerRadius) {
+            let corners = {};
+            for (let i = 0; i < this.props.corners.length; i++) {
+                this.props.corners.forEach((el) => corners[el] = this.props.cornerRadius)
+            }
+            Object.assign(styles, corners)
+        }
         if (this.props.lineLimit) {
             Object.assign(styles, {
                 overflow: "hidden",
@@ -185,9 +197,9 @@ export class HStack extends MainUI {
 
 export class ColorArea extends MainUI {
     render() {
-        let {position, top, opacity, color, font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        let {position, top, bottom, opacity, color, font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {position: position ?? "relative", top: top ?? undefined, backgroundColor: new Color(color).opacity(opacity)})
+        Object.assign(style, {position: position ?? "relative", top: top ?? undefined, bottom: bottom ?? undefined, backgroundColor: new Color(color).value})
         return (
             <div style={style} className="ColorArea" {...other}>
                 {this.props.children}
@@ -223,12 +235,12 @@ export class MemriRealButton extends MainUI {
     }
 
     render() {
-        let {alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
+        let {flexGrow, alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
         action = alert ? this.onAlert : (action && typeof action == "function") ? action :  ()=> {};
         let style = this.setStyles();
-        Object.assign(style, {minWidth: style.minWidth ?? "10px"})
+        Object.assign(style, {minWidth: style.minWidth ?? "10px", textTransform: "none"})
         return (
-            <div className={"MemriRealButton"}>
+            <div className={"MemriRealButton"} style={{flexGrow: flexGrow ?? undefined}}>
             <Button onClick={action} style={style} {...other}>
                 {this.props.children}
             </Button>
@@ -348,11 +360,11 @@ export class ScrollView extends MainUI {
         let scrollView = document.getElementsByClassName("ScrollView");
         if (scrollView.length > 0) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
-            let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+            let bottomBarView = document.getElementsByClassName("BottomBarView").item(0);
 
             let scrollViewPaddings = Number(scrollView.item(0).style.paddingTop.replace("px", "")) + Number(scrollView.item(0).style.paddingBottom.replace("px", ""));
             if (scrollView.length > 0) {
-                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - scrollViewPaddings + "px";
+                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight - scrollViewPaddings + "px";
             }
         }
     }
@@ -536,16 +548,24 @@ export class Group extends MainUI {
 
 export class MemriList extends MainUI {
     render() {
-        let {navigationBarTitle, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {scrollHeight, navigationBarTitle, navigationBarItems, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {overflow: "auto", width: "fit-content", height: "inherit"})
-        return (
-            <List style={style} className="MemriList" {...other}>
-                {navigationBarTitle &&
-                <ListSubheader>{navigationBarTitle}</ListSubheader>
-                }
-                {this.props.children}
-            </List>
+        return (<>
+
+                <HStack>
+                    {navigationBarItems && navigationBarItems.leading}
+                    {navigationBarTitle &&
+                    <MemriRealButton><HStack>{navigationBarTitle}</HStack></MemriRealButton>
+                    }
+                    {navigationBarItems && navigationBarItems.trailing}
+                </HStack>
+                <div style={style} className="MemriList" {...other}>
+
+                    <div style={scrollHeight ? {height: scrollHeight, overflow: "auto"} : undefined}>
+                        {this.props.children}
+                    </div>
+                </div>
+            </>
         )
     }
 }
@@ -752,7 +772,7 @@ export class DatePicker extends MainUI {
 export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment? }) { //TODO:
     let frameObj = Object.assign({}, attrs);
     for (let prop in frameObj) {
-        if (frameObj[prop] == ".infinity")
+        if (frameObj[prop] == ".infinity" || frameObj[prop] == "infinity")
             delete frameObj[prop]
     }
     if (frameObj.idealHeight) {
@@ -841,6 +861,10 @@ export function border(attrs) {
  return attrs;
 }
 
+export function shadow(attrs:{x?,y?,radius?, color?}) {
+    return `${attrs.x ?? 0}px ${attrs.y ?? 0}px ${attrs.radius ?? 0}px ${attrs.color ?? "#000000"}`;
+}
+
 export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
     let contentInsetsObj = attrs;
 
@@ -849,4 +873,11 @@ export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
 
 export function setProperties(properties, item, context, viewArguments) {
     return {properties: properties, item: item, context: context, viewArguments: viewArguments}
+}
+
+export enum Corners {
+    topLeft="borderTopLeftRadius",
+    topRight="borderTopRightRadius",
+    bottomLeft="borderBottomLeftRadius",
+    bottomRight="borderBottomRightRadius"
 }
