@@ -123,7 +123,7 @@ class ActionPopupButton extends MainUI {
 		this.action = this.props.action;
 		this.item = this.props.item;
 		return (
-			<ActionButtonView onClick={this.action} execute={this.isShowing = true} sheet={
+			<ActionButtonView action={this.action} execute={this.isShowing = true} sheet={
 				<ActionPopup isPresented={this.$isShowing} action={this.action} item={this.item} context={this.context}>
 				</ActionPopup>
 			}/>

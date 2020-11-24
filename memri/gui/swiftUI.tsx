@@ -404,7 +404,7 @@ export class Spacer extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {flexGrow: 1, minWidth: "10px"})
+        Object.assign(style, {flexGrow: 1})
         return (
             <div style={style} className="Spacer" {...other}>
                 {this.props.children}
@@ -786,17 +786,42 @@ export class ActionSheet extends MainUI {
         this.closeCallback = closeCallback
         this.context = context
         let style = this.setStyles();
-        Object.assign(style, {backgroundColor: "white",width: geom.size.width, height: geom.size.height / 2, bottom: 0, position: "absolute", zIndex: 10})
+        Object.assign(style, {width: geom.size.width - 10, paddingLeft: 5, bottom: 0, position: "absolute", zIndex: 10})
+        let cancelIndex;
         return (
             <>
-            <ColorArea color={"black"} position="absolute" top={0} frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5} edgesIgnoringSafeArea="all"
-                       onClick={() => this.close()} zIndex={10}/>
-            <div className={"ActionSheet"} style={style}>
-                <MemriText>{title}</MemriText>
-                {buttons.map((button) => <MemriRealButton action={() => this.doAction(button.action)}>
-                    <MemriText>{button.text}</MemriText>
-                </MemriRealButton>)}
-            </div>
+                <ColorArea color={"black"} position="absolute" top={0}
+                           frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5}
+                           edgesIgnoringSafeArea="all"
+                           onClick={() => this.close()} zIndex={10}/>
+                <div className={"ActionSheet"} style={style} {...other}>
+                    <div style={{backgroundColor: "white", textAlign: "center", paddingTop: 20, borderRadius: 10}}>
+                        <MemriText foregroundColor={"#aeb0ad"}>{title}</MemriText>
+                        {buttons.map((button, index) => {
+                            if (!button.cancel) {
+                                return (<>
+                                        <MemriDivider/>
+                                        <MemriRealButton action={() => this.doAction(button.action)}
+                                                         frame={frame({width: "100%"})}>
+                                            <MemriText foregroundColor={"#307ad9"}
+                                                       font={font({size: 18})}>{button.text}</MemriText>
+                                        </MemriRealButton>
+                                    </>
+                                )
+                            } else
+                                cancelIndex = index;
+                        })}
+                    </div>
+                    {cancelIndex && <div style={{
+                        backgroundColor: "white",
+                        textAlign: "center",
+                        marginTop: 5,
+                        borderRadius: 10
+                    }}><MemriRealButton action={() => this.doAction(buttons[cancelIndex].action)} frame={frame({width: "100%"})}>
+                        <MemriText foregroundColor={"#307ad9"}
+                                   font={font({size: 18})}>{buttons[cancelIndex].text}</MemriText>
+                    </MemriRealButton></div>}
+                </div>
             </>
 
         )

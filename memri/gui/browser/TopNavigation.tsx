@@ -85,7 +85,7 @@ export class TopNavigation extends MainUI {
 		}
 
 		buttons.push({text: "Copy a link to this view", action: () => this.toFront()})
-		buttons.push({text: "Cancel"})
+		buttons.push({text: "Cancel", cancel: true})
 
 		return <ActionSheet title={"Do something with the current view"}
 							buttons={buttons}
@@ -103,7 +103,7 @@ export class TopNavigation extends MainUI {
 								{text: "To the front", action: () => this.toFront()},
 								{text: "Back as a new session", action: () => this.backAsSession()},
 								{text: "Show all views", action: () => this.openAllViewsOfSession()},
-								{text: "Cancel"}
+								{text: "Cancel", cancel: true}
 							]}
 							context={this.context}
 							closeCallback={() => {

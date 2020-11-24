@@ -265,7 +265,7 @@ export class GeneralEditorSection extends MainUI {
                         {title}
                     </MemriText>
                     {(action != undefined) &&
-                    <ActionButton context={this.context} action={action} item={item} foregroundColor="#777"
+                    <ActionButton context={this.context} action={action} item={this.item} foregroundColor="#777"
                                   font={font({family: "system", size: 18, weight: Font.Weight.semibold})}
                                   padding={padding({bottom: 10})}/>
                     }
