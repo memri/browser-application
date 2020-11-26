@@ -299,7 +299,7 @@ class LabelSelectionView extends MainUI {
         this.useScrollView = this.props.useScrollView;
 
         return (
-
+            <div id={"LabelAnnotationRenderer"}>
                 <VStack spacing={0} disabled={!this.enabled} bottom={0}>
                     <MemriText padding={padding({horizontal: 10, vertical: 5})}
                                background={new Color("secondarySystemBackground")}>
@@ -314,62 +314,68 @@ class LabelSelectionView extends MainUI {
                         </ScrollView> :
                         this.content
                     }
-                    <div style={{position: "absolute", bottom: document.getElementsByClassName("BottomBarView").item(0).clientHeight, width: "100%"}}>
-                    <MemriList opacity={this.enabled ? 1 : 0.4} frame={frame({height: 220})} cornerRadius={20}
-                               corners={[Corners.topLeft, Corners.topRight]}
-                               background={Color.named("systemBackground")}
-                               shadow={shadow({radius: 10})}>
-                        {this.options.map((option) => {
-                            return (
-                                <MemriRealButton action={() => {
-                                    this.selected.includes(option.id)
-                                        ? this.selected.splice(this.selected.findIndex((id) => id === option.id), 1)
-                                        : this.selected.push(option.id)
-                                    this.props.selected.set(this.selected);
-                                }}>
-                                    <HStack frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
-                                            foregroundColor={this.selected.includes(option.id) ? "white" : ""}
-                                            background={this.selected.includes(option.id) ? "blue" : ""}
-                                            cornerRadius={this.selected.includes(option.id) ? 4 : 0}
-                                            padding={padding(this.selected.includes(option.id) ? -5 : 0)}
-                                    >
-                                        {option.icon}
-                                        <MemriText>
-                                            {option.text}
-                                        </MemriText>
-                                    </HStack>
-                                </MemriRealButton>
-                            )
-                        })
-                        }
-                    </MemriList>
-                    <MemriDivider/>
-                    <HStack spacing={0} opacity={this.enabled ? 1 : 0.4} frame={frame({height: 50})}
-                            background={new Color("secondarySystemBackground")}>
-                        <MemriRealButton action={this.onBackPressed} disabled={!this.enableBackButton}>
-                            <MemriImage font={font({family: "system", size: 20})} padding={padding({horizontal: 20})}
-                                        foregroundColor={this.enableBackButton ? "blue" : new Color("gray").opacity(0.5)}>
-                                undo
-                            </MemriImage>
-                        </MemriRealButton>
-                        <MemriRealButton flexGrow={1} action={this.onCheckmarkPressed} disabled={!this.enableCheckmarkButton}>
-                            <MemriImage font={font({family: "system", size: 25})}
-                                        foregroundColor={"white"}
-                                        background={new Color("green").opacity(this.enableCheckmarkButton ? 1 : 0.5)}
-                                        padding={padding("default")}>
-                                checkmark
-                            </MemriImage>
-                        </MemriRealButton>
-                        <MemriRealButton action={this.onSkipPressed} disabled={!this.enableSkipButton}>
-                            <MemriText font={font({family: "system", size: 20})} padding={padding({horizontal: 20})}
-                                       foregroundColor={this.enableSkipButton ? "blue" : new Color("gray").opacity(0.5)}>
-                                Skip
-                            </MemriText>
-                        </MemriRealButton>
-                    </HStack>
+                    <div id={"BottomLabels"} style={{
+                        position: "absolute",
+                        bottom: document.getElementsByClassName("BottomBarView").item(0).clientHeight,
+                        width: "100%"
+                    }}>
+                        <MemriList opacity={this.enabled ? 1 : 0.4} frame={frame({height: 220})} cornerRadius={20}
+                                   corners={[Corners.topLeft, Corners.topRight]}
+                                   background={Color.named("systemBackground")}
+                                   shadow={shadow({radius: 10})}>
+                            {this.options.map((option) => {
+                                return (
+                                    <MemriRealButton action={() => {
+                                        this.selected.includes(option.id)
+                                            ? this.selected.splice(this.selected.findIndex((id) => id === option.id), 1)
+                                            : this.selected.push(option.id)
+                                        this.props.selected.set(this.selected);
+                                    }}>
+                                        <HStack frame={frame({maxWidth: "infinity", alignment: Alignment.leading})}
+                                                foregroundColor={this.selected.includes(option.id) ? "white" : ""}
+                                                background={this.selected.includes(option.id) ? "blue" : ""}
+                                                cornerRadius={this.selected.includes(option.id) ? 4 : 0}
+                                                padding={padding(this.selected.includes(option.id) ? -5 : 0)}
+                                        >
+                                            {option.icon}
+                                            <MemriText>
+                                                {option.text}
+                                            </MemriText>
+                                        </HStack>
+                                    </MemriRealButton>
+                                )
+                            })
+                            }
+                        </MemriList>
+                        <MemriDivider/>
+                        <HStack spacing={0} opacity={this.enabled ? 1 : 0.4} frame={frame({height: 50})}
+                                background={new Color("secondarySystemBackground")}>
+                            <MemriRealButton action={this.onBackPressed} disabled={!this.enableBackButton}>
+                                <MemriImage font={font({family: "system", size: 20})}
+                                            padding={padding({horizontal: 20})}
+                                            foregroundColor={this.enableBackButton ? "blue" : new Color("gray").opacity(0.5)}>
+                                    undo
+                                </MemriImage>
+                            </MemriRealButton>
+                            <MemriRealButton flexGrow={1} action={this.onCheckmarkPressed}
+                                             disabled={!this.enableCheckmarkButton}>
+                                <MemriImage font={font({family: "system", size: 25})}
+                                            foregroundColor={"white"}
+                                            background={new Color("green").opacity(this.enableCheckmarkButton ? 1 : 0.5)}
+                                            padding={padding("default")}>
+                                    checkmark
+                                </MemriImage>
+                            </MemriRealButton>
+                            <MemriRealButton action={this.onSkipPressed} disabled={!this.enableSkipButton}>
+                                <MemriText font={font({family: "system", size: 20})} padding={padding({horizontal: 20})}
+                                           foregroundColor={this.enableSkipButton ? "blue" : new Color("gray").opacity(0.5)}>
+                                    Skip
+                                </MemriText>
+                            </MemriRealButton>
+                        </HStack>
                     </div>
                 </VStack>
-
+            </div>
         )
     }
 

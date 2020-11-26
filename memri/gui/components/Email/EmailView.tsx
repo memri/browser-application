@@ -9,6 +9,7 @@
 import {MainUI} from "../../swiftUI";
 import * as React from "react";
 import {geom} from "../../../../geom";
+var DOMPurify = require('dompurify');
 
 export class EmailView extends MainUI {
     emailHTML: string
@@ -23,10 +24,19 @@ export class EmailView extends MainUI {
             if (customRenderer) {
                 emailView.style.maxHeight = geom.size.height - (customRenderer.clientHeight - emailView.clientHeight + topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
             } else {
-                emailView.style.maxHeight = geom.size.height - (topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
+                let labelAnnotationRenderer = document.getElementById("LabelAnnotationRenderer");
+                if (labelAnnotationRenderer) {
+                    emailView.style.maxHeight = geom.size.height - (labelAnnotationRenderer.clientHeight - emailView.clientHeight + topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
+                } else {
+                    emailView.style.maxHeight = geom.size.height - (topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
+                }
             }
 
         }
+    }
+
+    sanitize() {
+        this.emailHTML = DOMPurify.sanitize(this.emailHTML, { WHOLE_DOCUMENT: true, RETURN_DOM: true});
     }
 
     componentDidMount(): void {
@@ -50,10 +60,11 @@ export class EmailView extends MainUI {
     render() {
         this.emailHTML = this.props.emailHTML;
         this.resetContentWidth();
+        this.sanitize();
         let style = this.setStyles();
         Object.assign(style, {overflowY: "auto"})
 
         return (
-            <div id={"EmailView"} style={style} dangerouslySetInnerHTML={{__html: this.emailHTML}} />)
+            <div id={"EmailView"} style={style} dangerouslySetInnerHTML={{__html: this.emailHTML.outerHTML}} />)
     }
 }

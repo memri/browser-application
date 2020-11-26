@@ -33,6 +33,7 @@
     "slate": "latest",
     "slate-react": "latest",
     "slate-history": "latest",
-    "slate-hyperscript": "latest"
+    "slate-hyperscript": "latest",
+    "dompurify": "^2.2.2"
   }
 }
