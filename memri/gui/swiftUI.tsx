@@ -363,8 +363,10 @@ export class ScrollView extends MainUI {
             let bottomBarView = document.getElementsByClassName("BottomBarView").item(0);
 
             let scrollViewPaddings = Number(scrollView.item(0).style.paddingTop.replace("px", "")) + Number(scrollView.item(0).style.paddingBottom.replace("px", ""));
-            if (scrollView.length > 0) {
+            if (scrollViewPaddings.length > 0) {
                 scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight - scrollViewPaddings + "px";
+            } else  {
+                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight + "px";
             }
         }
     }

@@ -54,9 +54,11 @@ export class CustomRendererView extends MainUI {
         this.context = this.props.context
         this.controller = this.props.controller;
         return (
-            <VStack>
-                {this.controller.customView()}
-            </VStack>
+            <div id={"CustomRenderer"}>
+                <VStack>
+                    {this.controller.customView()}
+                </VStack>
+            </div>
         )
     }
 }
