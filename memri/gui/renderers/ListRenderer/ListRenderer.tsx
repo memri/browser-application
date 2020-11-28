@@ -3,7 +3,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Color, Font} from "../../../../router";
+import {Alignment, backgroundColor, Color, Font} from "../../../../router";
 import {ActionDelete} from "../../../../router";
 import {
 	ASSection,
@@ -13,7 +13,7 @@ import {
 	MemriRealButton,
 	MemriText,
 	padding,
-	RenderersMemri,
+	RenderersMemri, UIAction, UIMenu,
 	VStack
 } from "../../swiftUI";
 import {CascadingRendererConfig} from "../../../../router";
@@ -131,6 +131,8 @@ export class ListRendererView extends RenderersMemri {
 										   >
 										   {this.controller.view(dataItem)}
 									   </VStack>}
+									   contextMenuProvider={this.contextMenuProvider}
+									   context={this.context}
 							/>
 						</ASTableView> :
 						<MemriText multilineTextAlignment={Alignment.center}
@@ -158,15 +160,14 @@ export class ListRendererView extends RenderersMemri {
 	}
 	selectionMode = this.selectionMode.bind(this)
 
-	/*func contextMenuProvider(index: Int, item: Item) -> UIContextMenuConfiguration? {
-	UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak context] (suggested) -> UIMenu? in
-		let children: [UIMenuElement] = self.renderConfig.contextMenuActions.map { [weak context] action in
-		UIAction(title: action.getString("title"),
-			image: nil) { [weak context] (_) in
-		context?.executeAction(action, with: item)
-		}
-		}
-		return UIMenu(title: "", children: children)
+	contextMenuProvider(index: number, item: Item) {
+		// return UIContextMenuConfiguration(() => {
+		let contextMenuActions = this.controller?.config.contextMenuActions ?? []
+		let children = contextMenuActions.map((action) => <UIAction title={action.getString("title")} action={() => {
+			this.controller?.context.executeAction(action, item)
+		}}/>)
+		return <UIMenu title={""} buttons={children}/>
+		// })
 	}
-}*/
+	contextMenuProvider = this.contextMenuProvider.bind(this)
 }

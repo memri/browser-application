@@ -490,20 +490,46 @@ export class Section extends MainUI {
 }
 
 export class ASSection extends MainUI {
+    static contextMenuShown = false
+    static contextMenuParent
+    static contextMenuIndex
+
+    closeContextMenu() {
+        if (!ASSection.contextMenuShown) return;
+        ASSection.contextMenuShown = false
+        ASSection.contextMenuParent = null
+        ASSection.contextMenuIndex = null
+        this.context.scheduleUIUpdate(true)
+    }
+
+    doContextAction = (action) => {
+        action && action()
+        this.closeContextMenu()
+    }
+
     render() {
-        let {header, footer, data, editMode, callback, deleteIconFn, dataID, direction, selectionMode, selectedIndices, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {header, footer, data, editMode, callback, deleteIconFn, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, padding, foregroundColor, spacing, zIndex, ...other} = this.props;
         let style = this.setStyles();
+        this.context = this.props.context
         Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row"})
 
+        let contextMenuShown = ASSection.contextMenuShown && (ASSection.contextMenuParent == this)
         return (
             <div style={style} className="ASSection" {...other}>
+                {contextMenuShown && <ColorArea color={"black"} position="absolute" top={0}
+                                                frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5}
+                                                edgesIgnoringSafeArea="all"
+                                                onClick={() => this.closeContextMenu()} zIndex={10}/>
+                }
                 {header ? header: ""}
                 {this.props.children}
                 {data && data.map((dataItem, index) => {
                     let label = callback(dataItem, index)
                     let deleteIcon = deleteIconFn && deleteIconFn(dataItem, index)
+                    let isContextMenuItem = contextMenuShown && index == ASSection.contextMenuIndex
+                    let style = isContextMenuItem ? {zIndex: 100, backgroundColor: "white", borderRadius: 10, marginLeft: 10, marginRight: 10} : {}
                     return <>
-
+                        <div className={"ASSectionItem"} style={style} onClick={() => this.closeContextMenu()}>
                             {editMode
                                 ?
                                 <FormControlLabel style={{paddingLeft: 10}} onChange={selectionMode(dataItem)}
@@ -512,15 +538,64 @@ export class ASSection extends MainUI {
                                 />
                                 :
                                 <>
-                                    <div onClick={selectionMode(dataItem, index)}>{label}</div>
+                                    <div onClick={selectionMode(dataItem, index)}
+                                         onContextMenu={contextMenuProvider ? (e)=> {
+                                             e.preventDefault();
+                                             ASSection.contextMenuShown = true
+                                             ASSection.contextMenuParent = this
+                                             ASSection.contextMenuIndex = index
+                                             this.context.scheduleUIUpdate(true)
+                                         } : null}
+                                    >
+                                        {label}
+                                    </div>
                                     {deleteIcon}
-                                </>}
 
-
+                                </>
+                            }
+                        </div>
+                        {isContextMenuItem && <>
+                            {contextMenuProvider(index, dataItem)}
+                        </>}
                     </>
                 })}
 
                 {footer ? footer: ""}
+            </div>
+        )
+    }
+}
+
+
+export class UIAction extends MainUI {
+    render() {
+        let {title, action, ...other} = this.props;
+        return (
+            <div className="UIAction">
+                <MemriRealButton {...other} action={() => {
+                    action && action()
+                    ASSection.contextMenuParent.closeContextMenu()
+                }}>
+                    <MemriText frame={frame({width: "100%"})}>
+                        <MemriText font={font({size: 18})}>{title}</MemriText>
+                    </MemriText>
+                    {this.props.children}
+                </MemriRealButton>
+            </div>
+        )
+    }
+}
+
+export class UIMenu extends MainUI {
+    render() {
+        let {buttons, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let style = Object.assign(this.setStyles(), {backgroundColor: "white", marginTop: 10, borderRadius: 10, zIndex: 100, marginLeft: 10, width: "70%"})
+        return (
+            <div style={style} className="UIMenu" {...other}>
+                {buttons.map((button, index) => <>
+                    {(index > 0) && <MemriDivider/>}
+                    {button}
+                </>)}
             </div>
         )
     }
@@ -814,7 +889,7 @@ export class ActionSheet extends MainUI {
                                 cancelIndex = index;
                         })}
                     </div>
-                    {cancelIndex && <div style={{
+                    {cancelIndex != undefined  && <div style={{
                         backgroundColor: "white",
                         textAlign: "center",
                         marginTop: 5,
