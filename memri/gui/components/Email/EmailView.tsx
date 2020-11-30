@@ -26,7 +26,8 @@ export class EmailView extends MainUI {
             } else {
                 let labelAnnotationRenderer = document.getElementById("LabelAnnotationRenderer");
                 if (labelAnnotationRenderer) {
-                    emailView.style.maxHeight = geom.size.height - (labelAnnotationRenderer.clientHeight - emailView.clientHeight + topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
+                    let bottomLabels = document.getElementById("BottomLabels");
+                    emailView.style.maxHeight = geom.size.height - (labelAnnotationRenderer.clientHeight - emailView.clientHeight + topNavigation.clientHeight + bottomBarView.clientHeight + bottomLabels.clientHeight) + "px";
                 } else {
                     emailView.style.maxHeight = geom.size.height - (topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
                 }

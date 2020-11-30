@@ -1146,6 +1146,10 @@ export enum ItemFamily {
     Vote = "Vote",
     VoteAction = "VoteAction",
     Website = "Website",
+    //TODO added manual
+    LabelAnnotation = "LabelAnnotation",
+    LabelAnnotationCollection = "LabelAnnotationCollection",
+    PhotoAnnotation = "PhotoAnnotation",
     ReceiptDemo = "ReceiptDemo",
 }
 
@@ -1386,6 +1390,10 @@ export var getItemType = function(name) {
         case ItemFamily.Vote: return Vote
         case ItemFamily.VoteAction: return VoteAction
         case ItemFamily.Website: return Website
+//TODO added manual
+        case ItemFamily.LabelAnnotation: return LabelAnnotation
+        case ItemFamily.LabelAnnotationCollection: return LabelAnnotationCollection
+        case ItemFamily.PhotoAnnotation: return PhotoAnnotation
         case ItemFamily.ReceiptDemo: return ReceiptDemo
     }
 }
