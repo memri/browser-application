@@ -6884,4 +6884,11 @@ export class ReceiptDemo extends Item {
 }
 
 
+Object.defineProperty(File.prototype, "url", {
+    get() {
+        return this.filename ? "memri/Resources/DemoAssets/" + this.filename + ".jpg" : null
+    }
+})
+
+
 ///////////////////////////////
