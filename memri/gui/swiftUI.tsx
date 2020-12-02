@@ -44,6 +44,23 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         this.context = props.context;
     }
 
+    updateNavigationProps() {
+        if (this.props.navigationBarTitle) {
+            this.props.context.setNavigationBarTitle(this.props.navigationBarTitle)
+        }
+        if (this.props.navigationBarItems) {
+            this.props.context.setNavigationBarItems(this.props.navigationBarItems)
+        }
+    }
+
+    componentDidMount(): void {
+       this.updateNavigationProps()
+    }
+
+    componentDidUpdate(): void {
+        this.updateNavigationProps()
+    }
+
     readSize(onChange) { //TODO:
         /*background(
             GeometryReader { geometryProxy in
@@ -58,7 +75,6 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         let styles = {
             color: this.props.foregroundColor?.value ?? this.props.foregroundColor ?? this.props.textColor,
             gap: this.props.spacing,
-            margin: this.props?.margin,
             offset: this.props.offset,
             zIndex: this.props.zIndex,
             backgroundColor: this.props.fill ?? this.props.background?.value ?? this.props.background,
@@ -75,7 +91,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             flexGrow: this.props.flexGrow
         }
 
-        Object.assign(styles, this.props.font, this.props.padding, this.props.contentInsets, this.props.frame, this.setAlignment());
+        Object.assign(styles, this.props.font, this.props.padding, this.props.margin, this.props.contentInsets, this.props.frame, this.setAlignment());
 
         if (this.props.corners && this.props.cornerRadius) {
             let corners = {};
@@ -235,31 +251,96 @@ export class MemriRealButton extends MainUI {
     }
 
     render() {
-        let {flexGrow, alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
+        let {sheet, flexGrow, alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
         action = alert ? this.onAlert : (action && typeof action == "function") ? action :  ()=> {};
         let style = this.setStyles();
         Object.assign(style, {minWidth: style.minWidth ?? "10px", textTransform: "none"})
         return (
-            <div className={"MemriRealButton"} style={{flexGrow: flexGrow ?? undefined}}>
-                <Button onClick={action} style={style} {...other}>
-                    {this.props.children}
-                </Button>
-                {this.state.showAlert ?
-                    alert :
-                    null
+            <>
+                <div className={"MemriRealButton"} style={{flexGrow: flexGrow ?? undefined}}>
+                    <Button onClick={action} style={style} {...other}>
+                        {this.props.children}
+                    </Button>
+                    {this.state.showAlert ?
+                        alert :
+                        null
+                    }
+                </div>
+                {sheet != undefined &&
+                    sheet()
                 }
+            </>
+        )
+    }
+}
+
+export class Sheet extends MainUI {
+    render() {
+        let style = this.setStyles();
+        Object.assign(style, {
+            position: "absolute",
+            top: 10,
+            left: 0,
+            width: geom.size.width,
+            height: geom.size.height - 10,
+            zIndex: 4,
+            backgroundColor: "white",
+            borderTopLeftRadius: 10,
+            borderTopRightRadius: 10
+        })
+
+        return (
+            <div style={style} className={"Sheet"}>
+                {this.props.children}
             </div>
         )
     }
 }
 
 export class NavigationView extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {navigationBarTitle: null, navigationBarItems: null, destination: null, navigationView: null};
+        this.props.context.setNavigationBarTitle = (title)=> this.setState({"navigationBarTitle": title})
+        this.props.context.setNavigationBarItems = (items)=> this.setState({"navigationBarItems": items})
+        this.props.context.setNavigationBarDestination = (destination)=> this.setState({"destination": destination})
+    }
+
     render() {
-        return (
-            <div style={this.setStyles()} className={"NavigationView"}>
-                {this.props.children}
+        let style = this.setStyles();
+        Object.assign(style, {background: "#f2f2f7"});
+        let navigationView = (
+            <div style={style} className={"NavigationView"}>
+                {(this.state.navigationBarTitle || this.state.navigationBarItems) &&
+                <>
+                    <HStack padding={padding({vertical: 5})} frame={frame({minHeight: 15})} background={"white"}>
+                        <div style={{zIndex: 5, width: "20%"}}>
+                            {this.state.navigationBarItems && this.state.navigationBarItems.leading}
+                        </div>
+                        <div style={{
+                            textAlign: "center",
+                            fontSize: "18px",
+                            fontWeight: "bold",
+                            width: "60%",
+                            alignSelf: "center"
+                        }}>
+                            {this.state.navigationBarTitle}
+                        </div>
+                        <div style={{zIndex: 5, width: "20%"}}>
+                            {this.state.navigationBarItems && this.state.navigationBarItems.trailing}
+                        </div>
+
+                    </HStack>
+                    <MemriDivider margin={margin({bottom: 10})}/>
+                </>
+                }
+                <div className={"NavigationViewContent"}>
+                    {this.state.destination || this.props.children}
+                </div>
             </div>
         )
+
+        return navigationView
     }
 }
 
@@ -276,16 +357,21 @@ export class NavigationLink extends MainUI {
         this.setState({
             showComponent: true,
         });
+
+        this.props.context.setNavigationBarDestination(this.props.destination)
+        this.props.context.setNavigationBarItems({leading: <MemriRealButton action={""}><MemriImage>chevron_left</MemriImage></MemriRealButton>})
     }
 
     render() {
-        let {destination, font, padding, foregroundColor, spacing, frame, zIndex, action, ...other} = this.props;
+        let {destination, font, foregroundColor, spacing, zIndex, action, ...other} = this.props;
         return (
             <>
-                <Button onClick={destination ? this._onNavigationLinkClick : ()=>{}} className={"NavigationLink"}
-                        style={this.setStyles()} {...other}>
+                <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {
+                }} className={"NavigationLink"}
+                                 {...other}>
                     {this.props.children}
-                </Button>
+                    <MemriImage>chevron_right</MemriImage>
+                </MemriRealButton>
                 {this.state.showComponent ?
                     destination :
                     null
@@ -348,7 +434,7 @@ export class MemriText extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, text, ...other} = this.props;
         return (
-            <div class={"MemriText"} style={this.setStyles()} {...other}>
+            <div className={"MemriText"} style={this.setStyles()} {...other}>
                 {text ?? this.props.children}
             </div>
         )
@@ -363,7 +449,7 @@ export class ScrollView extends MainUI {
             let bottomBarView = document.getElementsByClassName("BottomBarView").item(0);
 
             let scrollViewPaddings = Number(scrollView.item(0).style.paddingTop.replace("px", "")) + Number(scrollView.item(0).style.paddingBottom.replace("px", ""));
-            if (scrollViewPaddings.length > 0) {
+            if (scrollViewPaddings) {
                 scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight - scrollViewPaddings + "px";
             } else  {
                 scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight + "px";
@@ -481,8 +567,10 @@ export class Section extends MainUI {
         let style = this.setStyles();
         return (
             <div style={style} className="Section" {...other}>
-                {header ? header: ""}
-                {this.props.children}
+                {header ? header : ""}
+                <div className={"SectionContent"}>
+                    {this.props.children}
+                </div>
                 {footer ? footer: ""}
             </div>
         )
@@ -625,17 +713,10 @@ export class Group extends MainUI {
 
 export class MemriList extends MainUI {
     render() {
-        let {scrollHeight, navigationBarTitle, navigationBarItems, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {scrollHeight, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
         return (<>
 
-                <HStack>
-                    {navigationBarItems && navigationBarItems.leading}
-                    {navigationBarTitle &&
-                    <MemriRealButton><HStack>{navigationBarTitle}</HStack></MemriRealButton>
-                    }
-                    {navigationBarItems && navigationBarItems.trailing}
-                </HStack>
                 <div style={style} className="MemriList" {...other}>
 
                     <div style={scrollHeight ? {height: scrollHeight, overflow: "auto"} : undefined}>
@@ -816,11 +897,15 @@ export class MemriAlert extends MainUI {
 }
 
 export class Form extends MainUI {
-    render() {//TODO: navigationBarTitle
+    render() {
+        let {navigationBarItems, navigationBarTitle, font, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <div className="Form">
-                {this.props.children}
-            </div>
+            <>
+                <div className="Form" {...other}>
+
+                    {this.props.children}
+                </div>
+            </>
         )
     }
 }
@@ -948,6 +1033,36 @@ export function padding(attrs: { horizontal?: number | "default", vertical?: num
         }
         if (attrs.bottom) {
             paddingObj["paddingBottom"] = (attrs.bottom == "default") ? defaultPadding : attrs.bottom;
+        }
+    }
+    return paddingObj;
+}
+
+export function margin(attrs: { horizontal?: number | "default", vertical?: number | "default", top?: number | "default", bottom?: number | "default", leading?: number | "default", trailing?: number | "default", left?: number | "default", right?: number | "default" } | any|"default") {
+    let defaultPadding = 10;
+    if (!attrs)
+        return
+    let paddingObj = {};
+    if (typeof attrs == "number" || typeof attrs == "string") {
+        paddingObj["margin"] = (attrs == "default") ? defaultPadding : attrs;
+    } else {
+        if (attrs.horizontal) {
+            paddingObj["marginRight"] = paddingObj["marginLeft"] = (attrs.horizontal == "default") ? defaultPadding : attrs.horizontal;
+        }
+        if (attrs.vertical) {
+            paddingObj["marginTop"] = paddingObj["marginBottom"] = (attrs.vertical == "default") ? defaultPadding : attrs.vertical;
+        }
+        if (attrs.leading || attrs.left) {
+            paddingObj["marginLeft"] = (attrs.leading == "default" || attrs.left == "default") ? defaultPadding : (attrs.leading || attrs.left);
+        }
+        if (attrs.trailing || attrs.right) {
+            paddingObj["marginRight"] = (attrs.trailing == "default" || attrs.right == "default") ? defaultPadding : (attrs.trailing || attrs.right);
+        }
+        if (attrs.top) {
+            paddingObj["marginTop"] = (attrs.top == "default") ? defaultPadding : attrs.top;
+        }
+        if (attrs.bottom) {
+            paddingObj["marginBottom"] = (attrs.bottom == "default") ? defaultPadding : attrs.bottom;
         }
     }
     return paddingObj;

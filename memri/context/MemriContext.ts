@@ -61,6 +61,11 @@ export class MemriContext {
 		//mock function;
 	}
 
+	showSettings = false; //TODO: for Settings sheet @mkslanc
+	setNavigationBarItems; //TODO: for NavigationView top menu items @mkslanc
+	setNavigationBarTitle; //TODO: for NavigationView top menu title @mkslanc
+	setNavigationBarDestination; //TODO: for NavigationView to change view @mkslanc
+
 	realm = new Realm();
 	name = ""
 

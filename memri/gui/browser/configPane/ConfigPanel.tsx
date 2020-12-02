@@ -34,8 +34,8 @@ export class ConfigPanel extends MainUI {
         let configItems = this.getConfigItems()
         //TODO:
         return (
-            <div className={"ConfigPanel"}>
-            <NavigationView height={200} cornerRadius={15}
+            <div className={"ConfigPanel"} style={{width:"50%"}}>
+            <NavigationView context={this.context} height={"100%"}
                 // .environment(\.verticalSizeClass, .compact)
                 // .clipShape(RoundedRectangle(cornerRadius: shouldMoveAboveKeyboard ? 15 : 0))
                 // .overlay(RoundedRectangle(cornerRadius: 15).strokeBorder(shouldMoveAboveKeyboard ? Color(.systemFill) : .clear))
@@ -43,7 +43,7 @@ export class ConfigPanel extends MainUI {
             >
                 {configItems.length === 0
                     ? this.noConfigItem
-                    : <MemriList listStyle={"PlainListStyle"} navigationBarTitle={<MemriText>Config</MemriText>} navigationBarHidden={true}
+                    : <MemriList listStyle={"PlainListStyle"} navigationBarTitle={<MemriText>Config</MemriText>} navigationBarHidden={true} context={this.context}
                         // .navigationBarHidden(keyboard.keyboardVisible)
                     >
                         {this.sortItem}
@@ -71,7 +71,7 @@ export class ConfigPanel extends MainUI {
     
     get sortItem() {
         if (this.showSortItem) {
-            return <NavigationLink destination={<ConfigPanelSortView context={this.context}/>}>
+            return <NavigationLink context={this.context} destination={<ConfigPanelSortView context={this.context}/>}>
                 <MemriText>{"Sort order"}</MemriText>
             </NavigationLink>
         }
@@ -79,7 +79,7 @@ export class ConfigPanel extends MainUI {
     
     getConfigView(configItem: ConfigItem) {
         if (configItem.isItemSpecific) {
-            return <NavigationLink destination={<ConfigPanelSelectionView configItem={configItem}/>} eraseToAnyView>
+            return <NavigationLink context={this.context} destination={<ConfigPanelSelectionView configItem={configItem}/>} eraseToAnyView>
                 <MemriText>{configItem.displayName}</MemriText>
             </NavigationLink>
         } else {
@@ -89,19 +89,19 @@ export class ConfigPanel extends MainUI {
                 case ConfigItemType.number:
                     return <ConfigPanelNumberView context={this.context} configItem={configItem} eraseToAnyView/>
                 case SpecialTypes.chartType:
-                    return <NavigationLink configItem={configItem} eraseToAnyView
+                    return <NavigationLink context={this.context} configItem={configItem} eraseToAnyView
                                            destination={<ConfigPanelEnumSelectionView context={this.context} configItem={configItem}/>}
                     >
                         <MemriText>{configItem.displayName}</MemriText>
                     </NavigationLink>
                 case SpecialTypes.timeLevel:
-                    return <NavigationLink configItem={configItem} eraseToAnyView
+                    return <NavigationLink context={this.context} configItem={configItem} eraseToAnyView
                                            destination={<ConfigPanelEnumSelectionView context={this.context} configItem={configItem} type={DetailLevel}/>}
                     >
                         <MemriText>{configItem.displayName}</MemriText>
                     </NavigationLink>
                 default:
-                    return <NavigationLink configItem={configItem} eraseToAnyView
+                    return <NavigationLink context={this.context} configItem={configItem} eraseToAnyView
                                            destination={<ConfigPanelStringView context={this.context} configItem={configItem} shouldMoveAboveKeyboard={this.shouldMoveAboveKeyboard}/>}
                     >
                         <MemriText>{configItem.displayName}</MemriText>
@@ -210,7 +210,7 @@ export class ConfigPanelSelectionView extends MainUI {
         let currentSelection = this.currentSelection
 
         return <MemriList listStyle={"PlainListStyle"} navigationBarTitle={<MemriText>{this.configItem.displayName}</MemriText>} /*displayMode: .inline*/>
-            {options.map((option) => <MemriRealButton action={() => this.onSelect(option)}>
+            {options.map((option) => <MemriRealButton action={() => this.onSelect(option)} context={this.context}>
                 <MemriText bold={option.propertyName == currentSelection/*TODO*/}>{option.displayName}
                 </MemriText>
             </MemriRealButton>)}
@@ -284,7 +284,7 @@ export class ConfigPanelSortView extends MainUI {
         let currentSort = this.context.currentView?.datasource.sortProperty ?? ""
 
         return <MemriList navigationBarTitle={<MemriText>Sort</MemriText>}
-                          navigationBarItems={{trailing: this.toggleOrderButton}} scrollHeight={200}
+                          navigationBarItems={{trailing: this.toggleOrderButton}} scrollHeight={190} context={this.context}
         >
             {options.map((option) => <MemriRealButton key={option.propertyName} action={() => this.onSelect(option)}>
                 <HStack>
@@ -374,7 +374,7 @@ export class ConfigPanelEnumSelectionView extends MainUI{
 
         let currentSelection = this.currentSelection
 
-        return <MemriList scrollHeight={100}
+        return <MemriList scrollHeight={100} context={this.context} navigationBarTitle={<MemriText>{this.configItem.displayName}</MemriText>}
         >
             {Object.keys(options).map((option) => <MemriRealButton action={() => this.onSelect(option)}>
                 <MemriText bold={option == currentSelection/*TODO*/}>

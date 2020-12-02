@@ -18,9 +18,10 @@ import {
 	ColorArea,
 	Content,
 	MemriRealButton,
-	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI
+	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI, Sheet
 } from "../../swiftUI";
 import {geom} from "../../../../geom";
+import {SettingsPane} from "../../SettingsPane";
 
 export class NavigationWrapper extends MainUI {
 	widthRatio;
@@ -165,11 +166,13 @@ class Navigation extends MainUI {
 						background={new Color("MemriUI-purpleBack").toLowerCase()}>
 					<HStack id={"NavigationMenuTop"} spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})}
 							background={new Color("MemriUI-purpleBackSecondary").toLowerCase()}>
-						<MemriRealButton onClick={function () {
-							this.showSettings = true
-						}.bind(this)} /*sheet={sheet(this.$showSettings, function () {
-					SettingsPane().environmentObject(this.context)
-				}.bind(this))}*/>
+						<MemriRealButton action={() => {
+							this.context.showSettings = true;
+							this.context.scheduleUIUpdate();
+						}} sheet={() => {
+							if (this.context.showSettings)
+								return (<Sheet><SettingsPane context={this.context}/></Sheet>)
+						}}>
 							{<MemriImage foregroundColor="#d9d2e9"
 										 font={font({size: 22, weight: Font.Weight.semibold})}>settings</MemriImage>}
 						</MemriRealButton>

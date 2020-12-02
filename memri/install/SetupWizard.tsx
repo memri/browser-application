@@ -22,6 +22,7 @@ import * as React from "react";
 import {Alignment, Font} from "../../router";
 import {MemriContext} from "../../router";
 import {debugHistory} from "../../router";
+import {geom} from "../../geom";
 
 export class SetupWizard extends MainUI {
     context: MemriContext
@@ -78,15 +79,15 @@ export class SetupWizard extends MainUI {
 
 
         return (
-            <NavigationView navigationViewStyle={"StackNavigationViewStyle"}>
-                <Form navigationBarTitle={<MemriText>Setup Wizard</MemriText>}>
+            <NavigationView context={this.context} navigationViewStyle={"StackNavigationViewStyle"} frame={frame({width: geom.size.width, height: geom.size.height})}>
+                <Form navigationBarTitle={<MemriText>Setup Wizard</MemriText>} context={this.context}>
                     {!this.context.installer.isInstalled && !this.context.installer.debugMode &&
                     <>
                         <Section header={<MemriText>
                             Connect to a pod
                         </MemriText>}>
 
-                            <NavigationLink destination={
+                            <NavigationLink context={this.context} destination={
                                 <Form>
                                     <Section header={<MemriText>
                                         Pod Connection
@@ -139,7 +140,7 @@ export class SetupWizard extends MainUI {
                                     Connect to a new pod
                                 </MemriText>
                             </NavigationLink>
-                            <NavigationLink destination={
+                            <NavigationLink context={this.context} destination={
                                 <Form>
                                     <Section header={<MemriText>
                                         Pod Connection
