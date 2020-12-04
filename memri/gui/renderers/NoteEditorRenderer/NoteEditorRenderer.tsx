@@ -3,21 +3,12 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Color, DatabaseController, Font} from "../../../../router";
-import {ActionDelete} from "../../../../router";
+import {DatabaseController} from "../../../../router";
 import {
-    ASTableView,
-    font,
-    MemriImage,
-    MemriRealButton,
-    MemriText,
-    padding,
     RenderersMemri,
-    VStack
 } from "../../swiftUI";
-import {ListItem} from "@material-ui/core";
 import {CascadingRendererConfig} from "../../../../router";
-import {MemriTextEditor, RichTextEditor} from "./UIKit/MemriTextEditor";
+import {MemriTextEditor} from "./UIKit/MemriTextEditor";
 
 export class NoteEditorRendererController {
     static rendererType = {name:"noteEditor",icon: "doc.richtext"/*doc.richtext*/, makeController:NoteEditorRendererController, makeConfig:NoteEditorRendererController.makeConfig}

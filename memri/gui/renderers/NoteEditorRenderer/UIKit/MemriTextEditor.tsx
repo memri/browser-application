@@ -6,6 +6,7 @@ import { withHistory } from 'slate-history'
 import {useCallback, useMemo, useState} from "react";
 import {Button, Icon, Toolbar} from "@material-ui/core";
 import {jsx} from "slate-hyperscript";
+import {geom} from "../../../../../geom";
 
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 
@@ -151,6 +152,13 @@ const deserialize = string => {
     }
 }
 
+function updateHeight() {
+    let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+    let bottomBarView = document.getElementsByClassName("BottomBarView").item(0);
+    //TODO: temporary decision @mkslanc
+    return geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight - 84
+}
+
 export const MemriTextEditor = (props) => {
     let content = props.model?.body ?? "";
     const [value, setValue] = useState<Node[]>(deserialize(content))
@@ -159,37 +167,40 @@ export const MemriTextEditor = (props) => {
     const editor = useMemo(() => withHistory(withReact(createEditor())), [])
 
     return (
-        <VStack spacing={0} width={414} padding={padding(10)}>
-            <MemriTextField value={props.model?.title ?? ""}
-                            placeholder={props.titleHint ?? ""} onChange={(e) => {
-                props.onModelUpdate({title:e.target.value, body: props.model?.body})
-            }}>
 
-            </MemriTextField>
-            <Slate editor={editor} value={value} onChange={(value) => {
-                setValue(value);
-                props.onModelUpdate({title:props.model?.title, body: serialize(value)})
-            }}>
-                <Editable
-                    renderElement={renderElement}
-                    renderLeaf={renderLeaf}
-                    placeholder="Enter some rich text…"
-                    spellCheck
-                    autoFocus
-                />
-                <Toolbar disableGutters={true}>
-                    <MarkButton format="bold" icon="format_bold"/>
-                    <MarkButton format="italic" icon="format_italic"/>
-                    <MarkButton format="underline" icon="format_underlined"/>
-                    <MarkButton format="strikethrough" icon="format_strikethrough"/>
-                    <BlockButton format="bulleted-list" icon="format_list_bulleted"/>
-                    <BlockButton format="numbered-list" icon="format_list_numbered"/>
-                    <BlockButton format="heading-one" icon="looks_one"/>
-                    <BlockButton format="heading-two" icon="looks_two"/>
+            <VStack spacing={0} width={geom.size.width - 20} padding={padding(10)}>
+                <Slate editor={editor} value={value} onChange={(value) => {
+                    setValue(value);
+                    props.onModelUpdate({title: props.model?.title, body: serialize(value)})
+                }}>
+                    <div className={"MemriTextEditor"} style={{overflowY: "auto", height: updateHeight()}}>
+                        <MemriTextField value={props.model?.title ?? ""}
+                                        placeholder={props.titleHint ?? ""} onChange={(e) => {
+                            props.onModelUpdate({title: e.target.value, body: props.model?.body})
+                        }}>
 
-                </Toolbar>
-            </Slate>
-        </VStack>
+                        </MemriTextField>
+                        <Editable
+                            renderElement={renderElement}
+                            renderLeaf={renderLeaf}
+                            placeholder="Enter some rich text…"
+                            spellCheck
+                            autoFocus
+                        />
+                    </div>
+                    <Toolbar disableGutters={true}>
+                        <MarkButton format="bold" icon="format_bold"/>
+                        <MarkButton format="italic" icon="format_italic"/>
+                        <MarkButton format="underline" icon="format_underlined"/>
+                        <MarkButton format="strikethrough" icon="format_strikethrough"/>
+                        <BlockButton format="bulleted-list" icon="format_list_bulleted"/>
+                        <BlockButton format="numbered-list" icon="format_list_numbered"/>
+                        <BlockButton format="heading-one" icon="looks_one"/>
+                        <BlockButton format="heading-two" icon="looks_two"/>
+
+                    </Toolbar>
+                </Slate>
+            </VStack>
     )
 }
 
