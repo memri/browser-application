@@ -98,15 +98,19 @@ export class DefaultGeneralEditorRow extends MainUI {
     }
 
     boolRow() {
+        let binding = {
+            get: () => { return this.item[this.prop] ?? false },
+            set: () => {
+                try {
+                    this.item.toggle(this.prop)
+                    //this.context.objectWillChange.send()
+                } catch {
+                }
+            }
+        }
 
         return (<>
-                <Toggle isOn={this.item[this.prop] ?? false} onChange={() => {
-                    try {
-                        this.item.toggle(this.prop)
-                        //this.context.objectWillChange.send()
-                    } catch {
-                    }
-                }} toggleStyle={"MemriToggleStyle"}/>
+                <Toggle isOn={binding} toggleStyle={"MemriToggleStyle"}/>
                 <MemriText>
                     <GeneralEditorCaption>
                         {this.prop.camelCaseToWords()

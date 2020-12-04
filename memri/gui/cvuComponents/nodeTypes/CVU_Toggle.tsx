@@ -16,7 +16,7 @@ export class CVU_Toggle extends CVU_UI {
 
     render() {
         return (
-            <Toggle isOn={this.binding.get()} labelsHidden {...this.props}>
+            <Toggle isOn={this.binding} labelsHidden {...this.props}>
                 <EmptyView/>
             </Toggle>
         )

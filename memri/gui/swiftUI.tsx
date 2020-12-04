@@ -832,17 +832,16 @@ export class Toggle extends MainUI {
         };
     }
 
-    componentDidMount(): void {
-        this.setState({checked: this.isOn})
-    }
-
     render() {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, isOn, ...other} = this.props;
         if (isOn) {
             if (isOn.set) {
-                other["onChange"] = isOn.set;
+                other["onChange"] = (e) => {
+                    isOn.set(e);
+                    this.setState({checked: isOn.get()});
+                }
+                this.state.checked = isOn.get()
                 other["checked"] = this.state.checked;
-                this.isOn = isOn.get();
             } else {
                 if (isOn)
                     other["checked"] = "";
