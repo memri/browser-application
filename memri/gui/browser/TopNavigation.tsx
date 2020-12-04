@@ -197,7 +197,7 @@ export class TopNavigation extends MainUI {
 							</MemriText>
 						</MemriRealButton>
 					</ColorArea>
-					{(context.item != undefined || context.items.length > 0 &&
+					{((context.item != undefined || context.items.length > 0) &&
 					context.settings.get("user/general/gui/showEditButton") != false &&
 					context.currentView?.editActionButton != undefined) &&
 					<ActionButton action={context.currentView?.editActionButton} font={font({size: 19, weight: Font.Weight.semibold})} context={this.context}/>

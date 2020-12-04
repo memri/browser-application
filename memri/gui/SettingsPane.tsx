@@ -28,7 +28,7 @@ export class SettingsPane extends MainUI {
             get: () => {
                 // TODO: Error handling
                 let x = this.context.settings.get(path);
-                if (x) {
+                if (x != undefined) {
                     return x
                 } else {
                     debugHistory.warn(`Could not get setting ${path}`)
@@ -41,8 +41,13 @@ export class SettingsPane extends MainUI {
 
                 return 0// Should never get here
             },
-            set: ($0) => {
-                this.context.settings.set(path, $0)
+            set: (e) => {
+                let value = e.target.value;
+                if (e.target.type == "checkbox") {
+                    value = e.target.checked;
+                    this.setState({"checked": value});
+                }
+                this.context.settings.set(path, value)
             }
         }
     }
@@ -67,7 +72,7 @@ export class SettingsPane extends MainUI {
                                     <MemriText frame={frame({width: 100, alignment: Alignment.leading})}>
                                         Host:
                                     </MemriText>
-                                    <MemriTextField value={this.getBinding("/user/pod/host").get()}/>
+                                    <MemriTextField value={this.getBinding("/user/pod/host")}/>
                                 </HStack>
                                 <HStack>
                                     <MemriRealButton action={() => {
@@ -84,7 +89,7 @@ export class SettingsPane extends MainUI {
                                 </HStack>
                             </Section>
                             <Section header={<MemriText>Syncing</MemriText>}>
-                                <Toggle isOn={this.getBinding("/device/upload/cellular").get()}/>
+                                <Toggle isOn={this.getBinding("/device/upload/cellular")}/>
                                 <MemriText>
                                     Enable upload of images while on cellular
                                 </MemriText>
@@ -99,11 +104,11 @@ export class SettingsPane extends MainUI {
                         <Form>
                             <Section header={<MemriText>User Interface</MemriText>} footer={<MemriText
                                 font={font({family: "system", size: 11, weight: Font.Weight.regular})}>Show 'xx time ago' in place of dates less than 36 hours ago</MemriText>}>
-                                <Toggle isOn={this.getBinding("/user/general/gui/showEditButton").get()}/>
+                                <Toggle isOn={this.getBinding("/user/general/gui/showEditButton")}/>
                                 <MemriText>
                                     Always show edit button
                                 </MemriText>
-                                <Toggle isOn={this.getBinding("/user/general/gui/showDateAgo").get()}/>
+                                <Toggle isOn={this.getBinding("/user/general/gui/showDateAgo")}/>
                                 <MemriText>
                                     Enable time ago
                                 </MemriText>
@@ -117,7 +122,7 @@ export class SettingsPane extends MainUI {
                     <NavigationLink context={this.context} destination={
                         <Form>
                             <Section header={<MemriText>Sensors</MemriText>}>
-                                <Toggle isOn={this.getBinding("/device/sensors/location/track").get()}/>
+                                <Toggle isOn={this.getBinding("/device/sensors/location/track")}/>
                                 <MemriText>
                                     Track and store location
                                 </MemriText>
@@ -131,7 +136,7 @@ export class SettingsPane extends MainUI {
                     <NavigationLink context={this.context} destination={
                         <Form>
                             <Section header={<MemriText>Internationalization</MemriText>}>
-                                <MemriTextField value={this.getBinding("/user/formatting/date").get()}/>
+                                <MemriTextField value={this.getBinding("/user/formatting/date")}/>
                             </Section>
                         </Form>
                     }>
@@ -142,11 +147,11 @@ export class SettingsPane extends MainUI {
                     <NavigationLink context={this.context} destination={
                         <Form>
                             <Section header={<MemriText>Debug Settings</MemriText>}>
-                                <Toggle isOn={this.getBinding("/device/debug/autoShowErrorConsole").get()}/>
+                                <Toggle isOn={this.getBinding("/device/debug/autoShowErrorConsole")}/>
                                 <MemriText>
                                     Automatically pop up the debug console on errors
                                 </MemriText>
-                                <Toggle isOn={this.getBinding("/device/debug/autoReloadCVU").get()}/>
+                                <Toggle isOn={this.getBinding("/device/debug/autoReloadCVU")}/>
                                 <MemriText>
                                     Automatically reload CVU when it changes
                                 </MemriText>

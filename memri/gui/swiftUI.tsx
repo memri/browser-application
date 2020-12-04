@@ -411,8 +411,16 @@ export class MemriTextField extends MainUI {
             showPrevNextButtons, layoutPriority,
             accentColor, background, cornerRadius, ...other
         } = this.props;
+        if (value) {
+            if (value.set) {
+                other["onChange"] = value.set;
+                other["defaultValue"] = value.get();
+            } else {
+                other["defaultValue"] = value;
+            }
+        }
         return (
-            <TextField style={this.setStyles()} defaultValue={value} {...other}/>
+            <TextField style={this.setStyles()} {...other}/>
         )
     }
 }
@@ -817,10 +825,31 @@ export class ASCollectionView extends MainUI {
 }
 
 export class Toggle extends MainUI {
+    constructor(props) {
+        super(props);
+        this.state = {
+            checked: null,
+        };
+    }
+
+    componentDidMount(): void {
+        this.setState({checked: this.isOn})
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, isOn, ...other} = this.props;
+        if (isOn) {
+            if (isOn.set) {
+                other["onChange"] = isOn.set;
+                other["checked"] = this.state.checked;
+                this.isOn = isOn.get();
+            } else {
+                if (isOn)
+                    other["checked"] = "";
+            }
+        }
         return (
-            <Switch checked={isOn} style={this.setStyles()} {...other}/>
+            <Switch style={this.setStyles()} {...other}/>
         )
     }
 }
