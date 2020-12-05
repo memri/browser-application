@@ -22,7 +22,7 @@ export class PodAPI {
     
     async http({method = "POST", path = "", payload}, callback) {
         await Authentication.getOwnerAndDBKey((error, ownerKey, databaseKey) => {
-            if (!ownerKey || !databaseKey) {
+            if (ownerKey == undefined || databaseKey == undefined) {
                 // TODO:
                 callback(error, null)
                 return
