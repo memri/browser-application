@@ -88,7 +88,11 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             overflowY: this.props.overflowY,
             flexWrap: this.props.flexWrap,
             boxShadow: this.props.shadow,
-            flexGrow: this.props.flexGrow
+            flexGrow: this.props.flexGrow,
+            top: this.props.top,
+            right: this.props.right,
+            float: this.props.float,
+            border: this.props.border
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.margin, this.props.contentInsets, this.props.frame, this.setAlignment());
@@ -165,8 +169,8 @@ export class RenderersMemri extends MainUI {
 
     selectedIndicesBinding = (event) => {
         let selectedIndices = this.controller.context.selectedIndicesBinding;
-        let index = parseInt(event.target.attributes.index.value)
-        if (event.target.checked) {
+        let index = parseInt(event.currentTarget.attributes.index.value)
+        if (event.currentTarget.checked) {
             selectedIndices.push(index)
         } else {
             index = selectedIndices.indexOf(index);
@@ -560,17 +564,17 @@ export class ASTableView extends MainUI {
         if (tableView.length > 0) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+            let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
             let tableViewPaddings = Number(tableView.item(0).style.paddingTop.replace("px", "")) + Number(tableView.item(0).style.paddingBottom.replace("px", ""));
-            if (tableView.length > 0) {
-                let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - tableViewPaddings;
-                let messageComposer = document.getElementById("MessageComposer");
-                if (messageComposer)
-                    height -= messageComposer.clientHeight;
-                let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
-                if (contextualBottomBar.length > 0)
-                    height -= contextualBottomBar.item(0).clientHeight;
-                tableView.item(0).style.height = height + "px";
-            }
+            if (tableViewPaddings)
+                height -= tableViewPaddings;
+            let messageComposer = document.getElementById("MessageComposer");
+            if (messageComposer)
+                height -= messageComposer.clientHeight;
+            let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
+            if (contextualBottomBar.length > 0)
+                height -= contextualBottomBar.item(0).clientHeight;
+            tableView.item(0).style.height = height + "px";
         }
     }
 
@@ -694,6 +698,77 @@ export class ASSection extends MainUI {
 
                 {footer ? footer: ""}
             </div>
+        )
+    }
+}
+
+export class ASCollectionViewSection extends MainUI {
+    static contextMenuShown = false
+    static contextMenuParent
+    static contextMenuIndex
+
+    closeContextMenu() {
+        if (!ASCollectionViewSection.contextMenuShown) return;
+        ASCollectionViewSection.contextMenuShown = false
+        ASCollectionViewSection.contextMenuParent = null
+        ASCollectionViewSection.contextMenuIndex = null
+        this.context.scheduleUIUpdate(true)
+    }
+
+    doContextAction = (action) => {
+        action && action()
+        this.closeContextMenu()
+    }
+
+    render() {
+        let {columns, contentInsets, header, footer, data, editMode, callback, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, padding, foregroundColor, spacing, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        this.context = this.props.context
+        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row"})
+        let contextMenuShown = ASCollectionViewSection.contextMenuShown && (ASCollectionViewSection.contextMenuParent == this)
+        return (
+            <>
+                {contextMenuShown && <ColorArea color={"black"} position="absolute" top={0}
+                                                frame={frame({width: geom.size.width, height: geom.size.height})}
+                                                opacity={0.5}
+                                                edgesIgnoringSafeArea="all"
+                                                onClick={() => this.closeContextMenu()} zIndex={10}/>
+                }
+                {header ? header : ""}
+                {data && data.map((dataItem, index) => {
+                    let label = callback(dataItem, index)
+                    let isContextMenuItem = contextMenuShown && index == ASCollectionViewSection.contextMenuIndex
+                    let style = isContextMenuItem ? {
+                        zIndex: 100,
+                        backgroundColor: "white",
+                        borderRadius: 10,
+                        marginLeft: 10,
+                        marginRight: 10
+                    } : {}
+                    return <>
+                        <MemriGrid xs={12 / columns} item key={dataItem.uid} contentInsets={contentInsets}>
+                            <div className={"ASSectionItem"} style={style} onClick={() => this.closeContextMenu()}>
+                                <div onClick={selectionMode(dataItem, index)} index={index} checked={!(selectedIndices.includes(index))}
+                                     onContextMenu={contextMenuProvider ? (e) => {
+                                         e.preventDefault();
+                                         ASCollectionViewSection.contextMenuShown = true
+                                         ASCollectionViewSection.contextMenuParent = this
+                                         ASCollectionViewSection.contextMenuIndex = index
+                                         this.context.scheduleUIUpdate(true)
+                                     } : null}
+                                >
+                                    {label}
+                                </div>
+                            </div>
+                            {isContextMenuItem && <>
+                                {contextMenuProvider(index, dataItem)}
+                            </>}
+                        </MemriGrid>
+                    </>
+                })}
+
+                {footer ? footer : ""}
+            </>
         )
     }
 }
@@ -823,11 +898,14 @@ export class ASCollectionView extends MainUI {
         if (collectionView.length > 0) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
-
+            let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
             let collectionViewPaddings = Number(collectionView.item(0).style.paddingTop.replace("px", "")) + Number(collectionView.item(0).style.paddingBottom.replace("px", ""));
-            if (collectionView.length > 0) {
-                collectionView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight - collectionViewPaddings + "px";
-            }
+            if (collectionViewPaddings)
+                height -= collectionViewPaddings;
+            let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
+            if (contextualBottomBar.length > 0)
+                height -= contextualBottomBar.item(0).clientHeight;
+            collectionView.item(0).style.height = height + "px";
         }
     }
 
@@ -909,9 +987,9 @@ export class EmptyView extends MainUI {
 
 export class Circle extends MainUI {
     render() {
-        let {fill, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {fill, font, padding, foregroundColor, spacing, zIndex, ...other} = this.props;
         let style = this.setStyles();
-        Object.assign(style, {width: "40px", height: "40px", borderRadius: "50%", backgroundColor: fill, alignItems: "center", justifyContent: "center"})
+        Object.assign(style, {width: style.width ?? "40px", height: style.height ?? "40px", borderRadius: "50%", backgroundColor: fill, alignItems: "center", justifyContent: "center"})
         return (
             <Box display="flex" style={style} className="Circle MuiAvatar-root MuiAvatar-circle" {...other}>
                 {this.props.children}

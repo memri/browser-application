@@ -3,9 +3,9 @@
 // Copyright © 2020 memri. All rights reserved.
 
 import {
-    ASCollectionView,
+    ASCollectionView, ASCollectionViewSection, Circle,
     font, frame,
-    HStack, MemriGrid,
+    HStack, MemriImage,
     MemriText,
     padding,
     RenderersMemri,
@@ -16,7 +16,6 @@ import {
 import * as React from "react";
 import {Alignment, Color, Font} from "../../../../router";
 import {CascadingRendererConfig} from "../../../../router";
-import {geom} from "../../../../geom";
 
 export class GridRendererController {
     static rendererType = {name:"grid",icon: "apps", makeController:GridRendererController, makeConfig:GridRendererController.makeConfig}
@@ -122,42 +121,48 @@ export class GridRendererView extends RenderersMemri {
     }*/
 
     get section() {
-        let items = this.controller.items;
-        return items.map((dataItem) => {
-            return <MemriGrid xs={12 / this.controller.config.columns} item key={dataItem.uid} onClick={
-                this.executeAction(dataItem)
-            } contentInsets={padding(this.controller.config.nsEdgeInset)}>
-                <ZStack alignment={Alignment.bottomTrailing}>
-                    {this.controller.view(dataItem)}
-                </ZStack>
+        return <ASCollectionViewSection editMode={this.controller.isEditing}
+                                        selectionMode={this.selectionMode}
+                                        selectedIndices={this.controller.context.selectedIndicesBinding}
+                                        data={this.controller.items}
+                                        dataID={"uid"}
+                                        callback={(dataItem, index) => {
+                                            let isSelected = this.controller.context.selectedIndicesBinding.includes(index);
+                                            return <ZStack alignment={Alignment.bottomTrailing}>
+                                                <div
+                                                    style={{opacity: this.controller.isEditing && !isSelected ? 0.85 : 1}}>{this.controller.view(dataItem)}</div>
+                                                {isSelected &&
+                                                <ZStack frame={frame({width: 30, height: 30})} padding={padding(10)} top={-50} float={"right"}>
+                                                    <Circle fill={Color.named("blue")} frame={frame({width: 30, height: 30})} border={"1px solid white"}>
+                                                        <MemriImage font={font({
+                                                            family: "system",
+                                                            size: 15,
+                                                            weight: Font.Weight.bold
+                                                        })} foregroundColor={"white"}>
+                                                            checkmark
+                                                        </MemriImage>
+                                                    </Circle>
+                                                </ZStack>
+                                                }
+                                            </ZStack>
+                                        }
+                                        }
+                                        contextMenuProvider={this.contextMenuProvider}
+                                        context={this.context} columns={this.controller.config.columns}
+                                        contentInsets={padding(this.controller.config.nsEdgeInset)}
 
-            </MemriGrid>
-        })
-        /*
-        if self.controller.isEditing && !state.isSelected {
-                    Color.white.opacity(0.15)
-                }
-                if state.isSelected {
-                    ZStack {
-                        Circle().fill(Color.blue)
-                        Circle().strokeBorder(Color.white, lineWidth: 2)
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                    .frame(width: 30, height: 30)
-                    .padding(10)
-                }
-         */
+        />
     }
 
-    get selectionMode() {
+
+    selectionMode(dataItem) {
         if (this.controller.isEditing) {
-            return //.selectMultiple(controller.context.selectedIndicesBinding)
+            return this.selectedIndicesBinding
         } else {
-            return //.selectSingle(controller.onSelectSingleItem)
+            return this.executeAction(dataItem)
         }
     }
+    selectionMode = this.selectionMode.bind(this)
 
     render() {
         this.context = this.props.context;
@@ -167,10 +172,12 @@ export class GridRendererView extends RenderersMemri {
             <VStack>
                 {this.controller.hasItems
                     ?
-                    <ASCollectionView editMode={this.controller.isEditing} alwaysBounceVertical={this.scrollDirection == "vertical"} alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
-                                      background={this.controller.config.backgroundColor ?? new Color("systemBackground")} flexWrap={"wrap"}>
+                    <ASCollectionView editMode={this.controller.isEditing}
+                                      alwaysBounceVertical={this.scrollDirection == "vertical"}
+                                      alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
+                                      background={this.controller.config.backgroundColor ?? new Color("systemBackground")}
+                                      flexWrap={"wrap"}>
                         {this.section}
-
                     </ASCollectionView>
                     :
                     <>
