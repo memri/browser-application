@@ -298,12 +298,36 @@ export class Sheet extends MainUI {
 }
 
 export class NavigationView extends MainUI {
+    navigationBarItemsDiv
     constructor(props) {
         super(props);
         this.state = {navigationBarTitle: null, navigationBarItems: null, destination: null, navigationView: null};
-        this.props.context.setNavigationBarTitle = (title)=> this.setState({"navigationBarTitle": title})
-        this.props.context.setNavigationBarItems = (items)=> this.setState({"navigationBarItems": items})
-        this.props.context.setNavigationBarDestination = (destination)=> this.setState({"destination": destination})
+        this.props.context.setNavigationBarTitle = (title) => this.setState({"navigationBarTitle": title})
+        this.props.context.setNavigationBarItems = (items) => this.setState({"navigationBarItems": items})
+        this.props.context.setNavigationBarDestination = (destination) => this.setState({"destination": destination})
+        this.props.context.getNavigationBarTitle = () => {return this.state["navigationBarTitle"]}
+    }
+
+    hideBarItemsOverflowText() {
+        if (this.navigationBarItemsDiv) {
+            console.log(this.navigationBarItemsDiv)
+            console.log(this.navigationBarItemsDiv.scrollWidth)
+            console.log(this.navigationBarItemsDiv.clientWidth)
+            if (this.navigationBarItemsDiv.scrollWidth > this.navigationBarItemsDiv.clientWidth) {
+                let textList = this.navigationBarItemsDiv.getElementsByClassName("MemriText")
+                for (let i = 0; i < textList.length; i++) {
+                    textList.item(i).style.display = "none"
+                }
+            }
+        }
+    }
+
+    componentDidMount(): void {
+        this.hideBarItemsOverflowText();
+    }
+
+    componentDidUpdate(): void {
+        this.hideBarItemsOverflowText();
     }
 
     render() {
@@ -314,7 +338,7 @@ export class NavigationView extends MainUI {
                 {(this.state.navigationBarTitle || this.state.navigationBarItems) &&
                 <>
                     <HStack padding={padding({vertical: 5})} frame={frame({minHeight: 15})} background={"white"}>
-                        <div style={{zIndex: 5, width: "20%"}}>
+                        <div ref={(navigationBarItemsDiv) => {this.navigationBarItemsDiv = navigationBarItemsDiv}} className={"navigationBarItems"} style={{zIndex: 5, width: "23%"}}>
                             {this.state.navigationBarItems && this.state.navigationBarItems.leading}
                         </div>
                         <div style={{
@@ -326,7 +350,7 @@ export class NavigationView extends MainUI {
                         }}>
                             {this.state.navigationBarTitle}
                         </div>
-                        <div style={{zIndex: 5, width: "20%"}}>
+                        <div style={{zIndex: 5, width: "23%"}}>
                             {this.state.navigationBarItems && this.state.navigationBarItems.trailing}
                         </div>
 
@@ -345,6 +369,7 @@ export class NavigationView extends MainUI {
 }
 
 export class NavigationLink extends MainUI {
+    previousNavigationBarTitle
     constructor(props) {
         super(props);
         this.state = {
@@ -357,9 +382,20 @@ export class NavigationLink extends MainUI {
         this.setState({
             showComponent: true,
         });
-
+        this.previousNavigationBarTitle = this.props.context.getNavigationBarTitle()
+        this.props.context.setNavigationBarTitle(undefined)
         this.props.context.setNavigationBarDestination(this.props.destination)
-        this.props.context.setNavigationBarItems({leading: <MemriRealButton action={""}><MemriImage>chevron_left</MemriImage></MemriRealButton>})
+        this.props.context.setNavigationBarItems({leading: <MemriRealButton action={() => {
+                this.props.context.setNavigationBarDestination(undefined);
+                this.props.context.setNavigationBarItems({})
+                this.setState({
+                    showComponent: false,
+                });
+        }
+            }><div style={{color: "blue", display: "flex"}}>
+                <MemriImage>chevron_left</MemriImage>
+                {this.previousNavigationBarTitle}</div>
+        </MemriRealButton>})
     }
 
     render() {
