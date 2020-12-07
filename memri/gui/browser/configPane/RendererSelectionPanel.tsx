@@ -24,6 +24,7 @@ export class RendererSelectionPanel extends MainUI {
     render() {
         this.context = this.props.context
 
+        this.props.context.setNavigationBarDestination && this.props.context.setNavigationBarDestination(undefined)//TODO not very good @anijanyan
 
         return (
             <div className={"RendererSelectionPanel"} style={{width: "50%"}}>
