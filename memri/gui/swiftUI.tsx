@@ -873,8 +873,14 @@ export class MemriImageView extends MainUI {
 export class RoundedRectangle extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
+        let style = this.setStyles();
+        //TODO: actually this is done to make rectangles to look like circles (in labels) @mkslanc
+        Object.assign(style, {width: style.width || style.maxWidth, maxHeight: style.height || style.maxHeight});
+        if (padding && !padding.padding) {
+            Object.assign(style, {paddingRight: null, paddingTop: null, paddingLeft: null, paddingBottom: null});
+        }
         return (
-            <div style={this.setStyles()} className="RoundedRectangle" {...other}>
+            <div style={style} className="RoundedRectangle" {...other}>
                 {this.props.children}
             </div>
         )
