@@ -314,9 +314,6 @@ export class NavigationView extends MainUI {
 
     hideBarItemsOverflowText() {
         if (this.navigationBarItemsDiv) {
-            console.log(this.navigationBarItemsDiv)
-            console.log(this.navigationBarItemsDiv.scrollWidth)
-            console.log(this.navigationBarItemsDiv.clientWidth)
             if (this.navigationBarItemsDiv.scrollWidth > this.navigationBarItemsDiv.clientWidth) {
                 let textList = this.navigationBarItemsDiv.getElementsByClassName("MemriText")
                 for (let i = 0; i < textList.length; i++) {
@@ -459,8 +456,15 @@ export class MemriTextField extends MainUI {
                 other["defaultValue"] = value;
             }
         }
+        let style = this.setStyles();
+        Object.assign(style, {
+            height: style.height || 20,
+            border: style.border || "none"
+        })
+
+        //TODO: we will need to style this @mkslanc
         return (
-            <TextField style={this.setStyles()} {...other}/>
+            <input type={"text"} style={style} {...other}/>
         )
     }
 }

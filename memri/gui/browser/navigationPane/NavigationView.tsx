@@ -164,7 +164,7 @@ class Navigation extends MainUI {
 			<div className="Navigation" style={style}>
 				<VStack frame={frame({alignment: Alignment.leading})}
 						background={new Color("MemriUI-purpleBack").toLowerCase()}>
-					<HStack id={"NavigationMenuTop"} spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95})}
+					<HStack id={"NavigationMenuTop"} spacing={20} padding={padding({top: 40, horizontal: 20})} frame={frame({minHeight: 95-34})}
 							background={new Color("MemriUI-purpleBackSecondary").toLowerCase()}>
 						<MemriRealButton action={() => {
 							this.context.showSettings = true;
@@ -173,7 +173,7 @@ class Navigation extends MainUI {
 							if (this.context.showSettings)
 								return (<Sheet><SettingsPane context={this.context}/></Sheet>)
 						}}>
-							{<MemriImage foregroundColor="#d9d2e9"
+							{<MemriImage foregroundColor={Color.hex("d9d2e9")}
 										 font={font({size: 22, weight: Font.Weight.semibold})}>settings</MemriImage>}
 						</MemriRealButton>
 						<MemriTextField value={this.context.navigation.filterText} placeholder="Search"

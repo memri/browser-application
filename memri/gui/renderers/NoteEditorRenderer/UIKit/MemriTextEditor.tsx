@@ -1,5 +1,5 @@
 import * as React from "react";
-import {MainUI, MemriTextField, padding, VStack} from "../../../swiftUI";
+import {font, frame, MainUI, MemriTextField, padding, VStack} from "../../../swiftUI";
 import { Editable, withReact, useSlate, Slate } from 'slate-react'
 import { Editor, Transforms, createEditor, Node,Text } from 'slate'
 import { withHistory } from 'slate-history'
@@ -174,7 +174,7 @@ export const MemriTextEditor = (props) => {
                     props.onModelUpdate({title: props.model?.title, body: serialize(value)})
                 }}>
                     <div className={"MemriTextEditor"} style={{overflowY: "auto", height: updateHeight()}}>
-                        <MemriTextField value={props.model?.title ?? ""}
+                        <MemriTextField value={props.model?.title ?? ""} font={font({size: 30})} frame={frame({height: 31})}
                                         placeholder={props.titleHint ?? ""} onChange={(e) => {
                             props.onModelUpdate({title: e.target.value, body: props.model?.body})
                         }}>
