@@ -1226,6 +1226,44 @@ export function offset(attrs:{x?,y?}) { //TODO: x,y
 
 export function font(attrs:{family?: string, size?:number; weight?: string; italic?: boolean}) {
     let fontObj = {};
+    if (attrs.family) {
+        switch (attrs.family) {
+            case "largeTitle":
+                fontObj["fontSize"] = 34;
+                break;
+            case "title":
+                fontObj["fontSize"] = 28;
+                break;
+            case "title2":
+                fontObj["fontSize"] = 22;
+                break;
+            case "title3":
+                fontObj["fontSize"] = 20;
+                break;
+            case "headline":
+                fontObj["fontSize"] = 17;
+                fontObj["fontWeight"] = 500;
+                break;
+            case "subheadline":
+                fontObj["fontSize"] = 15;
+                break;
+            case "body":
+                fontObj["fontSize"] = 17;
+                break;
+            case "callout":
+                fontObj["fontSize"] = 16;
+                break;
+            case "footnote":
+                fontObj["fontSize"] = 13;
+                break;
+            case "caption":
+                fontObj["fontSize"] = 12;
+                break;
+            case "caption2":
+                fontObj["fontSize"] = 11;
+                break;
+        }
+    }
     if (attrs.size)
         fontObj["fontSize"] = attrs.size;
     if (attrs.italic)

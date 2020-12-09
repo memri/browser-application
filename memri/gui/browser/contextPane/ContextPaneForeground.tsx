@@ -55,10 +55,10 @@ export class ContextPaneForeground extends MainUI {
 						<MemriDivider/>
 						<MemriText
 							font={font({
-								family: "body"/*TODO system???*/, size: 14, weight: Font.Weight.regular, design: "default"
+								size: 14, weight: Font.Weight.regular, design: "default"
 							})}
 							padding={padding({horizontal: this.paddingLeft, vertical: 10})}
-							multilineTextAlignment={Alignment.center}
+							multilineTextAlignment={Alignment.center} opacity={0.6}
 						>
 							{description}
 						</MemriText>

@@ -301,7 +301,7 @@ class LabelSelectionView extends MainUI {
         return (
             <div id={"LabelAnnotationRenderer"}>
                 <VStack spacing={0} disabled={!this.enabled} bottom={0}>
-                    <MemriText padding={padding({horizontal: 10, vertical: 5})}
+                    <MemriText font={font({family: "body"})} padding={padding({horizontal: 10, vertical: 5})}
                                background={new Color("secondarySystemBackground")}>
                         {this.topText}
                     </MemriText>
