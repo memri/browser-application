@@ -139,6 +139,12 @@
     },
     {
         "_type": "NavigationItem",
+        "itemType": "item",
+        "title": "crypto keys",
+        "sessionName": "all-cryptokeys"
+    },
+    {
+        "_type": "NavigationItem",
         "itemType": "heading",
         "title": "Annotation"
     },
