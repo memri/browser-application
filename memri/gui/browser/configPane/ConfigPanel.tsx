@@ -71,7 +71,7 @@ export class ConfigPanel extends MainUI {
     
     get sortItem() {
         if (this.showSortItem) {
-            return <NavigationLink context={this.context} destination={<ConfigPanelSortView context={this.context}/>}>
+            return <NavigationLink context={this.context} destination={() => <ConfigPanelSortView context={this.context}/>}>
                 <MemriText>{"Sort order"}</MemriText>
             </NavigationLink>
         }
@@ -79,7 +79,7 @@ export class ConfigPanel extends MainUI {
     
     getConfigView(configItem: ConfigItem) {
         if (configItem.isItemSpecific) {
-            return <NavigationLink context={this.context} destination={<ConfigPanelSelectionView configItem={configItem}/>} eraseToAnyView>
+            return <NavigationLink context={this.context} destination={() => <ConfigPanelSelectionView configItem={configItem}/>} eraseToAnyView>
                 <MemriText>{configItem.displayName}</MemriText>
             </NavigationLink>
         } else {
@@ -90,19 +90,19 @@ export class ConfigPanel extends MainUI {
                     return <ConfigPanelNumberView context={this.context} configItem={configItem} eraseToAnyView/>
                 case SpecialTypes.chartType:
                     return <NavigationLink context={this.context} configItem={configItem} eraseToAnyView
-                                           destination={<ConfigPanelEnumSelectionView context={this.context} configItem={configItem}/>}
+                                           destination={() => <ConfigPanelEnumSelectionView context={this.context} configItem={configItem}/>}
                     >
                         <MemriText>{configItem.displayName}</MemriText>
                     </NavigationLink>
                 case SpecialTypes.timeLevel:
                     return <NavigationLink context={this.context} configItem={configItem} eraseToAnyView
-                                           destination={<ConfigPanelEnumSelectionView context={this.context} configItem={configItem} type={DetailLevel}/>}
+                                           destination={() => <ConfigPanelEnumSelectionView context={this.context} configItem={configItem} type={DetailLevel}/>}
                     >
                         <MemriText>{configItem.displayName}</MemriText>
                     </NavigationLink>
                 default:
                     return <NavigationLink context={this.context} configItem={configItem} eraseToAnyView
-                                           destination={<ConfigPanelStringView context={this.context} configItem={configItem} shouldMoveAboveKeyboard={this.shouldMoveAboveKeyboard}/>}
+                                           destination={() => <ConfigPanelStringView context={this.context} configItem={configItem} shouldMoveAboveKeyboard={this.shouldMoveAboveKeyboard}/>}
                     >
                         <MemriText>{configItem.displayName}</MemriText>
                     </NavigationLink>
