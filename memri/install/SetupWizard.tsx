@@ -27,7 +27,7 @@ import {geom} from "../../geom";
 export class SetupWizard extends MainUI {
     context: MemriContext
 
-    host: string = "http://192.168.88.31:3030"
+    host: string = "http://127.0.0.1:3030"
     privateKey: string = "98D7A78E0FE878B20915BE65083FEBBA1E15EE6E110EB8395C040CF23F1AB74B"
     publicKey: string = "CDFA58CEDDD92508FCA6C509B56BE2693B63C6063902D25151F40E84E6740771"
     databaseKey: string = "C070BDD19BD248C2A31DCBBE85FF701C9C4E54C6AB474405B5B7C298F49188D0"
