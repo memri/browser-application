@@ -133,7 +133,6 @@ export class Sync {
                         // TODO: handle sync errors
                         try {
                             let finalItem = CacheMemri.addToCache(item)
-                            //#warning("When loading photos, edges dont have any data")
                             let file = finalItem;//TODO: check as File?
                             if (file instanceof File) {
                                 file.queueForDownload()
@@ -237,7 +236,6 @@ export class Sync {
 
             // Items
             for (var itemType in ItemFamily) {
-                if (itemType == ItemFamily.UserState) { continue }
 
                 let type = getItemType(itemType)?.constructor?.name;
                 if (type) {
@@ -287,13 +285,13 @@ export class Sync {
                                 this.schedule(true)
                             }
                             else {
-                                // #warning(`Items/Edges could have changed in the mean time, check dateModified/AuditItem`)
+                                // TODO: Items/Edges could have changed in the mean time, check dateModified/AuditItem`)
                                 markAsDone(safeItemQueue, () => {
                                     markAsDone(safeEdgeQueue, () => {
                                         debugHistory.info("Syncing complete");
                                         this.cache.scheduleUIUpdate(); //TODO: ?
 
-                                        //#warning("Should this hold up further syncing?")
+                                        // TODO: "Should this hold up further syncing?")
                                         this.syncFilesToPod(() => {
                                             this.syncing = false
                                             this.schedule(true);
@@ -443,7 +441,7 @@ export class Sync {
         })
     }
 
-    //#warning("This is terribly brittle, we'll need to completely rearchitect syncing")
+    //TODO: This is terribly brittle, we'll need to completely rearchitect syncing")
     async syncAllFromPod(callback) {
         await this.syncQuery(new Datasource("CVUStoredDefinition"), false, () => {
             this.syncQuery(new Datasource("CVUStateDefinition"), false, () => {

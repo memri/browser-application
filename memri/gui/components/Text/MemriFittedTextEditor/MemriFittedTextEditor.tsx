@@ -41,8 +41,8 @@ export class MemriFittedTextEditor extends MainUI {
                                              //DispatchQueue.main.async {
                                              this.contentBinding = newText
                                              //}
-                                         }} background={this.backgroundColor?.color ?? new Color("systemBackground")}
-                                         frame={frame({height: this.displayHeight})}
+                                         }} background={this.backgroundColor ?? new Color("systemBackground")}
+                                         frame={frame({height: this.displayHeight, width: "100%"})}
                                          placeholder={this.placeholder}
             />
         )
@@ -78,31 +78,17 @@ export class MemriFittedTextEditor_Inner extends MainUI {
     placeholder
 
     render(){
-        this.textContent = this.props.contentBinding;
-        this.fontSize = this.props.fontSize;
-        this.isEditing = this.props.isEditing;
-        this.preferredHeight = this.props.preferredHeight;
-        this.onTextChanged = this.props.onTextChanged;
-        this.placeholder = this.props.placeholder
+        let {textContent, fontSize, isEditing, preferredHeight, onTextChanged, placeholder, ...other} = this.props;
+        this.textContent = textContent;
+        this.fontSize = fontSize;
+        this.isEditing = isEditing;
+        this.preferredHeight = preferredHeight;
+        this.onTextChanged = onTextChanged;
+        this.placeholder = placeholder
+
         //TODO:
         return (
-            <MemriTextField value={this.textContent} onChange={this.onTextChanged} placeholder={this.placeholder}/>
+            <MemriTextField value={this.textContent} onChange={this.onTextChanged} placeholder={this.placeholder} {...other}/>
         )
     }
-
-    /*public func makeUIView(context _: Context) -> MemriFittedTextEditorWrapper_UIKit {
-        MemriFittedTextEditorWrapper_UIKit(
-            MemriFittedTextEditor_UIKit(textContent: textContent,
-                                  fontSize: fontSize,
-                                  backgroundColor: ColorDefinition.system(.clear))
-        )
-    }
-    
-    public func updateUIView(_ wrapper: MemriFittedTextEditorWrapper_UIKit, context _: Context) {
-        wrapper.textEditor.updateTextIfNotEditing(textContent)
-        wrapper.textEditor.preferredHeightBinding = preferredHeight
-        wrapper.textEditor.onTextChanged = onTextChanged
-        wrapper.textEditor.fontSize = fontSize
-        wrapper.textEditor.isEditingBinding = isEditing
-    }*/
 }

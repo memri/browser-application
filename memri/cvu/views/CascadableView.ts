@@ -107,8 +107,8 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     get showToolbar() { return this.viewArguments?.get("showToolbar") ?? this.cascadeProperty("showToolbar") ?? true }
     set showToolbar(value) { this.setState("showToolbar", value) }
 
-    get showSearchbar() { return this.viewArguments?.get("showSearchbar") ?? this.cascadeProperty("showSearchbar") ?? true }
-    set showSearchbar(value) { this.setState("showSearchbar", value) }
+    get showBottomBar() { return this.viewArguments?.get("showBottomBar") ?? this.cascadeProperty("showBottomBar") ?? true }
+    set showBottomBar(value) { this.setState("showBottomBar", value) }
     // #warning("Implement this in all renderers")
     get readOnly() { return this.viewArguments?.get("readOnly") ?? this.cascadeProperty("readOnly") ?? true }
     set readOnly(value) { this.setState("readOnly", value) }
@@ -306,18 +306,14 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     set subtitle(value) { this.setState("subtitle", value) }
 
     get filterText() {
-        return this.userState?.get("filterText") ?? ""//TODO:?
+        return this.userState?.get("filterText")
     }
 
     set filterText(newFilter) {
-        // Don't update the filter when it's already set
-        if (newFilter && newFilter.length > 0 && this._titleTemp != null &&
-            this.userState.get("filterText") == newFilter) {
-            return
-        }
+        let newText = newFilter?.nilIfBlankOrSingleLine;
 
         // Store the new value
-        if ((this.userState.get("filterText") ?? "") != newFilter) {
+        if (newFilter != this.userState.get("filterText")) {
             this.userState.set("filterText", newFilter)
         }
 
@@ -328,17 +324,17 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
             // found results instead of filtering the other data points out
 
             // Filter the result set
-            this.resultSet.filterText = newFilter
+            this.resultSet.filterText = newFilter ?? ""
         }
         else {
-            console.log("Warn: Filtering for single items not Implemented Yet!")
+            // MARK: Single item
+            // Let the renderer handle it if it can
+            this.context?.scheduleUIUpdate()
         }
 
-        if (this.userState.get("filterText") == "") {
-            this._titleTemp = undefined
-            this._subtitleTemp = undefined
-            this._emptyResultTextTemp = undefined
-        } else {
+        let filterText = this.userState.get("filterText")?.nilIfBlankOrSingleLine;
+
+        if (filterText) {
             // Set the title to an appropriate message
             if (this.resultSet.count == 0) { this._titleTemp = "No results" }
             else if (this.resultSet.count == 1) { this._titleTemp = "1 item found" }
@@ -347,8 +343,13 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
             // Temporarily hide the subtitle
             // _subtitleTemp = " " // TODO how to clear the subtitle ??
 
-            this._emptyResultTextTemp = `No results found using '${this.userState.get("filterText") ?? ""}'`
+            this._emptyResultTextTemp = `No results found using '${this.filterText}'`
+        } else {
+            this._titleTemp = undefined
+            this._subtitleTemp = undefined
+            this._emptyResultTextTemp = undefined
         }
+        //TODO: rerender React state @mkslanc
         this.context.scheduleUIUpdate(true);
     }
 

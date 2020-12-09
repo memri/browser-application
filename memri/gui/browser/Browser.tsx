@@ -12,6 +12,7 @@ import {CascadableView} from "../../../router";
 import {ContextualBottomBar} from "./ContextualBottomBar";
 import {BottomBarView} from "./BottomBar";
 import { SearchView } from './SearchView';
+import {geom} from "../../../geom";
 
 interface BrowserProps { context?: MemriContext; allRenderers?}
 export class Browser extends MainUI {
@@ -51,10 +52,10 @@ export class Browser extends MainUI {
 
 		return (
 			<div className={"Browser"} style={this.setStyles()}>
-			<ZStack>
+			<ZStack height={"100%"}>
 				{this.context.currentView == undefined ? <MemriText padding={padding({})} frame={frame({maxWidth: "infinity"})}>{"Loading..."}</MemriText> :
 					<>
-						<VStack alignment={Alignment.center} spacing={0}>
+						<VStack alignment={Alignment.center} spacing={0} height={"100%"}>
 							{currentView.showToolbar
 								&& !currentView.fullscreen
 								&& <TopNavigation background={new Color("systemBackground").toLowerCase()}
@@ -62,8 +63,8 @@ export class Browser extends MainUI {
 												  inSubView={this.inSubView}
 												  showCloseButton={this.showclosebutton}/>
 							}
-							<ZStack width="100%">
-								<VStack alignment={Alignment.center} spacing={0}>
+							<ZStack height="100%">
+								<VStack alignment={Alignment.center} spacing={0} height={"100%"} justifyContent={"space-between"}>
 									{this.activeRendererController != undefined
 										? this.activeRendererController.makeView()
 										: <MemriText padding={padding({})} frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}>
@@ -71,20 +72,22 @@ export class Browser extends MainUI {
 										</MemriText>
 									}
 
-									<ContextualBottomBar context={this.context}/>
+									{this.currentView.showBottomBar && <>
+										<ContextualBottomBar context={this.context}/>
 
-									{!currentView.fullscreen &&
+										{!currentView.fullscreen &&
 										<BottomBarView onSearchPressed={() => {
 											this.isSearchActive = true;
 											this.context.scheduleCascadableViewUpdate();
 										}} context={this.context} zIndex={8}/>
-									}
+										}
+									</>}
 								</VStack>
 
-								{this.showFilterPanel &&
-									<ColorArea color={"black"}
+								{this.showFilterPanel && this.currentView.showBottomBar &&
+									<ColorArea color={"black"} position="absolute" bottom={0} frame={frame({width: geom.size.width, height: geom.size.height})}
 											   opacity={0.15}
-											   click={() => {this.showFilterPanel = false; this.context.scheduleCascadableViewUpdate();}}
+											   onClick={() => {this.showFilterPanel = false; }}
 									/>
 								}
 							</ZStack>

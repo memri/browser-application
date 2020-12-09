@@ -61,6 +61,11 @@ export class MemriContext {
 		//mock function;
 	}
 
+	showSettings = false; //TODO: for Settings sheet @mkslanc
+	setNavigationBarItems; //TODO: for NavigationView top menu items @mkslanc
+	setNavigationBarTitle; //TODO: for NavigationView top menu title @mkslanc
+	setNavigationBarDestination; //TODO: for NavigationView to change view @mkslanc
+
 	realm = new Realm();
 	name = ""
 
@@ -91,7 +96,7 @@ export class MemriContext {
 
 	navigation: MainNavigation
 
-	get items(){
+	get items(): [] {
 		return this.currentView?.resultSet.items ?? []
 	}
 	set items(items) {
@@ -366,8 +371,35 @@ export class MemriContext {
 		this.set("showNavigation", value)
 	}
 
+	getSelection() {
+		return this.currentView?.userState.get("selection") ?? []
+	}
+
 	setSelection(selection: Item[]) {
 		this.currentView?.userState.set("selection", selection)
+		this.scheduleUIUpdate();
+	}
+
+	get editMode() {
+		return this.currentSession?.editMode ?? false;
+	}
+
+	set editMode(newValue) {
+		if (this.currentSession) this.currentSession.editMode = newValue;
+		this.scheduleUIUpdate()
+	}
+
+	get allItemsSelected() {
+		return this.getSelection().length >= this.items.length
+	}
+
+	get selectedIndicesBinding() {
+		let items = this.items ?? []
+		return this.getSelection().map((el) => items.findIndex(($0) => $0 == el)).filter((el) => el != undefined); //TODO: ?
+	}
+
+	set selectedIndicesBinding(selectedIndices) {
+		this.setSelection(selectedIndices.map(($0) => this.items[$0]).filter((el) => el != undefined)); //TODO: ?
 	}
 
 	constructor(
@@ -493,7 +525,7 @@ export class MemriContext {
 			var finalValue
 
 			let dataItem = argValue;
-			if (dataItem?.constructor?.name == "Item") {
+			if (dataItem instanceof Item) {
 				finalValue = dataItem
 			} else if (argValue?.constructor?.name === "MemriDictionary") {
 				let dict = argValue;

@@ -7,26 +7,13 @@
 
 import * as React from 'react';
 import {CacheMemri, Color, Datasource, getItem, realm} from "../../router";
-import {ScreenSizer} from "../extension/SwiftUI/ScreenSize";
+import {ScreenSizer} from "../extensions/SwiftUI/ScreenSize";
 import {NavigationWrapper} from "./browser/navigationPane/NavigationView";
 import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
-import {SessionSwitcher} from "./SessionSwitcher";
+import {SessionSwitcher} from "./browser/SessionSwitcher";
 import {SetupWizard} from "../install/SetupWizard";
-import {geom} from "../../install";
-
-/*class View {
-	fullHeight(): View {
-		frame(0,
-			.infinity,
-			0, maxHeight: .infinity,
-			Alignment.topLeading)
-	}
-
-	fullWidth():View {
-		frame(0, .infinity, Alignment.topLeading)
-	}
-}*/
+import {geom} from "../../geom";
 
 /*var memri_shouldUseLargeScreenLayout: Bool {
 	#if targetEnvironment(macCatalyst)
@@ -100,7 +87,7 @@ export class Application extends MainUI {
 					<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
 						{this.context.showSessionSwitcher
 							? <SessionSwitcher context={this.context}/>
-							: <Browser context={this.context}/>
+							: <Browser context={this.context} height={"100%"}/>
 						}
 					</NavigationWrapper> :
 					<SetupWizard context={this.context}/>

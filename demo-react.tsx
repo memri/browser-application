@@ -12,24 +12,24 @@ let pod = params.get("pod");
 switch (pod) {
     case "none":
         contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
-            error && error.map(($0) => debugHistory.error(`${$0}`))
+            error && debugHistory.error(error)
         })
         break;
     case "mock":
         contextJs.podAPI = parent.api
 
         contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
-            error && error.map(($0) => debugHistory.error(`${$0}`))
+            error && debugHistory.error(error)
         })
         contextJs.cache.podAPI = parent.api
-        parent.setUserCVUs();
+        parent && parent.setUserCVUs();
         break;
     case undefined:
     case null:
         break;
     default:
         contextJs.installer.installLocalAuthForExistingPod(contextJs, true, pod, "", localStorage.ownerKey, localStorage.databaseKey, (error) => {
-            error && error.map(($0) => debugHistory.error(`${$0}`))
+            error && debugHistory.error(error)
         })
         break;
 }
@@ -66,6 +66,62 @@ body {margin: 0}
 .ZStack {
     position: relative;
 }
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #8888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.NavigationView .NavigationViewContent .MuiButton-root {
+    background: #fff;
+    margin-left: 5%;
+    margin-right: 5%;
+    width: 90%;
+    justify-content: space-between
+}
+
+.NavigationView .NavigationViewContent .SectionContent {
+    background: #fff;
+    margin-left: 10px;
+    margin-right: 10px;
+    border-radius: 10px;
+    padding: 5px;
+    align-items: center
+}
+
+.NavigationView .NavigationViewContent .MemriText {
+    margin-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #888
+}
+
+.NavigationView .NavigationViewContent .SectionContent .MemriText {
+    color: #000;
+    margin: 0px;
+}
+
+.NavigationView .NavigationViewContent .HStack .MemriText {  
+    color: #000;
+    margin: 0px;
+}
+
+.NavigationView .NavigationViewContent .MemriRealButton .MemriText {  
+    color: #1d88ff;
+    margin: 0px;
+}
+
+.NavigationView .MemriList .MemriRealButton .MemriText, .NavigationView .MemriRealButton .NavigationLink .MemriText {
+    color: #000
+}
+
 `, "main.css")
 
 function App() {//TODO: don't ask, please, about link inside div =)

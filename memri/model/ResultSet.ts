@@ -24,7 +24,7 @@ export class ResultSet {
 	/// Unused, Experimental
 	pages = []
 	cache: CacheMemri
-	_filterText: String = ""
+	_filterText: String;
 	_unfilteredItems?
 
 	/// Computes the type of the data items being requested via the query
@@ -73,9 +73,9 @@ export class ResultSet {
 		return this._filterText
 	}
 
-	set filterText(newFilter) {
-		if (this._filterText != newFilter) {
-			this._filterText = newFilter
+	set filterText(newValue) {
+		if (this._filterText != newValue) {
+			this._filterText = newValue?.nilIfBlankOrSingleLine;
 			this.filter()
 		}
 	}
@@ -141,25 +141,16 @@ export class ResultSet {
 	/// Apply client side filter using the FilterText , with a fallback to the server
 	filter() {
 		// Cancel filtering
-		if (this._filterText == "") {
-			// If we filtered before...
-			if (this._unfilteredItems) {
-				// Put back the items of this resultset
-				this.items = this._unfilteredItems
-				this.count = this._unfilteredItems.length
-			}
-		}
-
-		// Filter using _filterText
-		else {
-			// Array to store filter results
+		let filter = this._filterText;
+		if (filter) {
+			// Filter using _filterText
 			var filterResult = []
 
 			// Filter through items
 			let searchSet = this._unfilteredItems ?? this.items
 			if (searchSet.length > 0) {
 				for (var i = 0; i < searchSet.length - 1; i++) {
-					if (searchSet[i].hasProperty(this._filterText)) {
+					if (searchSet[i].hasProperty(filter)) {
 						filterResult.push(searchSet[i])
 					}
 				}
@@ -171,6 +162,16 @@ export class ResultSet {
 			// Set the filtered result
 			this.items = filterResult
 			this.count = filterResult.length
+		}
+
+
+		else {
+			// If we filtered before...
+			if (this._unfilteredItems) {
+				// Put back the items of this resultset
+				this.items = this._unfilteredItems
+				this.count = this._unfilteredItems.length
+			}
 		}
 
 		//this.objectWillChange.send() // TODO: create our own publishers

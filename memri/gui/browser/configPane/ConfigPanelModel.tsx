@@ -6,13 +6,20 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-require("../../../extension/common/string.ts");
+require("../../../extensions/common/string.ts");
 
 export class ConfigItem {
 	displayName: string
 	propertyName: string
 	type: ConfigItemType|SpecialTypes//TODO
 	isItemSpecific: boolean
+
+	constructor(displayName: string, propertyName: string, type: ConfigItemType | SpecialTypes, isItemSpecific: boolean) {
+		this.displayName = displayName;
+		this.propertyName = propertyName;
+		this.type = type;
+		this.isItemSpecific = isItemSpecific;
+	}
 }
 
 export enum ConfigItemType {

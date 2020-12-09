@@ -1,0 +1,73 @@
+[renderer = generalEditor] {
+    layout: [
+        { section: labels }
+        {
+            section: other
+            fields: *
+            exclude: version deleted _updated _action _partial _changedInSession uid externalId allEdges importJson
+        }
+        {
+            section: dates
+            exclude: dateCreated dateModified dateAccessed changelog
+            readOnly: true
+        }
+    ]
+    
+    starred {
+        ActionButton {
+            press: star
+        }
+    }
+    
+    labels {
+        EditorRow {
+            Text {
+                show: {{ !.label }}
+                text: "No labels yet"
+                padding: 10 0 5 0
+                color: #777
+            }
+            FlowStack {
+                spacing: 5
+                list: {{ .label[] }}
+            
+                Button {
+                    press: openViewByName {
+                        viewName: "all-items-with-label"
+                        viewArguments: {
+                            name: "{.name}"
+                            uid: {{.uid}}
+                        }
+                    }
+                
+                    VStack {
+                        background: {{.color}}
+                        cornerRadius: 5
+                    
+                        Text {
+                            text: "{.name}"
+                            font: 16 semibold
+                            color: #fff
+                            padding: 5 8 5 8
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    dates {
+        showTitle: false
+        dividers: false
+        
+        Text {
+            alignment: center
+            textAlign: center
+            text: "{.describeChangelog()}"
+            padding: 30 40 40 40
+            color: #999
+            font: 13
+            maxChar: 300
+        }
+    }
+}

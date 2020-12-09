@@ -1,0 +1,62 @@
+[session = annotationUIExample] {
+    [view] {
+        title: "Email Annotations"
+        defaultRenderer: labelAnnotation
+        emptyResultText: "There are no emails here yet"
+
+        sortFields: subject dateModified dateAccessed dateCreated
+        
+        [datasource = pod] {
+            query: "EmailMessage"
+            sortProperty: dateSent
+            sortAscending: true
+        }
+        
+        [renderer = labelAnnotation] {
+            labelType: emailLabels
+            labelOptions: personal important bill receipt spam
+            labelOptionIcons: person.circle bell creditcard cart hand.thumbsdown
+        
+            VStack {
+                alignment: left
+                
+                VStack {
+                    padding: 10
+                    spacing: 5
+                    background: #DFDFDF
+                    
+                    HStack {
+                        alignment: left
+                        
+                        Text {
+                            text: "From: {.sender.owner.firstName}"
+                            lineLimit: 1
+                            font: 18 semibold
+                            color: #333
+                            padding: 0 0 0 0
+                        }
+                        Spacer
+                        Text {
+                            text: "{.dateModified.format('time')}" /* TODO: Short */
+                            lineLimit: 1
+                            font: 11 regular
+                            color: #888
+                            padding: 0 0 0 0
+                        }
+                    }
+                    Text {
+                        text: "Subject: {.subject}"
+                        lineLimit: 1
+                        font: 18 regular
+                        color: #666
+                        padding: 0 0 0 0
+                    }
+                }
+                
+                HTMLView {
+                    content: "{.content}"
+                }
+            }
+        }
+    }
+}

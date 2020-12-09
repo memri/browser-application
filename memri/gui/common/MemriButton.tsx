@@ -6,7 +6,7 @@ import {EmptyView, font, Group, HStack, MainUI, MemriText, padding} from "../swi
 import * as React from "react";
 import {backgroundColor, foregroundColor, ItemFamily, me} from "../../../router";
 import {Font, Color} from "../../../router";
-require("../../extension/common/string");
+require("../../extensions/common/string");
 
 export class MemriButton extends MainUI {
     context: MemriContext
@@ -59,11 +59,17 @@ export class MemriButton extends MainUI {
                     //                .compositingGroup()
                     //                //        .fixedSize(horizontal: false, vertical: true)
                     //            }
-                    : <HStack spacing={0} background={bgColor} cornerRadius={20} compositingGroup>
+                    //lineLimit={1}
+                    : <HStack spacing={0}
+
+                              background={bgColor}
+                              cornerRadius={20}
+                              compositingGroup
+                    >
                         <MemriText padding={padding({trailing: 8, leading: 8, vertical: 3})}
                                    background="#afafaf" foregroundColor="#fff"
                                    font={font({family: "system", size: 14, weight: Font.Weight.semibold})} cornerRadius={20}
-                                   compositingGroup>
+                        >
                             {type ?? ""}
                         </MemriText>
                         <MemriText padding={padding({trailing: 9, leading: 5, vertical: 3})}
@@ -83,7 +89,7 @@ export class MemriButton extends MainUI {
 /*
 struct memriButton_Previews: PreviewProvider {
     static var previews: some View {
-        MemriButton(item: Note(value: ["title": "Untitled Note"]))
+        MemriButton(item: Note(value: ["title": "Untitled"]))
     }
 }
 */

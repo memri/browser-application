@@ -1,0 +1,23 @@
+
+.all-items-with-label {
+    title: "{name}"
+    [datasource = pod] {
+        query: "* AND ANY allEdges.targetItemID = {uid}"
+    }
+    defaultRenderer: timeline
+    
+    [renderer = list] {
+        ItemCell {
+            rendererNames: list thumbnail
+            arguments: {{variables}}
+        }
+    }
+    
+    [renderer = timeline] {
+        timeProperty: {{.dateModified}}
+        ItemCell {
+            rendererNames: timeline list
+            arguments: {{variables}}
+        }
+    }
+}

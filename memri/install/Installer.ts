@@ -52,7 +52,7 @@ export class Installer {
 		/*if (authAtStartup) { //TODO:
 			Authentication.authenticateOwner((error) => {
 				if (error) {
-					throw `Unable to authenticate ${error}` // TODO report to user allow retry
+					throw `Unable to authenticate ${error}` // TODO: report to user allow retry
 				}
 
 				check()
@@ -86,9 +86,9 @@ export class Installer {
 
 				//Authentication.createRootKey(areYouSure)
 
-				this.installDefaultDatabase(context, (error) => {
+				this.installDemoDatabase(context, (error) => {
 					if (error) {
-						// TODO Error Handling - show to the user
+						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 						return
@@ -96,7 +96,7 @@ export class Installer {
 
 					//DispatchQueue.main.async {
 					if (error) {
-						// TODO Error Handling - show to the user
+						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 						return
@@ -142,7 +142,7 @@ export class Installer {
 				//Authentication.createRootKey(areYouSure)
 
 
-				context.cache.sync.syncAllFromPod(() => { // TODO error handling
+				context.cache.sync.syncAllFromPod(() => { // TODO: error handling
 					Settings.shared.set("user/pod/host", host)
 
 					try {
@@ -171,9 +171,9 @@ export class Installer {
 
 				//Authentication.createRootKey(areYouSure)
 
-				this.installDefaultDatabase(context, (error) => {
+				this.installDemoDatabase(context, (error) => {
 					if (error) {
-						// TODO Error Handling - show to the user
+						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 					}
@@ -203,61 +203,12 @@ export class Installer {
 	}*/
 
 	handleInstallError(error) {
-		// TODO ERror handling - report to the user
+		// TODO: ERror handling - report to the user
 		debugHistory.warn(`${error!}`)
-	}
-
-	installDefaultDatabase(context: MemriContext, callback) {
-		debugHistory.info("Installing defaults in the database")
-		this.install(context, "default_database", callback)
 	}
 
 	installDemoDatabase(context: MemriContext, callback) {
 		debugHistory.info("Installing demo database")
-		/*
-		// Download database file
-        let destinationURL = FileStorageController.getURLForFile(withUUID: "ios-demo-resources.zip")
-
-        let destination: DownloadRequest.Destination = { _, _ in
-            return (destinationURL, [])
-        }
-
-        let url = "https://gitlab.memri.io/memri/demo-data/-/raw/master/data/ios-demo-resources.zip?inline=false"
-        AF.download(url, method: .get, requestModifier: {
-            $0.timeoutInterval = 5
-            $0.addValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
-            $0.allowsExpensiveNetworkAccess = false
-            $0.allowsConstrainedNetworkAccess = false
-            $0.cachePolicy = .reloadIgnoringCacheData
-            $0.timeoutInterval = .greatestFiniteMagnitude
-        }, to: destination)
-        .downloadProgress { progress in
-            self.state = .downloadingDemoData(progress.fractionCompleted)
-            callback(nil, progress.fractionCompleted)
-        }
-        .response { response in
-            guard let httpResponse = response.response else {
-                callback(response.error ?? "Unknown error", nil)
-                return
-            }
-
-            guard httpResponse.statusCode < 400 else {
-                let httpError = PodAPI.HTTPError.ClientError(
-                    httpResponse.statusCode,
-                    "URL: \(url)"
-                )
-                callback(httpError, nil)
-                return
-            }
-
-            self.state = .extractingDemoData
-            try? FileStorageController.unzipFile(from: destinationURL)
-            try? FileStorageController.deleteFile(at: destinationURL)
-            print("PROGRESS: Unzip completed, attempt install of database")
-
-            self.install(context, dbName: "demo_database", { error in callback(error, nil) })
-
-		 */ //TODO:
 		this.install(context, "demo_database", callback)
 	}
 
@@ -323,7 +274,7 @@ export class Installer {
 			// Create a new default session
 			context.sessions.install(context, (error) => {
 				if (error) {
-					// TODO Error Handling - show to the user
+					// TODO: Error Handling - show to the user
 					debugHistory.warn(`${error}`)
 					callback(error)
 					return

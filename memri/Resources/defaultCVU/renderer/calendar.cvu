@@ -1,0 +1,8 @@
+[renderer = calendar] {
+	timeProperty: {{.dateModified}}
+}
+
+[renderer = timeline] {
+	press: openView
+    timeProperty: {{.dateModified}}
+}

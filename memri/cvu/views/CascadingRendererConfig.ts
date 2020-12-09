@@ -1,20 +1,20 @@
 //
-// Renderers.swift
+// CascadingRendererConfig.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {MemriDictionary} from "../../../router";
-import {UIElement, UIElementFamily} from "../../../router";
+import {CVUColor, MemriDictionary, UINodeResolver, ViewArguments} from "../../../router";
+import {UINode, UIElementFamily} from "../../../router";
 import {Cascadable} from "../../../router";
 import {Item, UUID} from "../../../router";
-import {UIElementView} from "../../gui/common/UIElementView";
-import {Color} from "../../../router";
+import {UIElementView} from "../../gui/cvuComponents/UIElementView";
+import {EmptyView} from "../../gui/swiftUI";
 
 export class RenderGroup {
     options: MemriDictionary
-    body: UIElement
+    body: UINode
 
     constructor(dict: MemriDictionary) {
-        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UIElement") this.body = dict["children"][0]
+        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UINode") this.body = dict["children"][0]
         delete dict["children"]
         this.options = dict
     }
@@ -73,32 +73,22 @@ export class CascadingRendererConfig extends Cascadable {
         return null
     }
 
-    render(item, group =  "*", argumentsJs =  null) {
-
-        let doRender = (renderGroup, item) => {
-            let body = renderGroup.body
-            if (body) {
-                let uiElement = new UIElementView({context: this.host.context, gui: body, dataItem: item, viewArguments: argumentsJs ?? this.viewArguments});
-                return uiElement.render();
-            }
-
-            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item}).render()
+    render(item, group =  "*", argumentsJs =  new ViewArguments()) {
+        let body = this.getRenderGroup(group)?.body;
+        if (item && body) {
+            let nodeResolver = new UINodeResolver(body, argumentsJs.copy(item))
+            return new UIElementView({nodeResolver: nodeResolver, context: this.host.context}).render()/*.eraseToAnyView()*/
         }
-
-        let renderGroup = this.getRenderGroup(group)
-        if (item && renderGroup) {
-            return doRender(renderGroup, item)
-        }
-        else {
-            return new UIElementView({context: this.host.context, gui: new UIElement(UIElementFamily.Empty), dataItem: item ?? new Item()}).render()
+        else {//TODO:
+            return new EmptyView({}).render()
         }
     }
 }
 
 //CommonRendererConfig.swift
 Object.defineProperty(CascadingRendererConfig.prototype, "primaryColor", {
-    get(): ColorDefinition {
-        return this.cascadeProperty("color") ?? new Color("systemBlue")
+    get(): CVUColor {
+        return this.cascadePropertyAsColor("color") ?? CVUColor.system("systemBlue")
     },
     set(value) {
         this.setState("color", value)
@@ -107,7 +97,7 @@ Object.defineProperty(CascadingRendererConfig.prototype, "primaryColor", {
 
 Object.defineProperty(CascadingRendererConfig.prototype, "backgroundColor", {
     get() {
-        return this.cascadeProperty("background");
+        return this.cascadePropertyAsColor("background");
     },
     set(value) {
         this.setState("background", value)
@@ -115,7 +105,7 @@ Object.defineProperty(CascadingRendererConfig.prototype, "backgroundColor", {
 })
 
 Object.defineProperty(CascadingRendererConfig.prototype, "spacing", {
-    get() {
+    get() {//TODO:
         let spacing = this.cascadeProperty("spacing");
         if (spacing) {
             return spacing;
@@ -140,47 +130,56 @@ Object.defineProperty(CascadingRendererConfig.prototype, "contextMenuActions", {
         this.setState("contextMenu", value)
     },
 })
-//TODO: edgeInsets
-/*var edgeInset: UIEdgeInsets {
-    get {
-        if let edgeInset = cascadePropertyAsCGFloat("edgeInset") {
-            return UIEdgeInsets(
-                top: edgeInset,
-                left: edgeInset,
-                bottom: edgeInset,
-                right: edgeInset
-        )
-        }
-    else if let x: [Double?] = cascadeProperty("edgeInset") {
-            let insetArray = x.compactMap { $0.map { CGFloat($0) } }
-            switch insetArray.count {
-                case 2: return UIEdgeInsets(
-                    top: insetArray[1],
-                    left: insetArray[0],
-                    bottom: insetArray[1],
-                    right: insetArray[0]
-                )
-                case 4: return UIEdgeInsets(
-                    top: insetArray[0],
-                    left: insetArray[3],
-                    bottom: insetArray[2],
-                    right: insetArray[1]
-                )
-                default: return .init()
+
+Object.defineProperty(CascadingRendererConfig.prototype, "edgeInset", {
+    get() {
+        let x = this.cascadeProperty("edgeInset");
+        if (x != undefined) {
+            if (Array.isArray(x)) {
+                let insetArray = x.filter(($0) => $0 != undefined);
+                switch (insetArray.length) {
+                    case 2:
+                        return {
+                            top: insetArray[1],
+                            left: insetArray[0],
+                            bottom: insetArray[1],
+                            right: insetArray[0]
+                        }
+                    case 4:
+                        return {
+                            top: insetArray[0],
+                            left: insetArray[3],
+                            bottom: insetArray[2],
+                            right: insetArray[1]
+                        }
+                    default:
+                        return;
+                }
+            } else {
+                let edgeInset = x;
+                return {
+                    top: edgeInset,
+                    left: edgeInset,
+                    bottom: edgeInset,
+                    right: edgeInset
+                }
             }
         }
-        return .init()
-    }
-    set(value) { setState("edgeInset", value) }
-}
+        return this.defaultEdgeInset
+    },
+    set(value) {
+        this.setState("edgeInset", value);
+    },
+})
 
-var nsEdgeInset: NSDirectionalEdgeInsets {
-    let edgeInset = self.edgeInset
-    return NSDirectionalEdgeInsets(
-        top: edgeInset.top,
-        leading: edgeInset.left,
-        bottom: edgeInset.bottom,
-        trailing: edgeInset.right
-)
-}*/
-//--------------------------
+Object.defineProperty(CascadingRendererConfig.prototype, "nsEdgeInset", {
+    get() {
+        let edgeInset = this.edgeInset;
+        return {
+            top: edgeInset.top,
+            leading: edgeInset.left,
+            bottom: edgeInset.bottom,
+            trailing: edgeInset.right
+        }
+    }
+})

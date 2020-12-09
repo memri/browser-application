@@ -113,11 +113,12 @@ export class CVUParsedDefinition {
             } else if (notnil?.constructor?.name == "CVUParsedDefinition") {
                 let def = notnil;
                 def.parsed = recur(def.parsed);
-            } else if (notnil?.constructor?.name == "UIElement") { //TODO: MemtriDictionary?
+            } else if (notnil?.constructor?.name == "UINode") { //TODO: MemtriDictionary?
                 let el = notnil;
-                let dict = recur(el.propertyResolver.properties);
+                let dict = recur(el.properties);
                 if (typeof dict.isCVUObject == "function") {
-                    el.propertyResolver.properties = dict
+                    el.properties = dict
+                    return el;
                 }
             }
             return notnil

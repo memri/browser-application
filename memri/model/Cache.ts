@@ -5,7 +5,7 @@
 //  Created by Ruben Daniels on 3/12/20.
 //  Copyright © 2020 memri. All rights reserved.
 //
-import * as DB from "../install/default_database.json";
+import * as DB from "../Resources/demo_database.json";
 import {serialize} from "../../router";
 
 import {debugHistory} from "../../router";
@@ -51,10 +51,16 @@ export class CacheMemri {
 	}
 
 	_install(realm:Realm, dbName: string) {
+		//TODO: leave as is @mkslanc
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min)) + min;
+		}
+
 		// Load default database from disk
 		try {
-			//let jsonData = jsonDataFromFile(dbName)
-			let dicts = DB;//require("text-loader!./defaults/default_database.json"); //MemriJSONDecoder(jsonData)
+			let dicts = DB;
 			dicts.forEach(function(x, i) {
 				if (!x.uid)
 					x.uid = (i + 1) + 1000000
@@ -97,13 +103,15 @@ export class CacheMemri {
 					}
 				}
 
-				let obj = CacheMemri.createItem(type, values);
-				let item = obj, allEdges = dict["allEdges"]
+				let item = CacheMemri.createItem(type, values);
+				// Set fake dateModified for the demo data
+				item.dateModified = getRandomInt(Number(new Date()) - 2592000*1000, Number(new Date()));
+				let allEdges = dict["allEdges"]
 				if (Array.isArray(allEdges)) {//TODO: isCvuObject?
 					items.set(item, allEdges);
 				}
 
-				return obj
+				return item
 			}
 
 			// First create all items
@@ -165,21 +173,6 @@ export class CacheMemri {
 		}
 	}
 
-	// TODO: Refactor: don't use async syntax when nothing is async
-	/*query(datasource) {
-		var error
-		var items
-
-		/!*query(datasource) {//TODO
-			error = $0
-			items = $1
-		}*!/
-
-		if (error) { throw error }
-
-		return items ?? []
-	}*/
-
 	///  This function does two things 1) executes a query on the local realm database with given querOptions, and executes callback on the result.
 	///  2) calls the syncer with the same datasource to execute the query on the pod.
 	/// - Parameters:
@@ -208,9 +201,11 @@ export class CacheMemri {
 
 					for (var dtype in ItemFamily) {
 						// NOTE: Allowed forced cast
-						let objects = realm.objects(getItemType(dtype)?.constructor?.name)
+						let type = getItemType(dtype)
+						if (!type) continue;
+						let objects = realm.objects(dtype)
 							.filtered("deleted = false " + (filter ?? "")) //TODO
-						for (var item of objects) { returnValue.push(item) }
+						for (var item of objects) { if (item instanceof Item) returnValue.push(item) }
 					}
 
 					callback && callback(null, returnValue)
@@ -430,7 +425,7 @@ export class CacheMemri {
 		let excludes = ["uid", "dateCreated", "dateAccessed", "dateModified", "starred",
 			"deleted", "_updated", "_action", "_partial", "_changedInSession"]
 
-		//#warning("Does not duplicate all edges")
+		//TODO: Does not duplicate all edges")
 
 		let itemType = item.getType()
 		if (itemType) {
@@ -514,7 +509,7 @@ export class CacheMemri {
 		return newerItem
 	}
 
-	//#warning("This doesnt trigger syncToPod()")
+	//TODO: This doesnt trigger syncToPod()")
 	static createItem(type, values = new MemriDictionary(), unique?: string) {
 		var item
 		DatabaseController.trySync(true,(realm: Realm) => {

@@ -298,8 +298,6 @@ export var getActionType = function (name) {
     }
 };
 
-// #warning("Check that the CVU validator is called. somehow with viewName missing defaults still passed")
-//TODO stop mark
 export enum ActionProperties {
     name = "name",
     arguments = "arguments",
@@ -371,7 +369,7 @@ protocol ActionExec {
 }
 */
 
-// #warning("Make this Subscriptable and add to expression docs on the wiki")
+// TODO: Make this Subscriptable and add to expression docs on the wiki")
 export class ActionBack extends Action {
     defaultValues = new MemriDictionary({
         "icon": "chevron_left", //chevron.left
@@ -422,7 +420,7 @@ export class ActionAddItem extends Action {
         if (dataItem instanceof Item) {//TODO
             // Copy template
             //let copy = this.context.cache.duplicate(dataItem);
-            //#warning("Test that this creates a unique node")
+            // TODO: Test that this creates a unique node")
 
             // Open view with the now managed copy
             new ActionOpenView(this.context).exec({"item": dataItem});
@@ -1076,6 +1074,20 @@ export class ActionDelete extends Action {
     }*/
 }
 
+export class ActionDeselectAll extends Action {
+    constructor(context: MemriContext, values?: MemriDictionary) {
+        super(context, "deselectAll", values)
+    }
+
+    exec() {
+        this.context.setSelection([])
+}
+
+    /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {
+        execWithoutThrow { try ActionSelectAll(context).exec(arguments) }
+    }*/
+}
+
 export class ActionSelectAll extends Action {
     constructor(context: MemriContext, values?: MemriDictionary) {
         super(context, "selectAll", values)
@@ -1147,6 +1159,7 @@ export class ActionRunImporter extends Action {
                     debugHistory.error("Item does not have a uid")
                     return
                 }
+                this.context.cache.sync.schedule()
 
                 this.context.podAPI.runImporter(uid, (error) => {
                     if (error) {
@@ -1167,6 +1180,10 @@ export class ActionRunIndexer extends Action {
     constructor(context: MemriContext, values?) {
         super(context, "runIndexer", values)
     }
+
+    defaultValues = new MemriDictionary({
+        "argumentTypes": {"indexerRun": "IndexerRun"},
+    })
 
     exec(argumentsJs: MemriDictionary) {
         // TODO: parse options
@@ -1200,25 +1217,7 @@ export class ActionRunIndexer extends Action {
 
                 this.context.podAPI.runIndexer(uid, (error) => {
                     if (error == undefined) {
-                        var watcher: AnyCancellable
-                        watcher = this.context.cache.subscribe(run).sink((item) => {
-                            let progress = item.get("progress")
-                            if (!progress) {
-                                this.context.scheduleUIUpdate()
-
-                                console.log(`progress ${progress}`)
-
-                                if (progress >= 100) {
-                                    watcher?.cancel()
-                                    watcher = null
-                                }
-                            } else {
-                                debugHistory.error(`ERROR, could not get progress: ${String(error)}`)
-                                watcher?.cancel()
-                                watcher = null
-                            }
-                        })
-
+                        // SUCCESS
                     }
                     else {
                         // TODO User Error handling

@@ -7,7 +7,7 @@ import {MainUI, ZStack} from "../../swiftUI";
 import {Alignment} from "../../../../router";
 import {ContextPaneBackground} from "./ContextPaneBackground";
 import {ContextPaneForeground} from "./ContextPaneForeground";
-import {geom} from "../../../../install";
+import {geom} from "../../../../geom";
 
 export class ContextPane extends MainUI {
 	widthRatio = 0.75

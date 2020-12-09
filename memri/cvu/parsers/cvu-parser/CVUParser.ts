@@ -19,102 +19,9 @@ import {
     CVUParsedSessionDefinition, CVUParsedObjectDefinition
 
 } from "./CVUParsedDefinition"
-import {ActionFamily, getActionType} from "../../../../router";
-import {UIElement, UIElementFamily} from "../../../../router";
+import {ActionFamily, CVUColor, getActionType} from "../../../../router";
+import {UINode, UIElementFamily} from "../../../../router";
 import {MemriDictionary} from "../../../../router";
-
-export class Color {
-    value;
-    constructor(value) {
-        switch (value) {
-            case "secondaryLabel":
-                this.value = "#3c3c4399";
-                break;
-            case "label":
-                this.value = "#000000"
-                break;
-            case "systemFill":
-                this.value = "#7878805bb"
-                break;
-            case "secondarySystemBackground":
-                this.value = "#f2f2f7ff";
-                break;
-            case "secondarySystemGroupedBackground":
-            case "systemBackground":
-            case "white":
-                this.value = "#ffffff";
-                break;
-            case "black":
-                this.value = "#000000";
-                break;
-            default:
-                if (value.charAt(0) == "#") {//"#f2f2f7f"
-                    /*if (value.length == 4) {
-                        this.value = value.charAt(0) + value.charAt(1) + value.charAt(1) + value.charAt(2) + value.charAt(2) + value.charAt(3) + value.charAt(3);
-                    } else {*/
-                        this.value = value;
-                    //}
-                } else {
-                    /*if (value.length == 3) {
-                        this.value = "#" + value.charAt(0) + value.charAt(0) + value.charAt(1) + value.charAt(1) + value.charAt(2) + value.charAt(2);
-                    } else {*/
-                        this.value = "#" + value;
-                    //}
-                }
-                break;
-        }
-    }
-    toLowerCase(){
-        return this.value.toLowerCase();
-    }
-
-}
-
-
-export function CGFloat(num) {
-    return Number(num);
-}
-
-export enum VerticalAlignment{
-    top = "top",
-    center = "center",
-    bottom = "bottom"
-}
-export enum HorizontalAlignment{
-    leading = "left",
-    center = "center",
-    trailing = "right"
-}
-export enum Alignment{
-    top = "top",
-    center = "center",
-    bottom = "bottom",
-    leading = "left",
-    trailing = "right",
-    topLeading = "topLeading",
-    topTrailing = "topTrailing",
-    bottomLeading = "bottomLeading",
-    bottomTrailing = "bottomTrailing"
-}
-export enum TextAlignment{
-    leading = "left",
-    center = "center",
-    trailing = "right"
-}
-
-export var Font = {
-    Weight: {
-        regular: "regular",
-        bold: "bold",
-        semibold: "semibold",
-        heavy: "heavy",
-        light: "light",
-        ultraLight: "ultraLight",
-        black: "black",
-        medium: "medium"//TODO
-    }
-}
-
 
 export class CVUParser {
     context: MemriContext;
@@ -333,25 +240,15 @@ export class CVUParser {
         var dict = new MemriDictionary();
         var stack = [];
 
-        let forUIElement = this.knownUIElements[uiElementName?.toLowerCase() ?? ""] != undefined;//TODO:
         var lastKey;
         var isArrayMode = false;
 
         var setPropertyValue = () => {
             if (stack.length > 0) {
-                let convert = CVUParser.specialTypedProperties[lastKey!];
-                if (forUIElement && convert) {
-                    if (!isArrayMode && stack.length == 1) {
-                        dict[lastKey!] = convert(stack[0], uiElementName);
-                    } else if (isArrayMode || stack.length > 0) {
-                        dict[lastKey!] = convert(stack, uiElementName);
-                    }
-                } else {
-                    if (!isArrayMode && stack.length == 1) {
-                        dict[lastKey!] = stack[0]
-                    } else if (isArrayMode || stack.length > 0) {
-                        dict[lastKey!] = stack
-                    }
+                if (!isArrayMode && stack.length == 1) {
+                    dict[lastKey!] = stack[0]
+                } else if (isArrayMode || stack.length > 0) {
+                    dict[lastKey!] = stack
                 }
 
                 stack = []
@@ -360,10 +257,10 @@ export class CVUParser {
 
         function addUIElement(type, properties: MemriDictionary) {//TODO:
             var children = dict["children"] || [];
-            let subChildren = Object.assign([], properties.children);
+            let subChildren = Object.assign([], properties.children) || [];
             delete properties.children;
-            children.push(new UIElement(type,
-                subChildren || [],
+            children.push(new UINode(type,
+                subChildren,
                 properties));
             dict["children"]= children;
         }
@@ -438,9 +335,6 @@ export class CVUParser {
                     break;
                 case CVUToken.CurlyBracketClose:
                     setPropertyValue();
-                    if (forUIElement) {
-                        this.processCompoundProperties(dict)
-                    }//TODO: &?
                     return dict; // DONE
                 case CVUToken.Colon:
                     throw new CVUParseErrors.ExpectedKey(this.lastToken!);
@@ -448,7 +342,7 @@ export class CVUParser {
                     stack.push(this.createExpression(v));
                     break;
                 case CVUToken.Color:
-                    stack.push(new Color(v)); //TODO: stack.append(ColorDefinition.hex(value))
+                    stack.push(CVUColor.hex(v));
                     break;
                 case CVUToken.Identifier:
                     if (lastKey == undefined) {
@@ -537,7 +431,7 @@ export class CVUParser {
                     stack.push(x);
                     break;
                 case CVUToken.Number:
-                    stack.push(forUIElement ? CGFloat(v) : Number(v));//TODO????
+                    stack.push(Number(v));
                     break;
                 case CVUToken.String:
                     if (!isArrayMode && CVUToken.Colon == this.peekCurrentToken().constructor) {
@@ -609,143 +503,4 @@ export class CVUParser {
         return result
     }();
 
-// Same as above to be converted once per dict
-    frameProperties = {"minWidth": 1, "maxWidth": 1, "minHeight": 1, "maxHeight": 1, "align": 1};
-// Based on key when its added to the dict (only needed within rendererDefinition / UIElement)
-    static specialTypedProperties = {
-        "alignment":
-            function (value, type) {
-                switch (value) {
-                    case "left":
-                        return HorizontalAlignment.leading;
-                    case "top":
-                        return VerticalAlignment.top;
-                    case "right":
-                        return HorizontalAlignment.trailing;
-                    case "bottom":
-                        return VerticalAlignment.bottom;
-                    case "center":
-                        if (type == "ZStack") {
-                            return Alignment.center;
-                        }
-                        return type == "VStack"
-                            ? HorizontalAlignment.center
-                            : VerticalAlignment.center;
-                    default:
-                        return value // TODO Test if (this crashes the view renderer
-                }
-            },
-        "align": function (value) {
-            switch (value) {
-                case "left":
-                    return Alignment.leading;
-                case "top":
-                    return Alignment.top;
-                case "right":
-                    return Alignment.trailing;
-                case "bottom":
-                    return Alignment.bottom;
-                case "center":
-                    return Alignment.center;
-                case "lefttop":
-                case "topleft":
-                    return Alignment.topLeading;
-                case "righttop":
-                case "topright":
-                    return Alignment.topTrailing;
-                case "leftbottom":
-                case "bottomleft":
-                    return Alignment.bottomLeading;
-                case "rightbottom":
-                case "bottomright":
-                    return Alignment.bottomTrailing;
-                default:
-                    return value // TODO Test if (this crashes the view renderer
-            }
-        },
-        "textAlign": function (value) {
-            switch (value) {
-                case "left":
-                    return TextAlignment.leading;
-                case "center":
-                    return TextAlignment.center;
-                case "right":
-                    return TextAlignment.trailing;
-                default:
-                    return value // TODO Test if (this crashes the view renderer
-            }
-        },
-        "font": function (input) {
-            var value = input;
-            if (Array.isArray(value)) {
-                if (value[0]?.constructor?.name == "CGFloat") {
-                    if (value.length == 1) {
-                        value.push(Font.Weight.regular)
-                    } else {
-                        switch (value[1]) {
-                            case "regular":
-                                value[1] = Font.Weight.regular;
-                                break;
-                            case "bold":
-                                value[1] = Font.Weight.bold;
-                                break;
-                            case "semibold":
-                                value[1] = Font.Weight.semibold;
-                                break;
-                            case "heavy":
-                                value[1] = Font.Weight.heavy;
-                                break;
-                            case "light":
-                                value[1] = Font.Weight.light;
-                                break;
-                            case "ultralight":
-                                value[1] = Font.Weight.ultraLight;
-                                break;
-                            case "black":
-                                value[1] = Font.Weight.black;
-                                break;
-                            default:
-                                // TODO Warn user
-                                value[1] = Font.Weight.regular
-                        }
-                    }
-                }
-                return value
-            }
-            // TODO Warn user
-            return input
-        }
-    };
-
-    processCompoundProperties(dict: MemriDictionary) {
-        for (let name in this.frameProperties) {
-            if (dict[name]) {
-
-                let values = [
-                    dict["minWidth"],
-                    dict["maxWidth"],
-                    dict["minHeight"],
-                    dict["maxHeight"],
-                    dict["align"]
-                ];
-
-                delete dict["minWidth"];
-                delete dict["maxWidth"];
-                delete dict["minHeight"];
-                delete dict["maxHeight"] ;
-                //delete dict["align"];
-
-                dict["frame"] = values;
-                break;
-            }
-        }
-
-        if (dict["cornerRadius"] && dict["border"]) {
-            var value = (Array.isArray(dict["border"])) ? dict["border"] : [];
-            value.push(dict["cornerRadius"] ?? 0);
-
-            dict["cornerborder"] = value;
-            delete dict["border"];
-        }
-    }
 }

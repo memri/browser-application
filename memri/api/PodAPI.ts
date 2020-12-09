@@ -22,6 +22,11 @@ export class PodAPI {
     
     async http({method = "POST", path = "", payload}, callback) {
         await Authentication.getOwnerAndDBKey((error, ownerKey, databaseKey) => {
+            if (ownerKey == undefined || databaseKey == undefined) {
+                // TODO:
+                callback(error, null)
+                return
+            }
             this.httpWithKeys({method, path, payload, ownerKey, databaseKey}, callback);
         });
     } 
@@ -249,7 +254,7 @@ export class PodAPI {
                 } else if (prop == "type") {
                     result["_type"] = item[prop]
                 } else {
-                    //#warning("Implement checking for updatedfields")
+                    // TODO: Implement checking for updatedfields
                     result[prop] = item[prop]
                 }
             }
@@ -454,9 +459,8 @@ export class PodAPI {
                 "databaseKey": dbKey,
                 "ownerKey": ownerKey
             }
-            // WARNING: WE ARE CALLING DOWNLOADER HERE, WHICH FIRST CALLS THE DOWNLOADER
-            // AND THEN, THE DOWNLOADER CALLS THE IMPORTER
-            this.http({method: "POST", path: "run_downloader", payload: payload}, (error) => {
+
+            this.http({method: "POST", path: "run_importer", payload: payload}, (error, result) => {
                 callback(error, error == null)
             })
         })

@@ -3,7 +3,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 import * as React from 'react';
-import {Alignment, Font} from "../../../router";
+import {Alignment, Color, Font} from "../../../router";
 import {
 	ActionBack,
 	ActionBackAsSession, ActionClosePopup,
@@ -21,7 +21,7 @@ import {
 	MemriImage,
 	MemriText,
 	padding,
-	VStack
+	VStack, ActionSheet
 } from "../swiftUI";
 import {debugHistory} from "../../../router";
 import {ActionButton} from "../ActionView";
@@ -43,8 +43,8 @@ export class TopNavigation extends MainUI {
 
 	init() {
 		this.context = this.props.context;
-		this.inSubView = this.props.inSubView;
-		this.showCloseButton = this.props.showCloseButton;
+		this.inSubView = this.props.inSubView ?? false;
+		this.showCloseButton = this.props.showCloseButton ?? false;
 	}
 
 	forward() {
@@ -72,33 +72,45 @@ export class TopNavigation extends MainUI {
 		let isNamed = this.context.currentSession?.currentView?.name != undefined
 
 		// TODO: or copyFromView
-		/*buttons.push(isNamed
-			? .default(Text("Update view")) { this.toFront() }
-			: .default(Text("Save view")) { this.toFront() }
+		buttons.push(isNamed
+			? {text: "Update view", action: () => this.toFront()}
+			: {text: "Save view", action: () => this.toFront()}
 		)
 
-		buttons.push(.default(Text("Add to Navigation")) { this.toFront() })
-		buttons.push(.default(Text("Duplicate view")) { this.toFront() })
+		buttons.push({text: "Add to Navigation", action: () => this.toFront()})
+		buttons.push({text: "Duplicate view", action: () => this.toFront()})
 
 		if (isNamed) {
-			// buttons.push(.default(Text("Reset to saved view")) { this.backAsSession() })
-		}*/
+			buttons.push({text: "Reset to saved view", action: () => this.backAsSession()})
+		}
 
-		// buttons.push(.default(Text("Copy a link to this view")) { this.toFront() })
-		// buttons.push(.cancel())
+		buttons.push({text: "Copy a link to this view", action: () => this.toFront()})
+		buttons.push({text: "Cancel", cancel: true})
 
-		return new ActionSheet(new Text("Do something with the current view"), buttons)
+		return <ActionSheet title={"Do something with the current view"}
+							buttons={buttons}
+							context={this.context}
+							closeCallback={() => {
+								this.showingTitleActions = false
+							}}
+		/>
 	}
 
 	createBackActionSheet() {
-		new ActionSheet(new Text("Navigate to a view in this session"),
-					{//TODO
-						// .default(Text("Forward")) { self.forward() },
-						// .default(Text("To the front")) { self.toFront() },
-						// .default(Text("Back as a new session")) { self.backAsSession() },
-						// .default(Text("Show all views")) { self.openAllViewsOfSession() },
-						// .cancel(),
-					})
+		return <ActionSheet title={"Navigate to a view in this session"}
+							buttons={[
+								{text: "Forward", action: () => this.forward()},
+								{text: "To the front", action: () => this.toFront()},
+								{text: "Back as a new session", action: () => this.backAsSession()},
+								{text: "Show all views", action: () => this.openAllViewsOfSession()},
+								{text: "Cancel", cancel: true}
+							]}
+							context={this.context}
+							closeCallback={() => {
+								this.showingBackActions = false
+							}}
+		/>
+
 	}
 
 	render() {
@@ -113,18 +125,20 @@ export class TopNavigation extends MainUI {
 				}
 			}
 		} else {
-			backButtonAction = () => this.showingBackActions = true
+			backButtonAction = () => {
+				this.showingBackActions = true;
+				this.context.scheduleUIUpdate(true);
+			}
 		}
 
 		return (
 			<div className="TopNavigation">
-			<VStack alignment={"leading"}
-					spacing={0}
+			<VStack spacing={0}
 					padding={padding({bottom: 0})}
 					centeredOverlayWithinBoundsPreferenceKey>
-				<HStack alignment={Alignment.top} spacing={10}
-						padding={padding({top: 15, bottom: 10, leading: 15, trailing: 15})}
-						frame={frame({height: 50, alignment: Alignment.top})}
+				<HStack alignment={Alignment.center} spacing={10}
+						padding={padding({vertical: 12, horizontal: 15})}
+						frame={frame({height: 50})} background={new Color("secondarySystemGroupedBackground").toLowerCase()}
 				>
 					{(!this.inSubView) ?
 						<ActionButton action={new ActionShowNavigation(this.context)}
@@ -135,14 +149,19 @@ export class TopNavigation extends MainUI {
 						}} font={font({size: 19, weight: Font.Weight.semibold})}>
 							<MemriText
 								font={font({size: 16, weight: Font.Weight.regular})}
-								padding={padding({horizontal: 5, vertical: 2})} foregroundColor="#106b9f">Close
+								padding={padding({horizontal: 5, vertical: 2})} foregroundColor={new Color("systemBlue").toLowerCase()}>Close
 							</MemriText>
 						</MemriRealButton>
 					}
 					{(backButton != undefined) ?
 						<MemriRealButton action={backButtonAction}
                                          font={font({size: 19, weight: Font.Weight.semibold})}
-							/*onLongPressGesture*/ /*actionSheet={}*/>
+										 onContextMenu={(e)=> {
+											 e.preventDefault();
+											 this.showingBackActions = true;
+											 this.context.scheduleUIUpdate(true)
+										 }}
+							>
 							<MemriImage padding={padding({horizontal: 5, vertical: 5})}
 										foregroundColor={backButton?.color ?? "white"}>
 								{backButton?.getString("icon") ?? ""}
@@ -152,20 +171,33 @@ export class TopNavigation extends MainUI {
                                          font={font({size: 19, weight: Font.Weight.semibold})}
 							/*actionSheet={}*/
 						>
-							<MemriImage foregroundColor="#434343" padding={padding({horizontal: 5, vertical: 8})}
+							<MemriImage foregroundColor={new Color("secondaryLabel").toLowerCase()} padding={padding({horizontal: 5, vertical: 8})}
 										font={font({size: 10, weight: Font.Weight.bold})}>
 								adjust
 							</MemriImage>
 						</MemriRealButton>
 					}
 					<ColorArea layoutPriority={5}>
-						<MemriRealButton>
-							<MemriText foregroundColor="#333" truncationMode={"tail"} font={font({family: "headline"})}>
+						<MemriRealButton action={() => {
+											if (!this.showingTitleActions) {
+												let titleActionButton = context.currentView?.titleActionButton
+												if (titleActionButton) {
+													context.executeAction(titleActionButton)
+												}
+											}
+										 }}
+										 onContextMenu={(e)=> {
+											 e.preventDefault();
+											 this.showingTitleActions = true;
+											 this.context.scheduleUIUpdate(true)
+										 }}
+						>
+							<MemriText foregroundColor={new Color("label").toLowerCase()} truncationMode={"tail"} font={font({family: "headline"})}>
 								{context.currentView?.title ?? ""}
 							</MemriText>
 						</MemriRealButton>
 					</ColorArea>
-					{(context.item != undefined || context.items.length > 0 &&
+					{((context.item != undefined || context.items.length > 0) &&
 					context.settings.get("user/general/gui/showEditButton") != false &&
 					context.currentView?.editActionButton != undefined) &&
 					<ActionButton action={context.currentView?.editActionButton} font={font({size: 19, weight: Font.Weight.semibold})} context={this.context}/>
@@ -176,6 +208,8 @@ export class TopNavigation extends MainUI {
 					}
 				</HStack>
 				<MemriDivider/>
+				{this.showingTitleActions && this.createTitleActionSheet()}
+				{this.showingBackActions && this.createBackActionSheet()}
 			</VStack>
 			</div>
 		);

@@ -7,6 +7,7 @@ import "ace-builds/src-noconflict/ext-error_marker";
 import "ace-builds/src-noconflict/ext-options";
 import "ace-builds/src-noconflict/ext-prompt";
 import {Mode} from "./playground/cvu-mode";
+import {geom} from "./geom";
 
 let DemoWorker = require("worker-loader!./demo-worker")
 
@@ -35,7 +36,13 @@ var cvuCompleters = [{
 }]
  
 
+if (localStorage["ownerKey"] == undefined) {
+    localStorage.setItem("ownerKey", "");
+}
 
+if (localStorage["databaseKey"] == undefined) {
+    localStorage.setItem("databaseKey", "");
+}
 
 var WorkerClient = ace.require("ace/worker/worker_client").WorkerClient;
 function WebpackWorkerClient(worker) {
@@ -129,7 +136,7 @@ var baseBox = new Box({
                 }),
                 1: memriBox = new Box({
                     isMain: false,
-                    size: "420px"
+                    size: geom.size.width + 3 + "px"
                 }),
             }),
 
@@ -139,11 +146,12 @@ var baseBox = new Box({
 });
 
 let memriApp = document.createElement("iframe");
+memriApp.scrolling = "no"
 
 var onResize = function() {
     baseBox.setBox(0, 0, window.innerWidth, window.innerHeight);
     memriApp.width = memriBox.size;
-    memriApp.height = window.innerHeight - 20 + "px";
+    memriApp.height = window.innerHeight - 47 + "px"; //TODO: needs to use bottom bar height instead of 27px
 };
 window.onresize = onResize;
 
@@ -185,6 +193,15 @@ dom.buildDom([
             showDialog();
         }
     }, "Settings"],
+    ["button", {
+        onmousedown: (e)=> {
+            e.preventDefault()
+        },
+        onclick: (e)=> {
+            e.preventDefault();
+            localStorage.clear();
+        }
+    }, "Clear storage"],
     ["span", {class: "spacer"}],
     ["button", {
         ref: "saveButton",
@@ -500,12 +517,12 @@ function showDialog(message?) {
                 class: "",
                 name: "databaseKey",
                 size: 70,
-                value: localStorage["databaseKey"]
+                value: localStorage["databaseKey"] ?? ""
             }],
         ]],
         ["div", {}, [
             ["label", {for: "userKey"}, "Public Key"],
-            ["input", {id: "publicKey", class: "", name: "publicKey", size: 70, value: localStorage["ownerKey"]}],
+            ["input", {id: "publicKey", class: "", name: "publicKey", size: 70, value: localStorage["ownerKey"] ?? ""}],
         ]],
         ["div", {}, [
             ["button", {
@@ -528,8 +545,6 @@ function showDialog(message?) {
 function updateTree() {
     listCVUDefinitions(function(err, files) {
         if (err) {
-            // console.error(err)
-            // return alert("Could not connect to pod: " + err.message)
             showDialog(err.message)
             return
         }

@@ -11,7 +11,7 @@ export class ItemCell extends MainUI {
     item
     rendererNames
     argumentsJs
-    //    let viewOverride: String // TODO Refactor: implement viewoverride
+
     render() {
         this.context = this.props.context;
         this.item = this.props.item;

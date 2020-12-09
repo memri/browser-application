@@ -18,7 +18,6 @@ import {ViewArguments} from "../../../router";
 import {MemriDictionary} from "../../../router";
 import {ParseErrors} from "../../../router";
 import {CascadingRendererConfig} from "../../../router";
-require("../../extension/common/string");
 
 export class Views {
 	///
@@ -57,7 +56,7 @@ export class Views {
 		if (!this.context?.podAPI.isConfigured) {
 			return
 		}
-		if (DatabaseController.realmTesting) {
+		if (DatabaseController.isRunningXcodeTests) {
 			return
 		}
 
@@ -150,6 +149,7 @@ export class Views {
 		})
 	}
 
+	// TODO: This should be moved elsewhere
 	static formatDate(date, dateFormat?) {//TODO:
 		let showAgoDate = Settings.shared.get("user/general/gui/showDateAgo")
 
@@ -212,7 +212,6 @@ export class Views {
 		switch (name) {
 			case "setting":
 				let f = function (args?) { // (value:String) -> Any? in
-					//#warning("@Toby - how can we re-architect this?")
 					let value = args[0];
 					if (typeof value == "string") {
 						let x = Settings.shared.get(value/*, type: Double.self*/);
@@ -386,11 +385,19 @@ export class Views {
 								}
 							}
 						}
+					} else if (typeof v === "number") { //TODO: check if timestamp catches here
+						switch (node.name) {
+							case "currency":
+								value =  "$" + v;
+								break;
+							default:
+								break
+						}
 					} else if (typeof v === "string") {
 						switch (node.name) {
 							case "uppercased": value = v.toUpperCase(); break
 							case "lowercased": value = v.toLowerCase(); break
-							case "camelCaseToWords": value = v.camelCaseToWords(); break//TODO
+							case "camelCaseToWords": value = v.camelCaseToWords(); break
 							case "plural": value = v + "s"; break;
 							case "firstUppercased": value = v.capitalizingFirst(); break
 							case "plainString": value = v.strippingHTMLtags(); break
@@ -445,7 +452,7 @@ export class Views {
 							// case "min": value = v.min; break//TODO
 							// case "max": value = v.max; break//TODO
 							case "items": value = v.items(); break
-							// #warning("Add sort")
+							// // TODO: Add sort")
 							default:
 								// TODO: Warn
 								debugHistory.warn(`Could not find property ${node.name} on list of edge`)
@@ -457,7 +464,7 @@ export class Views {
 							case "count": value = v.length; break
 							case "first": value = v[0]; break
 							case "last": value = v[v.length - 1]; break
-							// #warning("Add sort")
+							// // TODO: Add sort")
 							default:
 								// TODO: Warn
 								debugHistory.warn(`Could not find property ${node.name} on list of items`);
@@ -469,7 +476,7 @@ export class Views {
 							case "count": value = v.length; break
 							case "first": value = v[0]; break
 							case "last": value = v[v.length - 1]; break
-							// #warning("Add sort")
+							// // TODO: Add sort")
 							default:
 								// TODO: Warn
 								debugHistory.warn(`Could not find property ${node.name} on list`);
@@ -498,7 +505,7 @@ export class Views {
 							value = v[node.name] // How to handle errors?
 						}
 					}
-					else if (`${value ?? ""}` != "undefined"/*TODO*/) { //#warning("Fix Any issue")
+					else if (`${value ?? ""}` != "undefined"/*TODO*/) { //// TODO: Fix Any issue")
 						this.recursionCounter = 0
 						throw `Unexpected fetch ${node.name} on ${value}`
 					}
@@ -515,7 +522,7 @@ export class Views {
 
 				for (let item in list) {
 					args.set(".", list[item]);
-					let hasFound = interpret.execSingle(expr, args);
+					let hasFound = interpret.execSingle(expr, args); //TODO: ? ?? false
 					if (hasFound &&
 						ExprInterpreter.evaluateBoolean(hasFound)) {
 						value = list[item];
@@ -544,7 +551,7 @@ export class Views {
 			if (typeof f == "function") {
 				return f(args);
 			}
-			else if (`${f}` != "undefined"/*TODO*/) { //#warning("Temporary hack to detect nil that is not nil — .dateAccessed.format where .dateAccessed is nil")
+			else if (`${f}` != "undefined"/*TODO*/) { //// TODO: Temporary hack to detect nil that is not nil — .dateAccessed.format where .dateAccessed is nil")
 				throw `Could not find function to execute: ${lookup.toExprString()}`
 			}
 		}
@@ -584,11 +591,8 @@ export class Views {
 		if (!context) {
 			throw "Exception: Missing Context"
 		}
-		//#warning("Turned off caching temporarily due to issue with UserState being cached wrongly (and then changed in cache)")
-		/*let cached = -1; //InMemoryObjectCache.get(strDef)
-		if (cached?.constructor?.name == "CVU") {//TODO:?????
-			return cached.parse()[0]
-		} else */if (viewDef.definition) {
+
+		if (viewDef.definition) {
 			let definition = viewDef.definition
 			let viewDefParser = new CVU(definition, context,
 									this.lookupValueOfVariables,
@@ -648,7 +652,7 @@ export class Views {
 	renderItemCell(item?: Item, //TODO:
 							   rendererNames = [],
 							   viewOverride?,
-							   viewArguments?) {
+							   viewArguments = new ViewArguments()) {
 		try {
 			let context = this.context
 			if (!context) {
@@ -661,10 +665,8 @@ export class Views {
 
 			function searchForRenderer(viewDefinition) {
 				let parsed = context.views.parseDefinition(viewDefinition)
-				for (var def of parsed.get("rendererDefinitions")) {//TODO
+				for (var def of parsed?.get("rendererDefinitions")) {//TODO
 					for (var name of rendererNames) {
-						// TODO: Should this first search for the first renderer everywhere
-						//       before trying the second renderer?
 						if (def.name == name) {
 							if (def.get("children") != undefined) {
 								cascadeStack.push(def)
@@ -717,7 +719,7 @@ export class Views {
 			if (cascadeStack.length == 0) {
 				for (var name of rendererNames) {
 					for (var key of ["user", "defaults"]) {
-						let viewDefinition = context.views.fetchDefinitions(name, "renderer", key)[0]
+						let viewDefinition = context.views.fetchDefinitions(undefined, name, "renderer", key)[0]
 						if (viewDefinition) {
 							let parsed = context.views.parseDefinition(viewDefinition)
 							if (parsed?.constructor?.name == "CVUParsedRendererDefinition") {
@@ -747,45 +749,47 @@ export class Views {
 	}
 }
 
+//TODO: this is our way to load default views @mkslanc
 function getDefaultViewContents() {
 	//let urls = Bundle.main.urls("cvu", ".")
 	var defaultsCVU = {
-		"AnnotationListExample": require("text-loader!../defaultDefinitions/annotation/AnnotationListExample.cvu"),
-		"AnnotationUIExample": require("text-loader!../defaultDefinitions/annotation/AnnotationUIExample.cvu"),
-		"all-items-with-label": require("text-loader!../defaultDefinitions/named/all-items-with-label.cvu"),
-		"choose-item-by-query": require("text-loader!../defaultDefinitions/named/choose-item-by-query.cvu"),
-		"filter-starred": require("text-loader!../defaultDefinitions/named/filter-starred.cvu"),
-		"inbox": require("text-loader!../defaultDefinitions/named/inbox.cvu"),
-		"calendar": require("text-loader!../defaultDefinitions/renderer/calendar.cvu"),
-		"chart": require("text-loader!../defaultDefinitions/renderer/chart.cvu"),
-		"generalEditor": require("text-loader!../defaultDefinitions/renderer/generalEditor.cvu"),
-		"list": require("text-loader!../defaultDefinitions/renderer/list.cvu"),
-		"map": require("text-loader!../defaultDefinitions/renderer/map.cvu"),
-		"messages": require("text-loader!../defaultDefinitions/renderer/messages.cvu"),
-		"thumbnail": require("text-loader!../defaultDefinitions/renderer/thumbnail.cvu"),
-		"sessions": require("text-loader!../defaultDefinitions/session/sessions.cvu"),
-		"defaults": require("text-loader!../defaultDefinitions/styles/defaults.cvu"),
-		"Account": require("text-loader!../defaultDefinitions/type/Account.cvu"),
-		"Address": require("text-loader!../defaultDefinitions/type/Address.cvu"),
-		"Any": require("text-loader!../defaultDefinitions/type/Any.cvu"),
-		"AuditItem": require("text-loader!../defaultDefinitions/type/AuditItem.cvu"),
-		"Country": require("text-loader!../defaultDefinitions/type/Country.cvu"),
-		"CryptoKey": require("text-loader!../defaultDefinitions/type/CryptoKey.cvu"),
-		"EmailMessage": require("text-loader!../defaultDefinitions/type/EmailMessage.cvu"),
-		"Importer": require("text-loader!../defaultDefinitions/type/Importer.cvu"),
-		"ImporterInstance": require("text-loader!../defaultDefinitions/type/ImporterInstance.cvu"),
-		"Indexer": require("text-loader!../defaultDefinitions/type/Indexer.cvu"),
-		"IndexerRun": require("text-loader!../defaultDefinitions/type/IndexerRun.cvu"),
-		"Label": require("text-loader!../defaultDefinitions/type/Label.cvu"),
-		"Location": require("text-loader!../defaultDefinitions/type/Location.cvu"),
-		"Message": require("text-loader!../defaultDefinitions/type/Message.cvu"),
-		"MessageChannel": require("text-loader!../defaultDefinitions/type/MessageChannel.cvu"),
-		//"Mixed": require("text-loader!../defaultDefinitions/type/Mixed.cvu"),
-		"Note": require("text-loader!../defaultDefinitions/type/Note.cvu"),
-		"Person": require("text-loader!../defaultDefinitions/type/Person.cvu"),
-		"Photo": require("text-loader!../defaultDefinitions/type/Photo.cvu"),
-		"Session": require("text-loader!../defaultDefinitions/type/Session.cvu"),
-		"SessionView": require("text-loader!../defaultDefinitions/type/SessionView.cvu")
+		"AnnotationListExample": require("text-loader!../../Resources/defaultCVU/annotation/AnnotationListExample.cvu"),
+		"AnnotationUIExample": require("text-loader!../../Resources/defaultCVU/annotation/AnnotationUIExample.cvu"),
+		"all-items-with-label": require("text-loader!../../Resources/defaultCVU/named/all-items-with-label.cvu"),
+		"choose-item-by-query": require("text-loader!../../Resources/defaultCVU/named/choose-item-by-query.cvu"),
+		"filter-starred": require("text-loader!../../Resources/defaultCVU/named/filter-starred.cvu"),
+		"inbox": require("text-loader!../../Resources/defaultCVU/named/inbox.cvu"),
+		"calendar": require("text-loader!../../Resources/defaultCVU/renderer/calendar.cvu"),
+		"chart": require("text-loader!../../Resources/defaultCVU/renderer/chart.cvu"),
+		"generalEditor": require("text-loader!../../Resources/defaultCVU/renderer/generalEditor.cvu"),
+		"list": require("text-loader!../../Resources/defaultCVU/renderer/list.cvu"),
+		"map": require("text-loader!../../Resources/defaultCVU/renderer/map.cvu"),
+		"messages": require("text-loader!../../Resources/defaultCVU/renderer/messages.cvu"),
+		"thumbnail": require("text-loader!../../Resources/defaultCVU/renderer/thumbnail.cvu"),
+		"sessions": require("text-loader!../../Resources/defaultCVU/session/sessions.cvu"),
+		"Account": require("text-loader!../../Resources/defaultCVU/type/Account.cvu"),
+		"Address": require("text-loader!../../Resources/defaultCVU/type/Address.cvu"),
+		"Any": require("text-loader!../../Resources/defaultCVU/type/Any.cvu"),
+		"AuditItem": require("text-loader!../../Resources/defaultCVU/type/AuditItem.cvu"),
+		"Country": require("text-loader!../../Resources/defaultCVU/type/Country.cvu"),
+		"CryptoKey": require("text-loader!../../Resources/defaultCVU/type/CryptoKey.cvu"),
+		"EmailMessage": require("text-loader!../../Resources/defaultCVU/type/EmailMessage.cvu"),
+		"Importer": require("text-loader!../../Resources/defaultCVU/type/Importer.cvu"),
+		"ImporterRun": require("text-loader!../../Resources/defaultCVU/type/ImporterRun.cvu"),
+		"Indexer": require("text-loader!../../Resources/defaultCVU/type/Indexer.cvu"),
+		"IndexerRun": require("text-loader!../../Resources/defaultCVU/type/IndexerRun.cvu"),
+		"Label": require("text-loader!../../Resources/defaultCVU/type/Label.cvu"),
+		"Location": require("text-loader!../../Resources/defaultCVU/type/Location.cvu"),
+		"Message": require("text-loader!../../Resources/defaultCVU/type/Message.cvu"),
+		"MessageChannel": require("text-loader!../../Resources/defaultCVU/type/MessageChannel.cvu"),
+		//"Mixed": require("text-loader!../../Resources/defaultCVU/type/Mixed.cvu"),
+		"Note": require("text-loader!../../Resources/defaultCVU/type/Note.cvu"),
+		"Person": require("text-loader!../../Resources/defaultCVU/type/Person.cvu"),
+		"Photo": require("text-loader!../../Resources/defaultCVU/type/Photo.cvu"),
+		"ReceiptDemo": require("text-loader!../../Resources/defaultCVU/type/ReceiptDemo.cvu"),
+		"Session": require("text-loader!../../Resources/defaultCVU/type/Session.cvu"),
+		"SessionView": require("text-loader!../../Resources/defaultCVU/type/SessionView.cvu"),
+		"DemoExample": require("text-loader!../../Resources/defaultCVU/user/DemoExample.cvu"),
 	};
 	let viewContents= [];
 	for (let cvu in defaultsCVU) {

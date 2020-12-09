@@ -13,7 +13,7 @@ import {
 	ScrollView, Spacer,
 	VStack
 } from "../../swiftUI";
-import {ActionNoop} from "../../../../router";
+import {ActionNoop, Color} from "../../../../router";
 import {Alignment, Font} from "../../../../router";
 import {ActionButton} from "../../ActionView";
 
@@ -30,7 +30,7 @@ export class ContextPaneForeground extends MainUI {
 		let description = describeChangelog && describeChangelog()//TODO
 		return (
 			<div className="ContextPaneForeground">
-			<ScrollView background="white">
+			<ScrollView background={new Color("secondarySystemGroupedBackground").toLowerCase()}>
 				<VStack alignment={Alignment.leading} padding={padding({top: 60})}>
 					<VStack alignment={Alignment.leading}>
 						<MemriText
@@ -79,7 +79,7 @@ export class ContextPaneForeground extends MainUI {
 						{(context.currentView?.contextPane.actions ?? []).map((actionItem) =>
 							<MemriRealButton action={context.executeAction(actionItem)}>
 								<MemriText
-									foregroundColor={"black"}
+									foregroundColor={new Color("label").toLowerCase()}
 									opacity={0.6}
 									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 									padding={padding({vertical: 10})}
@@ -99,7 +99,7 @@ export class ContextPaneForeground extends MainUI {
 						{(context.currentView?.contextPane.navigate ?? []).map((navigateItem) =>
 							<MemriRealButton action={context.executeAction(navigateItem)}>
 								<MemriText
-									foregroundColor={"black"}
+									foregroundColor={new Color("label").toLowerCase()}
 									opacity={0.6}
 									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 									padding={padding({vertical: 10, horizontal: this.paddingLeft})}
@@ -124,7 +124,7 @@ export class ContextPaneForeground extends MainUI {
                                              padding={padding({horizontal: this.paddingLeft})}
 							>
 								<MemriText
-									foregroundColor={"black"}
+									foregroundColor={new Color("label").toLowerCase()}
 									opacity={0.6}
 									font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 									padding={padding({vertical: 5, horizontal: 15})}
@@ -136,7 +136,7 @@ export class ContextPaneForeground extends MainUI {
                                           padding={padding({horizontal: this.paddingLeft})}
 						>
 							<MemriText
-								foregroundColor={"black"}
+								foregroundColor={new Color("label").toLowerCase()}
 								opacity={0.6}
 								font={font({size: 20, weight: Font.Weight.regular, design: "default"})}
 								padding={padding({vertical: 10})}

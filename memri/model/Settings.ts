@@ -35,7 +35,7 @@ export class Settings {
         try {
             for (path of this.getSearchPaths(path)) {
                 let value = this.getSetting(path)
-                if (value) {
+                if (value != undefined) {
                     return value
                 }
             }

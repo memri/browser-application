@@ -8,8 +8,8 @@ import * as React from "react";
 export class MemriSmartTextView extends MainUI {
 	string: String
 	detectLinks: boolean = true
-	font: FontDefinition
-	color?: ColorDefinition
+	font: CVUFont
+	color?: CVUColor
 	maxLines: number
 	
 	// This uses a rather hacky implementation to get around SwiftUI sizing limitations

@@ -70,7 +70,7 @@ export class EdgeReference {
 }
 
 export class DatabaseController {
-	static realmTesting = false
+	static isRunningXcodeTests  = false
 
 	constructor() {}
 
@@ -103,7 +103,7 @@ export class DatabaseController {
 		if (homeDir) {
 			var realmDir = homeDir + "/realm.memri"
 			
-			if (this.realmTesting) {
+			if (this.isRunningXcodeTests: ) {
 				realmDir += ".testing"
 			}
 			
@@ -133,7 +133,7 @@ export class DatabaseController {
 
 			//var config = realmConfig
 
-			if (!this.realmTesting) {
+			if (!this.isRunningXcodeTests) {
 				/*#if targetEnvironment(simulator)
 				if !reportedKey {
 					print("REALM KEY: \(data.hexEncodedString(options: .upperCase))")
@@ -161,7 +161,7 @@ export class DatabaseController {
 	static getRealmSync() {
 		//let data = Authentication.getPublicRootKeySync()
 		//var config = this.realmConfig
-		/*if (!realmTesting) {
+		/*if (!isRunningXcodeTests: ) {
 			#if targetEnvironment(simulator)
 			if !reportedKey {
 				reportedKey = true
@@ -299,35 +299,26 @@ export class DatabaseController {
 	}
 
 	static deleteDatabase(callback) {
-		new Authentication().authenticateOwnerByPasscode((error) => {
-			if (error) {
-				callback(`Unable to authenticate: ${error}`)
-				return
-			}
+		try {
+			/*let fileManager = FileManager.default
+            let realmUrl = this.getRealmURL()
 
-			try {
-                /*let fileManager = FileManager.default
-                let realmUrl = this.getRealmURL()
+            // Check if realm database exists
+            if fileManager.fileExists(atPath: realmUrl.path) {
+                try fileManager.removeItem(at: realmUrl)
+            }*/
 
-                // Check if realm database exists
-                if fileManager.fileExists(atPath: realmUrl.path) {
-                    try fileManager.removeItem(at: realmUrl)
-                }*/
+			callback(undefined)
+		} catch (error) {
+			callback(`Could not remove realm database: ${error}`)
+		}
 
-                callback(undefined)
-            }
-            catch {
-                callback(`Could not remove realm database: ${error}`)
-            }
-		})
 		//callback(undefined);
 	}
 
 	static clean(callback) { //TODO:
-		//#warning("@Toby, deleting here on realm doesnt remove them from the db and thus this is called every time. Any idea why?")
 		DatabaseController.asyncOnBackgroundThread(true, callback, (realm) => {
             for (let itemType in ItemFamily) {
-                if (itemType == ItemFamily.UserState) { continue }
 				let type = getItemType(ItemFamily[itemType]);
                 if (type) {
                     let items = realm.objects(type).filtered("_action = undefined and deleted = true")

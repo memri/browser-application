@@ -58,15 +58,15 @@ export class Expression {
                 if (obj?.constructor?.name == "UserState") {
                     obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
                     return
-                } else if (obj?.constructor?.name == "Object") { //TODO: RealmObject maybe? Or another check
+                } else if (obj?.objectSchema) { // TODO - instead of (let obj = lookupValue as? Object) @anijanyan
                     let name = lastProperty.name
 
-                    if (obj.objectSchema.properties[name] != "boolean") {
+                    if (obj.objectSchema.properties[name] != "bool") {
                         throw `'${name}' is not a boolean property`
                     }
 
                     DatabaseController.write(undefined,function () {
-                        obj[name] = !(typeof obj[name] === "boolean" ?? false)
+                        obj[name] = !(obj[name] ?? false)
                     })
                     return
                 } else if (typeof obj.subscript == "function") {
@@ -98,12 +98,8 @@ export class Expression {
                     else {
                         // let propType = PropertyType(rawValue: 7)//TODO
                         if (propType) {
-                            // #warning(
-                            //     "This requires a local version a browsable schema that describes the types of edges"
-                            // )
-                            //if let item = dataItem.edge(lastProperty.name)?.item() {
+                            // TODO: This requires a local version a browsable schema that describes the types of edges
                             return [propType, dataItem, lastProperty.name]
-                            //
                         }
                     }
 
@@ -151,13 +147,12 @@ export class Expression {
         this.parse()
     }
 
-    execForReturnType(args = null) {
+    execForReturnType(args = null, type?) { //TODO: we will use string type for some cases @mkslanc
         if (!this.parsed) this.parse()
         let value = this.interpreter?.execute(args)
 
-        if (value == null) { return null}
-        //
-        if (typeof value == "boolean") { return ExprInterpreter.evaluateBoolean(value) }
+        if (typeof value == "boolean" || type == "Bool") { return ExprInterpreter.evaluateBoolean(value, false) }
+        if (Array.isArray(value) && value[0] && typeof value[0] == "number") { return ExprInterpreter.evaluateNumberArray(value) }
         if (typeof value == "number") { return ExprInterpreter.evaluateNumber(value) }
         if (typeof value == "string") { return ExprInterpreter.evaluateString(value) }
         if (value instanceof Date) { return ExprInterpreter.evaluateDateTime(value) }

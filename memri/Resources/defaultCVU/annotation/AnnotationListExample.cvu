@@ -1,0 +1,53 @@
+[session = annotationListExample] {
+    [view] {
+        title: "Email Annotations"
+        emptyResultText: "There are no annotations here yet"
+        defaultRenderer: list
+        
+        [datasource = pod] {
+            query: "LabelAnnotation AND labelType = 'emailLabels' AND ANY allEdges.targetItemType = 'EmailMessage'"
+        }
+        
+        [renderer = list] {
+            press: noop
+            HStack {
+                VStack {
+                    alignment: leading
+                    Text {
+                        text: "Subject: {._annotatedItem.target.subject}"
+                        lineLimit: 1
+                        font: 18
+                        color: primary
+                        padding: 0 0 0 0
+                    }
+                    Text {
+                        text: "Sender: {._annotatedItem.target.sender.owner.firstName}"
+                        lineLimit: 1
+                        font: 16
+                        color: secondary
+                        padding: 0 0 0 0
+                    }
+                    Text {
+                        text: "{.labels}"
+                        lineLimit: 1
+                        font: 16
+                        color: primary
+                        padding: 0 0 0 0
+                    }
+                }
+                Spacer
+                VStack {
+                    alignment: center
+                    Text {
+                        text: "Share"
+                    }
+
+                    Toggle {
+                        value: {{.allowSharing}}
+                        padding: 5
+                    }
+                }
+            }        
+        }
+    }
+}

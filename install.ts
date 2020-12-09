@@ -1,12 +1,5 @@
 import {debugHistory, RootContext} from "./router";
 
-export var geom = {
-    size: {
-        width: 414,
-        height: 736
-    }//TODO: for testing
-}
-
 export var contextJs = new RootContext("Memri GUI");
 contextJs.installer.await(contextJs,() => {
     contextJs.boot(false, (error) => {
