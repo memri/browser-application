@@ -9,10 +9,10 @@ module.exports = {
         rules: [{
             test: /\.(t|j)sx?$/,
             use: {
-                loader: 'ftst-loader',
+                loader: 'ts-loader',
                 options: {
                     transpileOnly: true,
-                    transformNullishCoalesce: true
+//                    transformNullishCoalesce: true
                 }
             },
             exclude: /node_modules/,
