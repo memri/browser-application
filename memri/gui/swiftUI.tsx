@@ -504,11 +504,25 @@ export class ScrollView extends MainUI {
     }
 }
 export class MemriImage extends MainUI {
+    static iconMapper = {
+        "person.circle": "person",
+        "bell": "notifications_none",
+        "creditcard": "credit_card",
+        "cart": "shopping_cart",
+        "hand.thumbsdown": "thumb_down",
+        "increase.indent": "format_indent_increase"
+    }
+
+    getIcon(icon) {
+        return MemriImage.iconMapper[icon] ?? icon;
+
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
             <Icon style={this.setStyles()} fontSize="small" {...other}>
-                {this.props.children}
+                {this.getIcon(this.props.children)}
             </Icon>
         )
     }

@@ -193,23 +193,6 @@ class LabelAnnotationRendererConfig extends CascadingRendererConfig {
     }
 
     get labelOptionIcons() {
-        let labelOptionIcons = this.cascadeList("labelOptionIcons")
-        let changedLabelOptions = {//TODO
-            "person.circle": "person",
-            "bell": "notifications_none",
-            "creditcard": "credit_card",
-            "cart": "shopping_cart",
-            "hand.thumbsdown": "thumb_down"
-        }
-        let resultLabelOptions = []
-        for (let i in labelOptionIcons) {
-            let labelOption = labelOptionIcons[i]
-            if (changedLabelOptions[labelOption]) {
-                labelOption = changedLabelOptions[labelOption]
-            }
-            resultLabelOptions.push(labelOption)
-        }
-        return resultLabelOptions
         return this.cascadeList("labelOptionIcons")
     }
 }
