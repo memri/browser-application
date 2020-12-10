@@ -31,7 +31,25 @@ export class SetupWizard extends MainUI {
     privateKey: string = "98D7A78E0FE878B20915BE65083FEBBA1E15EE6E110EB8395C040CF23F1AB74B"
     publicKey: string = "CDFA58CEDDD92508FCA6C509B56BE2693B63C6063902D25151F40E84E6740771"
     databaseKey: string = "C070BDD19BD248C2A31DCBBE85FF701C9C4E54C6AB474405B5B7C298F49188D0"
-    showingAlert = false;
+    _showingAlert = false;
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            showingAlert: false,
+        };
+    }
+
+    get showingAlert() {
+        return this._showingAlert
+    }
+
+    set showingAlert(value) {
+        this._showingAlert = value
+        if (this.state.showingAlert != this._showingAlert) {
+            this.setState({showingAlert: this._showingAlert})
+        }
+    }
 
     render(){
         this.context = this.props.context;
@@ -78,16 +96,16 @@ export class SetupWizard extends MainUI {
         }
 
 
-        return (
-            <NavigationView context={this.context} navigationViewStyle={"StackNavigationViewStyle"} frame={frame({width: geom.size.width, height: geom.size.height})}>
+        return (<>
+                <NavigationView context={this.context} navigationViewStyle={"StackNavigationViewStyle"} frame={frame({width: geom.size.width, height: geom.size.height})}>
                 <Form navigationBarTitle={<MemriText>Setup Wizard</MemriText>} context={this.context}>
                     {!this.context.installer.isInstalled && !this.context.installer.debugMode &&
                     <>
                         <Section header={<MemriText>
                             Connect to a pod
                         </MemriText>}>
-
                             <NavigationLink context={this.context} destination={
+                                () =>
                                 <Form>
                                     <Section header={<MemriText>
                                         Pod Connection
@@ -104,36 +122,36 @@ export class SetupWizard extends MainUI {
                                         </HStack>
                                     </Section>
                                     <MemriRealButton action={() => {
-                                        if (this.host != "") {
-                                            this.showingAlert = true
-                                        }
-                                    }}
-                                                     alert={
-                                                         <MemriAlert title={
-                                                             <MemriText>
-                                                                 Clear Database
-                                                             </MemriText>}
-                                                                     message={
-                                                                         <MemriText>
-                                                                             This will delete
-                                                                             access to all previous data on this
-                                                                             device and load the default
-                                                                             database
-                                                                             to connect to a new pod. Are you
-                                                                             sure? There is no
-                                                                             undo!
-                                                                         </MemriText>
-                                                                     }
-                                                                     primaryButton={<MemriRealButton
-                                                                         action={primaryButtonAction}><MemriText>Delete</MemriText></MemriRealButton>}
-                                                                     secondaryButton={
-                                                                         <MemriRealButton><MemriText>Cancel</MemriText></MemriRealButton>}/>}
-
+                                                        if (this.host != "") {
+                                                            this.showingAlert = true
+                                                        }
+                                                     }}
                                     >
                                         <MemriText>
                                             Authenticate
                                         </MemriText>
                                     </MemriRealButton>
+                                    <MemriAlert open={this.state.showingAlert}
+                                                title={
+                                                    <MemriText>
+                                                        Clear Database
+                                                    </MemriText>
+                                                }
+                                                closeCallback={() => this.showingAlert = false}
+                                                message={
+                                                    <MemriText>
+                                                        This will delete
+                                                        access to all previous data on this
+                                                        device and load the default
+                                                        database
+                                                        to connect to a new pod. Are you
+                                                        sure? There is no
+                                                        undo!
+                                                    </MemriText>
+                                                }
+                                                primaryButton={{text: <MemriText>Delete</MemriText>, action: primaryButtonAction, type: "destructive"}}
+                                                secondaryButton={{text: <MemriText>Cancel</MemriText>, type: "cancel"}}
+                                    />
                                 </Form>
                             }>
                                 <MemriText>
@@ -141,6 +159,7 @@ export class SetupWizard extends MainUI {
                                 </MemriText>
                             </NavigationLink>
                             <NavigationLink context={this.context} destination={
+                                () =>
                                 <Form>
                                     <Section header={<MemriText>
                                         Pod Connection
@@ -177,32 +196,33 @@ export class SetupWizard extends MainUI {
                                     </Section>
 
                                     <MemriRealButton action={() => {
-                                        if (this.host != "") {
-                                            this.showingAlert = true
-                                        }
-                                    }}
-                                                     alert={
-                                                         <MemriAlert title={
-                                                             <MemriText>
-                                                                 Clear Database
-                                                             </MemriText>}
-                                                                     message={
-                                                                         <MemriText>
-                                                                             This will delete access to all previous
-                                                                             data on this device and load a fresh copy
-                                                                             of your data from your pod. Are you sure?
-                                                                             There is no undo!
-                                                                         </MemriText>
-                                                                     } primaryButton={<MemriRealButton
-                                                             action={buttonForExistingPod}><MemriText>Delete</MemriText></MemriRealButton>}/>}
-                                                     secondaryButton={
-                                                         <MemriRealButton><MemriText>Cancel</MemriText></MemriRealButton>}
+                                                        if (this.host != "") {
+                                                            this.showingAlert = true
+                                                        }
+                                                    }}
                                     >
                                         <MemriText>
                                             Authenticate
                                         </MemriText>
                                     </MemriRealButton>
-
+                                    <MemriAlert open={this.state.showingAlert}
+                                                title={
+                                                    <MemriText>
+                                                        Clear Database
+                                                    </MemriText>
+                                                }
+                                                closeCallback={() => this.showingAlert = false}
+                                                message={
+                                                    <MemriText>
+                                                        This will delete access to all previous
+                                                        data on this device and load a fresh copy
+                                                        of your data from your pod. Are you sure?
+                                                        There is no undo!
+                                                    </MemriText>
+                                                }
+                                                primaryButton={{text: <MemriText>Delete</MemriText>, action: buttonForExistingPod, type: "destructive"}}
+                                                secondaryButton={{text: <MemriText>Cancel</MemriText>, type: "cancel"}}
+                                    />
                                 </Form>
                             }>
                                 <MemriText>Connect to an existing pod</MemriText>
@@ -219,6 +239,7 @@ export class SetupWizard extends MainUI {
                     }
                 </Form>
             </NavigationView>
+            </>
         )
     }
 

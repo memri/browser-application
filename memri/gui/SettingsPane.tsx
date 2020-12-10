@@ -63,6 +63,7 @@ export class SettingsPane extends MainUI {
                         }}><MemriText textColor={"blue"}>Close</MemriText></MemriRealButton>
                 }} context={this.context}>
                     <NavigationLink context={this.context} destination={
+                        () =>
                         <Form>
                             <Section header={<MemriText>Pod Connection</MemriText>} footer={<MemriText
                                 font={font({family: "system", size: 11, weight: Font.Weight.regular})}>Never give out
@@ -100,6 +101,7 @@ export class SettingsPane extends MainUI {
                         </MemriText>
                     </NavigationLink>
                     <NavigationLink context={this.context} destination={
+                        () =>
                         <Form>
                             <Section header={<MemriText>User Interface</MemriText>} footer={<MemriText
                                 font={font({family: "system", size: 11, weight: Font.Weight.regular})}>Show 'xx time ago' in place of dates less than 36 hours ago</MemriText>}>
@@ -119,6 +121,7 @@ export class SettingsPane extends MainUI {
                         </MemriText>
                     </NavigationLink>
                     <NavigationLink context={this.context} destination={
+                        () =>
                         <Form>
                             <Section header={<MemriText>Sensors</MemriText>}>
                                 <Toggle isOn={this.getBinding("/device/sensors/location/track")}/>
@@ -133,6 +136,7 @@ export class SettingsPane extends MainUI {
                         </MemriText>
                     </NavigationLink>
                     <NavigationLink context={this.context} destination={
+                        () =>
                         <Form>
                             <Section header={<MemriText>Internationalization</MemriText>}>
                                 <MemriTextField value={this.getBinding("/user/formatting/date")}/>
@@ -144,6 +148,7 @@ export class SettingsPane extends MainUI {
                         </MemriText>
                     </NavigationLink>
                     <NavigationLink context={this.context} destination={
+                        () =>
                         <Form>
                             <Section header={<MemriText>Debug Settings</MemriText>}>
                                 <Toggle isOn={this.getBinding("/device/debug/autoShowErrorConsole")}/>
