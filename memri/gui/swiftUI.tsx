@@ -32,7 +32,8 @@ interface MemriUIProps {
     bold?,
     overflowY?,
     shadow?,
-    corners?
+    corners?,
+    alignment?,
 }
 
 export class MainUI extends React.Component<MemriUIProps, {}> {

@@ -104,6 +104,12 @@
     {
         "_type": "NavigationItem",
         "type": "item",
+        "title": "crypto keys",
+        "sessionName": "all-cryptokeys"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
         "title": "labels",
         "sessionName": "all-labels"
     },
@@ -128,6 +134,12 @@
     {
         "_type": "NavigationItem",
         "type": "item",
+        "title": "faces",
+        "sessionName": "all-face-clusters"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
         "title": "indexer instances",
         "sessionName": "all-indexer-instances"
     },
@@ -136,12 +148,6 @@
         "type": "item",
         "title": "location",
         "sessionName": "all-locations"
-    },
-    {
-        "_type": "NavigationItem",
-        "itemType": "item",
-        "title": "crypto keys",
-        "sessionName": "all-cryptokeys"
     },
     {
         "_type": "NavigationItem",
@@ -214,6 +220,14 @@
     },
     {
         "_type": "Indexer",
+        "name": "Face Clustering Indexer",
+        "query": "Photo",
+        "indexerClass": "FaceClusteringIndexer",
+        "itemDescription": "Recognizes faces in photos, and clusters them into groups.",
+        "icon": "person.2.square.stack"
+    },
+    {
+        "_type": "Indexer",
         "name": "Geolocation indexer",
         "indexerClass": "GeoIndexer",
         "itemDescription": "Enriches datatypes with geographic coordinates with their corresponding cities and countries",
@@ -279,6 +293,62 @@
                 "_target": {
                     "_type": "File",
                     "filename": "iphone-imager39"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 976,
+        "height": 549,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family1"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 600,
+        "height": 300,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family2"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 480,
+        "height": 480,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family3"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 681,
+        "height": 381,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family4"
                 }
             }
         ]
@@ -2289,6 +2359,11 @@
                 "uid": 1
             },
             {
+                "_type": "occurence",
+                "targetType": "Photo",
+                "uid": 398901324761
+            },
+            {
                 "_type": "profilePicture",
                 "targetType": "Photo",
                 "uid": 10512
@@ -4237,6 +4312,26 @@
                 "targetType": "Account",
                 "uid": 20000000000,
                 "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000013,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "subject": "Fwd: Reservation at Rome Boutique & Hotel is confirmed ",
+        "content": "Dear Eve, you reservation at Rome boutique & Hotel is confirmed. Find the details of your reservation below<br><br><b>Normal room double bed</b><br><br><img src='https://unsplash.com/photos/msFZE7d9KB4/download?force=true&w=640' style='width:150px;'><br><br><b>Total amount</b> (3 days): 341,87 <br><b>Tax:</b> 2,54\n<b>Total:</b>344,41<br><br> Find more information at <a href='https://mybnb.com/mockreservation123'>https://mybnb.com/mockreservation123</a>",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
             }
         ]
     },
