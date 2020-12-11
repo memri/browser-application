@@ -960,7 +960,10 @@ export class Toggle extends MainUI {
             }
         }
         return (
-            <Switch style={this.setStyles()} {...other}/>
+            <>
+                <Switch style={this.setStyles()} {...other}/>
+                {this.props.children}
+            </>
         )
     }
 }
