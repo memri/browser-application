@@ -1,6 +1,6 @@
 [session = all-message-channels] {
     [view] {
-        title: "Messages"
+        title: "All Chats"
         [datasource = pod] {
             query: "MessageChannel"
         }
