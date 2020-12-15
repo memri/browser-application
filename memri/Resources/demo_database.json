@@ -1,5 +1,60 @@
 [
     {
+        "_type": "Setting",
+        "key": "defaults/general/gui/showEditButton",
+        "value": true
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/general/gui/showDateAgo",
+        "value": true
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/general/gui/useMapBox",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/sensors/location/track",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/formatting/date",
+        "value": "yyyy/MM/dd HH:mm"
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/pod/host",
+        "value": "http://localhost:3030"
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/pod/username",
+        "value": ""
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/pod/password",
+        "value": ""
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/debug/autoShowErrorConsole",
+        "value": false
+    },
+    {
+        "_type": "Setting",
+        "key": "defaults/debug/autoReloadCVU",
+        "value": true
+    },
+    {
+        "_type": "NavigationItem",
+        "itemType": "heading",
+        "title": "Inbox"
+    },
+    {
         "_type": "NavigationItem",
         "itemType": "item",
         "title": "Messages",
@@ -580,116 +635,136 @@
         "width": 250,
         "height": 250,
         "dateCreated": 1589691657000,
->>>>>>> dev-last
         "allEdges": [
             {
-                "_type": "me",
-                "targetType": "Person",
-                "uid": 1
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-imager43"
+                }
             }
         ]
     },
     {
-        "uid": 2,
-        "_type": "Person",
-        "firstName": "Bob",
-        "lastName": "Brown",
-        "birthDate": 543777745298,
-        "height": 197,
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
         "allEdges": [
             {
-                "_type": "relationship",
-                "targetType": "Person",
-                "uid": 1
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image8"
+                }
             }
         ]
     },
     {
-        "_type": "Account",
-        "uid": 20000000000,
-        "displayName": "Myself",
-        "externalId": "101010101010@s.whatsapp.net",
-        "nameQuality": 2,
-        "enablePresence": true,
-        "enableReceipts": true,
-        "service": "whatsapp",
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
         "allEdges": [
             {
-                "targetType": "Person",
-                "uid": 1,
-                "_type": "owner"
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person6"
+                }
             }
         ]
     },
     {
-        "_type": "Account",
-        "uid": 20000000001,
-        "displayName": "+123456789 (WA)",
-        "externalId": "123456789@s.whatsapp.net",
-        "enablePresence": true,
-        "enableReceipts": true,
-        "service": "whatsapp",
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
         "allEdges": [
             {
-                "targetType": "Person",
-                "uid": 2,
-                "_type": "owner"
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image11"
+                }
             }
         ]
     },
     {
-        "_type": "MessageChannel",
-        "uid": 20000000005,
-        "externalId": "123456789@s.whatsapp.net",
-        "topic": "WhatsApp private chat",
-        "encrypted": false,
+        "_type": "Photo",
+        "uid": 10507,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
         "allEdges": [
             {
-                "targetType": "Account",
-                "uid": 20000000000,
-                "_type": "receiver"
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person9"
+                }
             }
         ]
     },
     {
-        "_type": "Message",
-        "uid": 20000000009,
-        "externalId": "9BDD372B9D4F7486D2A0",
-        "content": "Meowz?",
-        "dateSent": 1589691670000,
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
         "allEdges": [
             {
-                "targetType": "MessageChannel",
-                "uid": 20000000005,
-                "_type": "messageChannel"
-            },
-            {
-                "targetType": "Account",
-                "uid": 20000000001,
-                "_type": "sender"
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person10"
+                }
             }
         ]
     },
     {
-        "_type": "Message",
-        "uid": 20000000010,
-        "externalId": "9BDD372B9D4F7486D2A1",
-        "content": "Yoo~",
-        "dateSent": 1589691670001,
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
         "allEdges": [
             {
-                "targetType": "MessageChannel",
-                "uid": 20000000005,
-                "_type": "messageChannel"
-            },
-            {
-                "targetType": "Account",
-                "uid": 20000000000,
-                "_type": "sender"
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person11"
+                }
             }
         ]
-<<<<<<< HEAD
-=======
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person12"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person13"
+                }
+            }
+        ]
     },
     {
         "_type": "Photo",
