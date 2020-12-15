@@ -14,7 +14,7 @@ import {
 	padding,
 	Spacer,
 	VStack,
-	MemriText
+	MemriText, font
 } from "../swiftUI";
 import {ActionDelete} from "../../../router";
 import {Color} from "../../../router";
@@ -38,8 +38,9 @@ export class ContextualBottomBar extends MainUI {
 		if (this.shouldShow()) {
 			return (
 				<div className={"ContextualBottomBar"}>
-				<VStack spacing={0} background={new Color("secondarySystemBackground").toLowerCase()}>
-					<MemriDivider/>
+					<VStack spacing={0} background={new Color("secondarySystemBackground").toLowerCase()}
+							font={font({family: "body"})}>
+						<MemriDivider/>
 					<HStack padding={padding({horizontal: "default", vertical: 5})}>
 						{this.context.editMode &&
 						this.context.allItemsSelected ?
@@ -67,7 +68,6 @@ export class ContextualBottomBar extends MainUI {
 									/*fixedSize*/
 									padding={padding({horizontal: 5, vertical: 5})}
 									foregroundColor={this.nonEmptySelection() ? "red" : "secondary"}
-									/*font={"body"}*/
 								>delete</MemriImage>
 
 							</MemriRealButton>

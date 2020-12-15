@@ -136,7 +136,7 @@ export class TopNavigation extends MainUI {
 			<VStack spacing={0}
 					padding={padding({bottom: 0})}
 					centeredOverlayWithinBoundsPreferenceKey>
-				<HStack alignment={Alignment.center} spacing={10}
+				<HStack alignment={Alignment.center}
 						padding={padding({vertical: 12, horizontal: 15})}
 						frame={frame({height: 50})} background={new Color("secondarySystemGroupedBackground").toLowerCase()}
 				>
@@ -177,7 +177,7 @@ export class TopNavigation extends MainUI {
 							</MemriImage>
 						</MemriRealButton>
 					}
-					<ColorArea layoutPriority={5}>
+					<ColorArea layoutPriority={5} frame={frame({width: "100%"})} textAlign={"center"}>
 						<MemriRealButton action={() => {
 											if (!this.showingTitleActions) {
 												let titleActionButton = context.currentView?.titleActionButton

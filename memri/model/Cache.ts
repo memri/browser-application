@@ -104,6 +104,15 @@ export class CacheMemri {
 				}
 
 				let item = CacheMemri.createItem(type, values);
+
+				/*if (item instanceof File) { //TODO: this will not work for now @mkslanc
+					let file = item;
+					let filename = file.getFilename();
+					let hash = FileStorageController.getHashForFile(filename)
+					file.sha256 = hash;
+					//LocalFileSyncQueue.add(fileUUID: filename, sha256: hash, task: "upload")
+				}*/
+
 				// Set fake dateModified for the demo data
 				item.dateModified = getRandomInt(Number(new Date()) - 2592000*1000, Number(new Date()));
 				let allEdges = dict["allEdges"]

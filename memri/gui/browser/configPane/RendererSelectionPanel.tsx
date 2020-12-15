@@ -39,7 +39,7 @@ export class RendererSelectionPanel extends MainUI {
                                             {rendererType.icon}
                                         </MemriImage>
                                         <MemriText
-                                            font={font(this.isActive(rendererType.name) ? {weight: Font.Weight.bold} : {weight: Font.Weight.regular})}>
+                                            font={font(this.isActive(rendererType.name) ? {family: "body", weight: Font.Weight.bold} : {family: "body", weight: Font.Weight.regular})}>
                                             {rendererType.name.titleCase()}
                                         </MemriText>
                                         <Spacer/>

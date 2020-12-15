@@ -193,23 +193,6 @@ class LabelAnnotationRendererConfig extends CascadingRendererConfig {
     }
 
     get labelOptionIcons() {
-        let labelOptionIcons = this.cascadeList("labelOptionIcons")
-        let changedLabelOptions = {//TODO
-            "person.circle": "person",
-            "bell": "notifications_none",
-            "creditcard": "credit_card",
-            "cart": "shopping_cart",
-            "hand.thumbsdown": "thumb_down"
-        }
-        let resultLabelOptions = []
-        for (let i in labelOptionIcons) {
-            let labelOption = labelOptionIcons[i]
-            if (changedLabelOptions[labelOption]) {
-                labelOption = changedLabelOptions[labelOption]
-            }
-            resultLabelOptions.push(labelOption)
-        }
-        return resultLabelOptions
         return this.cascadeList("labelOptionIcons")
     }
 }
@@ -301,7 +284,7 @@ class LabelSelectionView extends MainUI {
         return (
             <div id={"LabelAnnotationRenderer"}>
                 <VStack spacing={0} disabled={!this.enabled} bottom={0}>
-                    <MemriText padding={padding({horizontal: 10, vertical: 5})}
+                    <MemriText font={font({family: "body"})} padding={padding({horizontal: 10, vertical: 5})}
                                background={new Color("secondarySystemBackground")}>
                         {this.topText}
                     </MemriText>

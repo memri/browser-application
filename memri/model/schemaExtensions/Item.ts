@@ -953,6 +953,13 @@ export class Edge {
         return getItemType(ItemFamily[this.sourceItemType ?? ""]);
     }
 
+    /// Checks that source and target items exist
+    isValid(): boolean {
+        return DatabaseController.trySync(false, (realm) =>
+            realm.objectForPrimaryKey("Item", this.sourceItemID) != undefined && realm.objectForPrimaryKey("Item", this.targetItemID) != undefined
+        ) ?? false
+    }
+
     target() {
         try {
             return DatabaseController.trySync(false,(item) => {
@@ -6762,9 +6769,7 @@ export function me() {
         }
         return myself
     } catch {
-        let person = new Person()
-        //Add to realm
-        realm.add(person)
+        let person = CacheMemri.createItem("Person")
         return person
     }
 }

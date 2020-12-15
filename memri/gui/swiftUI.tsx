@@ -32,7 +32,8 @@ interface MemriUIProps {
     bold?,
     overflowY?,
     shadow?,
-    corners?
+    corners?,
+    alignment?,
 }
 
 export class MainUI extends React.Component<MemriUIProps, {}> {
@@ -242,21 +243,11 @@ export class Content extends MainUI {
 export class MemriRealButton extends MainUI {
     constructor(props) {
         super(props);
-        this.state = {
-            showAlert: false,
-        };
-        this.onAlert = this.onAlert.bind(this);
-    }
-
-    onAlert() {
-        this.setState({
-            showAlert: true,
-        });
     }
 
     render() {
-        let {sheet, flexGrow, alert, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
-        action = alert ? this.onAlert : (action && typeof action == "function") ? action :  ()=> {};
+        let {sheet, flexGrow, font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, action, ...other} = this.props;
+        action = (action && typeof action == "function") ? action :  () => {};
         let style = this.setStyles();
         Object.assign(style, {minWidth: style.minWidth ?? "10px", textTransform: "none"})
         return (
@@ -265,10 +256,6 @@ export class MemriRealButton extends MainUI {
                     <Button onClick={action} style={style} {...other}>
                         {this.props.children}
                     </Button>
-                    {this.state.showAlert ?
-                        alert :
-                        null
-                    }
                 </div>
                 {sheet != undefined &&
                     sheet()
@@ -360,7 +347,7 @@ export class NavigationView extends MainUI {
                 </>
                 }
                 <div className={"NavigationViewContent"}>
-                    {this.state.destination || this.props.children}
+                    {this.state.destination ? this.state.destination() : this.props.children}
                 </div>
             </div>
         )
@@ -373,25 +360,16 @@ export class NavigationLink extends MainUI {
     previousNavigationBarTitle
     constructor(props) {
         super(props);
-        this.state = {
-            showComponent: false,
-        };
         this._onNavigationLinkClick = this._onNavigationLinkClick.bind(this);
     }
 
     _onNavigationLinkClick() {
-        this.setState({
-            showComponent: true,
-        });
         this.previousNavigationBarTitle = this.props.context.getNavigationBarTitle()
         this.props.context.setNavigationBarTitle(undefined)
         this.props.context.setNavigationBarDestination(this.props.destination)
         this.props.context.setNavigationBarItems({leading: <MemriRealButton action={() => {
                 this.props.context.setNavigationBarDestination(undefined);
                 this.props.context.setNavigationBarItems({})
-                this.setState({
-                    showComponent: false,
-                });
         }
             }><div style={{color: "blue", display: "flex"}}>
                 <MemriImage>chevron_left</MemriImage>
@@ -409,10 +387,6 @@ export class NavigationLink extends MainUI {
                     {this.props.children}
                     <MemriImage>chevron_right</MemriImage>
                 </MemriRealButton>
-                {this.state.showComponent ?
-                    destination :
-                    null
-                }
             </>
         )
     }
@@ -530,11 +504,25 @@ export class ScrollView extends MainUI {
     }
 }
 export class MemriImage extends MainUI {
+    static iconMapper = {
+        "person.circle": "person",
+        "bell": "notifications_none",
+        "creditcard": "credit_card",
+        "cart": "shopping_cart",
+        "hand.thumbsdown": "thumb_down",
+        "increase.indent": "format_indent_increase"
+    }
+
+    getIcon(icon) {
+        return MemriImage.iconMapper[icon] ?? icon;
+
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
         return (
             <Icon style={this.setStyles()} fontSize="small" {...other}>
-                {this.props.children}
+                {this.getIcon(this.props.children)}
             </Icon>
         )
     }
@@ -972,7 +960,10 @@ export class Toggle extends MainUI {
             }
         }
         return (
-            <Switch style={this.setStyles()} {...other}/>
+            <>
+                <Switch style={this.setStyles()} {...other}/>
+                {this.props.children}
+            </>
         )
     }
 }
@@ -1009,25 +1000,33 @@ export class Circle extends MainUI {
 }
 
 export class MemriAlert extends MainUI {
+    closeCallback
     constructor(props) {
         super(props);
-        this.state = {
-            open: true,
-        };
         this.handleClose = this.handleClose.bind(this);
     }
 
     handleClose() {
-        this.setState({
-            open: false,
-        });
+        this.closeCallback && this.closeCallback()
+    }
+
+    doAction(action) {
+        action && action()
+        this.handleClose()
+    }
+
+    getButton(button) {
+        return <MemriRealButton action={() => this.doAction(button.action)}>
+            {button.text}
+        </MemriRealButton>
     }
 
     render() {
-        let {primaryButton, secondaryButton, title, message, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {primaryButton, secondaryButton, title, message, closeCallback, open, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        this.closeCallback = closeCallback
         return (
             <div style={this.setStyles()} className="Alert" {...other}>
-                <Dialog open={this.state.open} onClose={this.handleClose}>
+                <Dialog open={open} onClose={this.handleClose}>
                     {title &&
                     <DialogTitle>{title}</DialogTitle>
                     }
@@ -1038,8 +1037,8 @@ export class MemriAlert extends MainUI {
                     }
                     {(primaryButton || secondaryButton) &&
                     <DialogActions>
-                        {primaryButton}
-                        {secondaryButton}
+                        {this.getButton(primaryButton)}
+                        {this.getButton(secondaryButton)}
                     </DialogActions>
                     }
                 </Dialog>
@@ -1226,6 +1225,44 @@ export function offset(attrs:{x?,y?}) { //TODO: x,y
 
 export function font(attrs:{family?: string, size?:number; weight?: string; italic?: boolean}) {
     let fontObj = {};
+    if (attrs.family) {
+        switch (attrs.family) {
+            case "largeTitle":
+                fontObj["fontSize"] = 34;
+                break;
+            case "title":
+                fontObj["fontSize"] = 28;
+                break;
+            case "title2":
+                fontObj["fontSize"] = 22;
+                break;
+            case "title3":
+                fontObj["fontSize"] = 20;
+                break;
+            case "headline":
+                fontObj["fontSize"] = 17;
+                fontObj["fontWeight"] = 500;
+                break;
+            case "subheadline":
+                fontObj["fontSize"] = 15;
+                break;
+            case "body":
+                fontObj["fontSize"] = 17;
+                break;
+            case "callout":
+                fontObj["fontSize"] = 16;
+                break;
+            case "footnote":
+                fontObj["fontSize"] = 13;
+                break;
+            case "caption":
+                fontObj["fontSize"] = 12;
+                break;
+            case "caption2":
+                fontObj["fontSize"] = 11;
+                break;
+        }
+    }
     if (attrs.size)
         fontObj["fontSize"] = attrs.size;
     if (attrs.italic)

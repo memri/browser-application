@@ -255,6 +255,8 @@ export class Sync {
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {
+                    if (!edge.isValid())
+                        continue
                     edgeQueue[action]?.push(edge)
                     found += 1
                 }
@@ -380,68 +382,28 @@ export class Sync {
 
     syncFilesToPod(callback) {
         DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
-            var list = [];
             let items = realm.objects("LocalFileSyncQueue").filtered("task = 'upload'")
-            items.forEach(($0) => {
-                let s = $0["sha256"];
-                if (typeof s == "string") {
-                    list.push(s)
-                }
-            })
-
-            if (list.length == 0) {
-                callback(undefined) // done
-                return
-            }
-
-
-            function validate(sha256: string) {
-                return DatabaseController.sync(false, (realm) => {
-                    let file = realm.objects("File").filtered(`sha256 = '${sha256}'`)[0];
-                    if (!file || file._action == "create" || file._updated.includes("sha256")) {
-                        return false
+            for (let item of items) {
+                let itemSha256 = item.sha256
+                this.podAPI.uploadFile(item.fileUUID, (error, progress, response) => {
+                    if (error) {
+                        debugHistory.warn(`${error}`) // TODO ERror handling
+                        callback(error)
+                    } else if (progress) {
+                        console.log(`UploadFile progress ${progress}`)
+                    } else if (response) {
+                        this.LocalFileSyncQueue.remove(itemSha256) //TODO:
+                    } else {
+                        debugHistory.warn("Unknown error") // TODO ERror handling
+                        callback(error)
                     }
-                    return true
-                }) ?? true
+                })
+
             }
-
-            var i = -1
-
-            function next() {
-                i += 1
-                let sha256 = list[i];
-                if (!sha256) {
-                    callback(undefined) // done
-                    return
-                }
-
-                if (validate(sha256)) {
-                    this.podAPI.uploadFile(sha256, (error, progress, response) => {
-                        if (error) {
-                            debugHistory.warn(`${error}`) // TODO ERror handling
-                            callback(error)
-                        } else if (progress) {
-                            console.log(`UploadFile progress ${progress}`)
-                        } else if (response) {
-                            this.LocalFileSyncQueue.remove(sha256) //TODO:
-                            next()
-                        } else {
-                            debugHistory.warn("Unknown error") // TODO ERror handling
-                            callback(error)
-                        }
-                    })
-                    return
-                } else {
-                    this.LocalFileSyncQueue.remove(sha256) //TODO:
-                    next()
-                }
-            }
-
-            next()
         })
     }
 
-    //TODO: This is terribly brittle, we'll need to completely rearchitect syncing")
+    //TODO: This is terribly brittle, we'll need to completely rearchitect syncing
     async syncAllFromPod(callback) {
         await this.syncQuery(new Datasource("CVUStoredDefinition"), false, () => {
             this.syncQuery(new Datasource("CVUStateDefinition"), false, () => {

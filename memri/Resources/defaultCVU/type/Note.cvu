@@ -208,7 +208,7 @@ Note[] {
         detailLevel: hour
 
 		TimelineItem {
-			icon: "edit"
+			icon: "square.and.pencil"
 			title: {{.title.plainString or "Untitled"}}
 			text: {{.content.plainString}}
 		}

@@ -49,6 +49,12 @@
     {
         "_type": "NavigationItem",
         "type": "item",
+        "title": "crypto keys",
+        "sessionName": "all-cryptokeys"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
         "title": "labels",
         "sessionName": "all-labels"
     },
@@ -69,6 +75,12 @@
         "type": "item",
         "title": "indexers",
         "sessionName": "all-indexers"
+    },
+    {
+        "_type": "NavigationItem",
+        "type": "item",
+        "title": "faces",
+        "sessionName": "all-face-clusters"
     },
     {
         "_type": "NavigationItem",
@@ -123,12 +135,452 @@
         "sessionName": "all-audit-items"
     },
     {
-        "uid": 1,
-        "_type": "Person",
-        "firstName": "Alice",
-        "lastName": "Awesome",
-        "birthDate": 543777745298,
-        "height": 197,
+        "_type": "Importer",
+        "name": "iCloud notes",
+        "dataType": "Note",
+        "repository": "memri-nodeintegrators:latest",
+        "icon": "cloud"
+    },
+    {
+        "_type": "Importer",
+        "name": "Evernote notes",
+        "dataType": "Note",
+        "repository": "memri-pyintegrators:latest",
+        "bundleImage": "evernote-icon"
+    },
+    {
+        "_type": "Importer",
+        "name": "Gmail",
+        "dataType": "Email",
+        "repository": "memri-pyintegrators:latest",
+        "icon": "envelope",
+        "itemDescription": "To run this importer you need a to fill in an email address and an app password below, and enable IMAP in your email settings, for gmail that is under \nhttps://mail.google.com/mail/u/0/#settings/fwdandpop \nThe recommended usage is with an app password, for which you need to enable 2FA (Google), which you can do under Security at \nhttps://myaccount.google.com/security"
+    },
+    {
+        "_type": "Importer",
+        "name": "WhatsApp",
+        "dataType": "whatsapp",
+        "repository": "memri-rustintegrators:latest",
+        "icon": "message"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Face Clustering Indexer",
+        "query": "Photo",
+        "indexerClass": "FaceClusteringIndexer",
+        "itemDescription": "Recognizes faces in photos, and clusters them into groups.",
+        "icon": "person.2.square.stack"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Geolocation indexer",
+        "indexerClass": "GeoIndexer",
+        "itemDescription": "Enriches datatypes with geographic coordinates with their corresponding cities and countries",
+        "icon": "mappin.and.ellipse"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Note Label Indexer",
+        "query": "Note",
+        "runDestination": "ios",
+        "itemDescription": "This indexer extracts labels from notes. You can specify aliases in the labels to add keywords that are used to match against.",
+        "icon": "tag"
+    },
+    {
+        "_type": "Indexer",
+        "name": "Note List Indexer",
+        "query": "Note",
+        "indexerClass": "NotesListIndexer",
+        "itemDescription": "This indexer extracts lists from notes. It detects both structured and unstructured lists",
+        "icon": "text.badge.plus"
+    },
+    {
+        "_type": "Note",
+        "title": "A demo note",
+        "starred": true,
+        "content": "<p><strong>Hi there,<\/strong><\/p><p>Let's explore the <u>new<\/u> text editor.<\/p><p><\/p><ul> <li><p>This is a list<\/p><\/li> <li><p>You can press return to make a new item<\/p>  <ul>   <li><p>Indented item<\/p><\/li>   <li><p><s>Something else<\/s><\/p><\/li>  <\/ul><\/li><\/ul><p><\/p><p>Or an ordered list:<\/p><ol> <li><p>Milk<\/p><\/li> <li><p>Eggs<\/p><\/li> <li><p>Flour<\/p>  <ol>   <li><p>Self-raising<\/p><\/li>   <li><p>Plain<\/p><\/li>  <\/ol><\/li><\/ol><p><\/p><p><strong>Todo list<\/strong><\/p><ul data-type=\"todo_list\"> <li data-type=\"todo_item\" data-done=\"true\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span>  <div class=\"todo-content\">   <p>Try out new editor<\/p>  <\/div><\/li> <li data-type=\"todo_item\" data-done=\"false\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span>  <div class=\"todo-content\">   <p>Finish writing blog post <\/p> <ul data-type=\"todo_list\"><li data-type=\"todo_item\" data-done=\"false\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span><div class=\"todo-content\"><p>Improve the second paragraph<\/p><\/div><\/li><\/ul><\/div><\/li> <li data-type=\"todo_item\" data-done=\"false\"><span class=\"todo-checkbox\" contenteditable=\"false\"><\/span>  <div class=\"todo-content\">   <p>Prepare presentation<\/p>  <\/div><\/li><\/ul><p><\/p><p>It also supports both <code>inline code<\/code> and code blocks:<\/p><pre><code>def some_function(argument):\n    return \"Automatic code highlighting!\"<\/code><\/pre><p><\/p><p><\/p>"
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image6"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-imager9"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-imager39"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 976,
+        "height": 549,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family1"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 600,
+        "height": 300,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family2"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 480,
+        "height": 480,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family3"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 681,
+        "height": 381,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "modern_family4"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image4"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image5"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image2"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image13"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "karen-penroz-06ZTGDcAQFs-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "uid": 79200,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image16"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-imager67"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-imager69"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-imager71"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person30"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1500,
+        "caption": "A bridge at night",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "ave-calvar-ukuIJ6ReFms-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1482,
+        "height": 1000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "karen-penroz-06ZTGDcAQFs-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1500,
+        "caption": "Lavender",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "katarzyna-korobczuk-pwUjBdc5U9c-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 1000,
+        "height": 1333,
+        "caption": "Coffee is the answer!",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "szabo-viktor-tarTTEaiIx4-unsplash"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image2"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person1"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image1"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image3"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "iphone-image6"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+>>>>>>> dev-last
         "allEdges": [
             {
                 "_type": "me",
@@ -236,5 +688,3876 @@
                 "_type": "sender"
             }
         ]
+<<<<<<< HEAD
+=======
+    },
+    {
+        "_type": "Photo",
+        "uid": 10513,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person2"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person3"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person4"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person14"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person15"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person16"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person17"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person18"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10518,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person19"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10517,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person20"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10516,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person21"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10515,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person22"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10514,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person23"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person24"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10512,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person25"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10511,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person26"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10510,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person27"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10509,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person28"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person29"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person30"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10506,
+        "width": 250,
+        "height": 250,
+        "dateCreated": 1589691657000,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person7"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person10"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image17"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image18"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10501,
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person58"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image19"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person56"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image29"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image55"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person52"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image19"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "uid": 10502,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person34"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image20"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image19"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image24"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person0"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image19"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10508,
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person43"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image57"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person36"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 2
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image27"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10503,
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person54"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image21"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image24"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person41"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person57"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image58"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image23"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 3
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person15"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10504,
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person6"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image18"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image59"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person49"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image25"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image60"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person50"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 10505,
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person33"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image22"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image28"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "unsplash-image30"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person18"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "width": 250,
+        "height": 250,
+        "allEdges": [
+            {
+                "_type": "includes",
+                "targetType": "Person",
+                "uid": 4
+            },
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "fake-person33"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Label",
+        "uid": 1000,
+        "name": "Green house",
+        "color": "#047a0a",
+        "aliases": [
+            "green house",
+            "green-house"
+        ]
+    },
+    {
+        "_type": "Label",
+        "uid": 1001,
+        "name": "Soccer team",
+        "color": "#83ac06"
+    },
+    {
+        "_type": "Label",
+        "uid": 1002,
+        "name": "Friends from University",
+        "color": "#ffd966"
+    },
+    {
+        "_type": "Label",
+        "uid": 1015,
+        "name": "Daily Log",
+        "color": "#83ac06",
+        "comment": "Stuff I write about daily"
+    },
+    {
+        "_type": "Label",
+        "uid": 1016,
+        "name": "Polis",
+        "color": "#ffd966",
+        "comment": "Everything about polis"
+    },
+    {
+        "_type": "Label",
+        "uid": 1017,
+        "name": "Rome Trip",
+        "color": "#835506"
+    },
+    {
+        "_type": "PhoneNumber",
+        "type": "mobile",
+        "uid": 1003,
+        "phoneNumber": "0654271340"
+    },
+    {
+        "_type": "Website",
+        "uid": 1004,
+        "type": "blog",
+        "url": "www.revolutionairyblog.com"
+    },
+    {
+        "_type": "Website",
+        "uid": 1005,
+        "type": "website",
+        "url": "www.eagleve.com"
+    },
+    {
+        "_type": "Diet",
+        "uid": 1010,
+        "type": "Vegan",
+        "additions": "egg"
+    },
+    {
+        "_type": "Diet",
+        "uid": 1011,
+        "type": "Gluten Free",
+        "additions": "sourdough"
+    },
+    {
+        "_type": "MedicalCondition",
+        "uid": 1012,
+        "type": "Psoriasis"
+    },
+    {
+        "_type": "Address",
+        "uid": 1013,
+        "type": "Home",
+        "city": "Washington, DC",
+        "state": "NW",
+        "street": "1600 Pennsylvania Ave",
+        "postalCode": "20500",
+        "allEdges": [
+            {
+                "_type": "country",
+                "targetType": "Country",
+                "uid": 1401
+            }
+        ]
+    },
+    {
+        "_type": "Address",
+        "uid": 1014,
+        "type": "Work",
+        "city": "Paris",
+        "state": "",
+        "street": "45 Rue de la plage",
+        "postalCode": "EL29",
+        "allEdges": [
+            {
+                "_type": "country",
+                "targetType": "Country",
+                "uid": 1402
+            }
+        ]
+    },
+    {
+        "_type": "Address",
+        "uid": 100013,
+        "type": "Indexer example",
+        "allEdges": [
+            {
+                "_type": "location",
+                "targetType": "Location",
+                "uid": 100017
+            }
+        ]
+    },
+    {
+        "_type": "Location",
+        "uid": 100017,
+        "latitude": -37.81,
+        "longitude": 144.96
+    },
+    {
+        "uid": 1,
+        "_type": "Person",
+        "firstName": "Alice",
+        "lastName": "Awesome",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "me",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10501
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 2,
+        "_type": "Person",
+        "firstName": "Bob",
+        "lastName": "Brown",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10502
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 3,
+        "_type": "Person",
+        "firstName": "Eve",
+        "lastName": "Eagle",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10503
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 4,
+        "_type": "Person",
+        "firstName": "Nadia",
+        "lastName": "Naranyan",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10504
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 5,
+        "_type": "Person",
+        "firstName": "Yael",
+        "lastName": "Houston",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10505
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 6,
+        "_type": "Person",
+        "firstName": "Jay",
+        "lastName": "Richards",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10506
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 7,
+        "_type": "Person",
+        "firstName": "Yu",
+        "lastName": "Wei",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10507
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 8,
+        "_type": "Person",
+        "firstName": "Tim",
+        "lastName": "Blake",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10508
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 9,
+        "_type": "Person",
+        "firstName": "Suzan",
+        "lastName": "Sanders",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10509
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 10,
+        "_type": "Person",
+        "firstName": "Ellie",
+        "lastName": "Sanders",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10510
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 11,
+        "_type": "Person",
+        "firstName": "Mike",
+        "lastName": "McCalaster",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10511
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 12,
+        "_type": "Person",
+        "firstName": "Anne",
+        "lastName": "Bernards",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "occurence",
+                "targetType": "Photo",
+                "uid": 398901324761
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10512
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 13,
+        "_type": "Person",
+        "firstName": "Yiri",
+        "lastName": "Thomasson",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10513
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 14,
+        "_type": "Person",
+        "firstName": "Lidia",
+        "lastName": "Lawrence",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10514
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 15,
+        "_type": "Person",
+        "firstName": "Tom",
+        "lastName": "Hanson",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10515
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 16,
+        "_type": "Person",
+        "firstName": "Peter",
+        "lastName": "Michels",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10516
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 17,
+        "_type": "Person",
+        "firstName": "Dan",
+        "lastName": "Smith",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10517
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "uid": 18,
+        "_type": "Person",
+        "firstName": "Sarah",
+        "lastName": "Davis",
+        "birthDate": 543777745298,
+        "height": 197,
+        "allEdges": [
+            {
+                "_type": "relationship",
+                "targetType": "Person",
+                "uid": 1
+            },
+            {
+                "_type": "profilePicture",
+                "targetType": "Photo",
+                "uid": 10518
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "version": 1
+    },
+    {
+        "_type": "File",
+        "uid": 219603712098,
+        "filename": "unsplash-image2"
+    },
+    {
+        "_type": "File",
+        "uid": 219603712099,
+        "filename": "karen-penroz-06ZTGDcAQFs-unsplash"
+    },
+    {
+        "_type": "File",
+        "uid": 219603712100,
+        "filename": "szabo-viktor-tarTTEaiIx4-unsplash"
+    },
+    {
+        "name": "Afghanistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Akrotiri",
+        "_type": "Country"
+    },
+    {
+        "name": "Albania",
+        "_type": "Country"
+    },
+    {
+        "name": "Algeria",
+        "_type": "Country"
+    },
+    {
+        "name": "American Samoa",
+        "_type": "Country"
+    },
+    {
+        "name": "Andorra",
+        "_type": "Country"
+    },
+    {
+        "name": "Angola",
+        "_type": "Country"
+    },
+    {
+        "name": "Anguilla",
+        "_type": "Country"
+    },
+    {
+        "name": "Antarctica",
+        "_type": "Country"
+    },
+    {
+        "name": "Antigua and Barbuda",
+        "_type": "Country"
+    },
+    {
+        "name": "Argentina",
+        "_type": "Country"
+    },
+    {
+        "name": "Armenia",
+        "_type": "Country"
+    },
+    {
+        "name": "Aruba",
+        "_type": "Country"
+    },
+    {
+        "name": "Ashmore and Cartier Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Australia",
+        "_type": "Country"
+    },
+    {
+        "name": "Austria",
+        "_type": "Country"
+    },
+    {
+        "name": "Azerbaijan",
+        "_type": "Country"
+    },
+    {
+        "name": "Bahamas, The",
+        "_type": "Country"
+    },
+    {
+        "name": "Bahrain",
+        "_type": "Country"
+    },
+    {
+        "name": "Bangladesh",
+        "_type": "Country"
+    },
+    {
+        "name": "Barbados",
+        "_type": "Country"
+    },
+    {
+        "name": "Bassas da India",
+        "_type": "Country"
+    },
+    {
+        "name": "Belarus",
+        "_type": "Country"
+    },
+    {
+        "name": "Belgium",
+        "_type": "Country"
+    },
+    {
+        "name": "Belize",
+        "_type": "Country"
+    },
+    {
+        "name": "Benin",
+        "_type": "Country"
+    },
+    {
+        "name": "Bermuda",
+        "_type": "Country"
+    },
+    {
+        "name": "Bhutan",
+        "_type": "Country"
+    },
+    {
+        "name": "Bolivia",
+        "_type": "Country"
+    },
+    {
+        "name": "Bosnia and Herzegovina",
+        "_type": "Country"
+    },
+    {
+        "name": "Botswana",
+        "_type": "Country"
+    },
+    {
+        "name": "Bouvet Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Brazil",
+        "_type": "Country"
+    },
+    {
+        "name": "British Indian Ocean Territory",
+        "_type": "Country"
+    },
+    {
+        "name": "British Virgin Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Brunei",
+        "_type": "Country"
+    },
+    {
+        "name": "Bulgaria",
+        "_type": "Country"
+    },
+    {
+        "name": "Burkina Faso",
+        "_type": "Country"
+    },
+    {
+        "name": "Burma",
+        "_type": "Country"
+    },
+    {
+        "name": "Burundi",
+        "_type": "Country"
+    },
+    {
+        "name": "Cambodia",
+        "_type": "Country"
+    },
+    {
+        "name": "Cameroon",
+        "_type": "Country"
+    },
+    {
+        "name": "Canada",
+        "_type": "Country"
+    },
+    {
+        "name": "Cape Verde",
+        "_type": "Country"
+    },
+    {
+        "name": "Cayman Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Central African Republic",
+        "_type": "Country"
+    },
+    {
+        "name": "Chad",
+        "_type": "Country"
+    },
+    {
+        "name": "Chile",
+        "_type": "Country"
+    },
+    {
+        "name": "China",
+        "_type": "Country"
+    },
+    {
+        "name": "Christmas Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Clipperton Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Cocos (Keeling) Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Colombia",
+        "_type": "Country"
+    },
+    {
+        "name": "Comoros",
+        "_type": "Country"
+    },
+    {
+        "name": "Congo, Democratic Republic of the",
+        "_type": "Country"
+    },
+    {
+        "name": "Congo, Republic of the",
+        "_type": "Country"
+    },
+    {
+        "name": "Cook Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Coral Sea Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Costa Rica",
+        "_type": "Country"
+    },
+    {
+        "name": "Cote d'Ivoire",
+        "_type": "Country"
+    },
+    {
+        "name": "Croatia",
+        "_type": "Country"
+    },
+    {
+        "name": "Cuba",
+        "_type": "Country"
+    },
+    {
+        "name": "Cyprus",
+        "_type": "Country"
+    },
+    {
+        "name": "Czech Republic",
+        "_type": "Country"
+    },
+    {
+        "name": "Denmark",
+        "_type": "Country"
+    },
+    {
+        "name": "Dhekelia",
+        "_type": "Country"
+    },
+    {
+        "name": "Djibouti",
+        "_type": "Country"
+    },
+    {
+        "name": "Dominica",
+        "_type": "Country"
+    },
+    {
+        "name": "Dominican Republic",
+        "_type": "Country"
+    },
+    {
+        "name": "Ecuador",
+        "_type": "Country"
+    },
+    {
+        "name": "Egypt",
+        "_type": "Country"
+    },
+    {
+        "name": "El Salvador",
+        "_type": "Country"
+    },
+    {
+        "name": "Equatorial Guinea",
+        "_type": "Country"
+    },
+    {
+        "name": "Eritrea",
+        "_type": "Country"
+    },
+    {
+        "name": "Estonia",
+        "_type": "Country"
+    },
+    {
+        "name": "Ethiopia",
+        "_type": "Country"
+    },
+    {
+        "name": "Europa Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Falkland Islands (Islas Malvinas)",
+        "_type": "Country"
+    },
+    {
+        "name": "Faroe Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Fiji",
+        "_type": "Country"
+    },
+    {
+        "name": "Finland",
+        "_type": "Country"
+    },
+    {
+        "name": "France",
+        "_type": "Country",
+        "uid": 1402
+    },
+    {
+        "name": "French Guiana",
+        "_type": "Country"
+    },
+    {
+        "name": "French Polynesia",
+        "_type": "Country"
+    },
+    {
+        "name": "French Southern and Antarctic Lands",
+        "_type": "Country"
+    },
+    {
+        "name": "Gabon",
+        "_type": "Country"
+    },
+    {
+        "name": "Gambia, The",
+        "_type": "Country"
+    },
+    {
+        "name": "Gaza Strip",
+        "_type": "Country"
+    },
+    {
+        "name": "Georgia",
+        "_type": "Country"
+    },
+    {
+        "name": "Germany",
+        "_type": "Country",
+        "starred": true
+    },
+    {
+        "name": "Ghana",
+        "_type": "Country"
+    },
+    {
+        "name": "Gibraltar",
+        "_type": "Country"
+    },
+    {
+        "name": "Glorioso Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Greece",
+        "_type": "Country"
+    },
+    {
+        "name": "Greenland",
+        "_type": "Country"
+    },
+    {
+        "name": "Grenada",
+        "_type": "Country"
+    },
+    {
+        "name": "Guadeloupe",
+        "_type": "Country"
+    },
+    {
+        "name": "Guam",
+        "_type": "Country"
+    },
+    {
+        "name": "Guatemala",
+        "_type": "Country"
+    },
+    {
+        "name": "Guernsey",
+        "_type": "Country"
+    },
+    {
+        "name": "Guinea",
+        "_type": "Country"
+    },
+    {
+        "name": "Guinea-Bissau",
+        "_type": "Country"
+    },
+    {
+        "name": "Guyana",
+        "_type": "Country"
+    },
+    {
+        "name": "Haiti",
+        "_type": "Country"
+    },
+    {
+        "name": "Heard Island and McDonald Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Holy See (Vatican City)",
+        "_type": "Country"
+    },
+    {
+        "name": "Honduras",
+        "_type": "Country"
+    },
+    {
+        "name": "Hong Kong",
+        "_type": "Country"
+    },
+    {
+        "name": "Hungary",
+        "_type": "Country"
+    },
+    {
+        "name": "Iceland",
+        "_type": "Country"
+    },
+    {
+        "name": "India",
+        "_type": "Country"
+    },
+    {
+        "name": "Indonesia",
+        "_type": "Country"
+    },
+    {
+        "name": "Iran",
+        "_type": "Country"
+    },
+    {
+        "name": "Iraq",
+        "_type": "Country"
+    },
+    {
+        "name": "Ireland",
+        "_type": "Country"
+    },
+    {
+        "name": "Isle of Man",
+        "_type": "Country"
+    },
+    {
+        "name": "Israel",
+        "_type": "Country"
+    },
+    {
+        "name": "Italy",
+        "_type": "Country"
+    },
+    {
+        "name": "Jamaica",
+        "_type": "Country"
+    },
+    {
+        "name": "Jan Mayen",
+        "_type": "Country"
+    },
+    {
+        "name": "Japan",
+        "_type": "Country"
+    },
+    {
+        "name": "Jersey",
+        "_type": "Country"
+    },
+    {
+        "name": "Jordan",
+        "_type": "Country"
+    },
+    {
+        "name": "Juan de Nova Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Kazakhstan",
+        "_type": "Country"
+    },
+    {
+        "name": "Kenya",
+        "_type": "Country"
+    },
+    {
+        "name": "Kiribati",
+        "_type": "Country"
+    },
+    {
+        "name": "Korea, North",
+        "_type": "Country"
+    },
+    {
+        "name": "Korea, South",
+        "_type": "Country"
+    },
+    {
+        "name": "Kuwait",
+        "_type": "Country"
+    },
+    {
+        "name": "Kyrgyzstan",
+        "_type": "Country"
+    },
+    {
+        "name": "Laos",
+        "_type": "Country"
+    },
+    {
+        "name": "Latvia",
+        "_type": "Country"
+    },
+    {
+        "name": "Lebanon",
+        "_type": "Country"
+    },
+    {
+        "name": "Lesotho",
+        "_type": "Country"
+    },
+    {
+        "name": "Liberia",
+        "_type": "Country"
+    },
+    {
+        "name": "Libya",
+        "_type": "Country"
+    },
+    {
+        "name": "Liechtenstein",
+        "_type": "Country"
+    },
+    {
+        "name": "Lithuania",
+        "_type": "Country"
+    },
+    {
+        "name": "Luxembourg",
+        "_type": "Country"
+    },
+    {
+        "name": "Macau",
+        "_type": "Country"
+    },
+    {
+        "name": "Macedonia",
+        "_type": "Country"
+    },
+    {
+        "name": "Madagascar",
+        "_type": "Country"
+    },
+    {
+        "name": "Malawi",
+        "_type": "Country"
+    },
+    {
+        "name": "Malaysia",
+        "_type": "Country"
+    },
+    {
+        "name": "Maldives",
+        "_type": "Country"
+    },
+    {
+        "name": "Mali",
+        "_type": "Country"
+    },
+    {
+        "name": "Malta",
+        "_type": "Country"
+    },
+    {
+        "name": "Marshall Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Martinique",
+        "_type": "Country"
+    },
+    {
+        "name": "Mauritania",
+        "_type": "Country"
+    },
+    {
+        "name": "Mauritius",
+        "_type": "Country"
+    },
+    {
+        "name": "Mayotte",
+        "_type": "Country"
+    },
+    {
+        "name": "Mexico",
+        "_type": "Country"
+    },
+    {
+        "name": "Micronesia, Federated States of",
+        "_type": "Country"
+    },
+    {
+        "name": "Moldova",
+        "_type": "Country"
+    },
+    {
+        "name": "Monaco",
+        "_type": "Country"
+    },
+    {
+        "name": "Mongolia",
+        "_type": "Country"
+    },
+    {
+        "name": "Montserrat",
+        "_type": "Country"
+    },
+    {
+        "name": "Morocco",
+        "_type": "Country"
+    },
+    {
+        "name": "Mozambique",
+        "_type": "Country"
+    },
+    {
+        "name": "Namibia",
+        "_type": "Country"
+    },
+    {
+        "name": "Nauru",
+        "_type": "Country"
+    },
+    {
+        "name": "Navassa Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Nepal",
+        "_type": "Country"
+    },
+    {
+        "name": "Netherlands",
+        "_type": "Country",
+        "starred": true
+    },
+    {
+        "name": "Netherlands Antilles",
+        "_type": "Country"
+    },
+    {
+        "name": "New Caledonia",
+        "_type": "Country"
+    },
+    {
+        "name": "New Zealand",
+        "_type": "Country"
+    },
+    {
+        "name": "Nicaragua",
+        "_type": "Country"
+    },
+    {
+        "name": "Niger",
+        "_type": "Country"
+    },
+    {
+        "name": "Nigeria",
+        "_type": "Country"
+    },
+    {
+        "name": "Niue",
+        "_type": "Country"
+    },
+    {
+        "name": "Norfolk Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Northern Mariana Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Norway",
+        "_type": "Country"
+    },
+    {
+        "name": "Oman",
+        "_type": "Country"
+    },
+    {
+        "name": "Pakistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Palau",
+        "_type": "Country"
+    },
+    {
+        "name": "Panama",
+        "_type": "Country"
+    },
+    {
+        "name": "Papua New Guinea",
+        "_type": "Country"
+    },
+    {
+        "name": "Paracel Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Paraguay",
+        "_type": "Country"
+    },
+    {
+        "name": "Peru",
+        "_type": "Country"
+    },
+    {
+        "name": "Philippines",
+        "_type": "Country"
+    },
+    {
+        "name": "Pitcairn Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Poland",
+        "_type": "Country"
+    },
+    {
+        "name": "Portugal",
+        "_type": "Country"
+    },
+    {
+        "name": "Puerto Rico",
+        "_type": "Country"
+    },
+    {
+        "name": "Qatar",
+        "_type": "Country"
+    },
+    {
+        "name": "Reunion",
+        "_type": "Country"
+    },
+    {
+        "name": "Romania",
+        "_type": "Country"
+    },
+    {
+        "name": "Russia",
+        "_type": "Country"
+    },
+    {
+        "name": "Rwanda",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Helena",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Kitts and Nevis",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Lucia",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Pierre and Miquelon",
+        "_type": "Country"
+    },
+    {
+        "name": "Saint Vincent and the Grenadines",
+        "_type": "Country"
+    },
+    {
+        "name": "Samoa",
+        "_type": "Country"
+    },
+    {
+        "name": "San Marino",
+        "_type": "Country"
+    },
+    {
+        "name": "Sao Tome and Principe",
+        "_type": "Country"
+    },
+    {
+        "name": "Saudi Arabia",
+        "_type": "Country"
+    },
+    {
+        "name": "Senegal",
+        "_type": "Country"
+    },
+    {
+        "name": "Serbia and Montenegro",
+        "_type": "Country"
+    },
+    {
+        "name": "Seychelles",
+        "_type": "Country"
+    },
+    {
+        "name": "Sierra Leone",
+        "_type": "Country"
+    },
+    {
+        "name": "Singapore",
+        "_type": "Country"
+    },
+    {
+        "name": "Slovakia",
+        "_type": "Country"
+    },
+    {
+        "name": "Slovenia",
+        "_type": "Country"
+    },
+    {
+        "name": "Solomon Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Somalia",
+        "_type": "Country"
+    },
+    {
+        "name": "South Africa",
+        "_type": "Country"
+    },
+    {
+        "name": "South Georgia and the South Sandwich Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Spain",
+        "_type": "Country"
+    },
+    {
+        "name": "Spratly Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Sri Lanka",
+        "_type": "Country"
+    },
+    {
+        "name": "Sudan",
+        "_type": "Country"
+    },
+    {
+        "name": "Suriname",
+        "_type": "Country"
+    },
+    {
+        "name": "Svalbard",
+        "_type": "Country"
+    },
+    {
+        "name": "Swaziland",
+        "_type": "Country"
+    },
+    {
+        "name": "Sweden",
+        "_type": "Country"
+    },
+    {
+        "name": "Switzerland",
+        "_type": "Country"
+    },
+    {
+        "name": "Syria",
+        "_type": "Country"
+    },
+    {
+        "name": "Taiwan",
+        "_type": "Country"
+    },
+    {
+        "name": "Tajikistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Tanzania",
+        "_type": "Country"
+    },
+    {
+        "name": "Thailand",
+        "_type": "Country"
+    },
+    {
+        "name": "Timor-Leste",
+        "_type": "Country"
+    },
+    {
+        "name": "Togo",
+        "_type": "Country"
+    },
+    {
+        "name": "Tokelau",
+        "_type": "Country"
+    },
+    {
+        "name": "Tonga",
+        "_type": "Country"
+    },
+    {
+        "name": "Trinidad and Tobago",
+        "_type": "Country"
+    },
+    {
+        "name": "Tromelin Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Tunisia",
+        "_type": "Country"
+    },
+    {
+        "name": "Turkey",
+        "_type": "Country"
+    },
+    {
+        "name": "Turkmenistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Turks and Caicos Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Tuvalu",
+        "_type": "Country"
+    },
+    {
+        "name": "Uganda",
+        "_type": "Country"
+    },
+    {
+        "name": "Ukraine",
+        "_type": "Country"
+    },
+    {
+        "name": "United Arab Emirates",
+        "_type": "Country"
+    },
+    {
+        "name": "United Kingdom",
+        "_type": "Country"
+    },
+    {
+        "name": "United States",
+        "_type": "Country",
+        "starred": true,
+        "uid": 1401
+    },
+    {
+        "name": "Uruguay",
+        "_type": "Country"
+    },
+    {
+        "name": "Uzbekistan",
+        "_type": "Country"
+    },
+    {
+        "name": "Vanuatu",
+        "_type": "Country"
+    },
+    {
+        "name": "Venezuela",
+        "_type": "Country"
+    },
+    {
+        "name": "Vietnam",
+        "_type": "Country"
+    },
+    {
+        "name": "Virgin Islands",
+        "_type": "Country"
+    },
+    {
+        "name": "Wake Island",
+        "_type": "Country"
+    },
+    {
+        "name": "Wallis and Futuna",
+        "_type": "Country"
+    },
+    {
+        "name": "West Bank",
+        "_type": "Country"
+    },
+    {
+        "name": "Western Sahara",
+        "_type": "Country"
+    },
+    {
+        "name": "Yemen",
+        "_type": "Country"
+    },
+    {
+        "name": "Zambia",
+        "_type": "Country"
+    },
+    {
+        "name": "Zimbabwe",
+        "_type": "Country"
+    },
+    {
+        "_type": "Note",
+        "title": "Add photos to your notes",
+        "content": "<p><strong><u>Hiking trip last month:</u></strong></p><img src=\"memriFile://unsplash-image2\">\n<ul>\n <li><p>Once we got to the trailhead the first 2km was steep as can be!</p></li>\n <li><p>The next section was a gentle slope up the ridge with amazing views over the valley</p></li>\n</ul>\n<p></p>\n<h2>Latte art goals:</h2>\n<img src=\"memriFile://szabo-viktor-tarTTEaiIx4-unsplash\"><p><br></p>\n<h2><span style=\"color: var(--text-color-blue);\">Color</span> <span style=\"color: var(--text-color-yellow);\">scheme</span> <span style=\"color: var(--text-color-pink);\">idea!</span></h2>\n<img src=\"memriFile://karen-penroz-06ZTGDcAQFs-unsplash\">",
+        "starred": true,
+        "dateModified": 1593710745298,
+        "allEdges": [
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            },
+            {
+                "_type": "file",
+                "targetType": "File",
+                "uid": 219603712098
+            },
+            {
+                "_type": "file",
+                "targetType": "File",
+                "uid": 219603712099
+            },
+            {
+                "_type": "file",
+                "targetType": "File",
+                "uid": 219603712100
+            }
+        ],
+        "_partial": true,
+        "version": 1
+    },
+    {
+        "_type": "Note",
+        "title": "To read list",
+        "content": "<ul data-type=\"todo_list\">\n <li data-type=\"todo_item\" data-done=\"false\"><p>Age of surveillance capitalism</p></li>\n</ul>\n<p></p>\n<p><em>What next?</em></p>",
+        "allEdges": [
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1015
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1016
+            }
+        ],
+        "dateModified": 1593577545298,
+        "version": 1
+    },
+    {
+        "_type": "Note",
+        "title": "Ideas for memri",
+        "content": "privacy by design, digital memory",
+        "dateModified": 1593677745298,
+        "version": 1
+    },
+    {
+        "_type": "Note",
+        "title": "Trip Diary - Day 3",
+        "content": "This morning we went exploring a bit closer to our hotel. First we found an amazing bakery just around the corner - their pastries where amazing!",
+        "version": 1,
+        "allEdges": [
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Network",
+        "uid": 9996,
+        "name": "Email"
+    },
+    {
+        "_type": "Network",
+        "uid": 9997,
+        "name": "Whatsapp"
+    },
+    {
+        "_type": "Network",
+        "uid": 9998,
+        "name": "Twitter"
+    },
+    {
+        "_type": "Network",
+        "uid": 9999,
+        "name": "Facebook"
+    },
+    {
+        "_type": "Account",
+        "uid": 1008,
+        "itemType": "twitter",
+        "handle": "@eagleve91",
+        "allEdges": [
+            {
+                "_type": "network",
+                "targetType": "Network",
+                "uid": 9998
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 1009,
+        "itemType": "facebook",
+        "handle": "@eagleve2393",
+        "allEdges": [
+            {
+                "_type": "network",
+                "targetType": "Network",
+                "uid": 9999
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000000,
+        "displayName": "Myself",
+        "externalId": "101010101010@s.whatsapp.net",
+        "nameQuality": 2,
+        "enablePresence": true,
+        "enableReceipts": true,
+        "service": "whatsapp",
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 1,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000001,
+        "displayName": "+123456789 (WA)",
+        "externalId": "123456789@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 2,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000002,
+        "displayName": "+987654321 (WA)",
+        "externalId": "987654321@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 4,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9999,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 20000000003,
+        "displayName": "John Doe",
+        "externalId": "1357924680@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 3,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000005,
+        "externalId": "123456789@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000002,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000006,
+        "externalId": "987654321@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000003,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000009,
+        "externalId": "9BDD372B9D4F7486D2A0",
+        "content": "Hey, are we still on for the movie night?",
+        "dateSent": 1589691670000,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000079111,
+        "externalId": "9BDD372B9D4F7486D2A1",
+        "content": "YES! Can’t wait. ",
+        "dateSent": 1589691670001,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000079112,
+        "externalId": "9BDD372B9D4F7486D2A2",
+        "content": "You pick the movie. Popcorn is on me",
+        "dateSent": 1589691670002,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000079113,
+        "externalId": "9BDD372B9D4F7486D2A3",
+        "content": "Deal. Meet me downstairs after work then",
+        "dateSent": 1589691670003,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000079114,
+        "externalId": "9BDD372B9D4F7486D2A4",
+        "content": "Should we invite Gina too?",
+        "dateSent": 1589691670004,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000079115,
+        "externalId": "9BDD372B9D4F7486D2A5",
+        "content": "Yeah, she’s fun!",
+        "dateSent": 1589691670005,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000005,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000010,
+        "externalId": "36A3043A22AC7524060B23FB54815B39",
+        "content": "Check out this photo!",
+        "dateSent": 1589691680000,
+        "allEdges": [
+            {
+                "targetType": "Photo",
+                "uid": 79200,
+                "_type": "photo"
+            },
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000006,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000002,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000011,
+        "externalId": "7A1FCF21F8E4216509EF8300D7C5CC57",
+        "content": "Where are you?",
+        "dateSent": 1589691690000,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000006,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000002,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "content": "at home",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000006,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "Message",
+        "uid": 20000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "content": "That's cool",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Message",
+                "uid": 20000000010,
+                "_type": "message"
+            },
+            {
+                "targetType": "MessageChannel",
+                "uid": 20000000006,
+                "_type": "messageChannel"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 200000500010,
+        "externalId": "987654321@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 2000000000110,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 2000000000110,
+        "externalId": "987654321@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 5,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000011,
+        "externalId": "987654321@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 2000000000111,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 2000000000111,
+        "externalId": "987654321@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 6,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000012,
+        "externalId": "987654321@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 2000000000112,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 2000000000112,
+        "externalId": "987654321@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 7,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000013,
+        "externalId": "987654321@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 2000000000113,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 2000000000113,
+        "externalId": "987654321@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 8,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "MessageChannel",
+        "uid": 20000000014,
+        "externalId": "987654321@s.whatsapp.net",
+        "name": "",
+        "topic": "WhatsApp private chat",
+        "encrypted": false,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 2000000000114,
+                "_type": "receiver"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 2000000000114,
+        "externalId": "987654321@s.whatsapp.net",
+        "enablePresence": true,
+        "enableReceipts": true,
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 9,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9997,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "Account",
+        "uid": 209003,
+        "displayName": "john@example.com",
+        "allEdges": [
+            {
+                "targetType": "Person",
+                "uid": 1,
+                "_type": "owner"
+            },
+            {
+                "targetType": "Network",
+                "uid": 9996,
+                "_type": "network"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000008,
+        "subject": "Hello",
+        "externalId": "93463F7980167E92C28FF0781E650E80",
+        "content": " <!doctype html> <html>   <head>     <meta name=\"viewport\" content=\"width=device-width\" \/>     <meta http-equiv=\"Content-Type\" content=\"text\/html; charset=UTF-8\" \/>     <title>Simple Transactional Email<\/title>     <style>       \/* -------------------------------------           GLOBAL RESETS       ------------------------------------- *\/       img {         border: none;         -ms-interpolation-mode: bicubic;         max-width: 100%; }        body {         background-color: #f6f6f6;         font-family: sans-serif;         -webkit-font-smoothing: antialiased;         font-size: 14px;         line-height: 1.4;         margin: 0;         padding: 0;         -ms-text-size-adjust: 100%;         -webkit-text-size-adjust: 100%; }        table {         border-collapse: separate;         mso-table-lspace: 0pt;         mso-table-rspace: 0pt;         width: 100%; }         table td {           font-family: sans-serif;           font-size: 14px;           vertical-align: top; }        \/* -------------------------------------           BODY & CONTAINER       ------------------------------------- *\/        .body {         background-color: #f6f6f6;         width: 100%; }        \/* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something *\/       .container {         display: block;         margin: 0 auto !important;         \/* makes it centered *\/         max-width: 580px;         padding: 10px;         width: 580px; }        \/* This should also be a block element, so that it will fill 100% of the .container *\/       .content {         box-sizing: border-box;         display: block;         margin: 0 auto;         max-width: 580px;         padding: 10px; }        \/* -------------------------------------           HEADER, FOOTER, MAIN       ------------------------------------- *\/       .main {         background: #ffffff;         border-radius: 3px;         width: 100%; }        .wrapper {         box-sizing: border-box;         padding: 20px; }        .content-block {         padding-bottom: 10px;         padding-top: 10px;       }        .footer {         clear: both;         margin-top: 10px;         text-align: center;         width: 100%; }         .footer td,         .footer p,         .footer span,         .footer a {           color: #999999;           font-size: 12px;           text-align: center; }        \/* -------------------------------------           TYPOGRAPHY       ------------------------------------- *\/       h1,       h2,       h3,       h4 {         color: #000000;         font-family: sans-serif;         font-weight: 400;         line-height: 1.4;         margin: 0;         margin-bottom: 30px; }        h1 {         font-size: 35px;         font-weight: 300;         text-align: center;         text-transform: capitalize; }        p,       ul,       ol {         font-family: sans-serif;         font-size: 14px;         font-weight: normal;         margin: 0;         margin-bottom: 15px; }         p li,         ul li,         ol li {           list-style-position: inside;           margin-left: 5px; }        a {         color: #3498db;         text-decoration: underline; }        \/* -------------------------------------           BUTTONS       ------------------------------------- *\/       .btn {         box-sizing: border-box;         width: 100%; }         .btn > tbody > tr > td {           padding-bottom: 15px; }         .btn table {           width: auto; }         .btn table td {           background-color: #ffffff;           border-radius: 5px;           text-align: center; }         .btn a {           background-color: #ffffff;           border: solid 1px #3498db;           border-radius: 5px;           box-sizing: border-box;           color: #3498db;           cursor: pointer;           display: inline-block;           font-size: 14px;           font-weight: bold;           margin: 0;           padding: 12px 25px;           text-decoration: none;           text-transform: capitalize; }        .btn-primary table td {         background-color: #3498db; }        .btn-primary a {         background-color: #3498db;         border-color: #3498db;         color: #ffffff; }        \/* -------------------------------------           OTHER STYLES THAT MIGHT BE USEFUL       ------------------------------------- *\/       .last {         margin-bottom: 0; }        .first {         margin-top: 0; }        .align-center {         text-align: center; }        .align-right {         text-align: right; }        .align-left {         text-align: left; }        .clear {         clear: both; }        .mt0 {         margin-top: 0; }        .mb0 {         margin-bottom: 0; }        .preheader {         color: transparent;         display: none;         height: 0;         max-height: 0;         max-width: 0;         opacity: 0;         overflow: hidden;         mso-hide: all;         visibility: hidden;         width: 0; }        .powered-by a {         text-decoration: none; }        hr {         border: 0;         border-bottom: 1px solid #f6f6f6;         Margin: 20px 0; }        \/* -------------------------------------           RESPONSIVE AND MOBILE FRIENDLY STYLES       ------------------------------------- *\/       @media only screen and (max-width: 620px) {         table[class=body] h1 {           font-size: 28px !important;           margin-bottom: 10px !important; }         table[class=body] p,         table[class=body] ul,         table[class=body] ol,         table[class=body] td,         table[class=body] span,         table[class=body] a {           font-size: 16px !important; }         table[class=body] .wrapper,         table[class=body] .article {           padding: 10px !important; }         table[class=body] .content {           padding: 0 !important; }         table[class=body] .container {           padding: 0 !important;           width: 100% !important; }         table[class=body] .main {           border-left-width: 0 !important;           border-radius: 0 !important;           border-right-width: 0 !important; }         table[class=body] .btn table {           width: 100% !important; }         table[class=body] .btn a {           width: 100% !important; }         table[class=body] .img-responsive {           height: auto !important;           max-width: 100% !important;           width: auto !important; }}        \/* -------------------------------------           PRESERVE THESE STYLES IN THE HEAD       ------------------------------------- *\/       @media all {         .ExternalClass {           width: 100%; }         .ExternalClass,         .ExternalClass p,         .ExternalClass span,         .ExternalClass font,         .ExternalClass td,         .ExternalClass div {           line-height: 100%; }         .apple-link a {           color: inherit !important;           font-family: inherit !important;           font-size: inherit !important;           font-weight: inherit !important;           line-height: inherit !important;           text-decoration: none !important; }         .btn-primary table td:hover {           background-color: #34495e !important; }         .btn-primary a:hover {           background-color: #34495e !important;           border-color: #34495e !important; } }      <\/style>   <\/head>   <body class=\"\">     <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"body\">       <tr>         <td>&nbsp;<\/td>         <td class=\"container\">           <div class=\"content\">              <!-- START CENTERED WHITE CONTAINER -->             <span class=\"preheader\">This is preheader text. Some clients will show this text as a preview.<\/span>             <table class=\"main\">                <!-- START MAIN CONTENT AREA -->               <tr>                 <td class=\"wrapper\">                   <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">                     <tr>                       <td>                         <p>Hi there,<\/p>                         <p>Sometimes you just want to send a simple HTML email with a simple design and clear call to action. This is it.<\/p>                         <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">                           <tbody>                             <tr>                               <td align=\"left\">                                 <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">                                   <tbody>                                     <tr>                                       <td> <a href=\"http:\/\/htmlemail.io\" target=\"_blank\">Email Call To Action<\/a> <\/td>                                     <\/tr>                                   <\/tbody>                                 <\/table>                               <\/td>                             <\/tr>                           <\/tbody>                         <\/table>                         <p>This is a really simple email template. Its sole purpose is to get the recipient to click the button with no distractions.<\/p>                         <p>Good luck! Hope it works.<\/p>                       <\/td>                     <\/tr>                   <\/table>                 <\/td>               <\/tr>              <!-- END MAIN CONTENT AREA -->             <\/table>              <!-- START FOOTER -->             <div class=\"footer\">               <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">                 <tr>                   <td class=\"content-block\">                     <span class=\"apple-link\">Company Inc, 3 Abbey Road, San Francisco CA 94102<\/span>                     <br> Don't like these emails? <a href=\"http:\/\/i.imgur.com\/CScmqnj.gif\">Unsubscribe<\/a>.                   <\/td>                 <\/tr>                 <tr>                   <td class=\"content-block powered-by\">                     Powered by <a href=\"http:\/\/htmlemail.io\">HTML Email<\/a>.                   <\/td>                 <\/tr>               <\/table>             <\/div>             <!-- END FOOTER -->            <!-- END CENTERED WHITE CONTAINER -->           <\/div>         <\/td>         <td>&nbsp;<\/td>       <\/tr>     <\/table>      <!-- GA -->     <script>       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)       })(window,document,'script','https:\/\/www.google-analytics.com\/analytics.js','ga');        ga('create', 'UA-1284993-68', 'auto');       ga('send', 'pageview');      <\/script>   <\/body> <\/html>",
+        "dateSent": 1589691657000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000009,
+        "externalId": "9BDD372B9D4F7486D2A0",
+        "subject": "Re: Hello",
+        "content": "hello",
+        "dateSent": 1589691670000,
+        "allEdges": [
+            {
+                "targetType": "EmailMessage",
+                "uid": 22000000008,
+                "_type": "message"
+            },
+            {
+                "targetType": "Account",
+                "uid": 20000000001,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000011,
+        "externalId": "7A1FCF21F8E4216509EF8300D7C5CC57",
+        "subject": "Re: Hello",
+        "content": "where r u?",
+        "dateSent": 1589691690000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000002,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "subject": "Interesting information",
+        "content": "<!DOCTYPE html PUBLIC \"-\/\/W3C\/\/DTD XHTML 1.0 Strict\/\/EN\" \"http:\/\/www.w3.org\/TR\/xhtml1\/DTD\/xhtml1-strict.dtd\"><html xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"><head><meta http-equiv=\"Content-Type\" content=\"text\/html; charset=utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link href=\"https:\/\/fonts.googleapis.com\/css?family=Lato:400,700,900\" rel=\"stylesheet\"><title>[Slack] Notifications from the polis workspace for September 8th, 2020 at 7:34 PM<\/title><style type=\"text\/css\">\/* Global Resets *\/\r\n\tbody, .background_main, p, table, td, div { font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; }\r\n\r\n\timg {\r\n\t\tborder: none;\r\n\t\t-ms-interpolation-mode: bicubic;\r\n\t\tmax-width: 100%;\r\n\t}\r\n\r\n\tp {padding-bottom: 2px;}\r\n\r\n\tbody {\r\n\t\tbackground: #fff;\r\n\t\tfont-size: 17px;\r\n\t\tline-height: 24px;\r\n\t\tmargin: 0;\r\n\t\tpadding: 0;\r\n\t\t-ms-text-size-adjust: 100%;\r\n\t\t-webkit-text-size-adjust: 100%;\r\n\t}\r\n\r\n\ttable {\r\n\t\tborder-collapse: collapse;\r\n\t\tmso-table-lspace: 0pt;\r\n\t\tmso-table-rspace: 0pt;\r\n\t\twidth: 100%;\r\n\t}\r\n\r\n\ttd {\r\n\t\tfont-size: 17px;\r\n\t\tline-height: 24px;\r\n\t\tvertical-align: top;\r\n\t}\r\n\r\n\t\/* Footer *\/\r\n\t.email_footer td, .email_footer p, .email_footer span, .email_footer a {\r\n\t\tfont-size: 15px;\r\n\t\ttext-align: center;\r\n\t\tcolor: #434245;\r\n\t}\r\n\r\n\t.email_footer td {padding-top: 20px;}\r\n\r\n\t.preheader {\r\n\t\tdisplay: none;\r\n\t\tmso-hide: all;\r\n\t}\r\n\r\n\t\/* Typography *\/\r\n\th1, h2, h3, h4 {\r\n\t\tcolor: #434245;\r\n\t\tfont-weight: 400;\r\n\t\tline-height: 1.4;\r\n\t\tmargin: 0;\r\n\t\tmargin-bottom: 12px;\r\n\t}\r\n\r\n\th1 {\r\n\t\tfont-size: 30px;\r\n\t\tline-height: 36px;\r\n\t\tfont-weight: 900;\r\n\t\tletter-spacing: -.75px;\r\n\t\ttext-align: left;\r\n\t}\r\n\r\n\tp, ul, ol {\r\n\t\tfont-size: 17px;\r\n\t\tline-height: 24px;\r\n\t\tfont-weight: normal;\r\n\t\tmargin: 0;\r\n\t\tmargin-bottom: 15px;\r\n\t}\r\n\r\n\tp li, ul li, ol li {\r\n\t\tlist-style-position: inside;\r\n\t\tmargin-left: 5px;\r\n\t}\r\n\r\n\ta {\r\n\t\tcolor: #3498db;\r\n\t\ttext-decoration: none;\r\n\t}\r\n\r\n\ta:hover {text-decoration: underline;}\r\n\r\n\t.button_link::after {\r\n\t\tposition: absolute;\r\n\t\tcontent: '';\r\n\t\ttop: 0;\r\n\t\tright: 0;\r\n\t\tbottom: 0;\r\n\t\tleft: 0;\r\n\t\tborder-radius: 4px;\r\n\t}\r\n\r\n\t.button_link:hover::after {\r\n\t\tbox-shadow: inset 0 -2px #237c4a;\r\n\t}\r\n\r\n\t.button_link.is_secondary:hover::after {\r\n\t\tbox-shadow: none;\r\n\t}\r\n\r\n\t.button_link.plum:hover {\r\n\t\tbackground-color: #4a154b !important;\r\n\t\tborder-color: #4a154b !important;\r\n\t}\r\n\r\n\t.button_link_wrapper.plum:hover {\r\n\t\tbackground-color: #4a154b !important;\r\n\t}\r\n\r\n\t.button_link.plum:hover::after {\r\n\t\tbox-shadow: none;\r\n\t}\r\n\r\n\t.preview_text {\r\n\t\tcolor: transparent;\r\n\t\tdisplay: none;\r\n\t\theight: 0;\r\n\t\tmax-height: 0;\r\n\t\tmax-width: 0;\r\n\t\topacity: 0;\r\n\t\toverflow: hidden;\r\n\t\tmso-hide: all;\r\n\t\tvisibility: hidden;\r\n\t\twidth: 0;\r\n\t\tfont-size: 1px;\r\n\t\tline-height:1px;\r\n\t}\r\n\r\n\t.preview_text a {\r\n\t\tcolor: #3AA3E3 !important;\r\n\t\tfont-weight: bold;\r\n\t}\r\n\r\n\t\/* Responsive and Mobile Friendly Styles *\/\r\n\t\/* Yahoo Mail has a history of rendering all media query styles with class selectors unless class is used as an attribute *\/\r\n\t@media only screen and (max-width: 600px) {\r\n\t\ttable[class=\"background_main\"] .sm_full_width {\r\n\t\t\twidth: 100% !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_90_percent_width {\r\n\t\t\twidth: 90% !important;\r\n\t\t\tpadding: 16px !important;\r\n\t\t\ttext-align: center !important;\r\n\t\t\tfloat: none !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_side_padding {\r\n\t\t\tpadding-right: 8px !important;\r\n\t\t\tpadding-left: 8px !important;\r\n\t\t\tfloat: none !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_small_top_padding {\r\n\t\t\tpadding-top: 8px !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_top_padding {\r\n\t\t\tpadding-top: 16px !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_auto_width {\r\n\t\t\twidth: auto !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_auto_height {\r\n\t\t\theight: auto !important;\r\n\t\t}\r\n\r\n\t\ttable[class=\"background_main\"] .sm_border_box {\r\n\t\t\tbox-sizing: border-box !important;\r\n\t\t}\r\n\r\n\t\ttable[class=\"background_main\"] .sm_block {\r\n\t\t\tdisplay: block !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_inline_block {\r\n\t\t\tdisplay: inline-block !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_table {\r\n\t\t\tdisplay: table !important;\r\n\t\t}\r\n\r\n\t\ttable[class=\"background_main\"] .sm_no_side_padding {\r\n\t\t\tpadding-right: 0 !important;\r\n\t\t\tpadding-left: 0 !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_no_border_radius {\r\n\t\t\tborder-radius: 0 !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_no_padding {\r\n\t\t\tpadding-right: 0 !important;\r\n\t\t\tpadding-left: 0 !important;\r\n\t\t}\r\n\t\ttable[class=\"background_main\"] .sm_os_icons_height {\r\n\t\t\t\/* this is to make the parent element the same height as the inline-block img inside *\/\r\n\t\t\theight: 44px;\r\n\t\t}\r\n\t\t.social_img_bottom_margin {\r\n\t\t\t\/*this class is for social_user_outreach email only*\/\r\n\t\t\tmargin-bottom: 20px !important;\r\n\t\t}\r\n\t\t.social_p_bottom_margin {\r\n\t\t\t\/*this class is for social_user_outreach email only*\/\r\n\t\t\tmargin-bottom: 40px !important;\r\n\t\t}\r\n\t}\r\n\r\n\t\/* More client-specific styles *\/\r\n\t@media all {\r\n\t\t.ExternalClass {\r\n\t\t\twidth: 100%;\r\n\t\t}\r\n\t\t.ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {\r\n\t\t\tline-height: 100%;\r\n\t\t}\r\n\t\t.email_footer a {\r\n\t\t\tcolor: #434245 !important;\r\n\t\t\tfont-family: inherit !important;\r\n\t\t\tfont-size: inherit !important;\r\n\t\t\tfont-weight: inherit !important;\r\n\t\t\tline-height: inherit !important;\r\n\t\t\ttext-decoration: none !important;\r\n\t\t}\r\n\t}\r\n\ta:hover {\r\n\t\ttext-decoration: underline !important;\r\n\t}\r\n\r\n\tpre, code {\r\n\t\t--saf-0: rgba(var(--sk_foreground_low, 29, 28, 29), 0.13);\r\n\t\tborder: 1px solid var(--saf-0);\r\n\t\tbackground: rgba(var(--sk_foreground_min, 29, 28, 29), 0.04);\r\n\t\tfont-family: 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace !important;\r\n\t\tfont-size: 12px;\r\n\t\tline-height: 1.50001;\r\n\t\tfont-variant-ligatures: none;\r\n\t\twhite-space: pre;\r\n\t\twhite-space: pre-wrap;\r\n\t\tword-wrap: break-word;\r\n\t\tword-break: normal;\r\n\t\t-webkit-tab-size: 4;\r\n\t\t-moz-tab-size: 4;\r\n\t\t-o-tab-size: 4;\r\n\t\ttab-size: 4;\r\n\t}\r\n\r\n\tcode {\r\n\t\tcolor: #e01e5a;\r\n\t\tpadding: 2px 3px 1px;\r\n\t\tborder-radius: 3px;\r\n\t}\r\n\r\n\tpre {\r\n\t\tmargin-bottom: 16px;\r\n\t\tpadding: 8px;\r\n\t\tborder-radius: 4px;\r\n\t}\r\n\r\n\tblockquote {\r\n\t\tposition: relative;\r\n\t\tmargin-bottom: 16px;\r\n\t\tpadding-left: 16px;\r\n\t\tborder-left: rgba(var(--sk_foreground_low_solid, 221, 221, 221), 1);\r\n\t\tborder-left-width: 4px;\r\n\t\tborder-left-style: solid;\r\n\t}\r\n<\/style><style type=\"text\/css\">\r\na {\r\n\tcolor: #1264a3;\r\n}\r\n.email-body a {\r\n\tcolor: #1264a3;\r\n}\r\n\r\nstrong {\r\n\tfont-weight: 900;\r\n}\r\n\r\n@media only screen and (max-width: 600px) {\r\n\t.snooze_wrapper {\r\n\t\tmax-width: 320px !important;\r\n\t}\r\n}\r\n<\/style><\/head><body><!--[if mso]><style type=\"text\/css\">.background_main, table, table td, p, div, h1, h2, h3, h4, h5, h6 {\r\n\t\t\t\t\t\t\t\tfont-family: Arial, sans-serif !important;\r\n\t\t\t\t\t\t\t}<\/style><![endif]--><table style=\"background-color: #ffffff; padding-top: 20px;color: #434245;width: 100%;-webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;   border: 0; text-align: center; border-collapse: collapse;\" class=\"background_main\"><tr><td style=\"vertical-align: top; padding: 0\"><center><table id=\"body\" class=\"card\" style=\"border: 0; border-collapse: collapse; margin: 0 auto; background: white; border-radius: 8px; margin-bottom: 16px;\"><tr><td style=\"width: 546px; vertical-align: top; padding-top: 32px\"><div style=\"max-width: 600px; margin: 0 auto;\"><div style=\"text-align: left;\"><!--[if mso]>\r\n<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"padding: 0; margin: 0; width: 100%;\">\r\n    <tr>\r\n        <td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\" height=\"20\">&nbsp;<\/td>\r\n    <\/tr>\r\n    <tr>\r\n        <td style=\"padding: 0; margin: 0;\">&nbsp;<\/td>\r\n        <td style=\"padding: 0; margin: 0;\" width=\"540\">\r\n<![endif]--><img width=\"120\" height=\"36\" style=\"margin-top: 0; margin-right: 0; margin-bottom: 32px; margin-left: 0px; padding-right: 30px; padding-left: 30px;\" src=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/img\/slack_logo_240.png\" alt=\"\"><div style=\"padding-right: 30px; padding-left: 30px;\"><table id=\"body\" class=\"card\" style=\"border: 0; border-collapse: collapse; margin: 0 auto; background: white; border-radius: 8px; margin-bottom: 16px;\"><tr><td style=\"width: 546px; vertical-align: top;\"><div style=\"max-width: 600px; margin: 0 auto;\"><h2 style=\"margin-bottom: 40px; color: #1D1C1D;\"><strong>You have a new mention in polis<\/strong> <a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/\" style=\"color: #868686\">(memriExample.slack.com)<\/a><\/h2><div style=\"margin-top: 0\"><h3 style=\"font-size: 18px; margin: 0 0 8px; line-height: 18px;\"><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/CT2G5M1G8\/p1599555031431500\" style=\"color: #1D1C1D; font-weight:900; margin-right: 8px; text-decoration: none;\"><span>From #memri-project<\/span><\/a> \u00A0 <\/h3><\/div><div style=\"padding: 18px 18px 8px; border: 1px solid #DDDDDD; border-radius: 8px; margin-bottom: 14px\"><div style=\"margin: 0 0 10px; width: 100%; word-break: break-word; clear: left; font-size: 15px; line-height: 18px; color: #555549; min-height: 36px;\"><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/D014SAV2D9A\/user_profile\/U5WKU6085\"><img src=\"https:\/\/avatars.slack-edge.com\/2017-06-20\/200628244212_9424733db60e5d79e7ad_72.png\" style=\"float: left; margin-right: 8px; border-radius: 4px; display: inline-block; width: 36px; height: 36px;\"><\/a><div class=\"email-body\" style=\"padding-left: 44px;\" data-qa=\"email-body\"><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/D014SAV2D9A\/user_profile\/U5WKU6085\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; color: #1D1C1D; margin-right: 8px; text-decoration: none; font-weight: 900;\">ruben.d<\/a> \u00A0 <a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/CT2G5M1G8\/p1599555031431500\" style=\"font-weight: normal; font-size: 12px; color: #717274; text-decoration: none;\">September 8th at 6:50 PM<\/a><br><div style=\"color: #1d1c1d\"><div class=\"tsf_output emoji_replace_on_load\"><a href=\"https:\/\/memriExample.slack.com\/team\/U5YPPPP8X\">@koenv<\/a> <a href=\"https:\/\/memriExample.slack.com\/team\/U5WF9425R\">@rubens<\/a> I wasn't able to discuss things that require your participation during the standup this morning. When will you be available so we can come together and discuss advisor ships of two people?<\/div><\/div><\/div><\/div><div style=\"margin: 0 0 10px; width: 100%; word-break: break-word; clear: left; font-size: 15px; line-height: 18px; color: #555549;\"><div class=\"email-body\" style=\"padding-left: 44px;\" data-qa=\"email-body\"><div style=\"color: #1d1c1d\"><div class=\"tsf_output emoji_replace_on_load\"><span style=\"background-color: #FFF3B8\">@channel<\/span> Can we all meet at 11.30am to discuss advisors?<\/div><\/div><\/div><\/div><\/div><div><span style=\"display: inline-block\"><table style=\"width: 100%; \" class=\"sm_table\"><tr style=\"width: 100%;\"><td style=\"width: 100%;\"><span style=\"display: inline-block; position:relative; border-radius:4px; background-color:#2ea664; \" class=\"button_link_wrapper sm_full_width\"><a class=\"button_link sm_full_width sm_border_box\" href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/archives\/CT2G5M1G8\/p1599555031431500\" style=\"border-top:13px solid; border-bottom:13px solid; border-right:24px solid; border-left:24px solid; border-color:#007a5a; border-radius:4px; background-color:#007a5a; color:#ffffff; font-size:18px; line-height:18px; word-break:break-word;  display: inline-block; text-align: center; font-weight: 900; text-decoration: none !important;\">Open in Slack<\/a><\/span><\/td><\/tr><\/table><\/span><span style=\"display: inline-block\"><table style=\"width: 100%; \" class=\"sm_table\"><tr style=\"width: 100%;\"><td style=\"width: 100%;\"><span style=\"display: inline-block; position:relative; border-radius:4px; background-color:#ffffff; border:1px solid #8e8d8e; \" class=\"button_link_wrapper sm_full_width\"><a class=\"button_link sm_full_width sm_border_box is_secondary\" href=\"mailto:Slack &lt;eb-T5XBZ3R63-U0145D4CAB1-s2ugwi6afplo6uxshgbimzihwu@slack-mail.com&gt;?subject=Reply to #memri-project\" style=\"border-top:12px solid; border-bottom:12px solid; border-right:24px solid; border-left:24px solid; border-color:#ffffff; border-radius:4px; background-color:#ffffff; color:#1d1c1d; font-size:18px; line-height:18px; word-break:break-word;  display: inline-block; text-align: center; font-weight: 900; text-decoration: none !important;\">Reply<\/a><\/span><\/td><\/tr><\/table><\/span><\/div><\/div><\/td><\/tr><\/table><table style=\"\"><tr><td style=\"width: 546px; vertical-align: top;\"><div class=\"snooze_wrapper\" style=\"max-width: 540px; margin: 0 auto;\"><p style=\"font-size: 0.9rem; line-height: 20px; color: #AAA; text-align: center; margin: 0 auto 1rem; max-width: 320px; word-break: break-word; text-align: left; margin-top: 30px; margin-bottom: 30px; color: #616061; font-size: 15px; max-width: none;\"> Snooze these notifications for:\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-2c5942eb192329d63e088fe47f99a780440d59425edee8e974cd8766e9b0e4ca-notify-mute-1h\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">an hour<\/a>,\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-fdc70a6a199590a11e66dde8691ac9577e10b2c0f6c17973c87a551cb1ef3742-notify-mute-8h\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">eight hours<\/a>,\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-51850d259de60629dadf701f18e0eff4dd7aed75b297e737165d9566d2ed92f9-notify-mute-1d\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">a day<\/a>,\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-90ff03a7c19c79aa60e5177d25861184e2dade83dd43562520c1ae5148b21340-notify-mute-3d\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">three days<\/a>, or\r\n\t\t\t\t\t\t\t\t\t\t\t<a href=\"https:\/\/memriExample.slack.com\/unsub\/U0145D4CAB1-ac9adf9fa3795553f6f90a71cca01b84fd82c588189293f16c9283ac210291be-notify-mute-7d\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">the next week<\/a>.\r\n\t\t\t\t\t\t\t\t\t\t\tOr, <a href=\"https:\/\/memriExample.slack.com\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">turn email notifications off<\/a>. For more detailed preferences, see your <a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/account\/notifications\" style=\"font-weight: bold; color: #1264a3; text-decoration: none; font-weight: normal;\">account page<\/a>. <\/p><\/div><\/td><\/tr><\/table><\/div><!--[if mso]>\r\n\t\t<\/td>\r\n\t\t<td style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n\t<tr>\r\n\t\t<td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n<\/table>\r\n<![endif]--><table style=\"margin: 0 auto; width: 100%;\"><tr><td style=\"box-sizing: border-box; padding: 0; padding-right: 30px; padding-left: 30px; padding-top: 20px; width: 100%; margin: 0 auto;\"><div style=\"color: #434245; text-align: left; width: 100%; font-size: 15px;\"><table style=\"display: inline-table; vertical-align: top; width: 100%; border: 0px; border-collapse: collapse;\"><tbody class=\"sm_full_width\"><tr class=\"sm_full_width\" style=\"border-top: 1px solid #E1E1E4;\"><td class=\"sm_full_width\" style=\"padding-top: 20px;\"><!--[if mso]>\r\n<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"padding: 0; margin: 0; width: 100%;\">\r\n    <tr>\r\n        <td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\" height=\"20\">&nbsp;<\/td>\r\n    <\/tr>\r\n    <tr>\r\n        <td style=\"padding: 0; margin: 0;\">&nbsp;<\/td>\r\n        <td style=\"padding: 0; margin: 0;\" width=\"540\">\r\n<![endif]--><table class=\"sm_full_width\" style=\"display: inline-table; width: 434px; max-width: 100%; border: 0px; border-collapse: collapse; width: 434px;\"><tr><td style=\"width: 38px; padding-right: 15px; padding-top: 20px; width: 38px;\"><a class=\"plaintext_ignore\" href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/signin\" style=\"height: 38px; width: 38px; min-width: 38px; border-radius: 4px; color: #FFFFFF; font-size: 18px; line-height: 38px; mso-line-height-rule: exactly; mso-text-raise: 10px; vertical-align: middle; text-align: center; text-decoration: none !important; display: block; background-color: #0576b9;\">P<\/a><\/td><div class=\"plaintext_only\" style=\"display: none\">Workspace name: polis<\/div><td class=\"sm_auto_width\" style=\"padding-top: 20px; font-size: 15px; width=378px;\"> <strong class=\"plaintext_ignore\">polis<\/strong><br\/>\r\n\t\t\t\t\t\tWorkspace URL: memriExample.slack.com<br\/>\r\n\t\t\t\t\t\tEmail: test@memri.com <\/td><\/tr><\/table><table class=\"sm_full_width\" style=\"text-align: right; display: inline-table; width: auto; vertical-align: top; width: 102px; text-align: right; width: 102px; border: 0px; border-collapse: collapse;\"><tbody class=\"sm_full_width\"><tr class=\"sm_full_width\"><td style=\"width: 100px; padding: 0px;padding-top: 20px;\" class=\"sm_full_width\"><div><a href=\"https:\/\/memriExample.slack.com\/x-p201407127207-1141446418375-1361532364161\/signin\" class=\"sm_full_width\" style=\"text-align: center;text-decoration: none;display: inline-block;width: 100px; border: 1px solid #C7CACD; border-radius: 4px; background-color: #FBFBFA; color: #555459; font-size: 14px; line-height: 40px; -webkit-text-size-adjust: none;font-weight: 900;\">Sign In<\/a><\/div><\/td><\/tr><\/tbody><\/table><div style=\"clear: both;\"><\/div><!--[if mso]>\r\n\t\t<\/td>\r\n\t\t<td style=\"padding: 0; margin: 0; font-size: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n\t<tr>\r\n\t\t<td colspan=\"3\" style=\"padding: 0; margin: 0; font-size: 20px; height: 20px; height: 20px;\">&nbsp;<\/td>\r\n\t<\/tr>\r\n<\/table>\r\n<![endif]--><\/td><\/tr><\/tbody><\/table><\/div><\/td><\/tr><\/table><\/div><\/div><\/td><\/tr><\/table><\/center><\/td><\/tr><tr><td class=\"email_footer\" style=\"font-size: 15px;color: #717274;text-align: center;width: 100%; border-top: 1px solid #E1E1E4\"><table style=\"margin: 20px auto 0; background-color: white; border: 0; text-align: center; border-collapse: collapse;\"><tr><td>\u00A0<\/td><td><span style=\"display: block; color: #434245; font-size: 15px;\"> Made by <a href=\"https:\/\/slack.com\" style=\"text-decoration: none; color: #434245;\">Slack Technologies, Inc<\/a>\r\n                <br\/>\r\n                500 Howard Street&nbsp;|&nbsp;San&nbsp;Francisco,&nbsp;CA&nbsp;94105&nbsp;|&nbsp;United States <\/span><\/td><td>\u00A0<\/td><\/tr><tr><td>\u00A0<\/td><td style=\"font-size: 15px; padding: 16px 8px 24px; vertical-align: top; text-align: center;\"><span><a href=\"https:\/\/slackhq.com\" style=\"color: #434245; text-decoration: underline !important;\">Our Blog<\/a> \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 <a href=\"https:\/\/slack.com\/legal\" style=\"color: #434245; text-decoration: underline !important;\">Policies<\/a><\/span><\/td><\/tr><\/table><\/td><\/tr><\/table><\/body><\/html>",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000012,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "subject": "Check this out",
+        "content": "That's cool",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            }
+        ]
+    },
+    {
+        "_type": "EmailMessage",
+        "uid": 22000000013,
+        "externalId": "EE9E22BD54F93EC48CF9",
+        "subject": "Fwd: Reservation at Rome Boutique & Hotel is confirmed ",
+        "content": "Dear Eve, you reservation at Rome boutique & Hotel is confirmed. Find the details of your reservation below<br><br><b>Normal room double bed</b><br><br><img src='https://unsplash.com/photos/msFZE7d9KB4/download?force=true&w=640' style='width:150px;'><br><br><b>Total amount</b> (3 days): 341,87 <br><b>Tax:</b> 2,54\n<b>Total:</b>344,41<br><br> Find more information at <a href='https://mybnb.com/mockreservation123'>https://mybnb.com/mockreservation123</a>",
+        "dateSent": 1589691700000,
+        "allEdges": [
+            {
+                "targetType": "Account",
+                "uid": 20000000000,
+                "_type": "sender"
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "ReceiptDemo",
+        "uid": 22001124924891,
+        "totalCost": 94,
+        "store": "Marriott",
+        "category": "Hotels",
+        "allEdges": [
+            {
+                "targetType": "Photo",
+                "uid": 398901324761,
+                "_type": "photo"
+            }
+        ]
+    },
+    {
+        "_type": "ReceiptDemo",
+        "uid": 22001124924892,
+        "totalCost": 41.92,
+        "store": "24/7 Fitness",
+        "category": "Gym",
+        "allEdges": [
+            {
+                "targetType": "Photo",
+                "uid": 398901324762,
+                "_type": "photo"
+            }
+        ]
+    },
+    {
+        "_type": "ReceiptDemo",
+        "uid": 22001124924893,
+        "totalCost": 33.60,
+        "store": "Caltex",
+        "category": "Fuel",
+        "allEdges": [
+            {
+                "targetType": "Photo",
+                "uid": 398901324763,
+                "_type": "photo"
+            }
+        ]
+    },
+    {
+        "_type": "ReceiptDemo",
+        "uid": 22001124924894,
+        "totalCost": 54.50,
+        "store": "Woolworths",
+        "category": "Groceries",
+        "allEdges": [
+            {
+                "targetType": "Photo",
+                "uid": 398901324764,
+                "_type": "photo"
+            }
+        ]
+    },
+    {
+        "_type": "ReceiptDemo",
+        "uid": 22001124924895,
+        "store": "Apple",
+        "category": "Tech",
+        "totalCost": 135,
+        "allEdges": [
+            {
+                "targetType": "File",
+                "uid": 398901324765,
+                "_type": "file"
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 398901324761,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "receiptDemo1"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 398901324762,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "receiptDemo2"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 398901324763,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "receiptDemo3"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "uid": 398901324764,
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "receiptDemo4"
+                }
+            }
+        ]
+    },
+    {
+        "_type": "File",
+        "uid": 398901324765,
+        "filename": "demoReceiptPDF.pdf"
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo1"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo2"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo3"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo4"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo5"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo6"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo7"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo8"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "Photo",
+        "allEdges": [
+            {
+                "_type": "file",
+                "_target": {
+                    "_type": "File",
+                    "filename": "romeTripDemo9"
+                }
+            },
+            {
+                "_type": "label",
+                "targetType": "Label",
+                "uid": 1017
+            }
+        ]
+    },
+    {
+        "_type": "File",
+        "uid": 12367921,
+        "filename": "receiptDemo1"
+    },
+    {
+        "_type": "File",
+        "uid": 12367921,
+        "filename": "receiptDemo2"
+    },
+    {
+        "_type": "File",
+        "uid": 12367921,
+        "filename": "receiptDemo3"
+    },
+    {
+        "_type": "File",
+        "uid": 12367921,
+        "filename": "receiptDemo"
     }
 ]

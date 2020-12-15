@@ -96,7 +96,7 @@ Indexer[] {
                     _type: IndexerRun
                     name: {{.name}}
                     indexer: {{.}}
-                    targetDataType: "Address"
+                    targetDataType: {{.query}}
                 }
             }
         HStack {
