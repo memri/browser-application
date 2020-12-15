@@ -58,7 +58,7 @@ export class NavigationWrapper extends MainUI {
 				<Content frame={frame({width: geom.size.width, height: geom.size.height, alignment: Alignment.topLeading})}
 					 offset={offset({x: this.isVisible ? this.navWidth(geom) + this.cappedOffset(geom) : this.cappedOffset(geom)})}
 					 disabled={this.isVisible}
-					 zIndex={-1}>
+					 >
 				{this.props.children}
 				</Content>
 				<ColorArea color="clear" contentShape="Rectangle" frame={frame({minWidth:10, maxWidth:10, maxHeight:"Infinity"})}

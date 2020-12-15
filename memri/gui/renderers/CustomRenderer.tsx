@@ -54,7 +54,7 @@ export class CustomRendererView extends MainUI {
         this.context = this.props.context
         this.controller = this.props.controller;
         return (
-            <div id={"CustomRenderer"}>
+            <div id={"CustomRenderer"} style={{height: "100%"}}>
                 <VStack>
                     {this.controller.customView()}
                 </VStack>

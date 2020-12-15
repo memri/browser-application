@@ -96,7 +96,7 @@ export class ListRendererView extends RenderersMemri {
 		let items = this.controller.context.items;
 
 		return (
-			<div className={"ListRendererView"}>
+			<div className={"ListRendererView"} style={{height: "100%"}}>
 				<VStack>
 					{this.controller.hasItems ?
 						<ASTableView

@@ -117,13 +117,20 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         return styles;
     }
 
-    setAlignment() {//justifyContent={}
-        if (this.props.alignment) {
+    setAlignment() {
+        if (this.props.alignment && !this.props.justifyContent) {
             switch (this.props.alignment) {
                 case Alignment.top:
                     return {alignItems: "flex-start"};
-                /*case Alignment.center:
-                    return {alignItems: "center", justifyContent: "center"};*/
+                case Alignment.center:
+                    switch (this.constructor.name) {
+                        case "VStack":
+                            return {justifyContent: "center"}
+                        case "HStack":
+                            return {alignItems: "center"};
+                        default:
+                            return {alignItems: "center", justifyContent: "center"};
+                    }
                 case Alignment.bottom:
                     return {alignItems: "flex-end"};
                 case Alignment.leading:
@@ -140,7 +147,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
                     return {alignItems: "flex-end", justifyContent: "flex-end"};
             }
         }
-        return
+        return //{alignItems: "inherit", justifyContent: "inherit"};
     }
 }
 
@@ -867,7 +874,7 @@ export class RoundedRectangle extends MainUI {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
         let style = this.setStyles();
         //TODO: actually this is done to make rectangles to look like circles (in labels) @mkslanc
-        Object.assign(style, {width: style.width || style.maxWidth, maxHeight: style.height || style.maxHeight});
+        Object.assign(style, {width: style.width || style.maxWidth, height: style.height || style.maxHeight});
         if (padding && !padding.padding) {
             Object.assign(style, {paddingRight: null, paddingTop: null, paddingLeft: null, paddingBottom: null});
         }

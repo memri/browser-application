@@ -64,7 +64,12 @@ body {margin: 0}
     display: flex;
 }
 .ZStack {
+    display: grid;
     position: relative;
+}
+
+.ZStack > * {
+    grid-area: 1/1/1/1;
 }
 
 ::-webkit-scrollbar {

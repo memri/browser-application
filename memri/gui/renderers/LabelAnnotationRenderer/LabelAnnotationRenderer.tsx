@@ -282,7 +282,7 @@ class LabelSelectionView extends MainUI {
         this.useScrollView = this.props.useScrollView;
 
         return (
-            <div id={"LabelAnnotationRenderer"}>
+            <div id={"LabelAnnotationRenderer"} style={{height: "100%"}}>
                 <VStack spacing={0} disabled={!this.enabled} bottom={0}>
                     <MemriText font={font({family: "body"})} padding={padding({horizontal: 10, vertical: 5})}
                                background={new Color("secondarySystemBackground")}>

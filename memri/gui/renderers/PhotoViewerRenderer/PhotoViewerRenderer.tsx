@@ -110,18 +110,20 @@ export class PhotoViewerRendererView extends RenderersMemri {
     render() {
         this.controller = this.props.controller;
         return (
-            <Group>
-                {this.controller.hasItems
-                    ?
-                    <ZStack alignment={Alignment.topLeading}>
-                        {this.controller.photoItemProvider(this.controller.initialIndex)}
-                    </ZStack>
-                    :
-                    <MemriText bold frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}>
-                        No photos found
-                    </MemriText>
-                }
-            </Group>
+            <div id={"PhotoViewerRendererView"} style={{height: "100%"}}>
+                <Group>
+                    {this.controller.hasItems
+                        ?
+                        <ZStack alignment={Alignment.topLeading}>
+                            {this.controller.photoItemProvider(this.controller.initialIndex)}
+                        </ZStack>
+                        :
+                        <MemriText bold frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}>
+                            No photos found
+                        </MemriText>
+                    }
+                </Group>
+            </div>
         )
     }
 }
