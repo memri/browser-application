@@ -139,8 +139,10 @@ export class LabelAnnotationRendererController {
     applyCurrentItem = this.applyCurrentItem.bind(this)
 
     currentAnnotation() {
+        // #warning("Edges will not work if the `LabelAnnotation` type isn't defined in the schema. This will be resolved with the dynamic schemas")
         return DatabaseController.sync(false, (realm) => {
-            let edge = this.currentItem?.reverseEdges("annotatedItem")?.find(($0) => {
+            let allEdges = this.currentItem?.reverseEdges("annotatedItem")
+            let edge = allEdges?.find(($0) => {
                 return $0.source()?.labelType == this.labelType
             }) //TODO:
             return edge?.source()

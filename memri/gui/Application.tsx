@@ -12,8 +12,9 @@ import {NavigationWrapper} from "./browser/navigationPane/NavigationView";
 import {HStack, MainUI, MemriRealButton, MemriText, Spacer, VStack} from "./swiftUI";
 import {Browser} from "./browser/Browser";
 import {SessionSwitcher} from "./browser/SessionSwitcher";
-import {SetupWizard} from "../install/SetupWizard";
 import {geom} from "../../geom";
+import {RecoveryWizard} from "../install/RecoveryWizard";
+import {SetupScreen} from "../install/SetupScreen";
 
 /*var memri_shouldUseLargeScreenLayout: Bool {
 	#if targetEnvironment(macCatalyst)
@@ -83,14 +84,20 @@ export class Application extends MainUI {
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
 				<VStack spacing={0}>
-					{(this.context.installer.isInstalled && !this.context.installer.debugMode) ?
-					<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
-						{this.context.showSessionSwitcher
-							? <SessionSwitcher context={this.context}/>
-							: <Browser context={this.context} height={"100%"}/>
-						}
-					</NavigationWrapper> :
-					<SetupWizard context={this.context}/>
+					{(this.context.installer.isInstalled && !this.context.installer.debugMode)
+						?
+						<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
+							{this.context.showSessionSwitcher
+								? <SessionSwitcher context={this.context}/>
+								: <Browser context={this.context} height={"100%"}/>
+							}
+						</NavigationWrapper>
+						:
+						this.context.installer.debugMode
+							?
+							<RecoveryWizard context={this.context}/>
+							:
+							<SetupScreen context={this.context}/>
 					}
 				</VStack>
 			</ScreenSizer>

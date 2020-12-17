@@ -431,7 +431,9 @@ export class MemriTextField extends MainUI {
         } = this.props;
         if (value) {
             if (value.set) {
-                other["onChange"] = value.set;
+                other["onChange"] = (e) => {
+                    value.set(e.target.value)
+                };
                 other["defaultValue"] = value.get();
             } else {
                 other["defaultValue"] = value;
@@ -955,8 +957,10 @@ export class Toggle extends MainUI {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, isOn, ...other} = this.props;
         if (isOn) {
             if (isOn.set) {
+                let onChange = other["onChange"]
                 other["onChange"] = (e) => {
-                    isOn.set(e);
+                    isOn.set(e.target.checked);
+                    onChange && onChange();
                     this.setState({checked: isOn.get()});
                 }
                 this.state.checked = isOn.get()
@@ -1008,12 +1012,14 @@ export class Circle extends MainUI {
 
 export class MemriAlert extends MainUI {
     closeCallback
+    isPresented
     constructor(props) {
         super(props);
         this.handleClose = this.handleClose.bind(this);
     }
 
     handleClose() {
+        this.isPresented.set(false)
         this.closeCallback && this.closeCallback()
     }
 
@@ -1023,14 +1029,21 @@ export class MemriAlert extends MainUI {
     }
 
     getButton(button) {
+        if (button.type == "cancel" && !button.text) {
+            button.text = <MemriText>Cancel</MemriText>
+        }
         return <MemriRealButton action={() => this.doAction(button.action)}>
             {button.text}
         </MemriRealButton>
     }
 
     render() {
-        let {primaryButton, secondaryButton, title, message, closeCallback, open, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {primaryButton, secondaryButton, title, message, closeCallback, open, isPresented, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         this.closeCallback = closeCallback
+        if (isPresented) {
+            this.isPresented = isPresented
+            open = isPresented.get()
+        }
         return (
             <div style={this.setStyles()} className="Alert" {...other}>
                 <Dialog open={open} onClose={this.handleClose}>
@@ -1316,6 +1329,18 @@ export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
     let contentInsetsObj = attrs;
 
     return contentInsetsObj;
+}
+
+export function getBinding(object, propertyName, useState = false) {
+    return {
+        get() {
+            return object[propertyName]
+        },
+        set(value) {
+            object[propertyName] = value
+        }
+    }
+
 }
 
 export function setProperties(properties, item, context, viewArguments) {

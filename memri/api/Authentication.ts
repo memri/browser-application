@@ -186,7 +186,7 @@ export class Authentication {
             })
 
             let myself = me()
-            if (!myself.realm) {
+            if (!myself/*TODO .realm*/) {
                 throw "Could not find a reference to 'me'"
             }
 

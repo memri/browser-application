@@ -41,11 +41,7 @@ export class SettingsPane extends MainUI {
 
                 return 0// Should never get here
             },
-            set: (e) => {
-                let value = e.target.value;
-                if (e.target.type == "checkbox") {
-                    value = e.target.checked;
-                }
+            set: (value) => {
                 this.context.settings.set(path, value)
             }
         }

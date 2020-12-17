@@ -76,19 +76,32 @@ export class Installer {
 		}
 	}
 
-	installLocalAuthForNewPod(context: MemriContext, areYouSure: boolean, host: string, callback) {
-
+	installLocalAuthForNewPod(context: MemriContext, host: string, callback) {
+		// Delete the local database if it already exists
 		DatabaseController.deleteDatabase((error) => {
 			try {
 				if (error) {
-					throw `${error}`
+					callback(error)
+					throw `Unable to authenticate: ${error}`
 				}
 
-				//Authentication.createRootKey(areYouSure)
+				// Set the pod host url
+				context.podAPI.host = host
+				Settings.shared.set("user/pod/host", host)
 
+				// Create a local root key
+				//Authentication.createRootKey(true)
+
+				// Setup the auth keys for the pod
+				// Authentication.createOwnerAndDBKey()
+
+				// console.log(
+				// 	`KEY: ${Authentication.getPublicRootKeySync().hexEncodedString(options: .upperCase)}`
+				// )
+
+				// Install the demo data
 				this.installDemoDatabase(context, (error) => {
 					if (error) {
-						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 						return
@@ -96,26 +109,18 @@ export class Installer {
 
 					//DispatchQueue.main.async {
 					if (error) {
-						// TODO: Error Handling - show to the user
 						debugHistory.warn(`${error}`)
 						callback(error)
 						return
 					}
 					localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
-					try {
-						//console.log(`KEY: ${Authentication.getPublicRootKeySync().hexEncodedString(".upperCase")}`) //TODO?
 
-						//Authentication.createOwnerAndDBKey()
-					} catch {
-						callback(error)
-					}
-
-					Settings.shared.set("user/pod/host", host)
+					// Notify completion
 					this.ready(context)
-
-					context.cache.sync.schedule();
-
 					callback(undefined)
+
+					// Schedule a sync
+					context.cache.sync.schedule();
 					//}
 				})
 			} catch {
@@ -124,8 +129,8 @@ export class Installer {
 		})
 	}
 
-	installLocalAuthForExistingPod(context: MemriContext, areYouSure: boolean, host: string, privateKey: string, publicKey: string, dbKey: string, callback) {
-
+	installLocalAuthForExistingPod(context: MemriContext, host: string, privateKey: string, publicKey: string, dbKey: string, callback) {
+		// Delete the local database if it already exists
 		DatabaseController.deleteDatabase((error) => {
 			try {
 				if (error) {
@@ -133,35 +138,43 @@ export class Installer {
 					throw `Unable to authenticate: ${error}`
 				}
 				if (host == "mock") {
-					context.podAPI=new mockApi();
+					context.podAPI = new mockApi();
 				}
+
+				// Set the pod host url
 				context.podAPI.host = host
+				Settings.shared.set("user/pod/host", host)
+
 				localStorage.setItem("isLocalInstall", "false"); //TODO: added not to sync with missing pod
 				localStorage.setItem("ownerKey", publicKey); //TODO:
 				localStorage.setItem("databaseKey", dbKey); //TODO:
-				//Authentication.createRootKey(areYouSure)
 
+				// Create a local root key
+				//Authentication.createRootKey(true)
 
-				context.cache.sync.syncAllFromPod(() => { // TODO: error handling
-					Settings.shared.set("user/pod/host", host)
+				// Setup the auth keys for the pod
+				Authentication.setOwnerAndDBKey(
+					privateKey,
+					publicKey,
+					dbKey
+				)
 
-					try {
-						Authentication.setOwnerAndDBKey(privateKey, publicKey, dbKey);
-					} catch {
-						callback(error)
-					}
+				this.ready(context)
+				callback(undefined)
 
-					this.ready(context)
-
-					callback(undefined)
+				// Force download of key elements from pod - this is a hacky function in its current state - will be reworked with sync reimplementation
+				context.cache.sync.syncAllFromPod(() => {
+					// TODO: error handling
 				})
-			} catch {
+				// Attempt to sync from pod
+				context.cache.sync.schedule()
+			} catch (error) {
 				callback(error)
 			}
 		})
 	}
 
-	installLocalAuthForLocalInstallation(context: MemriContext, areYouSure: boolean, callback) {
+	installLocalAuthForLocalInstallation(context: MemriContext, callback) {
 
 		DatabaseController.deleteDatabase((error) => {
 			try {
@@ -169,7 +182,7 @@ export class Installer {
 					throw `Unable to authenticate: ${error}`
 				}
 
-				//Authentication.createRootKey(areYouSure)
+				//Authentication.createRootKey(true)
 
 				this.installDemoDatabase(context, (error) => {
 					if (error) {
@@ -182,7 +195,7 @@ export class Installer {
 
 					callback(undefined)
 				})
-			} catch {
+			} catch (error) {
 				callback(error)
 			}
 		})

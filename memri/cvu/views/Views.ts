@@ -56,9 +56,11 @@ export class Views {
 		if (!this.context?.podAPI.isConfigured) {
 			return
 		}
+		/*
+		if DEBUG
 		if (DatabaseController.isRunningXcodeTests) {
 			return
-		}
+		}*/
 
 		// Subscribe to changes in CVUStoredDefinition
 		this.cvuWatcher = this.context?.cache.subscribe("CVUStoredDefinition", (items) => { // CVUStoredDefinition AND domain='user'

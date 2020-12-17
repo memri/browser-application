@@ -5,7 +5,7 @@
 import {
     ColorArea,
     font, Form,
-    frame,
+    frame, getBinding,
     MainUI, MemriAlert,
     MemriRealButton,
     MemriText, MemriTextField,
@@ -22,16 +22,48 @@ import {debugHistory} from "../cvu/views/ViewDebugger";
 
 class SetupScreen_Model {
     defaultPodURL = "http://localhost:3030"
-    podURL: string
-    podPrivateKey: string
-    podPublicKey: string
-    podDatabaseKey: string
-    setupAsNewPod: boolean = true
-    
-    state: PodSetupState = PodSetupState.idle
+
+    //TODO start @anijanyan
+    setupScreen: SetupScreen
+    properties = {state: PodSetupState.idle, setupAsNewPod: true}
+
+    getProperty(propertyName){return this.properties[propertyName]}
+    setProperty(propertyName, value) {
+        this.properties[propertyName] = value
+        this.updateSetupScreenState()
+    }
+
+    get podURL(): string {return this.properties["podURL"]}
+    set podURL(value) {this.setProperty("podURL", value)}
+
+    get podPrivateKey(): string {return this.properties["podPrivateKey"]}
+    set podPrivateKey(value) {this.setProperty("podPrivateKey", value)}
+
+    get podPublicKey(): string {return this.properties["podPublicKey"]}
+    set podPublicKey(value) {this.setProperty("podPublicKey", value)}
+
+    get podDatabaseKey(): string {return this.properties["podDatabaseKey"]}
+    set podDatabaseKey(value) {this.setProperty("podDatabaseKey", value)}
+
+    get setupAsNewPod(): boolean {return this.properties["setupAsNewPod"]}
+    set setupAsNewPod(value) {this.setProperty("setupAsNewPod", value)}
+
+    get state(): PodSetupState {return this.properties["state"]}
+    set state(value) {this.setProperty("state", value)}
+
+    updateSetupScreenState() {
+        this.setupScreen.setState({model: this})
+    }
+
+    constructor(setupScreen) {
+        this.setupScreen = setupScreen
+    }
+    //TODO end @anijanyan
+
+    errorString //TODO @anijanyan
     
     getPodURL():string {
-        return this.podURL?.nilIfBlank ?? this.defaultPodURL
+        return this.podURL ?? this.defaultPodURL
     }
 
     get isValidToProceedToConnect(): boolean {
@@ -40,7 +72,7 @@ class SetupScreen_Model {
         }
 
 
-        if (this.podPrivateKey?.nilIfBlank == null && this.podPublicKey?.nilIfBlank != null && this.podDatabaseKey?.nilIfBlank != null) {
+        if (!this.podPrivateKey || !this.podPublicKey || !this.podDatabaseKey) {
             return false
         }
         return true
@@ -56,15 +88,38 @@ enum PodSetupState {
 }
 
 
-class SetupScreen extends MainUI {
-    context: MemriContext
-    model = new SetupScreen_Model();
-    showingNewPodWarning: boolean = false
+export class SetupScreen extends MainUI {
+    // _model = new SetupScreen_Model(this);
+
+    get model() {
+        return this.state["model"]
+    }
+
+    get showingNewPodWarning(): boolean {
+        return this.state["showingNewPodWarning"]
+    }
+    set showingNewPodWarning(value: boolean) {
+        if (this.state["showingNewPodWarning"] != value) {
+            this.setState({showingNewPodWarning: value})
+        }
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            showingNewPodWarning: false,
+            model: new SetupScreen_Model(this)
+        }
+        this.onConnectPressed = this.onConnectPressed.bind(this)
+        this._onConnectPressed = this._onConnectPressed.bind(this)
+        this.onLocalDemoPressed = this.onLocalDemoPressed.bind(this)
+    }
 
     render() {
+        this.context = this.props.context
         return (
             <ZStack>
-                <NavigationView colorScheme={"dark"} navigationViewStyle={"StackNavigationViewStyle"}>
+                <NavigationView context={this.context} colorScheme={"dark"} navigationViewStyle={"StackNavigationViewStyle"}>
                     <VStack spacing={10} padding={padding("default")}
                             frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}
                             background={Color.named("secondarySystemBackground")}>
@@ -86,7 +141,7 @@ class SetupScreen extends MainUI {
                             <MemriText>
                                 Have a memri pod?
                             </MemriText>
-                            <NavigationLink destination={this.podSetup} buttonStyle={"PlainButtonStyle"}>
+                            <NavigationLink context={this.context} destination={() => this.podSetup} buttonStyle={"PlainButtonStyle"}>
                                 <MemriText font={font({family: "headline"})} foregroundColor={Color.named("white")}
                                            frame={frame({maxWidth: "infinity", minHeight: 50})}
                                            background={Color.named("green")} cornerRadius={10}>
@@ -114,7 +169,7 @@ class SetupScreen extends MainUI {
 
                     </ColorArea>
                     <VStack spacing={10}>
-                        <ActivityIndicatorView style={"large"} color={"white"}/>
+                        {/*<ActivityIndicatorView style={"large"} color={"white"}/>*/}
                         <MemriText>Setup in progress...</MemriText>
                     </VStack>
                 </>
@@ -137,34 +192,35 @@ class SetupScreen extends MainUI {
                         <MemriText font={this.captionFont}>
                             Pod URL
                         </MemriText>
-                        <MemriTextField value={this.model.podURL} placeholder={this.model.defaultPodURL}/>
+                        <MemriTextField value={getBinding(this.model, "podURL")} placeholder={this.model.defaultPodURL}/>
                     </VStack>
                 </Section>
-                <Section header={<MemriText>Pod setup</MemriText>} footer={this.connectButton}>
-                    <Toggle isOn={this.model.setupAsNewPod}>
+                <Section header={<MemriText>Pod setup</MemriText>} footer={this.model.setupAsNewPod && this.connectButton}>{/*TODO @anijanyan*/}
+                    <Toggle isOn={getBinding(this.model, "setupAsNewPod")}>
                         Set up as new pod?
                     </Toggle>
                     <MemriText font={font({family: "caption"})}>
                         If enabled this will create new authentication keys and install the demo data.
                     </MemriText>
                 </Section>
-                {!this.model.setupAsNewPod}
-                <Section header={<MemriText>Authentication</MemriText>} footer={this.connectButton}>
-                    <VStack alignment={Alignment.leading} spacing={2}>
-                        <MemriText font={this.captionFont}>
-                            Public Key
-                        </MemriText>
-                        <MemriTextField value={this.model.podPublicKey} placeholder={"publickey"}/>
-                        <MemriText font={this.captionFont}>
-                            Private Key
-                        </MemriText>
-                        <MemriTextField value={this.model.podPrivateKey} placeholder={"privatekey"}/>
-                        <MemriText font={this.captionFont}>
-                            Database Key
-                        </MemriText>
-                        <MemriTextField value={this.model.podDatabaseKey} placeholder={"databasekey"}/>
-                    </VStack>
-                </Section>
+                {!this.model.setupAsNewPod &&
+                    <Section header={<MemriText>Authentication</MemriText>} footer={!this.model.setupAsNewPod && this.connectButton}>{/*TODO @anijanyan*/}
+                        <VStack alignment={Alignment.leading} spacing={2}>
+                            <MemriText font={this.captionFont}>
+                                Public Key
+                            </MemriText>
+                            <MemriTextField value={getBinding(this.model, "podPublicKey")} placeholder={"publickey"}/>
+                            <MemriText font={this.captionFont}>
+                                Private Key
+                            </MemriText>
+                            <MemriTextField value={getBinding(this.model, "podPrivateKey")} placeholder={"privatekey"}/>
+                            <MemriText font={this.captionFont}>
+                                Database Key
+                            </MemriText>
+                            <MemriTextField value={getBinding(this.model, "podDatabaseKey")} placeholder={"databasekey"}/>
+                        </VStack>
+                    </Section>
+                }
             </Form>
         )
     }
@@ -174,7 +230,7 @@ class SetupScreen extends MainUI {
             <VStack spacing={10} padding={padding({top: "default"})}>
                 {this.model.state == PodSetupState.error &&
                 <MemriText multilineTextAlignment={Alignment.center} lineLimit={3} foregroundColor={Color.named("red")}>
-                    Error connecting to pod: \(errorString)
+                    {`Error connecting to pod: ${this.model.errorString}`}
                 </MemriText>
                 }
                 {!this.model.isValidToProceedToConnect &&
@@ -204,13 +260,16 @@ class SetupScreen extends MainUI {
     
     _onConnectPressed() {
         this.model.state = PodSetupState.loading
-        
-        function handleCompletion(error: Error) {
+
+        let handleCompletion = (error: Error) => {
             if (error) {
-                this.model.state = PodSetupState.error;//("\(error)")
+                this.model.errorString = error//TODO @anijanyan
+                this.model.state = PodSetupState.error;
+
                 debugHistory.error(error)
             } else {
                 this.model.state = PodSetupState.idle
+
             }
         }
         
@@ -218,7 +277,7 @@ class SetupScreen extends MainUI {
             this.context.installer.installLocalAuthForNewPod(
                 this.context,
                 this.model.getPodURL(),
-                handleCompletion(error) //TODO:
+                handleCompletion
             )
         } else {
             this.context.installer.installLocalAuthForExistingPod(
@@ -227,35 +286,44 @@ class SetupScreen extends MainUI {
                 this.model.podPrivateKey ?? "",
                 this.model.podPublicKey ?? "",
                 this.model.podDatabaseKey ?? "",
-                handleCompletion(error:) //TODO:
+                handleCompletion
             )
         }
     }
     
-    /*func onLocalDemoPressed() {
-        model.state = .loading
-        
-        func handleCompletion(error: Error?) {
-            if let error = error {
-                model.state = .error("\(error)")
-                debugHistory.error("\(error)")
+    onLocalDemoPressed() {
+        this.model.state = PodSetupState.loading
+
+        let handleCompletion = (error) => {
+            if (error) {
+                this.model.errorString = error//TODO @anijanyan
+                this.model.state = PodSetupState.error
+
+                debugHistory.error(error)
             } else {
-                model.state = .idle
+                this.model.state = PodSetupState.idle
             }
         }
-        
-        context.installer.installLocalAuthForLocalInstallation(
-            context: context,
-            callback: handleCompletion(error:)
+
+        this.context.installer.installLocalAuthForLocalInstallation(
+            this.context,
+            handleCompletion
         )
     }
-    
-    var newPodWarning: Alert {
-        Alert(title: Text("Set up new pod"),
-              message: Text("Are you sure you want to install demo data to your pod?"),
-              primaryButton: .default(Text("Set up as new pod"), action: _onConnectPressed),
-              secondaryButton: .cancel())
-    }*/
+
+    get newPodWarning() {
+        return <MemriAlert
+            isPresented={getBinding(this, "showingNewPodWarning")}
+            title={<MemriText>Set up new pod</MemriText>}
+            message={
+                <MemriText>
+                    Are you sure you want to install demo data to your pod?
+                </MemriText>
+            }
+            primaryButton={{text: <MemriText>Set up as new pod</MemriText>, action: this._onConnectPressed, type: "default"}}
+            secondaryButton={{type: "cancel"}}
+        />
+    }
 }
 
 //struct SetupScreen_Previews: PreviewProvider {

@@ -1,5 +1,5 @@
 //
-// CVU_Image.swift
+// CVU_FileThumbnail.swift
 // Copyright © 2020 memri. All rights reserved.
 
 import {CVU_UI, frame, MemriImage} from "../../swiftUI";
