@@ -159,12 +159,12 @@ export class Installer {
 					dbKey
 				)
 
-				this.ready(context)
-				callback(undefined)
-
+				//TODO: changed because it wasn't working @mkslanc
 				// Force download of key elements from pod - this is a hacky function in its current state - will be reworked with sync reimplementation
 				context.cache.sync.syncAllFromPod(() => {
 					// TODO: error handling
+					this.ready(context)
+					callback(undefined)
 				})
 				// Attempt to sync from pod
 				context.cache.sync.schedule()

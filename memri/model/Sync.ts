@@ -256,8 +256,8 @@ export class Sync {
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {
-                    if (!edge.isValid())
-                        continue
+                    /*if (!edge.isValid())
+                        continue*/ //TODO: this is not working now @mkslanc
                     edgeQueue[action]?.push(edge)
                     found += 1
                 }

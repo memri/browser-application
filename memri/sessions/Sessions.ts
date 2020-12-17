@@ -83,7 +83,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
     load(context: MemriContext) {//TODO: added this for JS
         if (this.isDefault && this.uid == undefined) {
-            this.uid = Settings.shared.get("device/sessions/uid")
+            this.uid = Settings.shared.get("device/sessions/uid") || CacheMemri.getDeviceID();
             if (this.uid == undefined) {
                 throw "Could not find stored sessions to load from"
             }
