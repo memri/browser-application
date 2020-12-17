@@ -382,7 +382,7 @@ export class PodAPI {
             payload._type = type
             payload.uid = uid
         } else {
-            let type = query.match(/^(\w+)$/)//TODO
+            let type = query.match(/(\w+)/)//TODO
             if (type) {
                 payload._type = type[1]
             } else {

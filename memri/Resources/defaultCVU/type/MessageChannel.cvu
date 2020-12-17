@@ -26,7 +26,7 @@ MessageChannel {
                 maxHeight: 300
                 
                 Image {
-                    image: {{.receiver.owner.profilePicture}}
+                    image: {{.receiver.belongsTo.profilePicture}}
                     sizingMode: fill
                 }
                 
@@ -35,11 +35,11 @@ MessageChannel {
                     background: #efef /* TODO: Support opacity in the background */
                     
                     MemriButton {
-                        item: {{.receiver.owner}}
+                        item: {{.receiver.belongsTo}}
                     }
                     Spacer
                     MemriButton {
-                        item: {{.receiver.network}}
+                        item: {{.receiver.organization}}
                     }
                 }
             }
@@ -56,7 +56,7 @@ MessageChannel[] {
         press: openView {
             view: {
                 /* TODO: Here is a case for serializing dot. The first time it works, but not on reload */
-                title: {{channel.receiver.owner.firstName or channel.name or channel.topic}}
+                title: {{channel.receiver.belongsTo.firstName or channel.name or channel.topic}}
                 
                 titleActionButton: openView {
                     item: {{channel}}
@@ -64,6 +64,7 @@ MessageChannel[] {
                 
                 [datasource = pod] {
                     query: "Message and ANY allEdges.targetItemID = {uid}"
+                    /*query: "Message"*/
                     sortProperty: "dateSent"
                 }
             }
@@ -81,7 +82,7 @@ MessageChannel[] {
                 margin: 0 15 0 0
             
                 Image {
-                    image: {{.receiver.owner.profilePicture}}
+                    image: {{.receiver.belongsTo.profilePicture}}
                     sizingMode: fill
                     minHeight: 50
                     maxHeight: 50
@@ -95,7 +96,7 @@ MessageChannel[] {
                 alignment: leading
                 HStack {
                     Text {
-                        text: "{.receiver.owner.fullName()}"
+                        text: "{.receiver.displayName}"
                         font: 18 semibold
                         color: primary
                         padding: 0 0 3 0
@@ -112,7 +113,7 @@ MessageChannel[] {
                 }
                 HStack {
                     Text {
-                        text: "{.~messageChannel[].last.photo ? '[Photo]' : .~messageChannel[].last.content.plainString or 'No messages yet'}"
+                        text: "{.~messageChannel[].last.photo ? '[Photo]' : .~messageChannel[].last.content.plainString}"
                         lineLimit: 2
                         font: 14 regular
                         color: secondary
@@ -121,7 +122,7 @@ MessageChannel[] {
                     Spacer
                     
                     Text {
-                        text: "{.receiver.network.name}"
+                        text: "{.receiver.organization.name}"
                         lineLimit: 1
                         font: 12 semibold
                         color: secondary

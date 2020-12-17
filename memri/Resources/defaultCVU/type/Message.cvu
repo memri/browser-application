@@ -98,20 +98,20 @@ Message[] {
         spacing: 8
         
         HStack {
-            alignment: {{ .sender.owner = me ? "right" : "left" }}
+            alignment: {{ .sender.belongsTo = me ? "right" : "left" }}
             fillWidth: true
-            padding: {{ .sender.owner = me ? "0 0 0 20" : "0 60 0 0" }}
+            padding: {{ .sender.belongsTo = me ? "0 0 0 20" : "0 60 0 0" }}
             
             VStack {
                 spacing: 2
                 padding: 5
-                background: {{ .sender.owner = me ? "purpleBackground" : "secondaryBackground" }}
+                background: {{ .sender.belongsTo = me ? "purpleBackground" : "secondaryBackground" }}
                 cornerRadius: 5
                 
                 Text {
                     /*                        show: {{previous.dateSent - .dateSent < 30000}}*/
-                    show: {{ .messageChannel._receiver[].count > 1 AND .sender.owner != me }}
-                    text: "{.sender.owner.fullName()}"
+                    show: {{ .messageChannel._receiver[].count > 1 AND .sender.belongsTo != me }}
+                    text: "{.sender.belongsTo.fullName()}"
                     font: 12 bold
                     color: secondary
                     lineLimit: 1
@@ -127,7 +127,7 @@ Message[] {
                         padding: 6
                         
                         Text {
-                            text: "{.message.sender.owner.fullName()}"
+                            text: "{.message.sender.belongsTo.fullName()}"
                             font: 12 bold
                             color: #743a4c
                             lineLimit: 1
