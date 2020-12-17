@@ -383,7 +383,7 @@ export class PodAPI {
             payload.uid = uid
         } else {
             let type = query.match(/^(\w+)$/)//TODO
-            if (type) {
+            if (type && type[1]) {
                 payload._type = type[1]
             } else {
                 callback("Not implemented yet", null)

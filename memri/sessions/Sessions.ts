@@ -94,7 +94,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
         DatabaseController.trySync(false, (realm) => {
             console.log(realm.objects("CVUStateDefinition"));
-            let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid); //TODO:
+            let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid);
             if (state) {
                 let p = context.views.parseDefinition(state);
                 if (!(p?.constructor?.name == "CVUParsedSessionsDefinition")) {

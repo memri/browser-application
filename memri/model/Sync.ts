@@ -145,6 +145,7 @@ export class Sync {
                     try {
                         // Update resultset with the new results
                          resultSet.reload()
+                        this.cache.scheduleUIUpdate(); //TODO: for updating view after receiving data @mkslanc
                     } catch(error) {
                         debugHistory.error(`${error}`)
                     }
