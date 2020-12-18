@@ -89,11 +89,12 @@ export class Installer {
 				context.podAPI.host = host
 				Settings.shared.set("user/pod/host", host)
 
+				//TODO: needs to implement @mkslanc
 				// Create a local root key
 				//Authentication.createRootKey(true)
 
 				// Setup the auth keys for the pod
-				// Authentication.createOwnerAndDBKey()
+				Authentication.createOwnerAndDBKey()
 
 				// console.log(
 				// 	`KEY: ${Authentication.getPublicRootKeySync().hexEncodedString(options: .upperCase)}`

@@ -230,7 +230,7 @@ export class Sync {
 		/*if (this.syncing) { return }
         this.syncing = true*/
 
-        DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
+        await DatabaseController.asyncOnBackgroundThread(false, undefined, async (realm) => {
             var found = 0
             var itemQueue = {create: [], update: [], delete: []}
             var edgeQueue = {create: [], update: [], delete: []}
@@ -256,8 +256,8 @@ export class Sync {
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {
-                    /*if (!edge.isValid())
-                        continue*/ //TODO: this is not working now @mkslanc
+                    if (!edge.isValid())
+                        continue //TODO: this is not working now @mkslanc
                     edgeQueue[action]?.push(edge)
                     found += 1
                 }
@@ -274,7 +274,7 @@ export class Sync {
             if (found > 0) {
                 debugHistory.info(`Syncing to pod with ${found} changes`)
                 try {
-                     this.podAPI.sync(
+                     await this.podAPI.sync(
                          itemQueue["create"],
                          itemQueue["update"],
                          itemQueue["delete"],

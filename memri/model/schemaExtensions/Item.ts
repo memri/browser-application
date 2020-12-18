@@ -956,7 +956,7 @@ export class Edge {
     /// Checks that source and target items exist
     isValid(): boolean {
         return DatabaseController.trySync(false, (realm) =>
-            realm.objectForPrimaryKey("Item", this.sourceItemID) != undefined && realm.objectForPrimaryKey("Item", this.targetItemID) != undefined
+            realm.objectForPrimaryKey(this.sourceItemType, this.sourceItemID) != undefined && realm.objectForPrimaryKey(this.targetItemType, this.targetItemID) != undefined
         ) ?? false
     }
 
@@ -1048,6 +1048,7 @@ export class Edge {
                 this.version = realmObj["version"] ?? this.version
                 this.edgeLabel = realmObj["edgeLabel"] ?? this.edgeLabel;
                 this.parseTargetDict(realmObj["_target"]);
+                this._action = realmObj["_action"] ?? this._action
                 /*for (let key in realmObj) {
                     this[key] = realmObj[key];
                 }*/
@@ -3589,7 +3590,7 @@ export class CryptoKey extends Item {
     /// algorithm.
     key
     /// Whether the item is active.
-    active: boolean = false
+    active: boolean
     /// The name of the item.
     name
 
@@ -3624,6 +3625,7 @@ export class CryptoKey extends Item {
 
     constructor(decoder) {
         super(decoder)
+        this.active = this.active ?? false;
     }
 }
 

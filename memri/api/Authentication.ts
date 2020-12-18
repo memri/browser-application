@@ -7,12 +7,11 @@
 //
 
 
-//import {DatabaseController} from "../storage/DatabaseController";
-
-import {DatabaseController} from "../../router";
+import {DatabaseController, UUID} from "../../router";
 
 import {CacheMemri} from "../../router";
 import {me} from "../../router";
+import {ec} from "elliptic";
 
 export class Authentication {
     autologin = true
@@ -175,6 +174,20 @@ export class Authentication {
         }*/
     }
 
+    static createOwnerAndDBKey() {
+        let dbKey = `${UUID()}${UUID()}`.replace(/-/g, "").toUpperCase();
+        let Curve25519 = new ec('curve25519');
+        let keyPair = Curve25519.genKeyPair();
+        let privateKey = keyPair.getPrivate("hex").toUpperCase();
+        let publicKey = keyPair.getPublic("hex").toUpperCase();
+
+        Authentication.setOwnerAndDBKey(
+            privateKey,
+            publicKey,
+            dbKey
+        )
+    }
+
     static setOwnerAndDBKey(privateKey: string, publicKey: string, dbKey: string) {
         DatabaseController.trySync(true, (realm) => {
             realm.objects("CryptoKey").filtered("name = 'memriDBKey'").forEach((key) => {
@@ -216,22 +229,26 @@ export class Authentication {
             ownerPublicKeyItem.link(myself, "owner")
             ownerPrivateKeyItem.link(ownerPublicKeyItem, "publicKey")
             ownerPublicKeyItem.link(ownerPrivateKeyItem, "privateKey")
+            console.log ("DB Key: "+dbKey);
+            console.log ("Public key Key: "+publicKey);
+            localStorage.setItem("ownerKey", publicKey); //TODO:
+            localStorage.setItem("databaseKey", dbKey); //TODO:
         })
     }
 
     static async getOwnerAndDBKey(callback) {
         callback(null, localStorage.ownerKey, localStorage.databaseKey)
-        /*DatabaseController.asyncOnCurrentThread(false,(realm) => {
-            let dbQuery = "name = 'memriDBKey' and active = true";
+        /*DatabaseController.asyncOnCurrentThread(false, undefined, (realm) => {
+            let dbQuery = "name = 'Memri Database Key' and active = true";
             let dbKey = realm.objects("CryptoKey").filtered(dbQuery)[0];
             if (!dbKey) {
                 callback("Database key is not set", undefined, undefined)
                 return
             }
 
-            let query = "name = 'memriOwnerKey' and role = 'public' and active = true"
+            let query = "name = 'Memri Owner Key' and role = 'public' and active = true"
             let ownerKey = realm.objects("CryptoKey").filtered(query)[0];
-            if (!dbKey) {
+            if (!ownerKey) {
                 callback("Owner key is not set", undefined, undefined)
                 return
             }

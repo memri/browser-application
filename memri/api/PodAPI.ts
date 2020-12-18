@@ -240,6 +240,10 @@ export class PodAPI {
             }
             return result
         } else {
+            //TODO: muted for now @mkslanc
+            if (item["sourceItemType"] == "AuditItem" || item["sourceItemType"] == "ReceiptDemo" || item["targetItemType"] == "AuditItem" || item["targetItemType"] == "ReceiptDemo") {
+                return
+            }
             var result = {}
 
             let properties = Object.keys(item)
@@ -305,8 +309,8 @@ export class PodAPI {
          deleteEdges?,
          callback?) {
 		var result = {}//TODO: i muted AuditItem creating from local pod due to not unique uid @mkslanc
-		if (createItems?.length ?? 0 > 0) { result["createItems"] = createItems?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined && el["_type"] != "AuditItem") }
-		if (updateItems?.length ?? 0 > 0) { result["updateItems"] = updateItems?.map (function(item){ return this.simplify(item) }.bind(this)).filter(el => el != undefined) }
+		if (createItems?.length ?? 0 > 0) { result["createItems"] = createItems?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined && el["_type"] != "AuditItem" && el["_type"] != "ReceiptDemo") }
+		if (updateItems?.length ?? 0 > 0) { result["updateItems"] = updateItems?.map (function(item){ return this.simplify(item) }.bind(this)).filter(el => el != undefined && el["_type"] != "AuditItem" && el["_type"] != "ReceiptDemo") }
 		if (deleteItems?.length ?? 0 > 0) { result["deleteItems"] = deleteItems?.map (function(item){ return this.simplify(item) }.bind(this)) }
 		if (createEdges?.length ?? 0 > 0) { result["createEdges"] = createEdges?.map (function(item){ return this.simplify(item, true) }.bind(this)).filter(el => el != undefined) }
 		if (updateEdges?.length ?? 0 > 0) { result["updateEdges"] = updateEdges?.map (function(item){ return this.simplify(item) }.bind(this)).filter(el => el != undefined) }
