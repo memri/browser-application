@@ -119,32 +119,41 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
 
     setAlignment() {
         if (this.props.alignment && !this.props.justifyContent) {
+            let justify;
+            switch (this.constructor.name) {
+                case "ZStack":
+                    justify = "justifyItems";
+                    break;
+                default:
+                    justify = "justifyContent";
+                    break;
+            }
             switch (this.props.alignment) {
                 case Alignment.top:
                     return {alignItems: "flex-start"};
                 case Alignment.center:
                     switch (this.constructor.name) {
                         case "VStack":
-                            return {justifyContent: "center"}
+                            return {[justify]: "center"}
                         case "HStack":
                             return {alignItems: "center"};
                         default:
-                            return {alignItems: "center", justifyContent: "center"};
+                            return {alignItems: "center", [justify]: "center"};
                     }
                 case Alignment.bottom:
                     return {alignItems: "flex-end"};
                 case Alignment.leading:
-                    return {justifyContent: "flex-start"};
+                    return {[justify]: "flex-start"};
                 case Alignment.trailing:
-                    return {justifyContent: "flex-end"};
+                    return {[justify]: "flex-end"};
                 case Alignment.topLeading:
-                    return {alignItems: "flex-start", justifyContent: "flex-start"};
+                    return {alignItems: "flex-start", [justify]: "flex-start"};
                 case Alignment.topTrailing:
-                    return {alignItems: "flex-start", justifyContent: "flex-end"};
+                    return {alignItems: "flex-start", [justify]: "flex-end"};
                 case Alignment.bottomLeading:
-                    return {alignItems: "flex-end", justifyContent: "flex-start"};
+                    return {alignItems: "flex-end", [justify]: "flex-start"};
                 case Alignment.bottomTrailing:
-                    return {alignItems: "flex-end", justifyContent: "flex-end"};
+                    return {alignItems: "flex-end", [justify]: "flex-end"};
             }
         }
         return //{alignItems: "inherit", justifyContent: "inherit"};
