@@ -98,20 +98,20 @@ Message[] {
         spacing: 8
         
         HStack {
-            alignment: {{ .sender.belongsTo = me ? "right" : "left" }}
+            alignment: {{ .sender.externalId = '@cdfa58cedd:CDFA58CEDD-synapse' or .sender.externalId = '@whatsapp_4915257154739:CDFA58CEDD-synapse' ? "right" : "left" }}
             fillWidth: true
-            padding: {{ .sender.belongsTo = me ? "0 0 0 20" : "0 60 0 0" }}
+            padding: {{ .sender.externalId = '@cdfa58cedd:CDFA58CEDD-synapse' or .sender.externalId = '@whatsapp_4915257154739:CDFA58CEDD-synapse' ? "0 0 0 20" : "0 60 0 0" }}
             
             VStack {
                 spacing: 2
                 padding: 5
-                background: {{ .sender.belongsTo = me ? "purpleBackground" : "secondaryBackground" }}
+                background: {{ .sender.externalId = '@cdfa58cedd:CDFA58CEDD-synapse' or .sender.externalId = '@whatsapp_4915257154739:CDFA58CEDD-synapse' ? "purpleBackground" : "secondaryBackground" }}
                 cornerRadius: 5
                 
                 Text {
                     /*                        show: {{previous.dateSent - .dateSent < 30000}}*/
-                    show: {{ .messageChannel._receiver[].count > 1 AND .sender.belongsTo != me }}
-                    text: "{.sender.belongsTo.fullName()}"
+                    show: {{ .messageChannel._receiver[].count > 1 /*AND .sender.belongsTo != me*/ }}
+                    text: "{.sender.displayName}"
                     font: 12 bold
                     color: secondary
                     lineLimit: 1
@@ -127,7 +127,7 @@ Message[] {
                         padding: 6
                         
                         Text {
-                            text: "{.message.sender.belongsTo.fullName()}"
+                            text: "{.message.sender.displayName}"
                             font: 12 bold
                             color: #743a4c
                             lineLimit: 1
