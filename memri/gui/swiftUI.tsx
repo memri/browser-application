@@ -93,7 +93,8 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             top: this.props.top,
             right: this.props.right,
             float: this.props.float,
-            border: this.props.border
+            border: this.props.border,
+            alignSelf: this.props.alignSelf
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.margin, this.props.contentInsets, this.props.frame, this.setAlignment());

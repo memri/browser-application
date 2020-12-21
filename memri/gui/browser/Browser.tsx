@@ -97,11 +97,11 @@ export class Browser extends MainUI {
 
 						{this.showFilterPanel &&
 							<VStack offset={offset({y: this.filterPanelGestureOffset})}
-									zIndex={9}
+									zIndex={9} alignSelf={"flex-end"}
 									// transition={move("bottom")}
 							>
 								<Capsule fill={new Color("secondarySystemBackground").toLowerCase()}
-										 frame={frame({width: 40, height: 5, maxWidth: "infinity"/*, height: 15*/})}
+										 frame={frame({width: 40, height: 5, maxWidth: "infinity"/*, height: 15*/})} alignSelf={"center"}
 								/>
 								<FilterPanel context={this.context}/>
 							</VStack>

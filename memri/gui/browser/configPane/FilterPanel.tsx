@@ -14,7 +14,7 @@ export class FilterPanel extends MainUI {
     render() {
         this.context = this.props.context
         return (
-            <div className="FilterPanel" style={{position: "absolute", bottom: 0, width: "100%"}}>
+            <div className="FilterPanel">
                 <HStack alignment={Alignment.top} spacing={0}
                         frame={frame({maxWidth: "infinity", height: 250})}
                         background={Color.named("systemBackground")} shadow={shadow({radius: 10})} cornerRadius={20} corners={[Corners.topLeft, Corners.topRight]}
