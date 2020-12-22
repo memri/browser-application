@@ -562,9 +562,9 @@ export class Spacer extends MainUI {
     updateGrow() {
         let parent = ReactDOM.findDOMNode(this)?.parentNode;
         if (parent) {
-
+            //TODO: we should find better solution
             while (parent && parent.style) {
-                if (parent.style.flexGrow || parent.className == "NavigationWrapper" || parent.className == "ASSection" || parent.className == "BottomBarView") break
+                if (parent.style.flexGrow || parent.className == "NavigationWrapper" || parent.className == "NavigationView" || parent.className == "ASSection" || parent.className == "BottomBarView") break
                 parent.style.flexGrow = 1
                 parent = parent.parentNode;
             }

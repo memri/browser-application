@@ -44,6 +44,8 @@ export class Color {
                 return "#ffffff";
             case "black":
                 return "#000000";
+            case "purple":
+                return "#800080"
             case "MemriUI-purpleBack":
                 return "#543184";
             case "MemriUI-purpleBackSecondary":
