@@ -8,6 +8,7 @@ import {Cascadable} from "../../../router";
 import {Item, UUID} from "../../../router";
 import {UIElementView} from "../../gui/cvuComponents/UIElementView";
 import {EmptyView} from "../../gui/swiftUI";
+import * as React from "react";
 
 export class RenderGroup {
     options: MemriDictionary
@@ -77,10 +78,10 @@ export class CascadingRendererConfig extends Cascadable {
         let body = this.getRenderGroup(group)?.body;
         if (item && body) {
             let nodeResolver = new UINodeResolver(body, argumentsJs.copy(item))
-            return new UIElementView({nodeResolver: nodeResolver, context: this.host.context}).render()/*.eraseToAnyView()*/
+            return <UIElementView nodeResolver={nodeResolver} context={this.host.context}/>
         }
         else {//TODO:
-            return new EmptyView({}).render()
+            return <EmptyView/>
         }
     }
 }

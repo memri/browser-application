@@ -6,6 +6,7 @@ import {Alignment, CVUFont, TextAlignment} from "../../../router";
 import {debugHistory} from "../../../router";
 import {CVU_SizingMode} from "../../../router";
 import {UINode} from "../../../router";
+import * as React from "react";
 
 export class UINodeResolver {
     constructor(node: UINode, viewArguments: ViewArguments) {
@@ -68,14 +69,14 @@ export class UINodeResolver {
         let newArguments = this.viewArguments;
         if (item)
             newArguments = new ViewArguments(this.viewArguments, item)
-        return this.node.children.map(($0) => new UIElementView({nodeResolver: new UINodeResolver($0, newArguments)}).render())
+        return this.node.children.map(($0) => <UIElementView context={context} nodeResolver={new UINodeResolver($0, newArguments)}/>);
     }
     //TODO: we need to transfer context to child components, so i added parameter @mkslanc
     childrenInForEach(context, item?: Item) {
         let newArguments = this.viewArguments;
         if (item)
             newArguments = new ViewArguments(this.viewArguments, item)
-        let childNodeResolvers = this.node.children.map(($0) => new UIElementView({context: context, nodeResolver: new UINodeResolver($0, newArguments)}).render());
+        let childNodeResolvers = this.node.children.map(($0) => <UIElementView context={context} nodeResolver={new UINodeResolver($0, newArguments)}/>);
         return childNodeResolvers
     }
 

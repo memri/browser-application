@@ -38,7 +38,7 @@ export class Application extends MainUI {
 
 	updateSize = () => {
 		geom.size.height = window.innerHeight - 4;
-		geom.size.width = Math.min(window.innerWidth, 414);
+		geom.size.width = Math.min(window.innerWidth, geom.size.width);
 		this.context && this.context.scheduleCascadableViewUpdate();
 	}
 

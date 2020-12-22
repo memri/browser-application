@@ -15,6 +15,7 @@ import {
 import {Color, MemriContext, UIElementFamily, UINodeResolver} from "../../router";
 import {Alignment, Font, TextAlignment} from "../../router";
 import {geom} from "../../geom";
+import * as ReactDOM from 'react-dom'
 
 interface MemriUIProps {
     foregroundColor?
@@ -119,10 +120,12 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
     }
 
     setAlignment() {
+        //TODO: VStack, HStack alignment differences
         if (this.props.alignment && !this.props.justifyContent) {
             let justify;
             switch (this.constructor.name) {
                 case "ZStack":
+                case "ASCollectionView":
                     justify = "justifyItems";
                     break;
                 default:
@@ -167,11 +170,10 @@ export class CVU_UI extends MainUI {
     constructor(props: MemriUIProps, context?: any) {
         super(props, context);
         this.nodeResolver = this.props.nodeResolver;
-        delete this.props.nodeResolver;
     }
 
     modifier(modifiers) {
-        return modifiers
+        return modifiers.body()
     }
 }
 
@@ -548,12 +550,33 @@ export class MemriImage extends MainUI {
 }
 
 export class Spacer extends MainUI {
+
+    componentDidMount() {
+        this.updateGrow();
+    }
+
+    componentDidUpdate() {
+        this.updateGrow();
+    }
+
+    updateGrow() {
+        let parent = ReactDOM.findDOMNode(this)?.parentNode;
+        if (parent) {
+
+            while (parent && parent.style) {
+                if (parent.style.flexGrow || parent.className == "NavigationWrapper" || parent.className == "ASSection" || parent.className == "BottomBarView") break
+                parent.style.flexGrow = 1
+                parent = parent.parentNode;
+            }
+        }
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
         Object.assign(style, {flexGrow: 1})
         return (
-            <div style={style} className="Spacer" {...other}>
+            <div style={style} className="Spacer"  {...other}>
                 {this.props.children}
             </div>
         )
@@ -685,7 +708,7 @@ export class ASSection extends MainUI {
                                 />
                                 :
                                 <>
-                                    <div onClick={selectionMode(dataItem, index)}
+                                    <div style={{display: "flex"}} onClick={selectionMode(dataItem, index)}
                                          onContextMenu={contextMenuProvider ? (e)=> {
                                              e.preventDefault();
                                              ASSection.contextMenuShown = true
@@ -757,9 +780,9 @@ export class ASCollectionViewSection extends MainUI {
                         marginRight: 10
                     } : {}
                     return <>
-                        <MemriGrid xs={12 / columns} item key={dataItem.uid} contentInsets={contentInsets}>
+                        <MemriGrid key={dataItem.uid} contentInsets={contentInsets}>
                             <div className={"ASSectionItem"} style={style} onClick={() => this.closeContextMenu()}>
-                                <div onClick={selectionMode(dataItem, index)} index={index} checked={!(selectedIndices.includes(index))}
+                                <div style={{display: "flex"}} onClick={selectionMode(dataItem, index)} index={index} checked={!(selectedIndices.includes(index))}
                                      onContextMenu={contextMenuProvider ? (e) => {
                                          e.preventDefault();
                                          ASCollectionViewSection.contextMenuShown = true
@@ -911,18 +934,19 @@ export class Capsule extends MainUI {
 
 export class ASCollectionView extends MainUI {
     updateHeight() {
-        let collectionView = document.getElementsByClassName("ASCollectionView");
-        if (collectionView.length > 0) {
+        let collectionView = ReactDOM.findDOMNode(this);
+        if (collectionView) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
             let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
-            let collectionViewPaddings = Number(collectionView.item(0).style.paddingTop.replace("px", "")) + Number(collectionView.item(0).style.paddingBottom.replace("px", ""));
+            let collectionViewPaddings = Number(collectionView.style.paddingTop.replace("px", "")) + Number(collectionView.style.paddingBottom.replace("px", ""));
             if (collectionViewPaddings)
                 height -= collectionViewPaddings;
             let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
             if (contextualBottomBar.length > 0)
                 height -= contextualBottomBar.item(0).clientHeight;
-            collectionView.item(0).style.height = height + "px";
+            //if (collectionView.clientHeight > height) //TODO: should set size only if clientHeight > height of app
+                collectionView.style.height = height + "px";
         }
     }
 
@@ -935,7 +959,7 @@ export class ASCollectionView extends MainUI {
     }
 
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        let {columns, font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
         let style = this.setStyles();
         if (images == true) {
             Object.assign(style, {maxHeight: "400px", overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})
@@ -945,11 +969,11 @@ export class ASCollectionView extends MainUI {
                 </GridList>
             )
         } else {
-            Object.assign(style, {overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})
+            Object.assign(style, {overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap", display: "grid", "grid-template-columns": (columns) ? "auto ".repeat(columns): undefined})
             return (
-                <Grid container style={style} className="ASCollectionView" {...other}>
+                <div style={style} className="ASCollectionView" {...other}>
                     {this.props.children}
-                </Grid>
+                </div>
             )
         }
     }
@@ -1095,9 +1119,9 @@ export class MemriGrid extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <Grid style={this.setStyles()} className="Grid" {...other}>
+            <div style={this.setStyles()} className="Grid" {...other}>
                 {this.props.children}
-            </Grid>
+            </div>
         )
     }
 }
