@@ -30,7 +30,7 @@ export class ContextPaneForeground extends MainUI {
 		let description = describeChangelog && describeChangelog()//TODO
 		return (
 			<div className="ContextPaneForeground">
-			<ScrollView background={new Color("secondarySystemGroupedBackground").toLowerCase()}>
+			<ScrollView background={new Color("secondarySystemGroupedBackground").toLowerCase()} context={context}>
 				<VStack alignment={Alignment.leading} padding={padding({top: 60})}>
 					<VStack alignment={Alignment.leading}>
 						<MemriText

@@ -9,28 +9,31 @@
 import {MainUI} from "../../swiftUI";
 import * as React from "react";
 import {geom} from "../../../../geom";
+import * as ReactDOM from 'react-dom'
 var DOMPurify = require('dompurify');
 
 export class EmailView extends MainUI {
     emailHTML: string
 
     updateHeight() {
-        let emailView = document.getElementById("EmailView");
+        let emailView = ReactDOM.findDOMNode(this);
         if (emailView) {
             let customRenderer = document.getElementById("CustomRenderer");
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomBarView = document.getElementsByClassName("BottomBarView").item(0);
-
+            let height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight;
             if (customRenderer) {
-                emailView.style.maxHeight = geom.size.height - (customRenderer.clientHeight - emailView.clientHeight + topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
+                if (customRenderer.clientHeight > emailView.clientHeight) {
+                    height = height - customRenderer.clientHeight + emailView.clientHeight;
+                    emailView.style.maxHeight = height + "px";
+                }
             } else {
                 let labelAnnotationRenderer = document.getElementById("LabelAnnotationRenderer");
                 if (labelAnnotationRenderer) {
                     let bottomLabels = document.getElementById("BottomLabels");
-                    emailView.style.maxHeight = geom.size.height - (labelAnnotationRenderer.clientHeight - emailView.clientHeight + topNavigation.clientHeight + bottomBarView.clientHeight + bottomLabels.clientHeight) + "px";
-                } else {
-                    emailView.style.maxHeight = geom.size.height - (topNavigation.clientHeight + bottomBarView.clientHeight) + "px";
+                    height = height - (labelAnnotationRenderer.clientHeight - emailView.clientHeight + bottomLabels.clientHeight);
                 }
+                emailView.style.maxHeight = height + "px";
             }
 
         }
@@ -60,6 +63,7 @@ export class EmailView extends MainUI {
 
     render() {
         this.emailHTML = this.props.emailHTML;
+        this.context = this.props.context;
         this.resetContentWidth();
         this.sanitize();
         let style = this.setStyles();

@@ -490,22 +490,26 @@ export class MemriText extends MainUI {
 
 export class ScrollView extends MainUI {
     updateHeight() {
-        let scrollView = document.getElementsByClassName("ScrollView");
-        if (scrollView.length > 0) {
+        let scrollView = ReactDOM.findDOMNode(this);
+        if (scrollView) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomBarView = document.getElementsByClassName("BottomBarView").item(0);
-
-            let scrollViewPaddings = Number(scrollView.item(0).style.paddingTop.replace("px", "")) + Number(scrollView.item(0).style.paddingBottom.replace("px", ""));
+            let height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight;
+            let scrollViewPaddings = Number(scrollView.style.paddingTop.replace("px", "")) + Number(scrollView.style.paddingBottom.replace("px", ""));
             if (scrollViewPaddings) {
-                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight - scrollViewPaddings + "px";
-            } else  {
-                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight + "px";
+                height -= scrollViewPaddings;
             }
+            if (scrollView.clientHeight > height)
+                scrollView.style.height = height + "px";
         }
     }
 
     componentDidMount(): void {
+        this.context.loadedImages = 0;
         this.updateHeight();
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
     }
 
     componentDidUpdate(): void {
@@ -514,6 +518,7 @@ export class ScrollView extends MainUI {
 
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
         Object.assign(style, {overflowY: "auto"})
 
@@ -564,7 +569,7 @@ export class Spacer extends MainUI {
         if (parent) {
             //TODO: we should find better solution
             while (parent && parent.style) {
-                if (parent.style.flexGrow || parent.className == "NavigationWrapper" || parent.className == "NavigationView" || parent.className == "ASSection" || parent.className == "BottomBarView") break
+                if (parent.style.flexGrow || (parent.className != "ZStack" && parent.className != "VStack" && parent.className != "HStack")) break
                 parent.style.flexGrow = 1
                 parent = parent.parentNode;
             }
@@ -594,12 +599,12 @@ export class MemriDivider extends MainUI {
 
 export class ASTableView extends MainUI {
     updateHeight() {
-        let tableView = document.getElementsByClassName("ASTableView");
-        if (tableView.length > 0) {
+        let tableView = ReactDOM.findDOMNode(this);
+        if (tableView) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
             let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
-            let tableViewPaddings = Number(tableView.item(0).style.paddingTop.replace("px", "")) + Number(tableView.item(0).style.paddingBottom.replace("px", ""));
+            let tableViewPaddings = Number(tableView.style.paddingTop.replace("px", "")) + Number(tableView.style.paddingBottom.replace("px", ""));
             if (tableViewPaddings)
                 height -= tableViewPaddings;
             let messageComposer = document.getElementById("MessageComposer");
@@ -608,12 +613,17 @@ export class ASTableView extends MainUI {
             let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
             if (contextualBottomBar.length > 0)
                 height -= contextualBottomBar.item(0).clientHeight;
-            tableView.item(0).style.height = height + "px";
+            if (tableView.clientHeight > height)
+                tableView.style.height = height + "px";
         }
     }
 
     componentDidMount(): void {
+        this.context.loadedImages = 0;
         this.updateHeight();
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
     }
 
     componentDidUpdate(): void {
@@ -622,6 +632,7 @@ export class ASTableView extends MainUI {
 
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
         Object.assign(style, {display: "flex", flexDirection: "column", overflowY: "auto"})
         return (
@@ -896,10 +907,17 @@ export class MemriImageView extends MainUI {
     render() {
         //TODO: fitContent
         let {font, padding, foregroundColor, spacing, frame, zIndex, image, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
         Object.assign(style, {maxWidth: style.maxWidth || "100%", maxHeight: style.maxHeight || "100%"})
         return (
-            <img src={image} style={style} className="MemriImageView" {...other}/>
+            <img src={image} style={style} className="MemriImageView" {...other}
+                 onLoad={() => {
+                     this.context.loadedImages++;
+                     if (this.context.items && this.context.items.length <= this.context.loadedImages) {
+                         this.context.updateViewHeight();
+                     }
+                 }}/>
         )
     }
 }
@@ -945,13 +963,17 @@ export class ASCollectionView extends MainUI {
             let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
             if (contextualBottomBar.length > 0)
                 height -= contextualBottomBar.item(0).clientHeight;
-            //if (collectionView.clientHeight > height) //TODO: should set size only if clientHeight > height of app
+            if (collectionView.clientHeight > height) //TODO: should set size only if clientHeight > height of app
                 collectionView.style.height = height + "px";
         }
     }
 
     componentDidMount(): void {
+        this.context.loadedImages = 0;
         this.updateHeight();
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
     }
 
     componentDidUpdate(): void {
@@ -960,6 +982,7 @@ export class ASCollectionView extends MainUI {
 
     render() {
         let {columns, font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
         if (images == true) {
             Object.assign(style, {maxHeight: "400px", overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})

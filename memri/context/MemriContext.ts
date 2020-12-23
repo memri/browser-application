@@ -632,6 +632,9 @@ export class MemriContext {
 
 		return item
 	}
+
+	loadedImages = 0; //TODO: counter for onLoad images event @mkslanc
+	updateViewHeight;
 }
 
 export class SubContext extends MemriContext {

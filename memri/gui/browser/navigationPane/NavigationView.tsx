@@ -191,12 +191,12 @@ class Navigation extends MainUI {
 				</MemriRealButton>*/}
 					</HStack>
 					<ASTableView overflowY={"auto"} id={"NavigationList"} separatorsEnabled={false}
-								 contentInsets={padding({top: 10, left: 0, bottom: 0, right: 0})} frame={frame({height: geom.size.height})}>
+								 contentInsets={padding({top: 10, left: 0, bottom: 0, right: 0})} frame={frame({height: geom.size.height})} context={this.context}>
 						{this.getNavigationItems()}
 					</ASTableView>
 
 				</VStack></div>
-		) //TODO: logic in ASSection
+		)
 	}
 
 }

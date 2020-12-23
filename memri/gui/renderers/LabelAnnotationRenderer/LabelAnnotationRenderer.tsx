@@ -294,7 +294,7 @@ class LabelSelectionView extends MainUI {
                     <MemriDivider/>
                     }
                     {this.useScrollView ?
-                        <ScrollView vertical>
+                        <ScrollView vertical context={this.context}>
                             {this.content}
                         </ScrollView> :
                         this.content

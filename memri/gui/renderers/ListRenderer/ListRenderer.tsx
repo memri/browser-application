@@ -107,7 +107,7 @@ export class ListRendererView extends RenderersMemri {
 										 left: 0,
 										 bottom: this.controller.config.edgeInset.bottom,
 										 right: 0
-									 })}>
+									 })} context={this.props.context}>
 							<ASSection editMode={this.controller.isEditing}
 									   selectionMode={this.selectionMode}
 									   selectedIndices={this.controller.context.selectedIndicesBinding}

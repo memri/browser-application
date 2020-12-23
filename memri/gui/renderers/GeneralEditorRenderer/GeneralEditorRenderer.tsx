@@ -179,7 +179,7 @@ export class GeneralEditorRendererView extends RenderersMemri {
         this.controller = this.props.controller;
 
         return (
-            <ScrollView vertical>
+            <ScrollView vertical context={this.context}>
                 <VStack alignment={Alignment.leading} spacing={0}>
                     {this.stackContent}
                 </VStack>
@@ -332,7 +332,7 @@ export class GeneralEditorSection extends MainUI {
                     }) ||
                     // Render lists with their default renderer
                     edges.length > 0 &&
-                    <ScrollView frame={frame({maxHeight: 1000})} fixedSize={{horizontal: false, vertical: true}}>
+                    <ScrollView frame={frame({maxHeight: 1000})} fixedSize={{horizontal: false, vertical: true}} context={this.context}>
                         <VStack alignment={Alignment.leading} spacing={spacing} padding={padding({
                             top: paddingCur[0],
                             leading: paddingCur[3],

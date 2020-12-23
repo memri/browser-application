@@ -135,7 +135,7 @@ export class MessageRendererView extends RenderersMemri {
                                          left: 0,
                                          bottom: this.controller.config.edgeInset.bottom,
                                          right: 0
-                                     })}>
+                                     })} context={this.context}>
                             {this.section}
                         </ASTableView>
                         <MemriDivider/>
