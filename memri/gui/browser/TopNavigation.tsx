@@ -25,6 +25,7 @@ import {
 } from "../swiftUI";
 import {debugHistory} from "../../../router";
 import {ActionButton} from "../ActionView";
+import {memri_shouldUseLargeScreenLayout} from "../Application";
 
 export class TopNavigation extends MainUI {
 	context: MemriContext
@@ -140,7 +141,7 @@ export class TopNavigation extends MainUI {
 						padding={padding({vertical: 12, horizontal: 15})}
 						frame={frame({height: 50})} background={new Color("secondarySystemGroupedBackground").toLowerCase()}
 				>
-					{(!this.inSubView) ?
+					{(!this.inSubView && !memri_shouldUseLargeScreenLayout) ?
 						<ActionButton action={new ActionShowNavigation(this.context)}
 									  font={font({size: 20, weight: Font.Weight.semibold})} context={this.context}/> :
 						(this.showCloseButton) &&

@@ -603,7 +603,11 @@ export class ASTableView extends MainUI {
         if (tableView) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
-            let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
+            let height = geom.size.height;
+            if (topNavigation && topNavigation.clientHeight)
+                height -= topNavigation.clientHeight;
+            if (bottomVarView && bottomVarView.clientHeight)
+                height -= bottomVarView.clientHeight;
             let tableViewPaddings = Number(tableView.style.paddingTop.replace("px", "")) + Number(tableView.style.paddingBottom.replace("px", ""));
             if (tableViewPaddings)
                 height -= tableViewPaddings;
@@ -1125,15 +1129,13 @@ export class MemriAlert extends MainUI {
 }
 
 export class Form extends MainUI {
+
     render() {
         let {navigationBarItems, navigationBarTitle, font, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <>
-                <div className="Form" {...other}>
-
-                    {this.props.children}
-                </div>
-            </>
+            <div className="Form" {...other}>
+                {this.props.children}
+            </div>
         )
     }
 }
