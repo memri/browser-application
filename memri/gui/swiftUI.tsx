@@ -696,7 +696,7 @@ export class ASSection extends MainUI {
         let {header, footer, data, editMode, callback, deleteIconFn, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, padding, foregroundColor, spacing, zIndex, ...other} = this.props;
         let style = this.setStyles();
         this.context = this.props.context
-        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row"})
+        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row", flexWrap: "wrap"})
 
         let contextMenuShown = ASSection.contextMenuShown && (ASSection.contextMenuParent == this)
         return (

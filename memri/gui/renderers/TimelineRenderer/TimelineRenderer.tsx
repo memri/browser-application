@@ -332,7 +332,6 @@ export class TimelineRendererView extends RenderersMemri {
                     {largeString}
                 </MemriText>
                 {flipOrder && small}
-                <Spacer minLength={0}/>
             </VStack>
         )
     }
