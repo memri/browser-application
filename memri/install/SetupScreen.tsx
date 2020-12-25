@@ -186,7 +186,7 @@ export class SetupScreen extends MainUI {
         //.showIf(model.setupAsNewPod)
         //.showIf(!model.setupAsNewPod)
         return (
-            <Form navigationTitle={"Pod Setup"}>
+            <Form context={this.context} navigationBarTitle={() => <MemriText>Pod Setup</MemriText>}>
                 <Section header={<MemriText>Connection Details</MemriText>}>
                     <VStack alignment={Alignment.leading} spacing={2}>
                         <MemriText font={this.captionFont}>

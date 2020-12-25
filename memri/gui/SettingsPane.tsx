@@ -53,9 +53,9 @@ export class SettingsPane extends MainUI {
 
         return (
             <NavigationView context={this.context} height={"100%"}>
-                <Form navigationBarTitle={<MemriText>Settings</MemriText>} navigationBarItems={{
+                <Form navigationBarTitle={() => <MemriText>Settings</MemriText>} navigationBarItems={{
                     leading:
-                        <MemriRealButton action={() => { this.context.showSettings = false; this.context.scheduleUIUpdate();
+                        () => <MemriRealButton action={() => { this.context.showSettings = false; this.context.scheduleUIUpdate();
                         }}><MemriText textColor={"blue"}>Close</MemriText></MemriRealButton>
                 }} context={this.context}>
                     <NavigationLink context={this.context} destination={

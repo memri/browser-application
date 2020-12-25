@@ -311,10 +311,19 @@ export class NavigationView extends MainUI {
     navigationBarItemsDiv
     constructor(props) {
         super(props);
-        this.state = {navigationBarTitle: null, navigationBarItems: null, destination: null, navigationView: null};
-        this.props.context.setNavigationBarTitle = (title) => this.setState({"navigationBarTitle": title})
+        this.state = {navigationBarTitle: null, navigationBarItems: null, destination: null};
+        this.props.context.setNavigationBarTitle = (title) => {
+            if (title?.toString() && this.state["navigationBarTitle"]?.toString()) {//TODO @anijanyan
+                return
+            }
+            this.setState({"navigationBarTitle": title})
+        }
         this.props.context.setNavigationBarItems = (items) => this.setState({"navigationBarItems": items})
         this.props.context.setNavigationBarDestination = (destination) => this.setState({"destination": destination})
+        this.props.context.resetNavigationProps = () => {
+            this.setState({navigationBarTitle: null, navigationBarItems: null, destination: null})
+        }
+
         this.props.context.getNavigationBarTitle = () => {return this.state["navigationBarTitle"]}
     }
 
@@ -340,13 +349,14 @@ export class NavigationView extends MainUI {
     render() {
         let style = this.setStyles();
         Object.assign(style, {background: "#f2f2f7"});
-        let navigationView = (
+
+        return (
             <div style={style} className={"NavigationView"}>
                 {(this.state.navigationBarTitle || this.state.navigationBarItems) &&
                 <>
                     <HStack padding={padding({vertical: 5})} frame={frame({minHeight: 15})} background={"white"}>
                         <div ref={(navigationBarItemsDiv) => {this.navigationBarItemsDiv = navigationBarItemsDiv}} className={"navigationBarItems"} style={{zIndex: 5, width: "23%"}}>
-                            {this.state.navigationBarItems && this.state.navigationBarItems.leading}
+                            {this.state.navigationBarItems && this.state.navigationBarItems.leading && this.state.navigationBarItems.leading()}
                         </div>
                         <div style={{
                             textAlign: "center",
@@ -355,10 +365,10 @@ export class NavigationView extends MainUI {
                             width: "60%",
                             alignSelf: "center"
                         }}>
-                            {this.state.navigationBarTitle}
+                            {this.state.navigationBarTitle && this.state.navigationBarTitle()}
                         </div>
                         <div style={{zIndex: 5, width: "23%"}}>
-                            {this.state.navigationBarItems && this.state.navigationBarItems.trailing}
+                            {this.state.navigationBarItems && this.state.navigationBarItems.trailing && this.state.navigationBarItems.trailing()}
                         </div>
 
                     </HStack>
@@ -366,12 +376,10 @@ export class NavigationView extends MainUI {
                 </>
                 }
                 <div className={"NavigationViewContent"}>
-                    {this.state.destination ? this.state.destination() : this.props.children}
+                    {this.state["destination"] ? this.state.destination() : this.props.children}
                 </div>
             </div>
         )
-
-        return navigationView
     }
 }
 
@@ -386,13 +394,11 @@ export class NavigationLink extends MainUI {
         this.previousNavigationBarTitle = this.props.context.getNavigationBarTitle()
         this.props.context.setNavigationBarTitle(undefined)
         this.props.context.setNavigationBarDestination(this.props.destination)
-        this.props.context.setNavigationBarItems({leading: <MemriRealButton action={() => {
-                this.props.context.setNavigationBarDestination(undefined);
-                this.props.context.setNavigationBarItems({})
-        }
-            }><div style={{color: "blue", display: "flex"}}>
+        this.props.context.setNavigationBarItems({leading: () => <MemriRealButton action={() => {this.props.context.resetNavigationProps()}}>
+            <div style={{color: "blue", display: "flex"}}>
                 <MemriImage>chevron_left</MemriImage>
-                {this.previousNavigationBarTitle}</div>
+                {this.previousNavigationBarTitle && this.previousNavigationBarTitle()}
+            </div>
         </MemriRealButton>})
     }
 
@@ -400,9 +406,7 @@ export class NavigationLink extends MainUI {
         let {destination, font, foregroundColor, spacing, zIndex, action, ...other} = this.props;
         return (
             <>
-                <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {
-                }} className={"NavigationLink"}
-                                 {...other}>
+                <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {}} className={"NavigationLink"} {...other}>
                     {this.props.children}
                     <MemriImage>chevron_right</MemriImage>
                 </MemriRealButton>
@@ -1299,7 +1303,7 @@ export function margin(attrs: { horizontal?: number | "default", vertical?: numb
 }
 
 export function offset(attrs:{x?,y?}) { //TODO: x,y
-    return `${attrs.x? attrs.x +"px" : ""} ${attrs.y? attrs.y+"px" : ""}`;
+    return `${attrs.x != undefined ? attrs.x +"px" : ""} ${attrs.y != undefined ? attrs.y+"px" : ""}`;
 }
 
 export function font(attrs:{family?: string, size?:number; weight?: string; italic?: boolean}) {
