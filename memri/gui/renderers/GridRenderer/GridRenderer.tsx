@@ -148,7 +148,7 @@ export class GridRendererView extends RenderersMemri {
                                         }
                                         }
                                         contextMenuProvider={this.contextMenuProvider}
-                                        context={this.context} columns={this.controller.config.columns}
+                                        context={this.context}
                                         contentInsets={padding(this.controller.config.nsEdgeInset)}
 
         />
@@ -176,7 +176,9 @@ export class GridRendererView extends RenderersMemri {
                                       alwaysBounceVertical={this.scrollDirection == "vertical"}
                                       alwaysBounceHorizontal={this.scrollDirection == "horizontal"}
                                       background={this.controller.config.backgroundColor ?? new Color("systemBackground")}
-                                      flexWrap={"wrap"}>
+                                      flexWrap={"wrap"} columns={this.controller.config.columns}
+                                      context={this.props.context}
+                    >
                         {this.section}
                     </ASCollectionView>
                     :

@@ -1,33 +1,29 @@
 "use strict";
 module.exports = (env, argv) => {
-    let module;
+    let loader;
     if (argv['ftst']) {
-        module = {
-            rules: [{
-                test: /\.(t|j)sx?$/,
-                use: {
-                    loader: 'ftst-loader',
-                    options: {
-                        transpileOnly: true,
-                        transformNullishCoalesce: true,
-                        configFile: 'ftst-config.json'
-                    }
-                },
-                exclude: /node_modules/,
-            }],
+        loader = {
+            test: /\.(t|j)sx?$/,
+            use: {
+                loader: 'ftst-loader',
+                options: {
+                    transpileOnly: true,
+                    transformNullishCoalesce: true,
+                    configFile: 'ftst-config.json'
+                }
+            },
+            exclude: /node_modules/,
         }
     } else {
-        module = {
-            rules: [{
-                test: /\.(t|j)sx?$/,
-                use: {
-                    loader: 'ts-loader',
-                    options: {
-                        transpileOnly: true
-                    }
-                },
-                exclude: /node_modules/,
-            }],
+        loader = {
+            test: /\.(t|j)sx?$/,
+            use: {
+                loader: 'ts-loader',
+                options: {
+                    transpileOnly: true
+                }
+            },
+            exclude: /node_modules/,
         }
     }
     return {
@@ -36,7 +32,21 @@ module.exports = (env, argv) => {
             simple: './demo.ts',
             react: './demo-react.tsx',
         },
-        module: module,
+        module: {
+            rules: [
+                loader,
+                {
+                    test: /\.(png|jpe?g|gif)$/i,
+                    use: [
+                        {
+                            loader: 'file-loader',
+                            options: {
+                                name: '[path][name].[ext]',
+                            }
+                        },
+                    ],
+                }],
+        },
         resolveLoader: {
             modules: [
                 "node_modules",
@@ -49,6 +59,9 @@ module.exports = (env, argv) => {
         output: {
             filename: 'bundle.[name].js',
             path: __dirname + '/dist',
+        },
+        optimization: {
+            minimize: false
         },
         devServer: {
             contentBase: __dirname,

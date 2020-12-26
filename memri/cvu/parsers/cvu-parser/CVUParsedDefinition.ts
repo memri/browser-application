@@ -1,4 +1,4 @@
-import {CVUSerializer} from "../../../../router";
+import {CVUSerializer, Expression, UINode} from "../../../../router";
 import {MemriDictionary} from "../../../../router";
 
 export enum CompileScope {
@@ -86,7 +86,7 @@ export class CVUParsedDefinition {
             let notnil = unknown
             if (!notnil) { return unknown }
 
-            if (notnil?.constructor?.name == "Expression") {
+            if (notnil instanceof Expression) {
                 return scope == CompileScope.all
                     ? notnil.execute(viewArguments)
                     : notnil.compile(viewArguments)
@@ -101,19 +101,19 @@ export class CVUParsedDefinition {
                     list[i] = recur(list[i])
                 }
                 return list
-            } else if (Array.isArray(notnil) && notnil.length > 0 && notnil[0]?.constructor?.name == "CVUParsedDefinition") {
+            } else if (Array.isArray(notnil) && notnil.length > 0 && notnil[0] instanceof CVUParsedDefinition) {
                 var list = notnil;
                 for (let i = 0; i < list.length; i++) {
                     let def = recur(list[i]);
-                    if (def?.constructor?.name == "CVUParsedDefinition") {
+                    if (def instanceof CVUParsedDefinition) {
                         list[i] = def
                     }
                 }
                 return list;
-            } else if (notnil?.constructor?.name == "CVUParsedDefinition") {
+            } else if (notnil instanceof CVUParsedDefinition) {
                 let def = notnil;
                 def.parsed = recur(def.parsed);
-            } else if (notnil?.constructor?.name == "UINode") { //TODO: MemtriDictionary?
+            } else if (notnil instanceof UINode) { //TODO: MemtriDictionary?
                 let el = notnil;
                 let dict = recur(el.properties);
                 if (typeof dict.isCVUObject == "function") {

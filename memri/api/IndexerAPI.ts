@@ -3,7 +3,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 
 
-import {MemriContext} from "../../router";
+import {MemriContext, Note} from "../../router";
 import {Datasource} from "../../router";
 
 export class IndexerAPI {
@@ -12,7 +12,7 @@ export class IndexerAPI {
 	execute(indexerInstance: IndexerRun, items: Item[]) {
 		if (indexerInstance.name == "Note Label Indexer") {
 			let notes = items
-			if (!Array.isArray(notes) || !(notes[0]?.constructor?.name == "Note")) {
+			if (!Array.isArray(notes) || !(notes[0] instanceof Note)) {
 				throw `Could not execute IndexerRun ${indexerInstance} non note objects passed`
 			}
 			this.executeNoteLabelIndexer(indexerInstance, notes)

@@ -1,4 +1,4 @@
-import {ViewArguments} from "../../../router";
+import {Color, Edge, Expression, ViewArguments} from "../../../router";
 import {dataItemListToArray} from "../../../router";
 import {UIElementView} from "../../../router";
 import {CVUColor} from "../../../router";
@@ -6,6 +6,7 @@ import {Alignment, CVUFont, TextAlignment} from "../../../router";
 import {debugHistory} from "../../../router";
 import {CVU_SizingMode} from "../../../router";
 import {UINode} from "../../../router";
+import * as React from "react";
 
 export class UINodeResolver {
     constructor(node: UINode, viewArguments: ViewArguments) {
@@ -26,14 +27,14 @@ export class UINodeResolver {
         }
 
         let propertyExpression = property;
-        if (propertyExpression?.constructor?.name == "Expression") {
+        if (propertyExpression instanceof Expression) {
             try {
                 if (type == "[Item]") {
                     let x = propertyExpression.execute(this.viewArguments)
 
                     var result = [];
                     let list = x; //TODO: x as? Results<Edge>
-                    if (Array.isArray(list) && list.length > 0 && list[1]?.constructor?.name == "Edge") {
+                    if (Array.isArray(list) && list.length > 0 && list[1] instanceof Edge) {
                         for (let edge of list) {
                             let d = edge.target();
                             if (d) {
@@ -68,14 +69,14 @@ export class UINodeResolver {
         let newArguments = this.viewArguments;
         if (item)
             newArguments = new ViewArguments(this.viewArguments, item)
-        return this.node.children.map(($0) => new UIElementView({nodeResolver: new UINodeResolver($0, newArguments)}).render())
+        return this.node.children.map(($0) => <UIElementView context={context} nodeResolver={new UINodeResolver($0, newArguments)}/>);
     }
     //TODO: we need to transfer context to child components, so i added parameter @mkslanc
     childrenInForEach(context, item?: Item) {
         let newArguments = this.viewArguments;
         if (item)
             newArguments = new ViewArguments(this.viewArguments, item)
-        let childNodeResolvers = this.node.children.map(($0) => new UIElementView({context: context, nodeResolver: new UINodeResolver($0, newArguments)}).render());
+        let childNodeResolvers = this.node.children.map(($0) => <UIElementView context={context} nodeResolver={new UINodeResolver($0, newArguments)}/>);
         return childNodeResolvers
     }
 
@@ -93,7 +94,7 @@ export class UINodeResolver {
 
     color(propertyName: string = "color") {
         let colorDef = this.resolve(propertyName, "CVUColor");
-        if (colorDef?.constructor?.name == "Color") {
+        if (colorDef instanceof Color) {
             return colorDef
         } else {
             let colorName = this.resolve(propertyName, "String");
@@ -279,7 +280,7 @@ export class UINodeResolver {
         if (prop) {
             // Execute expression to get the right value
             let expr = prop;
-            if (expr?.constructor?.name == "Expression") {
+            if (expr instanceof Expression) {
                 try {
                     return expr.getTypeOfItem(this.viewArguments)
                 } catch (e) {

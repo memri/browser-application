@@ -11,14 +11,14 @@ let params = new URLSearchParams(queryString);
 let pod = params.get("pod");
 switch (pod) {
     case "none":
-        contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
+        contextJs.installer.installLocalAuthForLocalInstallation(contextJs, (error) => {
             error && debugHistory.error(error)
         })
         break;
     case "mock":
         contextJs.podAPI = parent.api
 
-        contextJs.installer.installLocalAuthForLocalInstallation(contextJs, true, (error) => {
+        contextJs.installer.installLocalAuthForLocalInstallation(contextJs, (error) => {
             error && debugHistory.error(error)
         })
         contextJs.cache.podAPI = parent.api
@@ -28,7 +28,7 @@ switch (pod) {
     case null:
         break;
     default:
-        contextJs.installer.installLocalAuthForExistingPod(contextJs, true, pod, "", localStorage.ownerKey, localStorage.databaseKey, (error) => {
+        contextJs.installer.installLocalAuthForExistingPod(contextJs, pod, "", localStorage.ownerKey, localStorage.databaseKey, (error) => {
             error && debugHistory.error(error)
         })
         break;
@@ -46,7 +46,39 @@ function importCssString(cssText, id) {
 };
 
 importCssString(`
-body {margin: 0}
+/* Frutiger Neue LT - main font */
+@font-face {
+  font-family: 'Frutiger Neue LT';
+  src: url('/memri/Resources/fonts/FrutigerNeueLT.woff') format('woff');
+  font-weight: 400;
+  font-style: normal; 
+}
+
+@font-face {
+  font-family: 'Frutiger Neue LT';
+  src: url('/memri/Resources/fonts/FrutigerNeueLTLight.woff') format('woff');
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: 'Frutiger Neue LT';
+  src: url('/memri/Resources/fonts/FrutigerNeueLTBook.woff') format('woff');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Frutiger Neue LT';
+  src: url('/memri/Resources/fonts/FrutigerNeueLTBold.woff') format('woff');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Frutiger Neue LT';
+  src: url('/memri/Resources/fonts/FrutigerNeueLTHeavy.woff') format('woff');
+  font-weight: 600;
+}
+
+body {margin: 0; font-family: 'Frutiger Neue LT', sans-serif;}
 .Application {
     display: flex;
     align-items: center;
@@ -64,7 +96,12 @@ body {margin: 0}
     display: flex;
 }
 .ZStack {
+    display: grid;
     position: relative;
+}
+
+.ZStack > * {
+    grid-area: 1/1/1/1;
 }
 
 ::-webkit-scrollbar {

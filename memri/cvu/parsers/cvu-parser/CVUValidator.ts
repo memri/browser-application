@@ -7,8 +7,19 @@
 import {
     Action,
     ActionFamily,
-    ActionProperties, Alignment, Font,
-    HorizontalAlignment, TextAlignment,
+    ActionProperties,
+    Address,
+    Alignment,
+    CGFloat,
+    CVUColor, CVUParsedDatasourceDefinition,
+    CVUParsedDefinition, CVUParsedObjectDefinition, CVUParsedRendererDefinition, CVUParsedSessionDefinition,
+    CVUParsedSessionsDefinition, CVUParsedViewDefinition,
+    Datasource,
+    Expression,
+    Font,
+    HorizontalAlignment,
+    Item,
+    TextAlignment, UINode,
     validateActionType,
     VerticalAlignment
 } from "../../../../router";
@@ -69,7 +80,7 @@ export enum UIElementProperties {
 }
 
 export var validateUIElementProperties = function (key, value) {
-    if (value?.constructor?.name == "Expression") {
+    if (value instanceof Expression) {
         return true
     }
 
@@ -107,46 +118,46 @@ export var validateUIElementProperties = function (key, value) {
         case UIElementProperties.blur:
         case UIElementProperties.opacity:
         case UIElementProperties.zindex:
-            return value?.constructor?.name == "CGFloat" || typeof value == "number";
-        case UIElementProperties.image: return value?.constructor?.name == "File" || typeof value == "string";
-        case UIElementProperties.press: return value?.constructor?.name == "Action" || Array.isArray(value) && value[0]?.constructor?.name == "Action"
-        case UIElementProperties.list: return Array.isArray(value) && value[0]?.constructor?.name == "Item"
-        case UIElementProperties.view: return value?.constructor?.name == "CVUParsedDefinition" || value.constructor.name === "MemriDictionary"
+            return value instanceof CGFloat || typeof value == "number";
+        case UIElementProperties.image: return value instanceof File || typeof value == "string";
+        case UIElementProperties.press: return value instanceof Action || Array.isArray(value) && value[0] instanceof Action
+        case UIElementProperties.list: return Array.isArray(value) && value[0] instanceof Item
+        case UIElementProperties.view: return value instanceof CVUParsedDefinition || value.constructor.name === "MemriDictionary"
         case UIElementProperties.arguments: return value.constructor.name === "MemriDictionary"
-        case UIElementProperties.location: return value?.constructor?.name == "Location"
-        case UIElementProperties.address: return value?.constructor?.name == "Address"
+        case UIElementProperties.location: return value instanceof Location
+        case UIElementProperties.address: return value instanceof Address
         case UIElementProperties.value: return true
-        case UIElementProperties.datasource: return value?.constructor?.name == "Datasource"
+        case UIElementProperties.datasource: return value instanceof Datasource
         case UIElementProperties.color:
         case UIElementProperties.background:
         case UIElementProperties.rowbackground:
-            return value?.constructor?.name == "CVUColor" || typeof value == "string"
+            return value instanceof CVUColor || typeof value == "string"
         case UIElementProperties.font:
             if (Array.isArray(value)) {
-                return value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number" || (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
-            } else { return value?.constructor?.name == "CGFloat" || typeof value == "number"}
+                return value[0] instanceof CGFloat || typeof value[0] == "number" || (value[0] instanceof CGFloat || typeof value[0] == "number") && (Object.values(Font.Weight).includes(value[1]))
+            } else { return value instanceof CGFloat || typeof value == "number"}
         case UIElementProperties.padding:
         case UIElementProperties.margin:
             if (Array.isArray(value)) {
-                return (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
-                    && (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
+                return (value[0] instanceof CGFloat || typeof value[0] == "number") && (value[1] instanceof CGFloat || typeof value[1] == "number")
+                    && (value[2] instanceof CGFloat || typeof value[2] == "number") && (value[3] instanceof CGFloat || typeof value[3] == "number")
             } else {
-                return value?.constructor?.name == "CGFloat" || typeof value == "number"
+                return value instanceof CGFloat || typeof value == "number"
             }
         case UIElementProperties.border:
             if (Array.isArray(value)) {
-                return (value[0]?.constructor?.name == "CVUColor" || typeof value[0] == "string") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+                return (value[0] instanceof CVUColor || typeof value[0] == "string") && (value[1] instanceof CGFloat || typeof value[1] == "number")
             } else { return false }
         case UIElementProperties.shadow:
             if (Array.isArray(value)) {
-                return (value[0]?.constructor?.name == "CVUColor" || typeof value[0] == "string") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
-                    && (value[2]?.constructor?.name == "CGFloat" || typeof value[2] == "number") && (value[3]?.constructor?.name == "CGFloat" || typeof value[3] == "number")
+                return (value[0] instanceof CVUColor || typeof value[0] == "string") && (value[1] instanceof CGFloat || typeof value[1] == "number")
+                    && (value[2] instanceof CGFloat || typeof value[2] == "number") && (value[3] instanceof CGFloat || typeof value[3] == "number")
             } else {
                 return false
             }
         case UIElementProperties.offset:
             if (Array.isArray(value)) {
-                return (value[0]?.constructor?.name == "CGFloat" || typeof value[0] == "number") && (value[1]?.constructor?.name == "CGFloat" || typeof value[1] == "number")
+                return (value[0] instanceof CGFloat || typeof value[0] == "number") && (value[1] instanceof CGFloat || typeof value[1] == "number")
             } else {
                 return false
             }
@@ -238,7 +249,7 @@ export class CVUValidator {
     validateDefinition(definition) {
         var check = (definition, validate) => {
             for (let [key, value] of Object.entries(definition.parsed ?? {})) {
-                if (value?.constructor?.name == "Expression") { continue }
+                if (value instanceof Expression) { continue }
 
                 try {
                     /*if (Array.isArray(value)) {
@@ -260,40 +271,40 @@ export class CVUValidator {
             }
         }
 
-        if (definition?.constructor?.name == "CVUParsedSessionsDefinition") {
+        if (definition instanceof CVUParsedSessionsDefinition) {
             check(definition, function(key, value) {
                 switch (key) {
                     case "currentSessionIndex": return typeof value == "number"
-                    case "sessionDefinitions": return  Array.isArray(value) && value[0]?.constructor?.name == "CVUParsedSessionDefinition"
+                    case "sessionDefinitions": return  Array.isArray(value) && value[0] instanceof CVUParsedSessionDefinition
                     default: throw "Unknown"
                 }
             })
         }
-        else if (definition?.constructor?.name == "CVUParsedSessionDefinition") {
+        else if (definition instanceof CVUParsedSessionDefinition) {
             check(definition, function (key, value) {
                 switch (key) {
                     case "name": return typeof value == "string"
                     case "currentViewIndex": return typeof value == "number"
-                    case "viewDefinitions": return Array.isArray(value) && value[0]?.constructor?.name == "CVUParsedViewDefinition"
+                    case "viewDefinitions": return Array.isArray(value) && value[0] instanceof CVUParsedViewDefinition
                     case "editMode": case "showFilterPanel": case "showContextPane": return typeof value == "boolean"
-                    case "screenshot": return value?.constructor?.name == "File" //TODO ask Harut
+                    case "screenshot": return value instanceof File //TODO ask Harut
                     default: throw "Unknown"
                 }
             })
         }
-        else if (definition?.constructor?.name == "CVUParsedViewDefinition") {
+        else if (definition instanceof CVUParsedViewDefinition) {
             check(definition, (key, value) => {
                 switch (key) {
                     case "name": case "emptyResultText": case "title": case "subTitle": case "filterText": case
                 "activeRenderer": case "defaultRenderer": case "backTitle": case "searchHint": case "searchMatchText":
                     return typeof value == "string"
-                    case "userState": return value?.constructor?.name == "CVUParsedObjectDefinition"
-                    case "viewArguments": return value?.constructor?.name == "CVUParsedObjectDefinition"
+                    case "userState": return value instanceof CVUParsedObjectDefinition
+                    case "viewArguments": return value instanceof CVUParsedObjectDefinition
                     case "contextPane":
                         // TODO: Add validation for contextPane
-                        return value?.constructor?.name == "CVUParsedObjectDefinition"
+                        return value instanceof CVUParsedObjectDefinition
                     case "datasourceDefinition":
-                        return value?.constructor?.name == "CVUParsedDatasourceDefinition"
+                        return value instanceof CVUParsedDatasourceDefinition
                     case "showLabels": return typeof value == "boolean"
                     case "actionButton": case "editActionButton":
                     if (value instanceof Action) { this.validateAction(value) }
@@ -320,12 +331,12 @@ export class CVUValidator {
                             return typeof value[0] == "string" && typeof value[1].isCVUObject === "function"
                         }
                         else { return typeof value == "string" || typeof value.isCVUObject === "function" }//TODO: in original file there is no such check, but i think this is correct to pass tests
-                    case "rendererDefinitions": return Array.isArray(value) && value[0]?.constructor?.name == "CVUParsedRendererDefinition"
+                    case "rendererDefinitions": return Array.isArray(value) && value[0] instanceof CVUParsedRendererDefinition
                     default: throw "Unknown"
                 }
             })
         }
-        else if (definition?.constructor?.name == "CVUParsedRendererDefinition") {
+        else if (definition instanceof CVUParsedRendererDefinition) {
             // TODO support all the renderer properties
             // check(definition, (key, value) => {
             //     if (definition.parsed[key] as? [String:Any?])?["children"] != nil
@@ -338,7 +349,7 @@ export class CVUValidator {
             let children = definition.parsed && definition.parsed["children"]
             if (Array.isArray(children)) {
                 for (let child in children) {
-                    if (children[child]?.constructor?.name == "UINode") { this.validateUIElement(children[child]) }
+                    if (children[child] instanceof UINode) { this.validateUIElement(children[child]) }
                     else {
                         this.errors.push(`Expected element definition but found '${this.valueToTruncatedString(children[child])}' in ${definition.selector != null ? definition.selector : ""}`)
                     }

@@ -117,7 +117,8 @@ export class MessageRendererView extends RenderersMemri {
         this.controller = this.props.controller;
 
         return (
-            <VStack spacing={0}>
+            <div id={"MessageRendererView"} style={{height: "100%"}}>
+            <VStack spacing={0} height={"100%"}>
                 {this.controller.context.items.length == 0 ?
                     <>
                         <MemriText foregroundColor={new Color("secondary").toLowerCase()} padding={padding("default")}>
@@ -134,7 +135,7 @@ export class MessageRendererView extends RenderersMemri {
                                          left: 0,
                                          bottom: this.controller.config.edgeInset.bottom,
                                          right: 0
-                                     })}>
+                                     })} context={this.context}>
                             {this.section}
                         </ASTableView>
                         <MemriDivider/>
@@ -142,6 +143,7 @@ export class MessageRendererView extends RenderersMemri {
                 }
                 {this.messageComposer}
             </VStack>
+            </div>
         )
         /*
         .scrollPositionSetter($scrollPosition)

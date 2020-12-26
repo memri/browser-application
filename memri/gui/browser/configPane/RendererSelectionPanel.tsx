@@ -24,8 +24,6 @@ export class RendererSelectionPanel extends MainUI {
     render() {
         this.context = this.props.context
 
-        this.props.context.setNavigationBarDestination && this.props.context.setNavigationBarDestination(undefined)//TODO not very good @anijanyan
-
         return (
             <div className={"RendererSelectionPanel"} style={{width: "50%"}}>
                 {this.getSupported().map((rendererName) => {
@@ -53,6 +51,13 @@ export class RendererSelectionPanel extends MainUI {
     }
 
     activateRenderer(name: String) {
+        if (this.context.currentView?.activeRenderer == name) {//TODO @anijanyan
+            return
+        }
+        if (this.props.context.resetNavigationProps) {//TODO @anijanyan
+            this.props.context.resetNavigationProps()
+        }
+
         if (this.context.currentView) {
             this.context.currentView.activeRenderer = name
         }

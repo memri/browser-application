@@ -156,7 +156,7 @@ export class TimelineRendererView extends RenderersMemri {
 
         return (
             <div className={"TimelineRendererView"}>
-            <ASCollectionView layout={this.layout} alwaysBounceVertical direction={"column"}>
+            <ASCollectionView layout={this.layout} alwaysBounceVertical direction={"column"} context={this.props.context}>
                 {this.sections(this.controller.model)}
             </ASCollectionView>
             </div>
@@ -332,7 +332,6 @@ export class TimelineRendererView extends RenderersMemri {
                     {largeString}
                 </MemriText>
                 {flipOrder && small}
-                <Spacer minLength={0}/>
             </VStack>
         )
     }

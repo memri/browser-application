@@ -18,11 +18,10 @@ export class CVU_AppearanceModifier {
 
     constructor(nodeResolver) {
         this.nodeResolver = nodeResolver;
-
-        return this.body(nodeResolver);
     }
 
-    body(nodeResolver) {
+    body() {
+        let nodeResolver = this.nodeResolver;
         return {
             frame: frame({
                 minWidth: nodeResolver.minWidth,

@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {realmWriteIfAvailable} from "../../../router";
+import {CVUParsedDatasourceDefinition, realmWriteIfAvailable, UserState, ViewArguments} from "../../../router";
 import {Datasource} from "../../../router";
 import {CVUStoredDefinition} from "../../../router";
 import {MemriDictionary} from "../../../router";
@@ -68,13 +68,13 @@ export class SessionView /*extends DataItem */{
         var args = viewArguments
 
         let src = parsed && parsed["datasourceDefinition"]
-        if (ds == null && src && src?.constructor?.name == "CVUParsedDatasourceDefinition") {
+        if (ds == null && src && src instanceof CVUParsedDatasourceDefinition) {
             ds = new Datasource().fromCVUDefinition(src, viewArguments)//TODO
         }
-        if (userState == null && parsed["userState"]?.constructor?.name == "UserState") {//TODO
+        if (userState == null && parsed["userState"] instanceof UserState) {//TODO
             us = parsed["userState"]?.clone();
         }
-        if (viewArguments == null && parsed["viewArguments"]?.constructor?.name == "ViewArguments") {//TODO
+        if (viewArguments == null && parsed["viewArguments"] instanceof ViewArguments) {//TODO
             args = parsed["viewArguments"].clone();
         }
         

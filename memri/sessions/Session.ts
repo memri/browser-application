@@ -5,7 +5,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {debugHistory} from "../../router";
+import {CVUParsedViewDefinition, debugHistory} from "../../router";
 import {CVUParsedSessionDefinition} from "../../router";
 import {DatabaseController} from "../../router";
 import {CascadableView} from "../../router";
@@ -103,7 +103,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
 
             let p = this.context?.views.parseDefinition(state)
             
-            if (!(p?.constructor?.name == "CVUParsedSessionDefinition")) {
+            if (!(p instanceof CVUParsedSessionDefinition)) {
                 throw "Unable to parse state definition"
             }
             
@@ -124,7 +124,7 @@ export class Session  /*extends Equatable, Subscriptable*/ {
                 }
             }
             // Or if the views are encoded in the definition
-            else if (parsedViews && parsedViews.length > 0 && parsedViews[0]?.constructor?.name == "CVUParsedViewDefinition")
+            else if (parsedViews && parsedViews.length > 0 && parsedViews[0] instanceof CVUParsedViewDefinition)
             {
                 DatabaseController.trySync(true,() => {
                     for (let parsed of parsedViews) {
@@ -277,7 +277,7 @@ subscript(propName: String) -> Any? {
 		if (!storedView) {
             throw "Exception: Unable fetch stored CVU state"
         }
-		if (!(storedView?.constructor?.name == "CVUStateDefinition"))
+		if (!(storedView instanceof CVUStateDefinition))
 		    storedView = new CVUStateDefinition(storedView);
         
         var nextIndex: number

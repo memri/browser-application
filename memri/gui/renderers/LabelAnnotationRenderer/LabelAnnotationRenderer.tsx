@@ -139,8 +139,10 @@ export class LabelAnnotationRendererController {
     applyCurrentItem = this.applyCurrentItem.bind(this)
 
     currentAnnotation() {
+        // #warning("Edges will not work if the `LabelAnnotation` type isn't defined in the schema. This will be resolved with the dynamic schemas")
         return DatabaseController.sync(false, (realm) => {
-            let edge = this.currentItem?.reverseEdges("annotatedItem")?.find(($0) => {
+            let allEdges = this.currentItem?.reverseEdges("annotatedItem")
+            let edge = allEdges?.find(($0) => {
                 return $0.source()?.labelType == this.labelType
             }) //TODO:
             return edge?.source()
@@ -193,23 +195,6 @@ class LabelAnnotationRendererConfig extends CascadingRendererConfig {
     }
 
     get labelOptionIcons() {
-        let labelOptionIcons = this.cascadeList("labelOptionIcons")
-        let changedLabelOptions = {//TODO
-            "person.circle": "person",
-            "bell": "notifications_none",
-            "creditcard": "credit_card",
-            "cart": "shopping_cart",
-            "hand.thumbsdown": "thumb_down"
-        }
-        let resultLabelOptions = []
-        for (let i in labelOptionIcons) {
-            let labelOption = labelOptionIcons[i]
-            if (changedLabelOptions[labelOption]) {
-                labelOption = changedLabelOptions[labelOption]
-            }
-            resultLabelOptions.push(labelOption)
-        }
-        return resultLabelOptions
         return this.cascadeList("labelOptionIcons")
     }
 }
@@ -299,7 +284,7 @@ class LabelSelectionView extends MainUI {
         this.useScrollView = this.props.useScrollView;
 
         return (
-            <div id={"LabelAnnotationRenderer"}>
+            <div id={"LabelAnnotationRenderer"} style={{height: "100%"}}>
                 <VStack spacing={0} disabled={!this.enabled} bottom={0}>
                     <MemriText font={font({family: "body"})} padding={padding({horizontal: 10, vertical: 5})}
                                background={new Color("secondarySystemBackground")}>
@@ -309,7 +294,7 @@ class LabelSelectionView extends MainUI {
                     <MemriDivider/>
                     }
                     {this.useScrollView ?
-                        <ScrollView vertical>
+                        <ScrollView vertical context={this.context}>
                             {this.content}
                         </ScrollView> :
                         this.content

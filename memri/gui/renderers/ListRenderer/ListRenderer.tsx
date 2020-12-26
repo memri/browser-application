@@ -96,7 +96,7 @@ export class ListRendererView extends RenderersMemri {
 		let items = this.controller.context.items;
 
 		return (
-			<div className={"ListRendererView"}>
+			<div className={"ListRendererView"} style={{height: "100%"}}>
 				<VStack>
 					{this.controller.hasItems ?
 						<ASTableView
@@ -107,7 +107,7 @@ export class ListRendererView extends RenderersMemri {
 										 left: 0,
 										 bottom: this.controller.config.edgeInset.bottom,
 										 right: 0
-									 })}>
+									 })} context={this.props.context}>
 							<ASSection editMode={this.controller.isEditing}
 									   selectionMode={this.selectionMode}
 									   selectedIndices={this.controller.context.selectedIndicesBinding}

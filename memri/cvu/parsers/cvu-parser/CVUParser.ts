@@ -282,25 +282,25 @@ export class CVUParser {
                         // SELECTOR - currently not yet implemented: style, color, language
                         // TODO remove code duplication
                         let selector = this.parseBracketsSelector(this.lastToken);
-                        if (selector?.constructor?.name == "CVUParsedRendererDefinition") {
-                            var value = (Array.isArray(dict["rendererDefinitions"]) && dict["rendererDefinitions"].length > 0 && dict["rendererDefinitions"][0]?.constructor?.name == "CVUParsedRendererDefinition") ? dict["rendererDefinitions"]: [];
+                        if (selector instanceof CVUParsedRendererDefinition) {
+                            var value = (Array.isArray(dict["rendererDefinitions"]) && dict["rendererDefinitions"].length > 0 && dict["rendererDefinitions"][0] instanceof CVUParsedRendererDefinition) ? dict["rendererDefinitions"]: [];
                             value.push(selector);
                             dict["rendererDefinitions"] = value;
                             this.parseDefinition(selector);
                             lastKey = null;
-                        } else if (selector?.constructor?.name == "CVUParsedSessionDefinition") {
-                            var value = (Array.isArray(dict["sessionDefinitions"]) && dict["sessionDefinitions"].length > 0 && dict["sessionDefinitions"][0]?.constructor?.name == "CVUParsedSessionDefinition") ? dict["sessionDefinitions"]: [];
+                        } else if (selector instanceof CVUParsedSessionDefinition) {
+                            var value = (Array.isArray(dict["sessionDefinitions"]) && dict["sessionDefinitions"].length > 0 && dict["sessionDefinitions"][0] instanceof CVUParsedSessionDefinition) ? dict["sessionDefinitions"]: [];
                             value.push(selector);
                             dict["sessionDefinitions"] = value;
                             this.parseDefinition(selector);
                             lastKey = null;
-                        } else if (selector?.constructor?.name == "CVUParsedViewDefinition") {
-                            var value = (Array.isArray(dict["viewDefinitions"]) && dict["viewDefinitions"].length > 0 && dict["viewDefinitions"][0]?.constructor?.name == "CVUParsedViewDefinition") ? dict["viewDefinitions"]: [];
+                        } else if (selector instanceof CVUParsedViewDefinition) {
+                            var value = (Array.isArray(dict["viewDefinitions"]) && dict["viewDefinitions"].length > 0 && dict["viewDefinitions"][0] instanceof CVUParsedViewDefinition) ? dict["viewDefinitions"]: [];
                             value.push(selector);
                             dict["viewDefinitions"] = value;
                             this.parseDefinition(selector);
                             lastKey = null;
-                        } else if (selector?.constructor?.name == "CVUParsedDatasourceDefinition") {
+                        } else if (selector instanceof CVUParsedDatasourceDefinition) {
                             dict["datasourceDefinition"] = selector;
                             this.parseDefinition(selector);
                             lastKey = null;

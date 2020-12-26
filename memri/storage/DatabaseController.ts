@@ -261,14 +261,14 @@ export class DatabaseController {
 	}
 
 	/// Execute a realm based function on a background thread
-	static asyncOnBackgroundThread(write = false, error, exec) {
+	static async asyncOnBackgroundThread(write = false, error, exec) {
 		if (error == undefined) { //TODO: made this not to use this.globalErrorHandler again and again @mkslanc
 			error = this.globalErrorHandler;
 		}
 		//this.realmQueue.async(() => {
-			/*autoreleasepool {*/
-            this.asyncOnCurrentThread(write, error, exec);
-        //})
+		/*autoreleasepool {*/
+		await this.asyncOnCurrentThread(write, error, exec);
+		//})
 		//})
 	}
 

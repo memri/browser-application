@@ -145,6 +145,7 @@ export class Sync {
                     try {
                         // Update resultset with the new results
                          resultSet.reload()
+                        this.cache.scheduleUIUpdate(); //TODO: for updating view after receiving data @mkslanc
                     } catch(error) {
                         debugHistory.error(`${error}`)
                     }
@@ -196,8 +197,8 @@ export class Sync {
 			DatabaseController.asyncOnBackgroundThread(true, callback,(realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
-                        let resolvedItem = (item?.constructor?.name == "ItemReference" || item?.constructor?.name == "EdgeReference") && item.resolve()
-						if (item?.constructor?.name == "ItemReference" && resolvedItem) {
+                        let resolvedItem = (item instanceof ItemReference || item instanceof EdgeReference) && item.resolve()
+						if (item instanceof ItemReference && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 let file = resolvedItem; //TODO: as File?
                                 if (file) {
@@ -210,7 +211,7 @@ export class Sync {
 								resolvedItem._action = undefined
 								resolvedItem._updated = [];
 							}
-						} else if (item?.constructor?.name == "EdgeReference" && resolvedItem) {
+						} else if (item instanceof EdgeReference && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 resolvedItem._action = undefined;
 							}
@@ -229,7 +230,7 @@ export class Sync {
 		/*if (this.syncing) { return }
         this.syncing = true*/
 
-        DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
+        await DatabaseController.asyncOnBackgroundThread(false, undefined, async (realm) => {
             var found = 0
             var itemQueue = {create: [], update: [], delete: []}
             var edgeQueue = {create: [], update: [], delete: []}
@@ -255,6 +256,8 @@ export class Sync {
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {
+                    if (!edge.isValid())
+                        continue //TODO: this is not working now @mkslanc
                     edgeQueue[action]?.push(edge)
                     found += 1
                 }
@@ -271,7 +274,7 @@ export class Sync {
             if (found > 0) {
                 debugHistory.info(`Syncing to pod with ${found} changes`)
                 try {
-                     this.podAPI.sync(
+                     await this.podAPI.sync(
                          itemQueue["create"],
                          itemQueue["update"],
                          itemQueue["delete"],
@@ -380,68 +383,28 @@ export class Sync {
 
     syncFilesToPod(callback) {
         DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
-            var list = [];
             let items = realm.objects("LocalFileSyncQueue").filtered("task = 'upload'")
-            items.forEach(($0) => {
-                let s = $0["sha256"];
-                if (typeof s == "string") {
-                    list.push(s)
-                }
-            })
-
-            if (list.length == 0) {
-                callback(undefined) // done
-                return
-            }
-
-
-            function validate(sha256: string) {
-                return DatabaseController.sync(false, (realm) => {
-                    let file = realm.objects("File").filtered(`sha256 = '${sha256}'`)[0];
-                    if (!file || file._action == "create" || file._updated.includes("sha256")) {
-                        return false
+            for (let item of items) {
+                let itemSha256 = item.sha256
+                this.podAPI.uploadFile(item.fileUUID, (error, progress, response) => {
+                    if (error) {
+                        debugHistory.warn(`${error}`) // TODO ERror handling
+                        callback(error)
+                    } else if (progress) {
+                        console.log(`UploadFile progress ${progress}`)
+                    } else if (response) {
+                        this.LocalFileSyncQueue.remove(itemSha256) //TODO:
+                    } else {
+                        debugHistory.warn("Unknown error") // TODO ERror handling
+                        callback(error)
                     }
-                    return true
-                }) ?? true
+                })
+
             }
-
-            var i = -1
-
-            function next() {
-                i += 1
-                let sha256 = list[i];
-                if (!sha256) {
-                    callback(undefined) // done
-                    return
-                }
-
-                if (validate(sha256)) {
-                    this.podAPI.uploadFile(sha256, (error, progress, response) => {
-                        if (error) {
-                            debugHistory.warn(`${error}`) // TODO ERror handling
-                            callback(error)
-                        } else if (progress) {
-                            console.log(`UploadFile progress ${progress}`)
-                        } else if (response) {
-                            this.LocalFileSyncQueue.remove(sha256) //TODO:
-                            next()
-                        } else {
-                            debugHistory.warn("Unknown error") // TODO ERror handling
-                            callback(error)
-                        }
-                    })
-                    return
-                } else {
-                    this.LocalFileSyncQueue.remove(sha256) //TODO:
-                    next()
-                }
-            }
-
-            next()
         })
     }
 
-    //TODO: This is terribly brittle, we'll need to completely rearchitect syncing")
+    //TODO: This is terribly brittle, we'll need to completely rearchitect syncing
     async syncAllFromPod(callback) {
         await this.syncQuery(new Datasource("CVUStoredDefinition"), false, () => {
             this.syncQuery(new Datasource("CVUStateDefinition"), false, () => {
