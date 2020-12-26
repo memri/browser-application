@@ -64,7 +64,7 @@ export class NavigationWrapper extends MainUI {
 					   />
 				{(this.isVisible) &&
 				<>
-					<ColorArea color={"black"} position="absolute" top={0} frame={frame({width: geom.size.width, height: geom.size.height})} opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
+					<ColorArea color={"black"} frame={frame({width: geom.size.width, height: geom.size.height})} opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
 							   onClick={() => this.navigationDragGesture} zIndex={10}/>
 					<Navigation
 						frame={frame({width: this.navWidth(geom)})} edgesIgnoringSafeArea="all"

@@ -66,7 +66,7 @@ export class PhotoViewerRendererController {
         let url = file.filename
         let overlay = this.config.render(item);
         return (<>
-                <UIImage src={"memri/Resources/DemoAssets/" + url + ".jpg"}></UIImage>
+                <UIImage src={"memri/Resources/DemoAssets/" + url + ".jpg"} context={this.context}/>
                 {overlay}
             </>
         )

@@ -706,7 +706,7 @@ export class ASSection extends MainUI {
         return (
             <div style={style} className="ASSection" {...other}>
                 {contextMenuShown && <ColorArea color={"black"} position="absolute" top={0}
-                                                frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5}
+                                                frame={frame({width: "100%", height: "100%"})} opacity={0.5}
                                                 edgesIgnoringSafeArea="all"
                                                 onClick={() => this.closeContextMenu()} zIndex={10}/>
                 }
@@ -782,7 +782,7 @@ export class ASCollectionViewSection extends MainUI {
         return (
             <>
                 {contextMenuShown && <ColorArea color={"black"} position="absolute" top={0}
-                                                frame={frame({width: geom.size.width, height: geom.size.height})}
+                                                frame={frame({width: "100%", height: "100%"})}
                                                 opacity={0.5}
                                                 edgesIgnoringSafeArea="all"
                                                 onClick={() => this.closeContextMenu()} zIndex={10}/>
@@ -901,12 +901,46 @@ export class MemriList extends MainUI {
 }
 
 export class UIImage extends MainUI {
+    updateHeight() {
+        let image = ReactDOM.findDOMNode(this);
+        if (image) {
+            let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+            let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+            let height = geom.size.height;
+            if (topNavigation && topNavigation.clientHeight)
+                height -= topNavigation.clientHeight;
+            if (bottomVarView && bottomVarView.clientHeight)
+                height -= bottomVarView.clientHeight;
+            if (image.clientHeight > height)
+                image.style.height = height + "px";
+        }
+    }
+
+    componentDidUpdate() {
+        super.componentDidUpdate();
+        this.updateHeight();
+    }
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.context.loadedImages = 0;
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
+    }
+
     render() {
+        this.context = this.props.context;
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
         Object.assign(style, {maxWidth: "100%", maxHeight: "100%"})
         return (
-            <img style={style} className="UIImage" {...other}/>
+            <img style={style} className="UIImage" {...other} onLoad={() => {
+                this.context.loadedImages++;
+                if (this.context.loadedImages >= 1) {
+                    this.context.updateViewHeight();
+                }
+            }}/>
         )
     }
 }
@@ -1182,12 +1216,12 @@ export class ActionSheet extends MainUI {
         this.closeCallback = closeCallback
         this.context = context
         let style = this.setStyles();
-        Object.assign(style, {width: geom.size.width - 10, paddingLeft: 5, bottom: 0, position: "absolute", zIndex: 10})
+        Object.assign(style, {width: "100%", bottom: 0, position: "absolute", zIndex: 10})
         let cancelIndex;
         return (
             <>
                 <ColorArea color={"black"} position="absolute" top={0}
-                           frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5}
+                           frame={frame({width: "100%", height: "100%"})} opacity={0.5}
                            edgesIgnoringSafeArea="all"
                            onClick={() => this.close()} zIndex={10}/>
                 <div className={"ActionSheet"} style={style} {...other}>

@@ -85,7 +85,7 @@ export class Browser extends MainUI {
 								</VStack>
 
 								{this.showFilterPanel && this.currentView.showBottomBar &&
-									<ColorArea color={"black"} position="absolute" bottom={0} frame={frame({width: geom.size.width, height: geom.size.height})}
+									<ColorArea color={"black"}
 											   opacity={0.15}
 											   onClick={() => {this.showFilterPanel = false; }}
 									/>

@@ -168,7 +168,7 @@ export const MemriTextEditor = (props) => {
 
     return (
 
-            <VStack spacing={0} width={geom.size.width - 20} padding={padding(10)}>
+            <VStack spacing={0} padding={padding(10)}>
                 <Slate editor={editor} value={value} onChange={(value) => {
                     setValue(value);
                     props.onModelUpdate({title: props.model?.title, body: serialize(value)})

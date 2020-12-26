@@ -34,7 +34,7 @@ export class ConfigPanel extends MainUI {
         let configItems = this.getConfigItems()
         //TODO:
         return (
-            <div className={"ConfigPanel"} style={{width:"50%"}}>
+            <div className={"ConfigPanel"} style={{width:"49%", height: "100%"}}>
             <NavigationView context={this.context} height={"100%"}
                 // .environment(\.verticalSizeClass, .compact)
                 // .clipShape(RoundedRectangle(cornerRadius: shouldMoveAboveKeyboard ? 15 : 0))
@@ -374,7 +374,7 @@ export class ConfigPanelEnumSelectionView extends MainUI{
 
         let currentSelection = this.currentSelection
 
-        return <MemriList scrollHeight={100} context={this.context} navigationBarTitle={() => <MemriText>{this.configItem.displayName}</MemriText>}
+        return <MemriList scrollHeight={190} context={this.context} navigationBarTitle={() => <MemriText>{this.configItem.displayName}</MemriText>}
         >
             {Object.keys(options).map((option) => <MemriRealButton action={() => this.onSelect(option)}>
                 <MemriText bold={option == currentSelection/*TODO*/}>
