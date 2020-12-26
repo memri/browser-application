@@ -53,3 +53,9 @@ export * from './memri/gui/cvuComponents/valueTypes/CVUColor';
 export * from './memri/gui/cvuComponents/valueTypes/CVUFont';
 export * from './memri/gui/cvuComponents/nodeTypes/CVU_Image';
 
+//TODO: added for bundle @mkslanc
+
+function importAll (r) {
+    r.keys().forEach(key => r(key));
+}
+importAll(require.context('./memri/Resources/demoAssets/', true, /\.(png|jpe?g|gif)$/i));

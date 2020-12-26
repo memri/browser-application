@@ -2,7 +2,14 @@
 //  Action.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {CVUSerializer, orderKeys} from "../../../router";
+import {
+    CVUParsedObjectDefinition,
+    CVUParsedSessionDefinition,
+    CVUParsedViewDefinition,
+    CVUSerializer, ImporterRun, IndexerRun,
+    orderKeys,
+    Session
+} from "../../../router";
 import {Expression} from "../../../router";
 import {ActionError} from "../../../router";
 import {Color} from "../../../router";
@@ -19,7 +26,7 @@ export class Action/* : HashableClass, CVUToString*/ {
 
     get binding() {
         let expr = (this.values["binding"] ?? this.defaultValues["binding"]);
-        if (expr?.constructor?.name == "Expression") {
+        if (expr instanceof Expression) {
             expr.lookup = this.context.views.lookupValueOfVariables;
             expr.execFunc = this.context.views.executeFunction;
             expr.context = this.context;
@@ -116,7 +123,7 @@ export class Action/* : HashableClass, CVUToString*/ {
     get(key: string, viewArguments = null) {
         let x = this.values[key] ?? this.defaultValues[key] ?? this.baseValues[key];
         let expr = x;
-        if (expr?.constructor?.name == "Expression") {
+        if (expr instanceof Expression) {
             try {
                 expr.lookup = this.context.views.lookupValueOfVariables;
                 expr.execFunc = this.context.views.executeFunction;
@@ -170,7 +177,7 @@ export class Action/* : HashableClass, CVUToString*/ {
             strBuilder.push(`arguments: ${CVUSerializer.dictToString(this.arguments, depth + 1, tab)}`);
         }
         let value = this.values["binding"];
-        if (value?.constructor?.name == "Expression") {
+        if (value instanceof Expression) {
             strBuilder.push(`binding: ${value.toString()}`)
         }
 
@@ -184,7 +191,7 @@ export class Action/* : HashableClass, CVUToString*/ {
         });/*.keys.sorted(by: { $0 < $1 })*/ //TODO:
         for (let key in keys) {
             let value = this.values[key];
-            if (value && value?.constructor?.name == "Expression") {
+            if (value && value instanceof Expression) {
                 strBuilder.push(`${key}: ${value.toString()}`);
             }
             else if (this.values[key]) {
@@ -321,7 +328,7 @@ export enum ActionProperties {
 }
 
 export var validateActionType = function (key: string, value): boolean {
-    if (value?.constructor?.name == "Expression") {
+    if (value instanceof Expression) {
         return true
     }
 
@@ -337,7 +344,7 @@ export var validateActionType = function (key: string, value): boolean {
         case ActionProperties.icon:
             return typeof value == "string";
         case ActionProperties.renderAs:
-            return (value?.constructor?.name == "RenderType"); //TODO
+            return (value instanceof RenderType); //TODO
         case ActionProperties.opensView:
         case ActionProperties.distinct:
         case ActionProperties.all:
@@ -347,16 +354,16 @@ export var validateActionType = function (key: string, value): boolean {
         case ActionProperties.inactiveColor:
         case ActionProperties.activeBackgroundColor:
         case ActionProperties.inactiveBackgroundColor:
-            return value?.constructor?.name == "Color";
+            return value instanceof Color;
         case ActionProperties.value: return true // AnyObject is always true
         case ActionProperties.subject:
         case ActionProperties.importer:
         case ActionProperties.indexer:
         case ActionProperties.item:
-            return value?.constructor?.name == "Item"
-        case ActionProperties.viewArguments: return value?.constructor?.name == "CVUParsedObjectDefinition" || value?.constructor?.name == "MemriDictionary"
-        case ActionProperties.view: return value?.constructor?.name == "CVUParsedViewDefinition" || value?.constructor?.name == "MemriDictionary"
-        case ActionProperties.session: return value?.constructor?.name == "CVUParsedSessionDefinition" || value?.constructor?.name == "MemriDictionary"
+            return value instanceof Item
+        case ActionProperties.viewArguments: return value instanceof CVUParsedObjectDefinition || value instanceof MemriDictionary
+        case ActionProperties.view: return value instanceof CVUParsedViewDefinition || value instanceof MemriDictionary
+        case ActionProperties.session: return value instanceof CVUParsedSessionDefinition || value instanceof MemriDictionary
         case ActionProperties.actions: return Array.isArray(value) /*instanceof [Action]*/ //TODO:
         default:
             return false
@@ -516,9 +523,9 @@ export class ActionOpenView extends Action {
 
         // if let selection = selection, selection.count > 0 { self.openView(context, selection) }
         let sessionView = argumentsJs["view"];
-        if (sessionView?.constructor?.name == "CVUStateDefinition") {
+        if (sessionView instanceof CVUStateDefinition) {
             this.openView(this.context, sessionView, viewArguments);
-        } else if (item?.constructor?.name == "CVUStateDefinition") {
+        } else if (item instanceof CVUStateDefinition) {
             this.openView(this.context, item, viewArguments);
         } else if (item) {
             this.openView(this.context, item, viewArguments)
@@ -545,7 +552,7 @@ export class ActionOpenViewByName extends Action {
     }
 
     exec(argumentsJs: MemriDictionary) {
-        let viewArguments = argumentsJs["viewArguments"]/*?.constructor?.name == "ViewArguments"*/;
+        let viewArguments = argumentsJs["viewArguments"]/* instanceof ViewArguments*/;
         let name = argumentsJs["viewName"];
         if (typeof name == "string") {
             // Fetch a dynamic view based on its name
@@ -593,7 +600,7 @@ export class ActionOpenViewWithUIDs extends Action {
         }
     }*/
 
-    openView(context: MemriContext, itemType: string|CVUStateDefinition, uids: [], argumentsJs = null) {
+    openView(context: MemriContext, itemType: string|CVUStateDefinition, uids: any[], argumentsJs = null) {
         if (typeof itemType == "string") {
             if (!uids.length) { throw "No UIDs specified" }
             let firstUID = uids[0]
@@ -907,11 +914,11 @@ export class ActionBackAsSession extends Action {
             } else {
                 let state = session.state
                 let copy = this.context.cache.duplicate(state)
-                if (state && copy?.constructor?.name == "CVUStateDefinition") {
+                if (state && copy instanceof CVUStateDefinition) {
                     for (var view of session.views) {
                         let state = view.state
                         let viewCopy = this.context.cache.duplicate(state)
-                        if (state && viewCopy?.constructor?.name == "CVUStateDefinition") {
+                        if (state && viewCopy instanceof CVUStateDefinition) {
                             copy.link(viewCopy, "view", EdgeSequencePosition.last)
                         }
                     }
@@ -969,10 +976,10 @@ export class ActionOpenSession extends Action {
         let item = argumentsJs["session"]
         if (item) {
             let session = item;
-            if (session?.constructor?.name == "CVUStateDefinition") {
+            if (session instanceof CVUStateDefinition) {
                 this.openSession(session, args)
             }
-            if (session?.constructor?.name == "Session") {
+            if (session instanceof Session) {
                 this.openSession(session, args)
             }
             else {
@@ -982,7 +989,7 @@ export class ActionOpenSession extends Action {
         }
         else {
             let session = argumentsJs["item"];
-            if (session?.constructor?.name == "CVUStateDefinition") {
+            if (session instanceof CVUStateDefinition) {
                 this.openSession(session, args);
             }
 
@@ -1144,7 +1151,7 @@ export class ActionRunImporter extends Action {
     exec(argumentsJs: MemriDictionary) {
         // TODO: parse options
         let run = argumentsJs["importer"];
-        if (run?.constructor?.name == "ImporterRun") {
+        if (run instanceof ImporterRun) {
 
             this.context.cache.isOnRemote(run, 0, (error) => {
                 if (error != undefined) {
@@ -1188,7 +1195,7 @@ export class ActionRunIndexer extends Action {
     exec(argumentsJs: MemriDictionary) {
         // TODO: parse options
         let run = argumentsJs["indexerRun"]
-        if (!(run?.constructor?.name == "IndexerRun")) {
+        if (!(run instanceof IndexerRun)) {
             throw "Exception: no indexer run passed"
         }
         if (run.indexer?.runDestination == "ios") {
@@ -1312,7 +1319,7 @@ class ActionSetSetting extends Action{
         Settings.shared.set(path, value);
 
         // TODO: refactor
-        ((this.context/*?.constructor?.name == "SubContext"*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
+        ((this.context/* instanceof SubContext*/)?.parent ?? this.context).scheduleUIUpdate() //TODO:
     }
 
     /*class func exec(_ context: MemriContext, _ arguments: [String: Any?]) throws {
@@ -1409,7 +1416,7 @@ export class ActionMultiAction extends Action {
 
     exec(argumentsJs) {
         let actions = argumentsJs["actions"];
-        if (!(Array.isArray(actions) && actions[0]?.constructor?.name == "Action")) {
+        if (!(Array.isArray(actions) && actions[0] instanceof Action)) {
             throw "Cannot execute ActionMultiAction: no actions passed in arguments"
         }
 

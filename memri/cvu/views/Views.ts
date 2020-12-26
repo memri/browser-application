@@ -1,6 +1,17 @@
 
 // TODO: Move to integrate with some of the sessions features so that Sessions can be nested
-import {CVU} from "../../../router";
+import {
+	CVU,
+	CVUParsedRendererDefinition,
+	CVUParsedViewDefinition,
+	CVUParsedDatasourceDefinition,
+	CVUParsedStyleDefinition,
+	CVUParsedColorDefinition,
+	CVUParsedSessionsDefinition,
+	CVUParsedSessionDefinition,
+	CVUParsedLanguageDefinition,
+	ExprVariableNode, Edge, RealmObjects, RealmObject, ExprLookupNode
+} from "../../../router";
 import {debugHistory} from "../../../router";
 import {Settings} from "../../../router";
 import {
@@ -130,16 +141,16 @@ export class Views {
 					throw "Exception: selector on parsed CVU is not defined"
 				}
 
-				if (def?.constructor?.name == "CVUParsedViewDefinition") {
+				if (def instanceof CVUParsedViewDefinition) {
 					values["itemType"] = "view"
 					//                    values["query"] = (def as! CVUParsedViewDefinition)?.query ?? ""
-				} else if (def?.constructor?.name == "CVUParsedRendererDefinition") { values["itemType"] = "renderer" }
-				else if (def?.constructor?.name == "CVUParsedDatasourceDefinition") { values["itemType"] = "datasource" }
-				else if (def?.constructor?.name == "CVUParsedStyleDefinition") { values["itemType"] = "style" }
-				else if (def?.constructor?.name == "CVUParsedColorDefinition") { values["itemType"] = "color" }
-				else if (def?.constructor?.name == "CVUParsedLanguageDefinition") { values["itemType"] = "language" }
-				else if (def?.constructor?.name == "CVUParsedSessionsDefinition") { values["itemType"] = "sessions" }
-				else if (def?.constructor?.name == "CVUParsedSessionDefinition") { values["itemType"] = "session" }
+				} else if (def instanceof CVUParsedRendererDefinition) { values["itemType"] = "renderer" }
+				else if (def instanceof CVUParsedDatasourceDefinition) { values["itemType"] = "datasource" }
+				else if (def instanceof CVUParsedStyleDefinition) { values["itemType"] = "style" }
+				else if (def instanceof CVUParsedColorDefinition) { values["itemType"] = "color" }
+				else if (def instanceof CVUParsedLanguageDefinition) { values["itemType"] = "language" }
+				else if (def instanceof CVUParsedSessionsDefinition) { values["itemType"] = "sessions" }
+				else if (def instanceof CVUParsedSessionDefinition) { values["itemType"] = "session" }
 				else { throw "Exception: unknown definition" }
 
 				// Store definition
@@ -323,7 +334,7 @@ export class Views {
 		var i = 0
 		for (var node of lookup.sequence) {
 			i += 1
-			if (node?.constructor?.name == "ExprVariableNode") {
+			if (node instanceof ExprVariableNode) {
 				if (first) {
 					// TODO: move to CVU validator??
 					if (node.list == ExprVariableList.list || node.type != ExprVariableType.propertyOrItem) {
@@ -409,7 +420,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on string`)
 								break
 						}
-					} else if (value?.constructor?.name == "Date" || typeof value == "number") {//Most likely number will be timestamp
+					} else if (value instanceof Date || typeof value == "number") {//Most likely number will be timestamp
 						let date = value;
 						switch (node.name) {
 							case "format":
@@ -432,7 +443,7 @@ export class Views {
 								// TODO: Warn
 								debugHistory.warn("Could not find property \(node.name) on string")
 						}
-					} else if (v?.constructor?.name == "Edge") {
+					} else if (v instanceof Edge) {
 						switch (node.name) {
 							case "source": value = v.source(); break;
 							case "target": value = v.target(); break
@@ -445,7 +456,7 @@ export class Views {
 								debugHistory.warn(`Could not find property ${node.name} on edge`)
 								break
 						}
-					} else if (v?.constructor?.name == "RealmObjects") {//TODO
+					} else if (v instanceof RealmObjects) {//TODO
 						switch (node.name) {
 							case "count": value = v.length; break
 							case "first": value = v[0]; break
@@ -498,7 +509,7 @@ export class Views {
 						value = v.get(node.name)
 					}
 					// CascadingRenderer??
-					else if (v?.constructor?.name == "RealmObject") {//TODO:
+					else if (v instanceof RealmObject) {//TODO:
 						if (v[node.name] == null) {
 							// TODO: error handling
 							this.recursionCounter = 0
@@ -514,7 +525,7 @@ export class Views {
 				}
 			}
 			// .addresses[primary = true] || [0]
-			else if (node?.constructor?.name == "ExprLookupNode") {
+			else if (node instanceof ExprLookupNode) {
 				// TODO: This is implemented very slowly first. Let's think about an optimization
 
 				let interpret = new ExprInterpreter(node, this.lookupValueOfVariables, this.executeFunction)
@@ -638,7 +649,7 @@ export class Views {
 			let list = parsed.get("views");
 			let p = list[parsed.get("currentViewIndex") ?? 0]; //TODO:
 			if
-			(Array.isArray(list) && list[0]?.constructor?.name == "CVUParsedViewDefinition" && p && typeof p == "number") {
+			(Array.isArray(list) && list[0] instanceof CVUParsedViewDefinition && p && typeof p == "number") {
 				view = CVUStateDefinition.fromCVUParsedDefinition(p)
 			} else {
 				throw "Invalid definition type"
@@ -688,7 +699,7 @@ export class Views {
 				if (viewDefinition) {
 					if (viewDefinition.itemType == "renderer") {
 						let parsed = context.views.parseDefinition(viewDefinition)
-						if (parsed && parsed?.constructor?.name == "CVUParsedRendererDefinition") {
+						if (parsed && parsed instanceof CVUParsedRendererDefinition) {
 							if (parsed.get("children") != undefined) { cascadeStack.push(parsed) }
 							else {
 								throw `Exception: Specified view does not contain any UI elements: ${viewOverride}`
@@ -724,7 +735,7 @@ export class Views {
 						let viewDefinition = context.views.fetchDefinitions(undefined, name, "renderer", key)[0]
 						if (viewDefinition) {
 							let parsed = context.views.parseDefinition(viewDefinition)
-							if (parsed?.constructor?.name == "CVUParsedRendererDefinition") {
+							if (parsed instanceof CVUParsedRendererDefinition) {
 								if (parsed.get("children") != undefined) { cascadeStack.push(parsed) }
 							}
 						}

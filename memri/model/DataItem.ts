@@ -124,7 +124,7 @@ export class DataItem /*extends Object, Codable, Identifiable, ObservableObject*
 				return String(val)
 			// } else if let val = val as? Double {
 			// 	return String(val)
-			} else if (val?.constructor?.name == "Date") {//TODO ?
+			} else if (val instanceof Date) {//TODO ?
 				let formatter = new DateFormatter()
 				formatter.dateFormat = Settings.get("user/formatting/date") // "HH:mm    dd/MM/yyyy"
 				return formatter.string(val)

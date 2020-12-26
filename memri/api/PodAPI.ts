@@ -325,6 +325,77 @@ export class PodAPI {
 	//TODO: downloadFile
 
     //TODO: uploadFile
+    /*uploadFile(uuid: string, callback) {
+    Authentication.getOwnerAndDBKey((error, ownerKey, dbKey) => {
+        if (!ownerKey || !dbKey) {
+            // TODO:
+            callback(error, null, null)
+            return
+        }
+
+        let settings = new Settings()
+        let podhost = this.host ?? settings.getString("user/pod/host");
+        var baseUrl = new URL(podhost)
+        if (!baseUrl) {
+            callback(`Invalid pod host set in settings: ${podhost}`, null, null)
+            return
+        }
+
+        let fileURL = FileStorageController.getURLForFile(uuid)
+        let hash = FileStorageController.getHashForFile(uuid)
+
+
+baseUrl = baseUrl
+    .appendingPathComponent("v2")
+    .appendingPathComponent(ownerKey)
+    .appendingPathComponent("upload_file")
+    .appendingPathComponent(dbKey)
+    .appendingPathComponent(hash)
+
+
+print("Uploading \(uuid)")
+print(fileURL)
+
+AF.upload(fileURL, to: baseUrl, method: .post, requestModifier: {
+    $0.timeoutInterval = 5
+    $0.addValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+    $0.allowsCellularAccess = settings.getBool("device/upload/cellular") ?? false
+    $0.allowsExpensiveNetworkAccess = false
+    $0.allowsConstrainedNetworkAccess = false
+    $0.cachePolicy = .reloadIgnoringCacheData
+    $0.timeoutInterval = .greatestFiniteMagnitude
+})
+.uploadProgress { progress in
+callback(nil, progress.fractionCompleted, nil)
+}
+.response { response in
+guard let httpResponse = response.response else {
+    callback(response.error ?? "Unknown error", nil, nil)
+    return
+}
+
+    if httpResponse.statusCode == 409 {
+        print("File was already uploaded")
+        callback(nil, nil, httpResponse)
+        return
+    }
+
+    guard httpResponse.statusCode < 400 else {
+        let httpError = HTTPError.ClientError(
+            httpResponse.statusCode,
+            "URL: \(baseUrl.absoluteString)\nBody:"
+            + (String(data: response.data ?? Data(), encoding: .utf8) ?? "")
+    )
+        callback(httpError, nil, response.response)
+        return
+    }
+
+    print("Upload success")
+
+    callback(nil, nil, httpResponse)
+}
+}
+}*/
 
     /// Create a data item and return the new uid for that data item
     /// - Parameters:

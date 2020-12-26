@@ -15,7 +15,7 @@ export class RenderGroup {
     body: UINode
 
     constructor(dict: MemriDictionary) {
-        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UINode") this.body = dict["children"][0]
+        if (Array.isArray(dict["children"]) && dict["children"][0] instanceof UINode) this.body = dict["children"][0]
         delete dict["children"]
         this.options = dict
     }
@@ -49,7 +49,7 @@ export class CascadingRendererConfig extends Cascadable {
 
     getRenderGroup(group) {
         let renderGroup = this.localCache[group]
-        if (renderGroup?.constructor?.name == "RenderGroup") {
+        if (renderGroup instanceof RenderGroup) {
             return renderGroup
         }
         else if (group == "*" && this.cascadeProperty("*") == null) {

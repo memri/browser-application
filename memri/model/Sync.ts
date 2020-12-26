@@ -197,8 +197,8 @@ export class Sync {
 			DatabaseController.asyncOnBackgroundThread(true, callback,(realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
-                        let resolvedItem = (item?.constructor?.name == "ItemReference" || item?.constructor?.name == "EdgeReference") && item.resolve()
-						if (item?.constructor?.name == "ItemReference" && resolvedItem) {
+                        let resolvedItem = (item instanceof ItemReference || item instanceof EdgeReference) && item.resolve()
+						if (item instanceof ItemReference && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 let file = resolvedItem; //TODO: as File?
                                 if (file) {
@@ -211,7 +211,7 @@ export class Sync {
 								resolvedItem._action = undefined
 								resolvedItem._updated = [];
 							}
-						} else if (item?.constructor?.name == "EdgeReference" && resolvedItem) {
+						} else if (item instanceof EdgeReference && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 resolvedItem._action = undefined;
 							}

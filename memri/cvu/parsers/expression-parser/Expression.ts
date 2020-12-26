@@ -5,7 +5,7 @@
 //  Created by Ruben Daniels on 5/16/20.
 //  Copyright © 2020 Memri. All rights reserved.
 //
-import {ExprLookupNode, ExprVariableNode} from "../../../../router";
+import {ExprLookupNode, ExprVariableNode, Item, UserState} from "../../../../router";
 const {ExprLexer} = require("./ExprLexer");
 const {ExprParser} = require("./ExprParser");
 import {ExprInterpreter} from "./ExprInterpreter";
@@ -47,15 +47,15 @@ export class Expression {
     toggleBool() {
         if (!this.parsed) this.parse()
         let node = this.ast
-        if (node?.constructor?.name == "ExprLookupNode") {
+        if (node instanceof ExprLookupNode) {
             var sequence = Object.assign([], node.sequence)
             let lastProperty = sequence.pop()
-            if (lastProperty?.constructor?.name == "ExprVariableNode") {
+            if (lastProperty instanceof ExprVariableNode) {
                 let lookupNode = new ExprLookupNode(sequence);
                 let lookupValue = this.lookup(lookupNode, null)
 
                 let obj = lookupValue;
-                if (obj?.constructor?.name == "UserState") {
+                if (obj instanceof UserState) {
                     obj.set(lastProperty.name, !(obj.get(lastProperty.name) ?? false))
                     return
                 } else if (obj?.objectSchema) { // TODO - instead of (let obj = lookupValue as? Object) @anijanyan
@@ -84,10 +84,10 @@ export class Expression {
         if (!this.parsed) this.parse()
 
         let node = this.ast
-        if (node?.constructor?.name == "ExprLookupNode") {
+        if (node instanceof ExprLookupNode) {
             var sequence = Object.assign([], node.sequence)
             let lastProperty = sequence.pop()
-            if (lastProperty?.constructor?.name == "ExprVariableNode") {
+            if (lastProperty instanceof ExprVariableNode) {
                 let lookupNode = new ExprLookupNode(sequence)
                 let dataItem = this.lookup(lookupNode, viewArguments)
                 if (dataItem) {//TODO: this is completely different in js
@@ -178,11 +178,11 @@ export class Expression {
                 list[i] = this.resolve(list[i], viewArguments, dontResolveItems)
             }
             return list
-        } else if (object?.constructor?.name == "Expression") {
+        } else if (object instanceof Expression) {
             let expr = object;
             let value = expr.execute(viewArguments);
             let item = value;
-            if (dontResolveItems && item?.constructor?.name == "Item") {
+            if (dontResolveItems && item instanceof Item) {
                 return new ItemReference(item);
             } else {
                 return value

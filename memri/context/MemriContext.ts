@@ -187,7 +187,7 @@ export class MemriContext {
 			let parsedDef = this.views.parseDefinition(currentView.viewDefinition)
 			if (parsedDef) {
 				let ds = parsedDef["datasourceDefinition"]
-				if (ds && ds?.constructor?.name == "CVUParsedDatasourceDefinition") {
+				if (ds && ds instanceof CVUParsedDatasourceDefinition) {
 					// TODO: this is at the wrong moment. Should be done after cascading
 					currentView.set("datasource",
 						new Datasource().fromCVUDefinition(ds, currentView.viewArguments))
@@ -210,7 +210,7 @@ export class MemriContext {
 
 		// If we can guess the type of the result based on the query, let's compute the view
 		if (resultSet.determinedType != undefined) {
-			if (this?.constructor?.name == "RootContext") { // if (type(of: self) == RootMain.self) {
+			if (this instanceof RootContext) { // if (type(of: self) == RootMain.self) {
 				debugHistory.info("Computing view "
 					+ (currentView.name ?? currentView.viewDefinition?.selector ?? ""))
 			}
@@ -516,7 +516,7 @@ export class MemriContext {
 
 			var argValue;
 			let expr = inputValue;
-			if (expr?.constructor?.name == "Expression") {
+			if (expr instanceof Expression) {
 				argValue = expr.execute(viewArgs)
 			} else {
 				argValue = inputValue
@@ -527,7 +527,7 @@ export class MemriContext {
 			let dataItem = argValue;
 			if (dataItem instanceof Item) {
 				finalValue = dataItem
-			} else if (argValue?.constructor?.name === "MemriDictionary") {
+			} else if (argValue instanceof MemriDictionary) {
 				let dict = argValue;
 				if (action.argumentTypes[argName] == "ViewArguments") {
 					finalValue = new ViewArguments(dict).resolve(item, viewArgs)
@@ -545,7 +545,7 @@ export class MemriContext {
 				}
 			}
 			else if (action.argumentTypes[argName] == "ViewArguments") {
-				if (argValue?.constructor?.name == "ViewArguments") {
+				if (argValue instanceof ViewArguments) {
 					let viewArgs = argValue;
 					// We explicitly don't copy here. The caller is responsible for uniqueness
 					finalValue = viewArgs.resolve(item)
@@ -609,8 +609,8 @@ export class MemriContext {
 		for (let [key, value] of Object.entries(dict)) {
 			if (key == "_type" || key == "uid") { continue }
 			// if (schema[key] != nil) { values[key] = value }//TODO
-			else if (value.constructor.name == "Item") { edges[key] = value }
-			else if (Array.isArray(value) && value[0].constructor.name == "Item") { edges[key] = value }
+			else if (value instanceof Item) { edges[key] = value }
+			else if (Array.isArray(value) && value[0] instanceof Item) { edges[key] = value }
 			else {
 				values[key] = value
 				// throw `Passed invalid value as ${key}`//TODO
@@ -620,12 +620,12 @@ export class MemriContext {
 		let item = CacheMemri.createItem(family, values)
 
 		for (let [edgeType, value] of Object.entries(edges)) {
-			if (Array.isArray(value) && value[0].constructor.name == "Item") {
+			if (Array.isArray(value) && value[0] instanceof Item) {
 				for (let target of value) {
 					item.link(target, edgeType)
 				}
 			}
-			else if (value.constructor.name == "Item") {
+			else if (value instanceof Item) {
 				item.link(value, edgeType, null, null, true)
 			}
 		}

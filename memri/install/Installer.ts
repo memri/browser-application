@@ -160,7 +160,6 @@ export class Installer {
 					dbKey
 				)
 
-				//TODO: changed because it wasn't working @mkslanc
 				// Force download of key elements from pod - this is a hacky function in its current state - will be reworked with sync reimplementation
 				context.cache.sync.syncAllFromPod(() => {
 					// TODO: error handling

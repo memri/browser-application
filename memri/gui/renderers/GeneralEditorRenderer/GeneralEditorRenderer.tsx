@@ -2,7 +2,7 @@
 // GeneralEditorView.swift
 // Copyright © 2020 memri. All rights reserved.
 
-import {debugHistory} from "../../../../router";
+import {debugHistory, Edge, Expression} from "../../../../router";
 import {Item, UUID} from "../../../../router";
 import {
     font,
@@ -121,7 +121,7 @@ export class GeneralEditorLayoutItem {
 
         // Execute expression to get the right value
         let expr = propValue;
-        if (expr?.constructor?.name == "Expression") {
+        if (expr instanceof Expression) {
             try {
                 value = expr.execute(this.viewArguments)
             } catch (error) {
@@ -136,7 +136,7 @@ export class GeneralEditorLayoutItem {
             }
         }//
         if (type == "[Edge]") {
-            if (Array.isArray(value) && value.length > 0 && value[0]?.constructor?.name == "Edge") {
+            if (Array.isArray(value) && value.length > 0 && value[0] instanceof Edge) {
                 return value;
             } else if (typeof value == "string") {
                 return item?.edges(value)?.edgeArray()
@@ -431,7 +431,7 @@ export class GeneralEditorSection extends MainUI {
             return
         }
         let expr = value;
-        if (expr?.constructor?.name == "Expression") {
+        if (expr instanceof Expression) {
             let args = this._args(groupKey, groupKey, undefined, this.item);
             try {
                 return expr.execForReturnType(args)

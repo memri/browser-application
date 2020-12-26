@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {DatabaseController} from "../../router";
+import {CVUParsedSessionDefinition, DatabaseController} from "../../router";
 import {CVUParsedSessionsDefinition} from "../../router";
 import {EdgeSequencePosition, CVUStateDefinition} from "../../router";
 import {debugHistory} from "../../router";
@@ -97,7 +97,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
             let state = realm.objectForPrimaryKey("CVUStateDefinition", this.uid);
             if (state) {
                 let p = context.views.parseDefinition(state);
-                if (!(p?.constructor?.name == "CVUParsedSessionsDefinition")) {
+                if (!(p instanceof CVUParsedSessionsDefinition)) {
                     throw "Unable to parse state definition"
                 }
                 this.parsed = p;
@@ -113,7 +113,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
                     }
                 }
                 // Or if the sessions are encoded in the definition
-                else if (Array.isArray(p.get("sessionDefinitions")) && p.get("sessionDefinitions").length > 0 && p.get("sessionDefinitions")[0]?.constructor?.name == "CVUParsedSessionDefinition") {
+                else if (Array.isArray(p.get("sessionDefinitions")) && p.get("sessionDefinitions").length > 0 && p.get("sessionDefinitions")[0] instanceof CVUParsedSessionDefinition) {
                     let parsedSessions = p.get("sessionDefinitions");
                     DatabaseController.trySync(true, () => {
                         for (let parsed of parsedSessions) {
@@ -142,7 +142,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
     }
     
 	setCurrentSession(state?: CVUStateDefinition|Session) {
-        if (state?.constructor?.name == "Session") {
+        if (state instanceof Session) {
             let session = state;
             // If the session already exists, we simply update the session index
             let index = this.sessions.findIndex((s) => {
@@ -163,7 +163,7 @@ export class Sessions /*: ObservableObject, Equatable*/ {
 
             this.schedulePersist()
         } else {
-            if (!(state?.constructor?.name == "CVUStateDefinition"))
+            if (!(state instanceof CVUStateDefinition))
                 state = new CVUStateDefinition(state);
             let storedSession = state ?? this.currentSession?.state;
             if (!storedSession) {

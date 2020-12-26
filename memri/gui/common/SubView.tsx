@@ -4,7 +4,7 @@
 
 import * as React from "react";
 import {MainUI} from "../swiftUI";
-import {ViewArguments} from "../../../router";
+import {CVUStateDefinition, RootContext, ViewArguments} from "../../../router";
 import {debugHistory} from "../../../router";
 import {Browser} from "../browser/Browser";
 
@@ -23,11 +23,11 @@ export class SubView extends MainUI {
             let args = viewArguments.resolve(item)
 
             this.showCloseButton = args.get("showCloseButton") ?? this.showCloseButton
-            if (context?.constructor?.name != "RootContext") {
+            if (!(context instanceof RootContext)) {
                 throw "Exception: Too much nesting"
             }
 
-            if (viewName?.constructor?.name == "CVUStateDefinition") {
+            if (viewName instanceof CVUStateDefinition) {
                 this.proxyMain = this.context.createSubContext()
                 this.proxyMain?.currentSession?.setCurrentView(viewName, args)
             } else {
