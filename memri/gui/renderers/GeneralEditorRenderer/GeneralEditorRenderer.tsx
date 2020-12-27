@@ -40,7 +40,7 @@ export class GeneralEditorRendererController {
     config: GeneralEditorRendererConfig
 
     makeView() {
-        return new GeneralEditorRendererView({controller: this, context: this.context}).render();
+        return <GeneralEditorRendererView controller={this} context={this.context}/>
     }
 
     update() {

@@ -25,7 +25,7 @@ export class FileRendererController {
     config: FileRendererConfig
 
     makeView() {
-        return new FileRendererView({controller: this, context: this.context}).render();
+        return <FileRendererView controller={this} context={this.context}/>
     }
 
     update() {

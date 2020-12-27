@@ -21,7 +21,7 @@ export class PhotoViewerRendererController {
     config: PhotoViewerRendererConfig
 
     makeView() {
-        return new PhotoViewerRendererView({controller: this, context: this.context}).render();
+        return <PhotoViewerRendererView controller={this} context={this.context}/>
     }
 
     update() {

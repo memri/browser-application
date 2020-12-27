@@ -35,7 +35,7 @@ export class TimelineRendererController {
     config: TimelineRendererConfig
 
     makeView() {
-        return new TimelineRendererView({controller: this, context: this.context}).render();
+        return <TimelineRendererView controller={this} context={this.context}/>
     }
 
     update() {

@@ -19,7 +19,7 @@ export class CustomRendererController {
     config: CustomRendererConfig
 
     makeView() {
-        return new CustomRendererView({controller: this, context: this.context}).render();
+        return <CustomRendererView controller={this} context={this.context}/>
     }
 
     update() {
