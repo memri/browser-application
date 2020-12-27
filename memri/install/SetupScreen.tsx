@@ -6,7 +6,7 @@ import {
     ColorArea,
     font, Form,
     frame, getBinding,
-    MainUI, MemriAlert,
+    MainUI, margin, MemriAlert,
     MemriRealButton,
     MemriText, MemriTextField,
     NavigationLink,
@@ -21,7 +21,7 @@ import {Color} from "../gui/cvuComponents/valueTypes/CVUColor";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
 class SetupScreen_Model {
-    defaultPodURL = "http://localhost:3030"
+    defaultPodURL = "http://192.168.88.250:3030"
 
     //TODO start @anijanyan
     setupScreen: SetupScreen
@@ -118,22 +118,22 @@ export class SetupScreen extends MainUI {
     render() {
         this.context = this.props.context
         return (
-            <ZStack>
+            <ZStack height={"100%"}>
                 <NavigationView context={this.context} colorScheme={"dark"} navigationViewStyle={"StackNavigationViewStyle"}>
                     <VStack spacing={10} padding={padding("default")}
                             frame={frame({maxWidth: "infinity", maxHeight: "infinity"})}
                             background={Color.named("secondarySystemBackground")}>
-                        <VStack spacing={-10}>
-                            <MemriText font={font({family: "system", size: 20, weight: Font.Weight.light})}>
+                        <VStack spacing={0}>
+                            <MemriText font={font({family: "system", size: 20, weight: Font.Weight.light})} alignSelf={"center"}>
                                 Welcome to
                             </MemriText>
                             <MemriText
                                 font={font({family: "system", size: 60, weight: Font.Weight.bold, design: "default"})}
-                                foregroundColor={Color.named("purple")}>
+                                foregroundColor={Color.named("purple")} alignSelf={"center"}>
                                 memri
                             </MemriText>
                         </VStack>
-                        <MemriText multilineTextAlignment={Alignment.center} foregroundColor={Color.named("label")}>
+                        <MemriText multilineTextAlignment={Alignment.center} foregroundColor={Color.named("label")} alignSelf={"center"}>
                             A place where your data belongs to you.
                         </MemriText>
                         <Spacer frame={frame({height: 30})}/>
@@ -141,12 +141,13 @@ export class SetupScreen extends MainUI {
                             <MemriText>
                                 Have a memri pod?
                             </MemriText>
-                            <NavigationLink context={this.context} destination={() => this.podSetup} buttonStyle={"PlainButtonStyle"}>
+                            <NavigationLink context={this.context} destination={() => this.podSetup} buttonStyle={"PlainButtonStyle"} label={
                                 <MemriText font={font({family: "headline"})} foregroundColor={Color.named("white")}
                                            frame={frame({maxWidth: "infinity", minHeight: 50})}
                                            background={Color.named("green")} cornerRadius={10}>
                                     Connect to pod
-                                </MemriText>
+                                </MemriText>}>
+
                             </NavigationLink>
                         </VStack>
                         <VStack alignment={Alignment.leading} spacing={6} padding={padding({top: 10})}>

@@ -90,14 +90,17 @@ body {margin: 0; font-family: 'Frutiger Neue LT', sans-serif;}
 .HStack {
     flex-direction: row;
     display: flex;
+    box-sizing: border-box;
 }
 .VStack {
     flex-direction: column;
     display: flex;
+    box-sizing: border-box;
 }
 .ZStack {
     display: grid;
     position: relative;
+    box-sizing: border-box;
 }
 
 .ZStack > * {
@@ -117,10 +120,17 @@ body {margin: 0; font-family: 'Frutiger Neue LT', sans-serif;}
 }
 
 .NavigationView .NavigationViewContent .MuiButton-root {
-    background: #fff;
+    width: 100%;
+}
+
+.NavigationView .NavigationViewContent .Form {
     margin-left: 5%;
     margin-right: 5%;
     width: 90%;
+}
+
+.NavigationView .NavigationViewContent .NavigationLink.MuiButton-root {
+    background: #fff;
     justify-content: space-between
 }
 
@@ -133,7 +143,7 @@ body {margin: 0; font-family: 'Frutiger Neue LT', sans-serif;}
     align-items: center
 }
 
-.NavigationView .NavigationViewContent .MemriText {
+.NavigationView .NavigationViewContent .Section .MemriText {
     margin-left: 25px;
     margin-top: 10px;
     margin-bottom: 10px;

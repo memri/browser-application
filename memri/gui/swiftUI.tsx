@@ -403,13 +403,21 @@ export class NavigationLink extends MainUI {
     }
 
     render() {
-        let {destination, font, foregroundColor, spacing, zIndex, action, ...other} = this.props;
+        let {label, destination, font, foregroundColor, spacing, zIndex, action, ...other} = this.props;
         return (
             <>
-                <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {}} className={"NavigationLink"} {...other}>
-                    {this.props.children}
-                    <MemriImage>chevron_right</MemriImage>
-                </MemriRealButton>
+                {(label) ?
+                    <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {
+                    }} className={"NavigationLinkWithLabel"} {...other}>
+                        {label}
+                    </MemriRealButton>
+                    :
+                    <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {
+                    }} className={"NavigationLink"} {...other}>
+                        {this.props.children}
+                        <MemriImage>chevron_right</MemriImage>
+                    </MemriRealButton>
+                }
             </>
         )
     }
@@ -1260,6 +1268,10 @@ export class ActionSheet extends MainUI {
 
 export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment? }) { //TODO:
     let frameObj = Object.assign({}, attrs);
+    //TODO: maybe i wrong @mkslanc
+    if (frameObj.maxWidth && (frameObj.maxWidth =="infinity" || frameObj.maxWidth ==".infinity")) {
+        frameObj["width"] = "100%"
+    }
     for (let prop in frameObj) {
         if (frameObj[prop] == ".infinity" || frameObj[prop] == "infinity")
             delete frameObj[prop]

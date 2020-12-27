@@ -77,7 +77,7 @@ export class Application extends MainUI {
 		return (
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
-				<VStack spacing={0}>
+				<VStack spacing={0} height={"100%"}>
 					{(this.context.installer.isInstalled && !this.context.installer.debugMode)
 						?
 						<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>
