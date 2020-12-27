@@ -17,6 +17,7 @@ export class CVU_Text extends CVU_UI {
     }
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <MemriText fixedSize={{horizontal: false, vertical: true}} {...this.props}>
                 {this.content}

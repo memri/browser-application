@@ -14,6 +14,7 @@ import {TimelineItemView} from "../../renderers/TimelineRenderer/TimelineItemVie
 export class CVU_TimelineItem extends CVU_UI {
 
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (<TimelineItemView icon={<MemriImage>{this.nodeResolver.string("icon") ?? "arrow_right"}</MemriImage>}
                                   title={this.nodeResolver.string("title") ?? "-"}
                                   subtitle={this.nodeResolver.string("text")}

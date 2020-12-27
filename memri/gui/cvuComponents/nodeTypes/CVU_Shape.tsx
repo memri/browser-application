@@ -14,6 +14,7 @@ import {Color} from "../valueTypes/CVUColor";
 
 export class CVU_ShapeCircle extends CVU_UI {
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <Circle fill={this.nodeResolver.color() ?? new Color("clear").toLowerCase()} {...this.props}/>
         )
@@ -22,6 +23,7 @@ export class CVU_ShapeCircle extends CVU_UI {
 
 export class CVU_ShapeRectangle extends CVU_UI {
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <RoundedRectangle cornerRadius={this.nodeResolver.cornerRadius} fill={this.nodeResolver.color() ?? new Color("clear").toLowerCase()} {...this.props}/>
         )

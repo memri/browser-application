@@ -54,7 +54,7 @@ export class LabelAnnotationRendererController {
     config: LabelAnnotationRendererConfig
 
     makeView() {
-        return new LabelAnnotationRendererView({controller: this, context: this.context}).render();
+        return <LabelAnnotationRendererView controller={this} context={this.context}/>
     }
 
     update() {
@@ -64,10 +64,6 @@ export class LabelAnnotationRendererController {
 
     static makeConfig(head?: CVUParsedDefinition, tail?: CVUParsedDefinition[], host?: Cascadable) {
         return new LabelAnnotationRendererConfig(head, tail, host)
-    }
-
-    view(item: Item) {
-        return this.config.render(item)
     }
 
     currentIndex = 0;
@@ -209,14 +205,14 @@ export class LabelAnnotationRendererView extends RenderersMemri {
         } else {
             return (
                 <MemriText font={font({weight:Font.Weight.bold})}>
-                    "No items to label"
+                    No items to label
                 </MemriText>
             )
                 //.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
-    selectedLabelBinding = {//TODO!!!
+    selectedLabelBinding = {
         get: () => {
             return this.controller.selectedLabels
         },
@@ -224,11 +220,6 @@ export class LabelAnnotationRendererView extends RenderersMemri {
             this.controller.selectedLabels = $0
             this.controller.context.scheduleCascadableViewUpdate(false)
         }
-      /*  Binding(
-            get: { self.controller.selectedLabels },
-        set: {
-            self.controller.selectedLabels = $0
-        })*/
     }
 
     render() {

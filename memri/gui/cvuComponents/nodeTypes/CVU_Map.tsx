@@ -41,6 +41,7 @@ export class CVU_Map extends CVU_UI {
     }
     
     render() { //TODO: need Map component
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <MemriImage className={"MapView"} title={"Place for your future map"}>map</MemriImage>
         )

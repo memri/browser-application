@@ -29,6 +29,7 @@ export class CVU_Image extends CVU_UI {
     }
 
     render(){
+        this.nodeResolver = this.props.nodeResolver;
         let imageURL = this.fileImageURL;
         let iconName = this.nodeResolver.string("systemName");
 
