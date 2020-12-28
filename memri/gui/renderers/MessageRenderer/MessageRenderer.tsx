@@ -138,6 +138,7 @@ export class MessageRendererView extends RenderersMemri {
                                      })} context={this.context}>
                             {this.section}
                         </ASTableView>
+                        <Spacer/>
                         <MemriDivider/>
                     </>
                 }

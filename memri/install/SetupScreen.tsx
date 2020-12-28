@@ -21,7 +21,7 @@ import {Color} from "../gui/cvuComponents/valueTypes/CVUColor";
 import {debugHistory} from "../cvu/views/ViewDebugger";
 
 class SetupScreen_Model {
-    defaultPodURL = "http://localhost:3030"
+    defaultPodURL = "http://192.168.88.250:3030"
 
     //TODO start @anijanyan
     setupScreen: SetupScreen
