@@ -92,6 +92,9 @@ body {margin: 0; font-family: 'Frutiger Neue LT', sans-serif;}
     display: flex;
     box-sizing: border-box;
 }
+.MemriText {
+    box-sizing: border-box;
+}
 .VStack {
     flex-direction: column;
     display: flex;

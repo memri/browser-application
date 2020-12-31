@@ -87,6 +87,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             textAlign: this.props.textAlign,
             fontWeight: (this.props.bold) ? "bold" : undefined,
             justifyContent: this.props.justifyContent,
+            justifyItems: this.props.justifyItems,
             overflowY: this.props.overflowY,
             flexWrap: this.props.flexWrap,
             boxShadow: this.props.shadow,
@@ -95,7 +96,9 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             right: this.props.right,
             float: this.props.float,
             border: this.props.border,
-            alignSelf: this.props.alignSelf
+            alignSelf: this.props.alignSelf,
+            gridColumnStart: this.props.gridColumnStart,
+            gridColumnEnd: this.props.gridColumnEnd
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.margin, this.props.contentInsets, this.props.frame, this.setAlignment());
@@ -782,10 +785,15 @@ export class ASCollectionViewSection extends MainUI {
     }
 
     render() {
-        let {columns, contentInsets, header, footer, data, editMode, callback, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, padding, foregroundColor, spacing, zIndex, ...other} = this.props;
+        let {layout, contentInsets, header, sectionHeader, footer, data, editMode, callback, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, foregroundColor, spacing, zIndex, ...other} = this.props;
         let style = this.setStyles();
         this.context = this.props.context
-        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row"})
+        var setFrame;
+        if (layout) {
+            contentInsets = padding(layout.contentInsets) ?? contentInsets;
+            setFrame = frame({width: layout?.group?.subitem?.layoutSize?.widthDimension, height: layout?.group?.subitem?.layoutSize?.heightDimension});
+        }
+        Object.assign(style, {display: "flex", flexDirection: direction ?? "row"})
         let contextMenuShown = ASCollectionViewSection.contextMenuShown && (ASCollectionViewSection.contextMenuParent == this)
         return (
             <>
@@ -796,6 +804,7 @@ export class ASCollectionViewSection extends MainUI {
                                                 onClick={() => this.closeContextMenu()} zIndex={10}/>
                 }
                 {header ? header : ""}
+                {sectionHeader ? sectionHeader : ""}
                 {data && data.map((dataItem, index) => {
                     let label = callback(dataItem, index)
                     let isContextMenuItem = contextMenuShown && index == ASCollectionViewSection.contextMenuIndex
@@ -804,12 +813,12 @@ export class ASCollectionViewSection extends MainUI {
                         backgroundColor: "white",
                         borderRadius: 10,
                         marginLeft: 10,
-                        marginRight: 10
+                        marginRight: 10,
                     } : {}
                     return <>
-                        <MemriGrid key={dataItem.uid} contentInsets={contentInsets}>
+                        <MemriGrid contentInsets={contentInsets} frame={setFrame}>
                             <div className={"ASSectionItem"} style={style} onClick={() => this.closeContextMenu()}>
-                                <div style={{display: "flex"}} onClick={selectionMode(dataItem, index)} index={index} checked={!(selectedIndices.includes(index))}
+                                <div style={{display: "flex"}} onClick={selectionMode(dataItem, index)} index={index} checked={!(selectedIndices && selectedIndices.includes(index))}
                                      onContextMenu={contextMenuProvider ? (e) => {
                                          e.preventDefault();
                                          ASCollectionViewSection.contextMenuShown = true
@@ -1031,9 +1040,13 @@ export class ASCollectionView extends MainUI {
     }
 
     render() {
-        let {columns, font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        let {layout, columns, font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
         this.context = this.props.context;
         let style = this.setStyles();
+        if (layout) {
+            columns = layout.group.count;
+            console.log(layout)
+        }
         if (images == true) {
             Object.assign(style, {maxHeight: "400px", overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})
             return (
@@ -1042,7 +1055,12 @@ export class ASCollectionView extends MainUI {
                 </GridList>
             )
         } else {
-            Object.assign(style, {overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap", display: "grid", "grid-template-columns": (columns) ? "auto ".repeat(columns): undefined})
+            Object.assign(style, {
+                overflowY: "auto",
+                flexWrap: style.flexWrap ?? "nowrap",
+                display: "grid",
+                "grid-template-columns": (columns) ? "auto ".repeat(columns) : undefined
+            })
             return (
                 <div style={style} className="ASCollectionView" {...other}>
                     {this.props.children}

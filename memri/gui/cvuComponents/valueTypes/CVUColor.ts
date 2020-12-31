@@ -69,6 +69,8 @@ export class Color {
                 return "#dbf7c5"
             case "purpleBackground":
                 return "#efe4fd"
+            case "gray":
+                return "#808080"
         }
     }
 
