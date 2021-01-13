@@ -93,8 +93,18 @@ export class Installer {
 				// Create a local root key
 				//Authentication.createRootKey(true)
 
+				//TODO: rewrited for easier debugging @mkslanc
+				var queryString = window.location.search;
+				let params = new URLSearchParams(queryString);
+				let dbDevKey = params.get("dbkey");
+				let publicDevKey = params.get("publickey");
+				if (dbDevKey && publicDevKey) {
+					var dbKey = dbDevKey;
+					var publicKey = publicDevKey;
+				}
+
 				// Setup the auth keys for the pod
-				Authentication.createOwnerAndDBKey()
+				Authentication.createOwnerAndDBKey(dbKey, publicKey)
 
 				// console.log(
 				// 	`KEY: ${Authentication.getPublicRootKeySync().hexEncodedString(options: .upperCase)}`
