@@ -457,7 +457,8 @@ guard let httpResponse = response.response else {
             payload._type = type
             payload.uid = uid
         } else {
-            let type = query.match(/^(\w+)$/)//TODO
+//            let type = query.match(/^(\w+)$/)//TODO
+	    let type = query.match(/(\w+)/)//TODO
             if (type && type[1]) {
                 payload._type = type[1]
             } else {
