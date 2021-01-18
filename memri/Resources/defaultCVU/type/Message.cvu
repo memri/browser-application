@@ -98,14 +98,14 @@ Message[] {
         spacing: 8
         
         HStack {
-            alignment: {{ .sender.externalId = '@cdfa58cedd:CDFA58CEDD-synapse' or .sender.externalId = '@whatsapp_4915257154739:CDFA58CEDD-synapse' ? "right" : "left" }}
+            alignment: {{ .sender.owner = me ? "right" : "left" }}
             fillWidth: true
-            padding: {{ .sender.externalId = '@cdfa58cedd:CDFA58CEDD-synapse' or .sender.externalId = '@whatsapp_4915257154739:CDFA58CEDD-synapse' ? "0 0 0 20" : "0 60 0 0" }}
+            padding: {{ .sender.owner = me ? "0 0 0 20" : "0 60 0 0" }}
             
             VStack {
                 spacing: 2
                 padding: 5
-                background: {{ .sender.externalId = '@cdfa58cedd:CDFA58CEDD-synapse' or .sender.externalId = '@whatsapp_4915257154739:CDFA58CEDD-synapse' ? "purpleBackground" : "secondaryBackground" }}
+                background: {{ .sender.owner = me ? "purpleBackground" : "secondaryBackground" }}
                 cornerRadius: 5
                 
                 Text {
