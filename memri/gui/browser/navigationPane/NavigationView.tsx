@@ -18,10 +18,11 @@ import {
 	ColorArea,
 	Content,
 	MemriRealButton,
-	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI, Sheet
+	MemriTextField, MemriImage, font, MemriDivider, MemriText, Spacer, ASTableView, contentInsets, MainUI, Sheet, Group
 } from "../../swiftUI";
 import {geom} from "../../../../geom";
 import {SettingsPane} from "../../SettingsPane";
+import {memri_shouldUseLargeScreenLayout} from "../../Application";
 
 export class NavigationWrapper extends MainUI {
 	widthRatio;
@@ -46,26 +47,24 @@ export class NavigationWrapper extends MainUI {
 		return this.isVisible ? 1 - fraction : fraction
 	}
 
-	render() {
+	body() {
 		this.widthRatio = this.props.widthRatio ?? 0.8;
 		this.isVisible = this.props?.isVisible;
 		this.offset = this.props.offset ?? 0;
-		this.content = this.props?.content
-		this.context = this.props.context;
 		return (
 			<div className="NavigationWrapper">
 			<ZStack alignment={Alignment.leading}>
 				<Content frame={frame({width: geom.size.width, height: geom.size.height, alignment: Alignment.topLeading})}
 					 offset={offset({x: this.isVisible ? this.navWidth(geom) + this.cappedOffset(geom) : this.cappedOffset(geom)})}
 					 disabled={this.isVisible}
-					 zIndex={-1}>
+					 >
 				{this.props.children}
 				</Content>
 				<ColorArea color="clear" contentShape="Rectangle" frame={frame({minWidth:10, maxWidth:10, maxHeight:"Infinity"})}
 					   />
 				{(this.isVisible) &&
 				<>
-					<ColorArea color={"black"} position="absolute" top={0} frame={frame({width: geom.size.width, height: geom.size.height})} opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
+					<ColorArea color={"black"} frame={frame({width: geom.size.width, height: geom.size.height})} opacity={this.fractionVisible(geom) * 0.5} edgesIgnoringSafeArea="all"
 							   onClick={() => this.navigationDragGesture} zIndex={10}/>
 					<Navigation
 						frame={frame({width: this.navWidth(geom)})} edgesIgnoringSafeArea="all"
@@ -84,28 +83,28 @@ export class NavigationWrapper extends MainUI {
 		)
 	}
 
-	/*var body: some View {
-        Group {
-            if memri_shouldUseLargeScreenLayout {
-                GeometryReader { geom in
-                    self.bodyForLargeScreen(withGeom: geom)
-                }
-            } else {
-                GeometryReader { geom in
-                    self.body(withGeom: geom)
-                }
-            }
-        }
-    }*/
+	render() {
+		this.content = this.props?.content
+		this.context = this.props.context;
+		return (
+			<Group>
+				{memri_shouldUseLargeScreenLayout ?
+					this.bodyForLargeScreen() : this.body()
+				}
+			</Group>
+		)
+	}
 
-	/*func bodyForLargeScreen(withGeom _: GeometryProxy) -> some View {
-		HStack(spacing: 0) {
-			Navigation()
-				.frame(width: 300)
-				.edgesIgnoringSafeArea(.all)
-			content
-		}
-	}*/
+	bodyForLargeScreen() {
+		return (
+			<HStack spacing={0}>
+				<Navigation frame={frame({width: 300})} context={this.context}/>
+				<Content frame={frame({width: geom.size.width, height: geom.size.height})}>
+					{this.props.children}
+				</Content>
+			</HStack>
+		)
+	}
 
 	get navigationDragGesture() {
 		if (this.isVisible) {
@@ -158,7 +157,6 @@ class Navigation extends MainUI {
 		this.showSettings = this.props.showSettings ?? false;
 		this.context = this.props.context
 		let style = this.setStyles();
-		Object.assign(style, {position: "absolute", top: 0})
 
 		return (
 			<div className="Navigation" style={style}>
@@ -191,12 +189,12 @@ class Navigation extends MainUI {
 				</MemriRealButton>*/}
 					</HStack>
 					<ASTableView overflowY={"auto"} id={"NavigationList"} separatorsEnabled={false}
-								 contentInsets={padding({top: 10, left: 0, bottom: 0, right: 0})} frame={frame({height: geom.size.height})}>
+								 contentInsets={padding({top: 10, left: 0, bottom: 0, right: 0})} frame={frame({height: geom.size.height})} context={this.context}>
 						{this.getNavigationItems()}
 					</ASTableView>
 
 				</VStack></div>
-		) //TODO: logic in ASSection
+		)
 	}
 
 }

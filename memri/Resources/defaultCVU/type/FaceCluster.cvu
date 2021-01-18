@@ -1,0 +1,72 @@
+[session = all-face-clusters] {
+    [view] {
+        inherit: face-cluster
+        title: "All Face clusters"
+        [datasource = pod] {
+            query: "Person"
+        }
+    }
+}
+
+
+[view = face-cluster] {
+    title: "All People"
+    defaultRenderer: list
+    emptyResultText: "There are no people here yet"
+    
+    [datasource = pod] {
+        query: "Person"
+        sortProperty: dateModified
+    }
+    
+    actionButton:
+        addItem {
+            template: {
+                _type: Person
+            }
+        }
+    
+    editActionButton: toggleEditMode
+    filterButtons: showStarred toggleFilterPanel
+    
+    [renderer = list] {
+        contextMenu: [
+        star { title: "Favourite" }
+        ]
+        
+        VStack {
+            alignment: left
+        
+            HStack {
+                alignment: center
+                spacing: 10
+                
+                Image {
+                    image: {{.profilePicture}}
+                    sizingMode: fill
+                    minHeight: 60
+                    maxHeight: 60
+                    minWidth: 60
+                    maxWidth: 60
+                    cornerRadius: 10
+                }
+                
+                FlowStack {
+                    spacing: 5
+                    list: {{ .occurence[] }}
+                    
+                    Image {
+                        image: {{.}}
+                        sizingMode: fill
+                        minHeight: 30
+                        maxHeight: 30
+                        minWidth: 30
+                        maxWidth: 30
+                        cornerRadius: 10
+                    }
+                }
+            }
+        }
+        
+    }
+}

@@ -6,7 +6,7 @@
 //  Copyright © 2020 memri. All rights reserved.
 //
 
-import {debugHistory} from "../../../../router";
+import {debugHistory, Item} from "../../../../router";
 
 interface ExprNode {
     toExprString()
@@ -78,7 +78,7 @@ export class ExprAnyNode implements ExprNode{
     }
     toExprString() {
         let item = this.value
-        let uid = (item?.constructor?.name == "Item") && item.uid
+        let uid = (item instanceof Item) && item.uid
         if (uid) {
             return `item(${item.genericType}, ${uid})`
         }
@@ -244,7 +244,7 @@ export class ExprStringModeNode implements ExprNode{
 
     toExprString() {
         return this.expressions.map ((node: ExprNode) => {
-            if (node?.constructor?.name == "ExprStringNode") {
+            if (node instanceof ExprStringNode) {
                 return node.value
             }
             else {

@@ -9,7 +9,7 @@
 
 import {MainUI, MemriRealButton, MemriImage, MemriText, padding, VStack} from "./swiftUI";
 import * as React from "react";
-import {Action, ActionFamily, ActionNoop, RenderType} from "../../router";
+import {Action, ActionFamily, ActionNoop, CVUStateDefinition, RenderType} from "../../router";
 import {ViewArguments} from "../../router";
 import {SubView} from "./common/SubView";
 
@@ -149,7 +149,7 @@ class ActionPopup extends MainUI {
 		viewArgs.set("showCloseButton", true);
 		if (this.action.name == ActionFamily.openView) {
 			let view = args["view"];
-			if (view?.constructor?.name == "CVUStateDefinition") {
+			if (view instanceof CVUStateDefinition) {
 				return (
 					<SubView context={this.context} view={view} item={this.item} viewArguments={viewArgs}>
 						{this.props.children}

@@ -2,7 +2,7 @@
 //  Cascadable.swift
 //  Copyright © 2020 memri. All rights reserved.
 
-import {ActionMultiAction, CVUColor} from "../../../router";
+import {Action, ActionMultiAction, CVUColor, Expression} from "../../../router";
 import {debugHistory} from "../../../router";
 import {CVUParsedDefinition} from "../../../router";
 import {CVUSerializer} from "../../../router";
@@ -56,7 +56,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         var result = []
         if (Array.isArray(value)) {
             for (var v of value) {
-                if (v?.constructor?.name == "Expression") {
+                if (v instanceof Expression) {
                     let x = this.execExpression(v)
                     result.push(x)
                 }
@@ -67,7 +67,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         }
 
         if (result.length > 0) {
-            if (result[0]?.constructor?.name == "Action"/*, T.self == Action.self*/) {//TODO
+            if (result[0] instanceof Action/*, T.self == Action.self*/) {//TODO
                 return (new ActionMultiAction(value[0].context, {actions: value}))
             }
 
@@ -100,7 +100,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
         // if (T.self == Int.self) { fatalError("You need to request a Double and then case to integer instead") }
         // #endif
         let expr = this.localCache[name]
-        if (expr?.constructor?.name == "Expression") {
+        if (expr instanceof Expression) {
             if (type == "Expression") {
                 return expr// We're requesting the Expression (not just the resolved value)
             } else {
@@ -113,7 +113,7 @@ export class Cascadable/* extends CustomStringConvertible*/{
 
         for (var def of this.cascadeStack) {
             let expr = def.get(name);
-            if (expr?.constructor?.name == "Expression") {
+            if (expr instanceof Expression) {
                 this.localCache[name] = expr
                 if (type == "Expression") {
                     return expr// We're requesting the Expression (not just the resolved value)

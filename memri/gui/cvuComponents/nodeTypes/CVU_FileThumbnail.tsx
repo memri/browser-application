@@ -1,5 +1,5 @@
 //
-// CVU_Image.swift
+// CVU_FileThumbnail.swift
 // Copyright © 2020 memri. All rights reserved.
 
 import {CVU_UI, frame, MemriImage} from "../../swiftUI";
@@ -25,6 +25,7 @@ export class CVU_FileThumbnail extends CVU_UI {
     }
 
     render(){
+        this.nodeResolver = this.props.nodeResolver;
         if (this.fileURL) {
             return (
                 <MemriFileThumbnailView fileURL={this.fileURL} thumbnailDimensions={this.dimensions}/>

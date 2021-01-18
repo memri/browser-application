@@ -13,6 +13,7 @@ import {EmailView} from "../../components/Email/EmailView";
 
 export class CVU_HTMLView extends CVU_UI {
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <EmailView emailHTML={this.nodeResolver.string("content")} {...this.props}/>
         )

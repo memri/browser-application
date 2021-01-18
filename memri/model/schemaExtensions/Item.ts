@@ -472,7 +472,7 @@ export class Item extends SchemaItem {
         let sequenceNumber = this.determineSequenceNumber(edgeType, sequence);
 
         DatabaseController.write(realm, function () {
-            if (item.realm == undefined && item?.constructor?.name == "Item") {
+            if (item.realm == undefined && item instanceof Item) {
                 item["_action"] = "create"
                 realm?.add(item, ".modified") //TODO
             }
@@ -520,7 +520,7 @@ export class Item extends SchemaItem {
     //    }
 
     unlink(edge: Edge | Item, edgeType?: string, all: boolean = true) {
-        if (edge?.constructor?.name == "Edge") {
+        if (edge instanceof Edge) {
             if (edge.sourceItemID == this.uid && edge.sourceItemType == this.genericType) {
                 DatabaseController.write(realm, () => {
                     edge.deleted = true;
@@ -955,8 +955,21 @@ export class Edge {
 
     /// Checks that source and target items exist
     isValid(): boolean {
-        return DatabaseController.trySync(false, (realm) =>
-            realm.objectForPrimaryKey("Item", this.sourceItemID) != undefined && realm.objectForPrimaryKey("Item", this.targetItemID) != undefined
+        return DatabaseController.trySync(false, (realm) => {
+                if (!this.sourceItemType || !this.targetItemType) {
+                    console.log("EDGE VALIDATION: Edge missing either sourceType or targetType")
+                    return false;
+                }
+                if (realm.objectForPrimaryKey(this.sourceItemType, this.sourceItemID) == undefined) {
+                    console.log(`EDGE VALIDATION: Edge of type ${this.genericType} points to a UID for ${this.sourceType} that doesn't exist`)
+                    return false;
+                }
+                if (realm.objectForPrimaryKey(this.targetItemType, this.targetItemID) == undefined) {
+                    console.log(`EDGE VALIDATION: Edge of type ${this.genericType} points to a UID for ${this.targetType} that doesn't exist`)
+                    return false;
+                }
+                return true;
+            }
         ) ?? false
     }
 
@@ -1048,6 +1061,7 @@ export class Edge {
                 this.version = realmObj["version"] ?? this.version
                 this.edgeLabel = realmObj["edgeLabel"] ?? this.edgeLabel;
                 this.parseTargetDict(realmObj["_target"]);
+                this._action = realmObj["_action"] ?? this._action
                 /*for (let key in realmObj) {
                     this[key] = realmObj[key];
                 }*/
@@ -3589,7 +3603,7 @@ export class CryptoKey extends Item {
     /// algorithm.
     key
     /// Whether the item is active.
-    active: boolean = false
+    active: boolean
     /// The name of the item.
     name
 
@@ -3624,6 +3638,7 @@ export class CryptoKey extends Item {
 
     constructor(decoder) {
         super(decoder)
+        this.active = this.active ?? false;
     }
 }
 
@@ -6795,7 +6810,7 @@ export class LabelAnnotation extends Item {
     }
 
     get labelsSet() {
-        return this.labels.split(",") ?? []; //TODO:
+        return this.labels?.split(",") ?? []; //TODO:
     }
 
     set labelsSet(newValue) {

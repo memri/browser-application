@@ -12,6 +12,7 @@ import {MemriButton} from "../../common/MemriButton";
 
 export class CVU_MemriButton extends CVU_UI {
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <MemriButton item={this.nodeResolver.resolve("item")}
                          edge={this.nodeResolver.resolve("edge")} {...this.props}

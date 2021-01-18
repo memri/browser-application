@@ -15,6 +15,7 @@ import {
 import {Color, MemriContext, UIElementFamily, UINodeResolver} from "../../router";
 import {Alignment, Font, TextAlignment} from "../../router";
 import {geom} from "../../geom";
+import * as ReactDOM from 'react-dom'
 
 interface MemriUIProps {
     foregroundColor?
@@ -86,6 +87,7 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             textAlign: this.props.textAlign,
             fontWeight: (this.props.bold) ? "bold" : undefined,
             justifyContent: this.props.justifyContent,
+            justifyItems: this.props.justifyItems,
             overflowY: this.props.overflowY,
             flexWrap: this.props.flexWrap,
             boxShadow: this.props.shadow,
@@ -93,7 +95,10 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
             top: this.props.top,
             right: this.props.right,
             float: this.props.float,
-            border: this.props.border
+            border: this.props.border,
+            alignSelf: this.props.alignSelf,
+            gridColumnStart: this.props.gridColumnStart,
+            gridColumnEnd: this.props.gridColumnEnd
         }
 
         Object.assign(styles, this.props.font, this.props.padding, this.props.margin, this.props.contentInsets, this.props.frame, this.setAlignment());
@@ -117,30 +122,48 @@ export class MainUI extends React.Component<MemriUIProps, {}> {
         return styles;
     }
 
-    setAlignment() {//justifyContent={}
-        if (this.props.alignment) {
+    setAlignment() {
+        //TODO: VStack, HStack alignment differences
+        if (this.props.alignment && !this.props.justifyContent) {
+            let justify;
+            switch (this.constructor.name) {
+                case "ZStack":
+                case "ASCollectionView":
+                    justify = "justifyItems";
+                    break;
+                default:
+                    justify = "justifyContent";
+                    break;
+            }
             switch (this.props.alignment) {
                 case Alignment.top:
                     return {alignItems: "flex-start"};
-                /*case Alignment.center:
-                    return {alignItems: "center", justifyContent: "center"};*/
+                case Alignment.center:
+                    switch (this.constructor.name) {
+                        case "VStack":
+                            return {[justify]: "center"}
+                        case "HStack":
+                            return {alignItems: "center"};
+                        default:
+                            return {alignItems: "center", [justify]: "center"};
+                    }
                 case Alignment.bottom:
                     return {alignItems: "flex-end"};
                 case Alignment.leading:
-                    return {justifyContent: "flex-start"};
+                    return {[justify]: "flex-start"};
                 case Alignment.trailing:
-                    return {justifyContent: "flex-end"};
+                    return {[justify]: "flex-end"};
                 case Alignment.topLeading:
-                    return {alignItems: "flex-start", justifyContent: "flex-start"};
+                    return {alignItems: "flex-start", [justify]: "flex-start"};
                 case Alignment.topTrailing:
-                    return {alignItems: "flex-start", justifyContent: "flex-end"};
+                    return {alignItems: "flex-start", [justify]: "flex-end"};
                 case Alignment.bottomLeading:
-                    return {alignItems: "flex-end", justifyContent: "flex-start"};
+                    return {alignItems: "flex-end", [justify]: "flex-start"};
                 case Alignment.bottomTrailing:
-                    return {alignItems: "flex-end", justifyContent: "flex-end"};
+                    return {alignItems: "flex-end", [justify]: "flex-end"};
             }
         }
-        return
+        return //{alignItems: "inherit", justifyContent: "inherit"};
     }
 }
 
@@ -150,11 +173,10 @@ export class CVU_UI extends MainUI {
     constructor(props: MemriUIProps, context?: any) {
         super(props, context);
         this.nodeResolver = this.props.nodeResolver;
-        delete this.props.nodeResolver;
     }
 
     modifier(modifiers) {
-        return modifiers
+        return modifiers.body()
     }
 }
 
@@ -292,10 +314,19 @@ export class NavigationView extends MainUI {
     navigationBarItemsDiv
     constructor(props) {
         super(props);
-        this.state = {navigationBarTitle: null, navigationBarItems: null, destination: null, navigationView: null};
-        this.props.context.setNavigationBarTitle = (title) => this.setState({"navigationBarTitle": title})
+        this.state = {navigationBarTitle: null, navigationBarItems: null, destination: null};
+        this.props.context.setNavigationBarTitle = (title) => {
+            if (title?.toString() && this.state["navigationBarTitle"]?.toString()) {//TODO @anijanyan
+                return
+            }
+            this.setState({"navigationBarTitle": title})
+        }
         this.props.context.setNavigationBarItems = (items) => this.setState({"navigationBarItems": items})
         this.props.context.setNavigationBarDestination = (destination) => this.setState({"destination": destination})
+        this.props.context.resetNavigationProps = () => {
+            this.setState({navigationBarTitle: null, navigationBarItems: null, destination: null})
+        }
+
         this.props.context.getNavigationBarTitle = () => {return this.state["navigationBarTitle"]}
     }
 
@@ -321,13 +352,14 @@ export class NavigationView extends MainUI {
     render() {
         let style = this.setStyles();
         Object.assign(style, {background: "#f2f2f7"});
-        let navigationView = (
+
+        return (
             <div style={style} className={"NavigationView"}>
                 {(this.state.navigationBarTitle || this.state.navigationBarItems) &&
                 <>
                     <HStack padding={padding({vertical: 5})} frame={frame({minHeight: 15})} background={"white"}>
                         <div ref={(navigationBarItemsDiv) => {this.navigationBarItemsDiv = navigationBarItemsDiv}} className={"navigationBarItems"} style={{zIndex: 5, width: "23%"}}>
-                            {this.state.navigationBarItems && this.state.navigationBarItems.leading}
+                            {this.state.navigationBarItems && this.state.navigationBarItems.leading && this.state.navigationBarItems.leading()}
                         </div>
                         <div style={{
                             textAlign: "center",
@@ -336,10 +368,10 @@ export class NavigationView extends MainUI {
                             width: "60%",
                             alignSelf: "center"
                         }}>
-                            {this.state.navigationBarTitle}
+                            {this.state.navigationBarTitle && this.state.navigationBarTitle()}
                         </div>
                         <div style={{zIndex: 5, width: "23%"}}>
-                            {this.state.navigationBarItems && this.state.navigationBarItems.trailing}
+                            {this.state.navigationBarItems && this.state.navigationBarItems.trailing && this.state.navigationBarItems.trailing()}
                         </div>
 
                     </HStack>
@@ -347,12 +379,10 @@ export class NavigationView extends MainUI {
                 </>
                 }
                 <div className={"NavigationViewContent"}>
-                    {this.state.destination ? this.state.destination() : this.props.children}
+                    {this.state["destination"] ? this.state.destination() : this.props.children}
                 </div>
             </div>
         )
-
-        return navigationView
     }
 }
 
@@ -367,26 +397,30 @@ export class NavigationLink extends MainUI {
         this.previousNavigationBarTitle = this.props.context.getNavigationBarTitle()
         this.props.context.setNavigationBarTitle(undefined)
         this.props.context.setNavigationBarDestination(this.props.destination)
-        this.props.context.setNavigationBarItems({leading: <MemriRealButton action={() => {
-                this.props.context.setNavigationBarDestination(undefined);
-                this.props.context.setNavigationBarItems({})
-        }
-            }><div style={{color: "blue", display: "flex"}}>
+        this.props.context.setNavigationBarItems({leading: () => <MemriRealButton action={() => {this.props.context.resetNavigationProps()}}>
+            <div style={{color: "blue", display: "flex"}}>
                 <MemriImage>chevron_left</MemriImage>
-                {this.previousNavigationBarTitle}</div>
+                {this.previousNavigationBarTitle && this.previousNavigationBarTitle()}
+            </div>
         </MemriRealButton>})
     }
 
     render() {
-        let {destination, font, foregroundColor, spacing, zIndex, action, ...other} = this.props;
+        let {label, destination, font, foregroundColor, spacing, zIndex, action, ...other} = this.props;
         return (
             <>
-                <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {
-                }} className={"NavigationLink"}
-                                 {...other}>
-                    {this.props.children}
-                    <MemriImage>chevron_right</MemriImage>
-                </MemriRealButton>
+                {(label) ?
+                    <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {
+                    }} className={"NavigationLinkWithLabel"} {...other}>
+                        {label}
+                    </MemriRealButton>
+                    :
+                    <MemriRealButton action={destination ? this._onNavigationLinkClick : () => {
+                    }} className={"NavigationLink"} {...other}>
+                        {this.props.children}
+                        <MemriImage>chevron_right</MemriImage>
+                    </MemriRealButton>
+                }
             </>
         )
     }
@@ -424,7 +458,9 @@ export class MemriTextField extends MainUI {
         } = this.props;
         if (value) {
             if (value.set) {
-                other["onChange"] = value.set;
+                other["onChange"] = (e) => {
+                    value.set(e.target.value)
+                };
                 other["defaultValue"] = value.get();
             } else {
                 other["defaultValue"] = value;
@@ -469,22 +505,26 @@ export class MemriText extends MainUI {
 
 export class ScrollView extends MainUI {
     updateHeight() {
-        let scrollView = document.getElementsByClassName("ScrollView");
-        if (scrollView.length > 0) {
+        let scrollView = ReactDOM.findDOMNode(this);
+        if (scrollView) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomBarView = document.getElementsByClassName("BottomBarView").item(0);
-
-            let scrollViewPaddings = Number(scrollView.item(0).style.paddingTop.replace("px", "")) + Number(scrollView.item(0).style.paddingBottom.replace("px", ""));
+            let height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight;
+            let scrollViewPaddings = Number(scrollView.style.paddingTop.replace("px", "")) + Number(scrollView.style.paddingBottom.replace("px", ""));
             if (scrollViewPaddings) {
-                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight - scrollViewPaddings + "px";
-            } else  {
-                scrollView.item(0).style.height = geom.size.height - topNavigation.clientHeight - bottomBarView.clientHeight + "px";
+                height -= scrollViewPaddings;
             }
+            if (scrollView.clientHeight > height)
+                scrollView.style.height = height + "px";
         }
     }
 
     componentDidMount(): void {
+        this.context.loadedImages = 0;
         this.updateHeight();
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
     }
 
     componentDidUpdate(): void {
@@ -493,6 +533,7 @@ export class ScrollView extends MainUI {
 
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, centeredOverlayWithinBoundsPreferenceKey, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
         Object.assign(style, {overflowY: "auto"})
 
@@ -529,12 +570,33 @@ export class MemriImage extends MainUI {
 }
 
 export class Spacer extends MainUI {
+
+    componentDidMount() {
+        this.updateGrow();
+    }
+
+    componentDidUpdate() {
+        this.updateGrow();
+    }
+
+    updateGrow() {
+        let parent = ReactDOM.findDOMNode(this)?.parentNode;
+        if (parent) {
+            //TODO: we should find better solution
+            while (parent && parent.style) {
+                if (parent.style.flexGrow || (parent.className != "ZStack" && parent.className != "VStack" && parent.className != "HStack")) break
+                parent.style.flexGrow = 1
+                parent = parent.parentNode;
+            }
+        }
+    }
+
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
         Object.assign(style, {flexGrow: 1})
         return (
-            <div style={style} className="Spacer" {...other}>
+            <div style={style} className="Spacer"  {...other}>
                 {this.props.children}
             </div>
         )
@@ -552,12 +614,16 @@ export class MemriDivider extends MainUI {
 
 export class ASTableView extends MainUI {
     updateHeight() {
-        let tableView = document.getElementsByClassName("ASTableView");
-        if (tableView.length > 0) {
+        let tableView = ReactDOM.findDOMNode(this);
+        if (tableView) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
-            let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
-            let tableViewPaddings = Number(tableView.item(0).style.paddingTop.replace("px", "")) + Number(tableView.item(0).style.paddingBottom.replace("px", ""));
+            let height = geom.size.height;
+            if (topNavigation && topNavigation.clientHeight)
+                height -= topNavigation.clientHeight;
+            if (bottomVarView && bottomVarView.clientHeight)
+                height -= bottomVarView.clientHeight;
+            let tableViewPaddings = Number(tableView.style.paddingTop.replace("px", "")) + Number(tableView.style.paddingBottom.replace("px", ""));
             if (tableViewPaddings)
                 height -= tableViewPaddings;
             let messageComposer = document.getElementById("MessageComposer");
@@ -566,12 +632,17 @@ export class ASTableView extends MainUI {
             let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
             if (contextualBottomBar.length > 0)
                 height -= contextualBottomBar.item(0).clientHeight;
-            tableView.item(0).style.height = height + "px";
+            if (tableView.clientHeight > height)
+                tableView.style.height = height + "px";
         }
     }
 
     componentDidMount(): void {
+        this.context.loadedImages = 0;
         this.updateHeight();
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
     }
 
     componentDidUpdate(): void {
@@ -580,6 +651,7 @@ export class ASTableView extends MainUI {
 
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
         Object.assign(style, {display: "flex", flexDirection: "column", overflowY: "auto"})
         return (
@@ -639,13 +711,13 @@ export class ASSection extends MainUI {
         let {header, footer, data, editMode, callback, deleteIconFn, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, padding, foregroundColor, spacing, zIndex, ...other} = this.props;
         let style = this.setStyles();
         this.context = this.props.context
-        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row"})
+        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row", flexWrap: "wrap"})
 
         let contextMenuShown = ASSection.contextMenuShown && (ASSection.contextMenuParent == this)
         return (
             <div style={style} className="ASSection" {...other}>
                 {contextMenuShown && <ColorArea color={"black"} position="absolute" top={0}
-                                                frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5}
+                                                frame={frame({width: "100%", height: "100%"})} opacity={0.5}
                                                 edgesIgnoringSafeArea="all"
                                                 onClick={() => this.closeContextMenu()} zIndex={10}/>
                 }
@@ -666,7 +738,7 @@ export class ASSection extends MainUI {
                                 />
                                 :
                                 <>
-                                    <div onClick={selectionMode(dataItem, index)}
+                                    <div style={{display: "flex"}} onClick={selectionMode(dataItem, index)}
                                          onContextMenu={contextMenuProvider ? (e)=> {
                                              e.preventDefault();
                                              ASSection.contextMenuShown = true
@@ -713,20 +785,26 @@ export class ASCollectionViewSection extends MainUI {
     }
 
     render() {
-        let {columns, contentInsets, header, footer, data, editMode, callback, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, padding, foregroundColor, spacing, zIndex, ...other} = this.props;
+        let {layout, contentInsets, header, sectionHeader, footer, data, editMode, callback, dataID, direction, selectionMode, selectedIndices, contextMenuProvider, font, foregroundColor, spacing, zIndex, ...other} = this.props;
         let style = this.setStyles();
         this.context = this.props.context
-        Object.assign(style, {display: "flex", width: style.width, flexDirection: direction ?? "row"})
+        var setFrame;
+        if (layout) {
+            contentInsets = padding(layout.contentInsets) ?? contentInsets;
+            setFrame = frame({width: layout?.group?.subitem?.layoutSize?.widthDimension, height: layout?.group?.subitem?.layoutSize?.heightDimension});
+        }
+        Object.assign(style, {display: "flex", flexDirection: direction ?? "row"})
         let contextMenuShown = ASCollectionViewSection.contextMenuShown && (ASCollectionViewSection.contextMenuParent == this)
         return (
             <>
                 {contextMenuShown && <ColorArea color={"black"} position="absolute" top={0}
-                                                frame={frame({width: geom.size.width, height: geom.size.height})}
+                                                frame={frame({width: "100%", height: "100%"})}
                                                 opacity={0.5}
                                                 edgesIgnoringSafeArea="all"
                                                 onClick={() => this.closeContextMenu()} zIndex={10}/>
                 }
                 {header ? header : ""}
+                {sectionHeader ? sectionHeader : ""}
                 {data && data.map((dataItem, index) => {
                     let label = callback(dataItem, index)
                     let isContextMenuItem = contextMenuShown && index == ASCollectionViewSection.contextMenuIndex
@@ -735,12 +813,12 @@ export class ASCollectionViewSection extends MainUI {
                         backgroundColor: "white",
                         borderRadius: 10,
                         marginLeft: 10,
-                        marginRight: 10
+                        marginRight: 10,
                     } : {}
                     return <>
-                        <MemriGrid xs={12 / columns} item key={dataItem.uid} contentInsets={contentInsets}>
+                        <MemriGrid contentInsets={contentInsets} frame={setFrame}>
                             <div className={"ASSectionItem"} style={style} onClick={() => this.closeContextMenu()}>
-                                <div onClick={selectionMode(dataItem, index)} index={index} checked={!(selectedIndices.includes(index))}
+                                <div style={{display: "flex"}} onClick={selectionMode(dataItem, index)} index={index} checked={!(selectedIndices && selectedIndices.includes(index))}
                                      onContextMenu={contextMenuProvider ? (e) => {
                                          e.preventDefault();
                                          ASCollectionViewSection.contextMenuShown = true
@@ -840,12 +918,46 @@ export class MemriList extends MainUI {
 }
 
 export class UIImage extends MainUI {
+    updateHeight() {
+        let image = ReactDOM.findDOMNode(this);
+        if (image) {
+            let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
+            let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
+            let height = geom.size.height;
+            if (topNavigation && topNavigation.clientHeight)
+                height -= topNavigation.clientHeight;
+            if (bottomVarView && bottomVarView.clientHeight)
+                height -= bottomVarView.clientHeight;
+            if (image.clientHeight > height)
+                image.style.height = height + "px";
+        }
+    }
+
+    componentDidUpdate() {
+        super.componentDidUpdate();
+        this.updateHeight();
+    }
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.context.loadedImages = 0;
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
+    }
+
     render() {
+        this.context = this.props.context;
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         let style = this.setStyles();
         Object.assign(style, {maxWidth: "100%", maxHeight: "100%"})
         return (
-            <img style={style} className="UIImage" {...other}/>
+            <img style={style} className="UIImage" {...other} onLoad={() => {
+                this.context.loadedImages++;
+                if (this.context.loadedImages >= 1) {
+                    this.context.updateViewHeight();
+                }
+            }}/>
         )
     }
 }
@@ -854,10 +966,17 @@ export class MemriImageView extends MainUI {
     render() {
         //TODO: fitContent
         let {font, padding, foregroundColor, spacing, frame, zIndex, image, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
         Object.assign(style, {maxWidth: style.maxWidth || "100%", maxHeight: style.maxHeight || "100%"})
         return (
-            <img src={image} style={style} className="MemriImageView" {...other}/>
+            <img src={image} style={style} className="MemriImageView" {...other}
+                 onLoad={() => {
+                     this.context.loadedImages++;
+                     if (this.context.items && this.context.items.length <= this.context.loadedImages) {
+                         this.context.updateViewHeight();
+                     }
+                 }}/>
         )
     }
 }
@@ -867,7 +986,7 @@ export class RoundedRectangle extends MainUI {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, ...other} = this.props;
         let style = this.setStyles();
         //TODO: actually this is done to make rectangles to look like circles (in labels) @mkslanc
-        Object.assign(style, {width: style.width || style.maxWidth, maxHeight: style.height || style.maxHeight});
+        Object.assign(style, {width: style.width || style.maxWidth, height: style.height || style.maxHeight});
         if (padding && !padding.padding) {
             Object.assign(style, {paddingRight: null, paddingTop: null, paddingLeft: null, paddingBottom: null});
         }
@@ -892,23 +1011,28 @@ export class Capsule extends MainUI {
 
 export class ASCollectionView extends MainUI {
     updateHeight() {
-        let collectionView = document.getElementsByClassName("ASCollectionView");
-        if (collectionView.length > 0) {
+        let collectionView = ReactDOM.findDOMNode(this);
+        if (collectionView) {
             let topNavigation = document.getElementsByClassName("TopNavigation").item(0)
             let bottomVarView = document.getElementsByClassName("BottomBarView").item(0);
             let height = geom.size.height - topNavigation.clientHeight - bottomVarView.clientHeight;
-            let collectionViewPaddings = Number(collectionView.item(0).style.paddingTop.replace("px", "")) + Number(collectionView.item(0).style.paddingBottom.replace("px", ""));
+            let collectionViewPaddings = Number(collectionView.style.paddingTop.replace("px", "")) + Number(collectionView.style.paddingBottom.replace("px", ""));
             if (collectionViewPaddings)
                 height -= collectionViewPaddings;
             let contextualBottomBar = document.getElementsByClassName("ContextualBottomBar");
             if (contextualBottomBar.length > 0)
                 height -= contextualBottomBar.item(0).clientHeight;
-            collectionView.item(0).style.height = height + "px";
+            if (collectionView.clientHeight > height) //TODO: should set size only if clientHeight > height of app
+                collectionView.style.height = height + "px";
         }
     }
 
     componentDidMount(): void {
+        this.context.loadedImages = 0;
         this.updateHeight();
+        this.context.updateViewHeight = () => {
+            this.updateHeight();
+        }
     }
 
     componentDidUpdate(): void {
@@ -916,8 +1040,13 @@ export class ASCollectionView extends MainUI {
     }
 
     render() {
-        let {font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        let {layout, columns, font, padding, foregroundColor, spacing, frame, zIndex, images, ...other} = this.props;
+        this.context = this.props.context;
         let style = this.setStyles();
+        if (layout) {
+            columns = layout.group.count;
+            console.log(layout)
+        }
         if (images == true) {
             Object.assign(style, {maxHeight: "400px", overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})
             return (
@@ -926,11 +1055,16 @@ export class ASCollectionView extends MainUI {
                 </GridList>
             )
         } else {
-            Object.assign(style, {overflowY: "auto", flexWrap: style.flexWrap ?? "nowrap"})
+            Object.assign(style, {
+                overflowY: "auto",
+                flexWrap: style.flexWrap ?? "nowrap",
+                display: "grid",
+                "grid-template-columns": (columns) ? "auto ".repeat(columns) : undefined
+            })
             return (
-                <Grid container style={style} className="ASCollectionView" {...other}>
+                <div style={style} className="ASCollectionView" {...other}>
                     {this.props.children}
-                </Grid>
+                </div>
             )
         }
     }
@@ -948,8 +1082,10 @@ export class Toggle extends MainUI {
         let {font, padding, foregroundColor, spacing, frame, contentShape, edgesIgnoringSafeArea, zIndex, isOn, ...other} = this.props;
         if (isOn) {
             if (isOn.set) {
+                let onChange = other["onChange"]
                 other["onChange"] = (e) => {
-                    isOn.set(e);
+                    isOn.set(e.target.checked);
+                    onChange && onChange();
                     this.setState({checked: isOn.get()});
                 }
                 this.state.checked = isOn.get()
@@ -1001,12 +1137,14 @@ export class Circle extends MainUI {
 
 export class MemriAlert extends MainUI {
     closeCallback
+    isPresented
     constructor(props) {
         super(props);
         this.handleClose = this.handleClose.bind(this);
     }
 
     handleClose() {
+        this.isPresented.set(false)
         this.closeCallback && this.closeCallback()
     }
 
@@ -1016,14 +1154,21 @@ export class MemriAlert extends MainUI {
     }
 
     getButton(button) {
+        if (button.type == "cancel" && !button.text) {
+            button.text = <MemriText>Cancel</MemriText>
+        }
         return <MemriRealButton action={() => this.doAction(button.action)}>
             {button.text}
         </MemriRealButton>
     }
 
     render() {
-        let {primaryButton, secondaryButton, title, message, closeCallback, open, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
+        let {primaryButton, secondaryButton, title, message, closeCallback, open, isPresented, font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         this.closeCallback = closeCallback
+        if (isPresented) {
+            this.isPresented = isPresented
+            open = isPresented.get()
+        }
         return (
             <div style={this.setStyles()} className="Alert" {...other}>
                 <Dialog open={open} onClose={this.handleClose}>
@@ -1048,15 +1193,13 @@ export class MemriAlert extends MainUI {
 }
 
 export class Form extends MainUI {
+
     render() {
         let {navigationBarItems, navigationBarTitle, font, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <>
-                <div className="Form" {...other}>
-
-                    {this.props.children}
-                </div>
-            </>
+            <div className="Form" {...other}>
+                {this.props.children}
+            </div>
         )
     }
 }
@@ -1065,9 +1208,9 @@ export class MemriGrid extends MainUI {
     render() {
         let {font, padding, foregroundColor, spacing, frame, zIndex, ...other} = this.props;
         return (
-            <Grid style={this.setStyles()} className="Grid" {...other}>
+            <div style={this.setStyles()} className="Grid" {...other}>
                 {this.props.children}
-            </Grid>
+            </div>
         )
     }
 }
@@ -1099,12 +1242,12 @@ export class ActionSheet extends MainUI {
         this.closeCallback = closeCallback
         this.context = context
         let style = this.setStyles();
-        Object.assign(style, {width: geom.size.width - 10, paddingLeft: 5, bottom: 0, position: "absolute", zIndex: 10})
+        Object.assign(style, {width: "100%", bottom: 0, position: "absolute", zIndex: 10})
         let cancelIndex;
         return (
             <>
                 <ColorArea color={"black"} position="absolute" top={0}
-                           frame={frame({width: geom.size.width, height: geom.size.height})} opacity={0.5}
+                           frame={frame({width: "100%", height: "100%"})} opacity={0.5}
                            edgesIgnoringSafeArea="all"
                            onClick={() => this.close()} zIndex={10}/>
                 <div className={"ActionSheet"} style={style} {...other}>
@@ -1143,6 +1286,10 @@ export class ActionSheet extends MainUI {
 
 export function frame(attrs: { width?, height?, minWidth?, idealWidth?, maxWidth?, minHeight?, idealHeight?, maxHeight?, alignment? }) { //TODO:
     let frameObj = Object.assign({}, attrs);
+    //TODO: maybe i wrong @mkslanc
+    if (frameObj.maxWidth && (frameObj.maxWidth =="infinity" || frameObj.maxWidth ==".infinity")) {
+        frameObj["width"] = "100%"
+    }
     for (let prop in frameObj) {
         if (frameObj[prop] == ".infinity" || frameObj[prop] == "infinity")
             delete frameObj[prop]
@@ -1220,7 +1367,7 @@ export function margin(attrs: { horizontal?: number | "default", vertical?: numb
 }
 
 export function offset(attrs:{x?,y?}) { //TODO: x,y
-    return `${attrs.x? attrs.x +"px" : ""} ${attrs.y? attrs.y+"px" : ""}`;
+    return `${attrs.x != undefined ? attrs.x +"px" : ""} ${attrs.y != undefined ? attrs.y+"px" : ""}`;
 }
 
 export function font(attrs:{family?: string, size?:number; weight?: string; italic?: boolean}) {
@@ -1309,6 +1456,18 @@ export function contentInsets(attrs:{top?,bottom?,left?,right?}) { //TODO:
     let contentInsetsObj = attrs;
 
     return contentInsetsObj;
+}
+
+export function getBinding(object, propertyName, useState = false) {
+    return {
+        get() {
+            return object[propertyName]
+        },
+        set(value) {
+            object[propertyName] = value
+        }
+    }
+
 }
 
 export function setProperties(properties, item, context, viewArguments) {

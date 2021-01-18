@@ -18,6 +18,7 @@ import {EmailThreadRendererController} from "./EmailThreadRenderer/EmailThreadRe
 import {NoteEditorRendererController} from "./NoteEditorRenderer/NoteEditorRenderer";
 import {TimelineRendererController} from "./TimelineRenderer/TimelineRenderer";
 import {FileRendererController} from "./FileRenderer/FileRenderer";
+import {CalendarRendererController} from "./CalendarRenderer/CalendarRenderer";
 
 export class Renderers {
     static get rendererTypes() {
@@ -31,15 +32,13 @@ export class Renderers {
         renderers[MessageRendererController.rendererType.name] = MessageRendererController.rendererType;
         renderers[PhotoViewerRendererController.rendererType.name] = PhotoViewerRendererController.rendererType;
         renderers[EmailThreadRendererController.rendererType.name] = EmailThreadRendererController.rendererType;
+        renderers[CalendarRendererController.rendererType.name] = CalendarRendererController.rendererType;
         renderers[TimelineRendererController.rendererType.name] = TimelineRendererController.rendererType;
         renderers[FileRendererController.rendererType.name] = FileRendererController.rendererType;
         return  renderers;
         /*return {
             MapRendererController.rendererType,
-            FileRendererController.rendererType,
 
-            CalendarRendererController.rendererType,
-            TimelineRendererController.rendererType,
             ChartRendererController.rendererType,
         }*/
     }

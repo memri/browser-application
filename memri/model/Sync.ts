@@ -145,6 +145,7 @@ export class Sync {
                     try {
                         // Update resultset with the new results
                          resultSet.reload()
+                        this.cache.scheduleUIUpdate(); //TODO: for updating view after receiving data @mkslanc
                     } catch(error) {
                         debugHistory.error(`${error}`)
                     }
@@ -196,8 +197,8 @@ export class Sync {
 			DatabaseController.asyncOnBackgroundThread(true, callback,(realm) => {
 				for (var sublist of list) {
 					for (var item of sublist) {
-                        let resolvedItem = (item?.constructor?.name == "ItemReference" || item?.constructor?.name == "EdgeReference") && item.resolve()
-						if (item?.constructor?.name == "ItemReference" && resolvedItem) {
+                        let resolvedItem = (item instanceof ItemReference || item instanceof EdgeReference) && item.resolve()
+						if (item instanceof ItemReference && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 let file = resolvedItem; //TODO: as File?
                                 if (file) {
@@ -210,7 +211,7 @@ export class Sync {
 								resolvedItem._action = undefined
 								resolvedItem._updated = [];
 							}
-						} else if (item?.constructor?.name == "EdgeReference" && resolvedItem) {
+						} else if (item instanceof EdgeReference && resolvedItem) {
 							if (resolvedItem._action == "delete") {
                                 resolvedItem._action = undefined;
 							}
@@ -229,7 +230,7 @@ export class Sync {
 		/*if (this.syncing) { return }
         this.syncing = true*/
 
-        DatabaseController.asyncOnBackgroundThread(false, undefined, (realm) => {
+        await DatabaseController.asyncOnBackgroundThread(false, undefined, async (realm) => {
             var found = 0
             var itemQueue = {create: [], update: [], delete: []}
             var edgeQueue = {create: [], update: [], delete: []}
@@ -255,8 +256,8 @@ export class Sync {
             for (var edge of edges) {
                 let action = edge._action
                 if (action && edgeQueue[action] != undefined) {
-                    // if (!edge.isValid())
-                    //     continue
+                    if (!edge.isValid())
+                        continue //TODO: this is not working now @mkslanc
                     edgeQueue[action]?.push(edge)
                     found += 1
                 }
@@ -273,7 +274,7 @@ export class Sync {
             if (found > 0) {
                 debugHistory.info(`Syncing to pod with ${found} changes`)
                 try {
-                     this.podAPI.sync(
+                     await this.podAPI.sync(
                          itemQueue["create"],
                          itemQueue["update"],
                          itemQueue["delete"],

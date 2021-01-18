@@ -12,7 +12,7 @@ import * as React from "react";
 export class CVU_Button extends CVU_UI {
     render() {
         this.context = this.props.context;
-
+        this.nodeResolver = this.props.nodeResolver;
         return <MemriRealButton
             action={() => {
                 let press = this.nodeResolver.resolve("press")

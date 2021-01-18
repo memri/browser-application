@@ -11,7 +11,7 @@ import {
     CompileScope,
     CVUParsedDatasourceDefinition, CVUParsedDefinition,
     CVUParsedObjectDefinition,
-    CVUParsedRendererDefinition, CVUParsedViewDefinition
+    CVUParsedRendererDefinition, CVUParsedViewDefinition, CVUStateDefinition, Expression, ResultSet, RootContext
 } from "../../../router";
 import {debugHistory} from "../../../router";
 import {DatabaseController} from "../../../router";
@@ -37,7 +37,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
     loading: boolean;
 
     constructor(state: CVUStateDefinition, session: Session, host?: Cascadable) {
-        if (state?.constructor?.name == "CVUStateDefinition") {
+        if (state instanceof CVUStateDefinition) {
             let uid = state.uid
 
             if (!uid) {
@@ -152,12 +152,12 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     /*get datasource() {
         let x = this.localCache["datasource"];
-        if (x?.constructor?.name == "CascadingDatasource") { return x }
+        if (x instanceof CascadingDatasource) { return x }
 
         let ds = this.sessionView.datasource;
         if (ds) {
             let stack = this.cascadeStack.map (x => {//TODO
-                if (x && x["datasourceDefinition"]?.constructor?.name == "CVUParsedDatasourceDefinition")
+                if (x && x["datasourceDefinition"] instanceof CVUParsedDatasourceDefinition)
                     return x
             })
 
@@ -195,7 +195,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
 
     get resultSet() {
         let x = this.localCache["resultSet"]
-        if (x?.constructor?.name == "ResultSet") { return x }
+        if (x instanceof ResultSet) { return x }
 
         // Update search result to match the query
         // NOTE: allowed force unwrap
@@ -231,7 +231,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
         try {
             for (var def of renderDef) {
                 let parsedRenderDef = this.context?.views.parseDefinition(def)
-                if (parsedRenderDef?.constructor?.name == "CVUParsedRendererDefinition") {
+                if (parsedRenderDef instanceof CVUParsedRendererDefinition) {
                     if (parsedRenderDef.domain == "user") {
                         let insertPoint = function(): number {
                             for (let i=0;i<tail.length; i++) { if (tail[i].domain == "view") { return i } }
@@ -468,7 +468,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
                     var result = inheritFrom
 
                     let expr = inheritFrom;
-                    if (expr?.constructor?.name == "Expression") {
+                    if (expr instanceof Expression) {
                         result = expr.execute(this.viewArguments)
                     }
 
@@ -481,7 +481,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
                             throw `Exception: could not parse view: ${viewName}`
                         }
                     }
-                else if (result?.constructor?.name == "CascadableView") {
+                else if (result instanceof CascadableView) {
                         let view = result;
                             let parsedInclude = new CVUParsedViewDefinition(undefined, undefined, undefined,undefined, "user",view.head.parsed);
                     if (merge) {
@@ -512,7 +512,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
                 parsedDef.domain = domain
 
                 let views = parsedDef["viewDefinitions"]
-                if (Array.isArray(views) && views[0].constructor?.name == "CVUParsedViewDefinition") {
+                if (Array.isArray(views) && views[0] instanceof CVUParsedViewDefinition) {
                     let view = views[parsedDef["currentViewIndex"] ?? 0]
                     if (view) {
                         parsedDef = view
@@ -618,7 +618,7 @@ export class CascadableView extends Cascadable/*, ObservableObject*/ {
             throw "Exception: Unable to fetch result set from view"
         }
 
-        if (this.context?.constructor?.name == "RootContext") {
+        if (this.context instanceof RootContext) {
             debugHistory.info("Computing view " + (this.name ?? this.state?.selector ?? ""))
         }
 

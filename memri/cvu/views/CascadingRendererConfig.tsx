@@ -8,13 +8,14 @@ import {Cascadable} from "../../../router";
 import {Item, UUID} from "../../../router";
 import {UIElementView} from "../../gui/cvuComponents/UIElementView";
 import {EmptyView} from "../../gui/swiftUI";
+import * as React from "react";
 
 export class RenderGroup {
     options: MemriDictionary
     body: UINode
 
     constructor(dict: MemriDictionary) {
-        if (Array.isArray(dict["children"]) && dict["children"][0]?.constructor?.name == "UINode") this.body = dict["children"][0]
+        if (Array.isArray(dict["children"]) && dict["children"][0] instanceof UINode) this.body = dict["children"][0]
         delete dict["children"]
         this.options = dict
     }
@@ -48,7 +49,7 @@ export class CascadingRendererConfig extends Cascadable {
 
     getRenderGroup(group) {
         let renderGroup = this.localCache[group]
-        if (renderGroup?.constructor?.name == "RenderGroup") {
+        if (renderGroup instanceof RenderGroup) {
             return renderGroup
         }
         else if (group == "*" && this.cascadeProperty("*") == null) {
@@ -77,10 +78,10 @@ export class CascadingRendererConfig extends Cascadable {
         let body = this.getRenderGroup(group)?.body;
         if (item && body) {
             let nodeResolver = new UINodeResolver(body, argumentsJs.copy(item))
-            return new UIElementView({nodeResolver: nodeResolver, context: this.host.context}).render()/*.eraseToAnyView()*/
+            return <UIElementView nodeResolver={nodeResolver} context={this.host.context}/>
         }
         else {//TODO:
-            return new EmptyView({}).render()
+            return <EmptyView/>
         }
     }
 }

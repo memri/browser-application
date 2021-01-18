@@ -5,7 +5,7 @@
 //  Copyright © 2015 Matthew Cheok. All rights reserved.
 //  Copyright © 2020 memri. All rights reserved.
 //
-import {ExprVariableList, ExprNodes} from "../../../../router";
+import {ExprVariableList, ExprNodes, ExprVariableNode} from "../../../../router";
 
 import {ExprLexer, ExprToken, ExprOperator, ExprOperatorPrecedence} from "../../../../router";
 
@@ -294,7 +294,7 @@ export class ExprParser {
                 this.popCurrentToken();
 
                 var lastVar = sequence[sequence.length - 1];
-                if (!(lastVar?.constructor?.name == "ExprVariableNode")) {
+                if (!(lastVar instanceof ExprVariableNode)) {
                     throw new ExprParseErrors.ExpectedIdentifier
                 }
 
@@ -329,7 +329,7 @@ export class ExprParser {
                 sequence.push(new ExprNodes.ExprVariableNode(name));
             } else if (ExprToken.EOF == nextToken.constructor) {
                 return new ExprNodes.ExprLookupNode(sequence)
-            } else if (sequence.length == 1 && sequence[0]?.constructor?.name == "ExprVariableNode") {
+            } else if (sequence.length == 1 && sequence[0] instanceof ExprVariableNode) {
                 break
             } else {
                 throw new ExprParseErrors.ExpectedIdentifier;

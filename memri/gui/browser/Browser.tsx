@@ -85,7 +85,7 @@ export class Browser extends MainUI {
 								</VStack>
 
 								{this.showFilterPanel && this.currentView.showBottomBar &&
-									<ColorArea color={"black"} position="absolute" bottom={0} frame={frame({width: geom.size.width, height: geom.size.height})}
+									<ColorArea color={"black"}
 											   opacity={0.15}
 											   onClick={() => {this.showFilterPanel = false; }}
 									/>
@@ -97,11 +97,11 @@ export class Browser extends MainUI {
 
 						{this.showFilterPanel &&
 							<VStack offset={offset({y: this.filterPanelGestureOffset})}
-									zIndex={9}
+									zIndex={9} alignSelf={"flex-end"}
 									// transition={move("bottom")}
 							>
 								<Capsule fill={new Color("secondarySystemBackground").toLowerCase()}
-										 frame={frame({width: 40, height: 5, maxWidth: "infinity"/*, height: 15*/})}
+										 frame={frame({width: 40, height: 5/*, height: 15*/})} alignSelf={"center"}
 								/>
 								<FilterPanel context={this.context}/>
 							</VStack>

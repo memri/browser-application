@@ -21,10 +21,10 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 		}
 
 		let itemRef = value
-		if (value?.constructor?.name == "ItemReference") {
+		if (value instanceof ItemReference) {
 			return value.resolve()
 		}
-		else if (Array.isArray(value) && value[0]?.constructor?.name == "ItemReference") {
+		else if (Array.isArray(value) && value[0] instanceof ItemReference) {
 			return value.map((ref) => {
 				if (!ref) { return null }
 				return ref.resolve()
@@ -36,10 +36,10 @@ export class CascadableDict extends Cascadable/*extends Cascadable, Subscriptabl
 	}
 
 	set(name: string, value?) {
-		if (value?.constructor?.name == "Item") {
+		if (value instanceof Item) {
 			this.setState(name, new ItemReference(value))
 		}
-		else if (Array.isArray(value) && value[0]?.constructor?.name == "Item") {
+		else if (Array.isArray(value) && value[0] instanceof Item) {
 			this.setState(name, value.map((item) => {
 				if (!item) { return null }
 				return new ItemReference(item)

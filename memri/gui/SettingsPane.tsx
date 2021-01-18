@@ -41,11 +41,7 @@ export class SettingsPane extends MainUI {
 
                 return 0// Should never get here
             },
-            set: (e) => {
-                let value = e.target.value;
-                if (e.target.type == "checkbox") {
-                    value = e.target.checked;
-                }
+            set: (value) => {
                 this.context.settings.set(path, value)
             }
         }
@@ -57,9 +53,9 @@ export class SettingsPane extends MainUI {
 
         return (
             <NavigationView context={this.context} height={"100%"}>
-                <Form navigationBarTitle={<MemriText>Settings</MemriText>} navigationBarItems={{
+                <Form navigationBarTitle={() => <MemriText>Settings</MemriText>} navigationBarItems={{
                     leading:
-                        <MemriRealButton action={() => { this.context.showSettings = false; this.context.scheduleUIUpdate();
+                        () => <MemriRealButton action={() => { this.context.showSettings = false; this.context.scheduleUIUpdate();
                         }}><MemriText textColor={"blue"}>Close</MemriText></MemriRealButton>
                 }} context={this.context}>
                     <NavigationLink context={this.context} destination={

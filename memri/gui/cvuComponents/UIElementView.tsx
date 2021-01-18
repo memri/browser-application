@@ -68,65 +68,69 @@ export class UIElementView extends MainUI {
     }
 
     get resolvedComponent() {
+        let modifiers = {}
+        if (this.needsModifier) {
+            modifiers = new CVU_AppearanceModifier(this.nodeResolver).body();
+        }
+
         switch (this.nodeResolver.node.type) {
             case UIElementFamily.HStack:
-                return new CVU_HStack({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_HStack nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.VStack:
-                return new CVU_VStack({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_VStack nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.ZStack:
-                return new CVU_ZStack({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_ZStack nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Text:
-                return new CVU_Text({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_Text nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.SmartText:
-                return new CVU_SmartText({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_SmartText nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Image:
-                return new CVU_Image({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_Image nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Map:
-                return new CVU_Map({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_Map nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Textfield:
-                return new CVU_TextField({nodeResolver: this.nodeResolver, editModeBinding: this.editModeBinding})
+                return <CVU_TextField nodeResolver={this.nodeResolver} context={this.context} editModeBinding={this.editModeBinding} {...modifiers}/>
             case UIElementFamily.EditorSection:
-                return new CVU_EditorSection({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_EditorSection nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.EditorRow:
-                return new CVU_EditorRow({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_EditorRow nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Toggle:
-                return new CVU_Toggle({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_Toggle nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.MemriButton:
-                return new CVU_MemriButton({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_MemriButton nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.ActionButton:
-                return new ActionButton({action: this.nodeResolver.resolve("press") ?? new Action(this.context, "noop"), item: this.nodeResolver.item, context: this.context})
+                return <ActionButton action={this.nodeResolver.resolve("press") ?? new Action(this.context, "noop")}
+                                     item={this.nodeResolver.item} context={this.context} {...modifiers}/>
             case UIElementFamily.Button:
-                return new CVU_Button({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_Button nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Divider:
-                return new MemriDivider({})
+                return <MemriDivider {...modifiers}/>
             case UIElementFamily.HorizontalLine:
-                return new HorizontalLine({})
+                return <HorizontalLine {...modifiers}/>
             case UIElementFamily.Circle:
-                return new CVU_ShapeCircle({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_ShapeCircle nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Rectangle:
-                return new CVU_ShapeRectangle({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_ShapeRectangle nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.HTMLView:
-                return new CVU_HTMLView({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_HTMLView nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
             case UIElementFamily.Spacer:
-                return new Spacer({})
+                return <Spacer {...modifiers}/>
             case UIElementFamily.Empty:
-                return new EmptyView({})
+                return <EmptyView {...modifiers}/>
             case UIElementFamily.SubView:
-                return this.subview
+                return this.subview(modifiers)
             case UIElementFamily.FlowStack:
-                return this.flowstack
+                return this.flowstack(modifiers)
             case UIElementFamily.Picker:
-                return this.picker
+                return this.picker(modifiers)
             case UIElementFamily.ItemCell:
-                return new ItemCell({
-                    item: this.nodeResolver.item,
-                    rendererNames: this.nodeResolver.resolve("rendererNames") ?? [],
-                    argumentsJs: this.nodeResolver.viewArguments, context: this.context
-                })
+                return <ItemCell item={this.nodeResolver.item}
+                                 rendererNames={this.nodeResolver.resolve("rendererNames") ?? []}
+                                 argumentsJs={this.nodeResolver.viewArguments} context={this.context} {...modifiers}/>
             case UIElementFamily.TimelineItem:
-                return new CVU_TimelineItem({nodeResolver: this.nodeResolver, context: this.context, item: this.nodeResolver.item}) //TODO: needs additional props to work @mkslanc
+                return <CVU_TimelineItem nodeResolver={this.nodeResolver} item={this.nodeResolver.item} context={this.context} {...modifiers}/> //TODO: needs additional props to work @mkslanc
             case UIElementFamily.FileThumbnail:
-                return new CVU_FileThumbnail({nodeResolver: this.nodeResolver, context: this.context})
+                return <CVU_FileThumbnail nodeResolver={this.nodeResolver} context={this.context} {...modifiers}/>
         }
     }
 
@@ -154,37 +158,24 @@ export class UIElementView extends MainUI {
     render() {
         this.nodeResolver = this.props.nodeResolver;
         this.context = this.props.context;
-        // var x = this.render1()
-        //if (x === undefined) debugger
-        // return x || null
         var resolvedComponent
         if (this.nodeResolver.showNode) {
             resolvedComponent = this.resolvedComponent;
 
-            if (this.needsModifier) {
-                if (!resolvedComponent.modifier) {
-                    console.log(resolvedComponent)
-                }
-                let modifiers = resolvedComponent.modifier(new CVU_AppearanceModifier(this.nodeResolver));
-                Object.assign(resolvedComponent.props, modifiers);
-            }
-            return resolvedComponent.render();
+            return resolvedComponent
         }
-
+        return  null;
     }
 
-    get flowstack() {//TODO:
-        return new FlowStack({
-            nodeResolver: this.nodeResolver,
-            data: this.nodeResolver.resolve("list") ?? [],
-            spacing: this.nodeResolver.spacing,
-            content: (listItem) => this.nodeResolver.childrenInForEach(this.context, listItem)
-        })
+    flowstack(modifiers) {//TODO:
+        return <FlowStack nodeResolver={this.nodeResolver} data={this.nodeResolver.resolve("list") ?? []}
+                          spacing={this.nodeResolver.spacing}
+                          content={(listItem) => this.nodeResolver.childrenInForEach(this.context, listItem)} {...modifiers}/>
     }
 
-    get picker() {//TODO:
+    picker(modifiers) {//TODO:
         let [_, propItem, propName] = this.nodeResolver.getType("value")
-        let selected = this.nodeResolver.resolve("value", Item) ?? this.nodeResolver.resolve("defaultValue", Item)
+        let selected = this.nodeResolver.resolve("value", "Item") ?? this.nodeResolver.resolve("defaultValue", "Item")
         let emptyValue = this.nodeResolver.resolve("hint") ?? "Pick a value"
         let query = this.nodeResolver.resolve("query", String)
         let renderer = this.nodeResolver.resolve("renderer", String)
@@ -201,15 +192,16 @@ export class UIElementView extends MainUI {
                 propName={propName}
                 renderer={renderer}
                 query={query ?? ""}
+                {...modifiers}
             />
         }
     }
 
-    get subview() {
+    subview(modifiers) {
         let subviewArguments = new ViewArguments(this.nodeResolver.resolve("arguments"))
         let viewName = this.nodeResolver.string("viewName")
         if (viewName) {
-            return new SubView({context: this.context, viewName: viewName, item: this.nodeResolver.item, viewArguments: subviewArguments})
+            return <SubView context={this.context} viewName={viewName} item={this.nodeResolver.item} viewArguments={subviewArguments} {...modifiers}/>
         } else {
             // TODO: Carried over from the old UIElementView - this has potential to cause performance issues.
             // It is creating a new CVU at every redraw.
@@ -237,7 +229,7 @@ export class UIElementView extends MainUI {
                     )
                 view = new CVUStateDefinition()
             }
-            return new SubView({context: this.context, view: view, item: this.nodeResolver.item, viewArguments: subviewArguments})
+            return <SubView context={this.context} view={view} item={this.nodeResolver.item} viewArguments={subviewArguments} {...modifiers}/>
         }
     }
 }
