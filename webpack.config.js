@@ -1,4 +1,6 @@
 "use strict";
+const CopyPlugin = require("copy-webpack-plugin");
+
 module.exports = (env, argv) => {
     let loader;
     if (argv['ftst']) {
@@ -68,5 +70,13 @@ module.exports = (env, argv) => {
             compress: true,
             port: 9000
         },
+        plugins: [
+            new CopyPlugin({
+                patterns: [
+                    { from: "app.html", to: "." },
+                    { from: "index.html", to: "." },
+                ],
+            }),
+        ],
     }
 };

@@ -16,7 +16,7 @@ import {geom} from "../../geom";
 import {RecoveryWizard} from "../install/RecoveryWizard";
 import {SetupScreen} from "../install/SetupScreen";
 
-export var memri_shouldUseLargeScreenLayout = window.outerWidth > 414 + 300
+export var memri_shouldUseLargeScreenLayout = typeof window != "undefined" ? window.outerWidth > 414 + 300 : false;
 
 export class Application extends MainUI {
 	constructor(props) {
