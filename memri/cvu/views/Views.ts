@@ -787,6 +787,7 @@ function getDefaultViewContents() {
 		"Country": require("text-loader!../../Resources/defaultCVU/type/Country.cvu"),
 		"CryptoKey": require("text-loader!../../Resources/defaultCVU/type/CryptoKey.cvu"),
 		"EmailMessage": require("text-loader!../../Resources/defaultCVU/type/EmailMessage.cvu"),
+		"FaceCluster": require("text-loader!../../Resources/defaultCVU/type/FaceCluster.cvu"),
 		"Importer": require("text-loader!../../Resources/defaultCVU/type/Importer.cvu"),
 		"ImporterRun": require("text-loader!../../Resources/defaultCVU/type/ImporterRun.cvu"),
 		"Indexer": require("text-loader!../../Resources/defaultCVU/type/Indexer.cvu"),

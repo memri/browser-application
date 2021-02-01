@@ -21,6 +21,7 @@ export class CVU_EditorSection extends CVU_UI {
     }
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <Section header={this.header} {...this.props}>
                 {this.nodeResolver.childrenInForEach(this.context)}
@@ -44,6 +45,7 @@ export class CVU_EditorRow extends CVU_UI {
     }
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <VStack alignment={Alignment.leading} spacing={0} frame={frame({maxWidth: "infinity", alignment: this.nodeResolver.alignment()})}
                     padding={this.nodeResolver.bool("nopadding", false) && padding({horizontal: 0})} {...this.props}
@@ -71,6 +73,7 @@ export class CVU_EditorLabel extends CVU_UI {
     }
     
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <VStack alignment={Alignment.leading} spacing={0} frame={frame({maxWidth: "infinity", alignment: this.nodeResolver.alignment()})}
                     padding={this.nodeResolver.bool("nopadding", false) && padding({horizontal: 0})} {...this.props}

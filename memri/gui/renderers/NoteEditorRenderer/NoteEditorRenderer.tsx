@@ -22,7 +22,7 @@ export class NoteEditorRendererController {
     config: NoteEditorRendererConfig
 
     makeView() {
-        return new NoteEditorRendererView({controller: this, context: this.context}).render();
+        return <NoteEditorRendererView controller={this} context={this.context}/>
     }
 
     update() {

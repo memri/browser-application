@@ -47,7 +47,7 @@ export class ListRendererController {
 	config: ListRendererConfig
 
 	makeView() {
-		return new ListRendererView({controller: this, context: this.context}).render();
+		return <ListRendererView controller={this} context={this.context}/>
 	}
 
 	update() {
@@ -81,14 +81,6 @@ export class ListRendererView extends RenderersMemri {
 
 	deleteItem = (item) => {
 		this.controller.context.executeAction(new ActionDelete(this.controller.context), item);
-	}
-
-	componentDidMount() {
-		this.updateHeight()
-	}
-
-	componentDidUpdate() {
-		this.updateHeight()
 	}
 
 	render() {

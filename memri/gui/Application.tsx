@@ -16,7 +16,7 @@ import {geom} from "../../geom";
 import {RecoveryWizard} from "../install/RecoveryWizard";
 import {SetupScreen} from "../install/SetupScreen";
 
-export var memri_shouldUseLargeScreenLayout = window.outerWidth > 414 + 300
+export var memri_shouldUseLargeScreenLayout = typeof window != "undefined" ? window.outerWidth > 414 + 300 : false;
 
 export class Application extends MainUI {
 	constructor(props) {
@@ -77,7 +77,7 @@ export class Application extends MainUI {
 		return (
 			<div className="Application">
 			<ScreenSizer background={new Color("systemBackground").toLowerCase()} colorScheme="light">
-				<VStack spacing={0}>
+				<VStack spacing={0} height={"100%"}>
 					{(this.context.installer.isInstalled && !this.context.installer.debugMode)
 						?
 						<NavigationWrapper isVisible={this.state.isVisible} context={this.context}>

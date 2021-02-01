@@ -174,12 +174,15 @@ export class Authentication {
         }*/
     }
 
-    static createOwnerAndDBKey() {
-        let dbKey = `${UUID()}${UUID()}`.replace(/-/g, "").toUpperCase();
+    //TODO: rewrited for easier debugging @mkslanc
+    static createOwnerAndDBKey(dbKey?, publicKey?) {
         let Curve25519 = new ec('curve25519');
         let keyPair = Curve25519.genKeyPair();
+        if (!dbKey && !publicKey) {
+            dbKey = `${UUID()}${UUID()}`.replace(/-/g, "").toUpperCase();
+            publicKey = keyPair.getPublic("hex").toUpperCase();
+        }
         let privateKey = keyPair.getPrivate("hex").toUpperCase();
-        let publicKey = keyPair.getPublic("hex").toUpperCase();
 
         Authentication.setOwnerAndDBKey(
             privateKey,

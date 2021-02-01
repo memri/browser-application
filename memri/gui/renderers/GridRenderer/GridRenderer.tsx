@@ -29,7 +29,7 @@ export class GridRendererController {
     config: GridRendererConfig
 
     makeView() {
-        return new GridRendererView({controller: this, context: this.context}).render();
+        return <GridRendererView controller={this} context={this.context}/>
     }
 
     update() {

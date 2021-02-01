@@ -26,7 +26,7 @@ export class EmailThreadRendererController {
     config: EmailThreadRendererConfig
 
     makeView() {
-        return new EmailThreadRendererView({controller: this, context: this.context}).render();
+        return <EmailThreadRendererView controller={this} context={this.context}/>
     }
 
     update() {

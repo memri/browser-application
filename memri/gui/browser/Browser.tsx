@@ -101,7 +101,7 @@ export class Browser extends MainUI {
 									// transition={move("bottom")}
 							>
 								<Capsule fill={new Color("secondarySystemBackground").toLowerCase()}
-										 frame={frame({width: 40, height: 5, maxWidth: "infinity"/*, height: 15*/})} alignSelf={"center"}
+										 frame={frame({width: 40, height: 5/*, height: 15*/})} alignSelf={"center"}
 								/>
 								<FilterPanel context={this.context}/>
 							</VStack>

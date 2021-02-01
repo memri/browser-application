@@ -6810,7 +6810,7 @@ export class LabelAnnotation extends Item {
     }
 
     get labelsSet() {
-        return this.labels.split(",") ?? []; //TODO:
+        return this.labels?.split(",") ?? []; //TODO:
     }
 
     set labelsSet(newValue) {

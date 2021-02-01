@@ -35,7 +35,7 @@ export class TimelineRendererController {
     config: TimelineRendererConfig
 
     makeView() {
-        return new TimelineRendererView({controller: this, context: this.context}).render();
+        return <TimelineRendererView controller={this} context={this.context}/>
     }
 
     update() {
@@ -321,7 +321,7 @@ export class TimelineRendererView extends RenderersMemri {
         }.bind(this)()
 
         return (//alignment: Alignment(horizontal: alignment, vertical: .top)
-            <VStack alignment={alignment} spacing={0} padding={padding(8)} frame={frame({maxWidth: "infinity"})}>
+            <VStack alignment={alignment} spacing={0} padding={padding(8)} >
                 {!flipOrder && small}
                 <MemriText font={font({family: "system", size: 20})} lineLimit={1} minimumScaleFactor={0.6}
                            foregroundColor={matchesNow ? (this.useFillToIndicateNow) ? Color.named("white") : "red" : Color.named("label")}

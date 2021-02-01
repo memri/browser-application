@@ -30,7 +30,7 @@ export class MessageRendererController {
     config: MessageRendererConfig
 
     makeView() {
-        return new MessageRendererView({controller: this, context: this.context}).render();
+        return <MessageRendererView controller={this} context={this.context}/>
     }
 
     update() {
@@ -138,6 +138,7 @@ export class MessageRendererView extends RenderersMemri {
                                      })} context={this.context}>
                             {this.section}
                         </ASTableView>
+                        <Spacer/>
                         <MemriDivider/>
                     </>
                 }

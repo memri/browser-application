@@ -58,4 +58,8 @@ export * from './memri/gui/cvuComponents/nodeTypes/CVU_Image';
 function importAll (r) {
     r.keys().forEach(key => r(key));
 }
-importAll(require.context('./memri/Resources/demoAssets/', true, /\.(png|jpe?g|gif)$/i));
+
+//for webpack fileloader @mkslanc
+if (require.context) {
+    importAll(require.context('./memri/Resources/demoAssets/', true, /\.(png|jpe?g|gif)$/i));
+}

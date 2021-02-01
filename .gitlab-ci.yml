@@ -1,0 +1,8 @@
+image: node:latest
+
+build-job:
+  stage: build
+  script:
+    - npm i
+    - npm run build
+    - npm run test

@@ -11,6 +11,7 @@ import * as React from "react";
 
 export class CVU_HStack extends CVU_UI {
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <HStack alignment={this.nodeResolver.alignment()}
                     spacing={this.nodeResolver.spacing}
@@ -27,6 +28,7 @@ export class CVU_HStack extends CVU_UI {
 
 export class CVU_VStack extends CVU_UI {
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <VStack alignment={this.nodeResolver.alignment()}
                     spacing={this.nodeResolver.spacing}
@@ -43,6 +45,7 @@ export class CVU_VStack extends CVU_UI {
 
 export class CVU_ZStack extends CVU_UI {
     render() {
+        this.nodeResolver = this.props.nodeResolver;
         return (
             <ZStack alignment={this.nodeResolver.alignment()} {...this.props}>
                 {this.nodeResolver.childrenInForEach(this.props.context)}
