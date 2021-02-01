@@ -1,3 +1,5 @@
+image: node:latest
+
 build-job:
   stage: build
   script:
