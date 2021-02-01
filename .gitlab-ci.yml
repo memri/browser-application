@@ -5,8 +5,4 @@ build-job:
   script:
     - npm i
     - npm run build
-
-test-job:
-  stage: test
-  script:
     - npm run test
